@@ -1,0 +1,40 @@
+// A launch configuration that compiles the extension and then opens it inside a new window
+{
+    "version": "0.1.0",
+    "configurations": [
+        {
+            "name": "Launch Extension",
+            "type": "extensionHost",
+            "request": "launch",
+            "runtimeExecutable": "${execPath}",
+            "args": [
+                "--extensionDevelopmentPath=${workspaceRoot}"
+            ],
+            "stopOnEntry": false,
+            "sourceMaps": true,
+            "outDir": "${workspaceRoot}/out/src",
+            "preLaunchTask": "npm"
+        },
+        {
+            "name": "Launch Tests",
+            "type": "node",
+            "request": "launch",
+            "cwd": "${workspaceRoot}",
+            "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
+            "runtimeArgs": [
+                "--nolazy"
+            ],
+            "args": [
+                "-u",
+                "tdd",
+                "--timeout",
+                "10000",
+                "--colors",
+                "./out/test"
+            ],
+            "sourceMaps": true,
+            "outDir": "${workspaceRoot}/out/src",
+            "internalConsoleOptions": "openOnSessionStart"
+        }
+    ]
+}
