@@ -5,7 +5,6 @@ import { EventEmitter } from 'events';
 import { parseResponse, Response } from '../src/protocol';
 import { SocketLike, DebugProtocolTransport } from '../src/transport';
 
-/*
 suite("debug adapter tests", () => {
 
     const DEBUG_ADAPTER = './out/src/debugSession.js';
@@ -21,14 +20,13 @@ suite("debug adapter tests", () => {
 
     suite("initialize", () => {
 
-        test('should return supported features', () => {
+        test('should respond with supported features', () => {
             return debugClient.initializeRequest().then(response => {
                 assert.equal(response.body.supportsConfigurationDoneRequest, true);
             })
         });
     });
 });
-*/
 
 suite("transport tests", () => {
 
