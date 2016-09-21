@@ -31,8 +31,8 @@ export class DebugProtocolTransport extends EventEmitter {
         });
     }
 
-    public sendRequest(req: string): void {
-        let buf = new Buffer(req, 'utf-8');
+    public sendMessage(msg: string): void {
+        let buf = new Buffer(msg, 'utf-8');
         this.socket.write(buf);
     }
 

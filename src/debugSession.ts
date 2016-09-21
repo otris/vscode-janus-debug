@@ -7,27 +7,27 @@ import { CommonArguments, AttachRequestArguments } from './config';
 import { DebugConnection } from './connection';
 import { Logger } from './log';
 
-let sessionLog = Logger.create('SpiderMonkeyDebugSession');
+let log = Logger.create('SpiderMonkeyDebugSession');
 
 export class SpiderMonkeyDebugSession extends DebugSession {
     private connection: DebugConnection;
 
     public constructor() {
-        sessionLog.debug("constructor");
+        log.debug("constructor");
         super();
 
         this.connection = null;
     }
 
     protected initializeRequest(response: DebugProtocol.InitializeResponse, args: DebugProtocol.InitializeRequestArguments): void {
-        sessionLog.debug("initializeRequest");
+        log.debug("initializeRequest");
 
         response.body.supportsConfigurationDoneRequest = true;
         this.sendResponse(response);
     }
 
     protected disconnectRequest(response: DebugProtocol.DisconnectResponse, args: DebugProtocol.DisconnectArguments): void {
-        sessionLog.debug("disconnectRequest");
+        log.debug("disconnectRequest");
 
         if (this.connection) {
             this.connection.disconnect().then(() => {
@@ -47,7 +47,7 @@ export class SpiderMonkeyDebugSession extends DebugSession {
 
     protected attachRequest(response: DebugProtocol.AttachResponse, args: AttachRequestArguments): void {
         this.readConfig(args);
-        sessionLog.debug("attachRequest");
+        log.debug("attachRequest");
 
         let socket = connect(args.port || 8089, args.host || 'localhost');
         this.startSession(socket);
@@ -55,7 +55,7 @@ export class SpiderMonkeyDebugSession extends DebugSession {
         socket.on('connect', () => this.sendResponse(response));
 
         socket.on('error', (err) => {
-            sessionLog.error(`attachRequest: failed to connect on socket ${socket.localAddress}:${socket.localPort}`);
+            log.error(`attachRequest: failed to connect on socket ${socket.localAddress}:${socket.localPort}`);
             response.success = false;
             response.message = err.toString();
             this.sendResponse(response);
@@ -63,13 +63,13 @@ export class SpiderMonkeyDebugSession extends DebugSession {
     }
 
     protected setBreakPointsRequest(response: DebugProtocol.SetBreakpointsResponse, args: DebugProtocol.SetBreakpointsArguments): void {
-        sessionLog.debug(
+        log.debug(
             `setBreakPointsRequest with ${args.breakpoints.length} breakpoint(s) for ${args.source.path}`);
         this.sendResponse(response);
     }
 
     protected setFunctionBreakPointsRequest(response: DebugProtocol.SetFunctionBreakpointsResponse, args: DebugProtocol.SetFunctionBreakpointsArguments): void {
-        sessionLog.debug("setFunctionBreakPointsRequest");
+        log.debug("setFunctionBreakPointsRequest");
         this.sendResponse(response);
     }
 
@@ -77,7 +77,7 @@ export class SpiderMonkeyDebugSession extends DebugSession {
         protected setExceptionBreakPointsRequest(response: DebugProtocol.SetExceptionBreakpointsResponse, args: DebugProtocol.SetExceptionBreakpointsArguments): void;
     */
     protected configurationDoneRequest(response: DebugProtocol.ConfigurationDoneResponse, args: DebugProtocol.ConfigurationDoneArguments): void {
-        sessionLog.debug("configurationDoneRequest");
+        log.debug("configurationDoneRequest");
         this.sendResponse(response);
     }
 
@@ -109,7 +109,7 @@ export class SpiderMonkeyDebugSession extends DebugSession {
     }
 
     private startSession(socket: Socket): void {
-        sessionLog.debug("startSession");
+        log.debug("startSession");
 
         if (this.connection) {
             console.warn("startSession: already made a connection");
