@@ -1,10 +1,11 @@
 'use strict';
 
 import { connect, Socket } from 'net';
-import { DebugSession, InitializedEvent } from 'vscode-debugadapter';
+import { DebugSession, InitializedEvent, StoppedEvent } from 'vscode-debugadapter';
 import { DebugProtocol } from 'vscode-debugprotocol';
 import { CommonArguments, AttachRequestArguments } from './config';
 import { DebugConnection } from './connection';
+import { ContextId } from './context';
 import { Logger } from './log';
 
 let log = Logger.create('SpiderMonkeyDebugSession');
@@ -15,7 +16,6 @@ export class SpiderMonkeyDebugSession extends DebugSession {
     public constructor() {
         log.debug("constructor");
         super();
-
         this.connection = null;
     }
 
@@ -81,15 +81,46 @@ export class SpiderMonkeyDebugSession extends DebugSession {
         this.sendResponse(response);
     }
 
+
+    protected continueRequest(response: DebugProtocol.ContinueResponse, args: DebugProtocol.ContinueArguments): void {
+        log.debug(`continueRequest for threadId: ${args.threadId}`);
+        this.sendResponse(response);
+    }
+
     /*
-        protected continueRequest(response: DebugProtocol.ContinueResponse, args: DebugProtocol.ContinueArguments): void;
         protected nextRequest(response: DebugProtocol.NextResponse, args: DebugProtocol.NextArguments): void;
         protected stepInRequest(response: DebugProtocol.StepInResponse, args: DebugProtocol.StepInArguments): void;
         protected stepOutRequest(response: DebugProtocol.StepOutResponse, args: DebugProtocol.StepOutArguments): void;
         protected stepBackRequest(response: DebugProtocol.StepBackResponse, args: DebugProtocol.StepBackArguments): void;
         protected restartFrameRequest(response: DebugProtocol.RestartFrameResponse, args: DebugProtocol.RestartFrameArguments): void;
         protected gotoRequest(response: DebugProtocol.GotoResponse, args: DebugProtocol.GotoArguments): void;
-        protected pauseRequest(response: DebugProtocol.PauseResponse, args: DebugProtocol.PauseArguments): void;
+    */
+
+    protected pauseRequest(response: DebugProtocol.PauseResponse, args: DebugProtocol.PauseArguments): void {
+        log.debug(`pauseRequest with threadId: ${args.threadId}`);
+        const contextId: ContextId = args.threadId || 0;
+        let context = this.connection.coordinator.getContext(contextId);
+        if (!context) {
+            log.info(`cannot pause context ${contextId}: no such context exists`);
+            response.success = false;
+            response.message = 'Cannot pause execution: no context available';
+            this.sendResponse(response);
+            return;
+        }
+        context.pauseRequest().then(() => {
+            log.debug('pauseRequest succeeded');
+            this.sendResponse(response);
+            let stoppedEvent = new StoppedEvent('pause', contextId);
+            this.sendEvent(stoppedEvent);
+        }, (err) => {
+            log.error('pauseRequest failed: ' + err);
+            response.success = false;
+            response.message = err.toString();
+            this.sendResponse(response);
+        });
+    }
+
+    /*
         protected sourceRequest(response: DebugProtocol.SourceResponse, args: DebugProtocol.SourceArguments): void;
         protected threadsRequest(response: DebugProtocol.ThreadsResponse): void;
         protected stackTraceRequest(response: DebugProtocol.StackTraceResponse, args: DebugProtocol.StackTraceArguments): void;
@@ -114,6 +145,7 @@ export class SpiderMonkeyDebugSession extends DebugSession {
         if (this.connection) {
             console.warn("startSession: already made a connection");
         }
+
         this.connection = new DebugConnection(socket);
 
         // Tell the frontend that we are ready to set breakpoints and so on. The frontend will end the configuration
