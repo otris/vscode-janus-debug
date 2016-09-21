@@ -148,6 +148,14 @@ export class SpiderMonkeyDebugSession extends DebugSession {
 
         this.connection = new DebugConnection(socket);
 
+        this.connection.on('newContext', (contextId, contextName, stopped) => {
+            log.info(`new context found: ${contextId}, ${contextName}, stopped: ${stopped}`);
+            if (stopped) {
+                let stoppedEvent = new StoppedEvent('pause', contextId);
+                this.sendEvent(stoppedEvent);
+            }
+        });
+
         // Tell the frontend that we are ready to set breakpoints and so on. The frontend will end the configuration
         // sequence by calling 'configurationDone' request
         this.sendEvent(new InitializedEvent());

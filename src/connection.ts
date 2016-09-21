@@ -1,13 +1,20 @@
 'use strict';
 
 import { Socket } from 'net';
+import { EventEmitter } from 'events';
 import { DebugProtocolTransport } from './transport';
 import { Logger } from './log';
 import { ContextCoordinator } from './context';
 
 let log = Logger.create('DebugConnection');
 
-export class DebugConnection {
+/** Represents a connection to a target.
+ *
+ * Following events are emitted:
+ *
+ * - 'newContext': The target just informed us about a new context. Parameters: contextId, contextName, stopped
+ */
+export class DebugConnection extends EventEmitter {
     private transport: DebugProtocolTransport;
     private _coordinator: ContextCoordinator;
 
@@ -16,7 +23,9 @@ export class DebugConnection {
     }
 
     constructor(socket: Socket) {
-        this._coordinator = new ContextCoordinator();
+        super();
+
+        this._coordinator = new ContextCoordinator(this);
         this.transport = new DebugProtocolTransport(socket);
         this.transport.on('response', (response) => {
             log.debug(`received response: ${JSON.stringify(response)}`);

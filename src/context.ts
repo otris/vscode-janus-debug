@@ -3,16 +3,23 @@
 import * as assert from 'assert';
 import { Response } from './protocol';
 import { Logger } from './log';
+import { DebugConnection } from './connection';
 
 export type ContextId = number;
 
 export class Context {
     private _id: ContextId;
+    private _name: string;
 
-    public get id() { return this._id; }
+    public get id(): ContextId { return this._id; }
 
-    constructor(id: ContextId, private name: string, paused?: boolean) {
+    public get name(): string { return this._name; }
+
+    public isStopped(): boolean { return this.stopped; }
+
+    constructor(id: ContextId, name: string, private stopped?: boolean) {
         this._id = id;
+        this._name = name;
     }
 
     public pauseRequest(): Promise<void> {
@@ -37,6 +44,8 @@ let log = Logger.create('ContextCoordinator');
 export class ContextCoordinator {
     private contextById: Map<ContextId, Context> = new Map();
 
+    constructor(private debugConnection: DebugConnection) { }
+
     public getContext(id: ContextId): Context /* | undefined */ {
         return this.contextById.get(id);
     }
@@ -44,6 +53,8 @@ export class ContextCoordinator {
     public handleResponse(response: Response): Promise<void> {
         return new Promise<void>((resolve, reject) => {
             if (response.contextId === undefined) {
+
+                // Not meant for a particular context
 
                 if (response.type === 'info' && response.subtype === 'contexts_list') {
                     log.debug('handleResponse: updating list of available contexts');
@@ -54,7 +65,9 @@ export class ContextCoordinator {
                             log.debug(`creating new context with id: ${element.contextId}`);
                             let newContext: Context = new Context(element.contextId, element.contextName, element.paused);
                             this.contextById.set(element.contextId, newContext);
-                            // TODO: We should send a StoppedEvent in case the context is paused
+
+                            // Notify the frontend that we have a new context in the target
+                            this.debugConnection.emit('newContext', newContext.id, newContext.name, newContext.isStopped());
                         }
                     });
 
@@ -71,6 +84,7 @@ export class ContextCoordinator {
             } else {
 
                 // Dispatch to the corresponding context
+
                 log.debug(`handleResponse for contextId: ${response.contextId}`);
                 let context: Context = this.contextById.get(response.contextId);
                 assert.ok(context !== undefined, "response for unknown context");
