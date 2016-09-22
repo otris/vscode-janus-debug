@@ -105,13 +105,13 @@ suite("protocol tests", () => {
 
     suite("serialize command", () => {
         test("pause", () => {
-            let cmd = new Command('pause');
-            assert.equal(cmd.serialize(11), `11/{"name":"pause","type":"command","id":"${cmd.id}"}\n`);
+            let cmd = new Command('pause', 42);
+            assert.equal(cmd.toString(), `42/{"name":"pause","type":"command","id":"${cmd.id}"}\n`);
         });
 
         test("get_all_source_urls", () => {
             let cmd = new Command('get_all_source_urls');
-            assert.equal(cmd.serialize(), `{"name":"get_all_source_urls","type":"command","id":"${cmd.id}"}\n`);
+            assert.equal(cmd.toString(), `{"name":"get_all_source_urls","type":"command","id":"${cmd.id}"}\n`);
         });
     });
 

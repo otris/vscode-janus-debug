@@ -47,20 +47,26 @@ export function parseResponse(responseString: string): Response {
 }
 
 export class Command {
-    public type: string;
-    public id: string;
+    private payload: any;
+    private contextId: number /* | undefined */;
 
-    constructor(public name: CommandName) {
-        this.type = 'command';
-        this.id = uuid.v4();
+    public get name(): CommandName { return this.payload.name; }
+    public get type(): string { return this.payload.type; }
+    public get id(): string { return this.payload.id; }
+
+    constructor(name: CommandName, contextId?: number) {
+        this.payload = {};
+        this.payload['name'] = name;
+        this.payload['type'] = 'command';
+        this.payload['id'] = uuid.v4();
+        this.contextId = contextId;
     }
 
-    public serialize(contextId?: number): string {
-        if (contextId) {
-            return `${contextId}/${JSON.stringify(this)}\n`;
-        } else {
-            return `${JSON.stringify(this)}\n`;
+    public toString(): string {
+        if (this.contextId) {
+            return `${this.contextId}/${JSON.stringify(this.payload)}\n`;
         }
+        return `${JSON.stringify(this.payload)}\n`;
     }
 }
 

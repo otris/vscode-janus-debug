@@ -1,11 +1,12 @@
 'use strict';
 
+import * as assert from 'assert';
 import { connect, Socket } from 'net';
 import { DebugSession, InitializedEvent, StoppedEvent, ContinuedEvent } from 'vscode-debugadapter';
 import { DebugProtocol } from 'vscode-debugprotocol';
 import { CommonArguments, AttachRequestArguments } from './config';
 import { DebugConnection } from './connection';
-import { Command } from './protocol';
+import { Command, Response } from './protocol';
 import { ContextId } from './context';
 import { Logger } from './log';
 
@@ -58,9 +59,19 @@ export class SpiderMonkeyDebugSession extends DebugSession {
         socket.on('connect', () => {
             log.debug('attachRequest: connection established. Testing...');
             let cmd = new Command('get_all_source_urls');
-            this.connection.sendRequest(cmd.serialize());
+            this.connection.sendRequest(cmd, (res: Response) => {
+                assert.ok(res !== undefined);
 
-            this.sendResponse(response)
+                if (res.subtype == 'all_source_urls') {
+                    log.debug('attachRequest: ...looks good');
+                    this.sendResponse(response);
+                } else {
+                    log.error(`attachRequest: error while connecting to ${host}:${port}`);
+                    response.success = false;
+                    response.message = `Error while connecting to ${host}:${port}`;
+                    this.sendResponse(response);
+                }
+            });
         });
 
         socket.on('error', (err) => {
@@ -72,8 +83,7 @@ export class SpiderMonkeyDebugSession extends DebugSession {
     }
 
     protected setBreakPointsRequest(response: DebugProtocol.SetBreakpointsResponse, args: DebugProtocol.SetBreakpointsArguments): void {
-        log.debug(
-            `setBreakPointsRequest with ${args.breakpoints.length} breakpoint(s) for ${args.source.path}`);
+        log.debug(`setBreakPointsRequest for ${args.breakpoints.length} breakpoint(s): ${JSON.stringify(args)}`);
         this.sendResponse(response);
     }
 
@@ -174,9 +184,8 @@ export class SpiderMonkeyDebugSession extends DebugSession {
         }
 
         this.connection = new DebugConnection(socket);
-
         this.connection.on('newContext', (contextId, contextName, stopped) => {
-            log.info(`new context found: ${contextId}, ${contextName}, stopped: ${stopped}`);
+            log.info(`new context on target: ${contextId}, ${contextName}, stopped: ${stopped}`);
             if (stopped) {
                 let stoppedEvent = new StoppedEvent('pause', contextId);
                 this.sendEvent(stoppedEvent);

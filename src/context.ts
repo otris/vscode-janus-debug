@@ -24,15 +24,15 @@ export class Context {
 
     public pause(): Promise<void> {
         return new Promise<void>((resolve, reject) => {
-            let cmd = new Command('pause');
-            this.debugConnection.sendRequest(cmd.serialize(this.id));
+            let cmd = new Command('pause', this.id);
+            this.debugConnection.sendRequest(cmd);
         });
     }
 
     public continue(): Promise<void> {
         return new Promise<void>((resolve, reject) => {
-            let cmd = new Command('continue');
-            this.debugConnection.sendRequest(cmd.serialize(this.id));
+            let cmd = new Command('continue', this.id);
+            this.debugConnection.sendRequest(cmd);
         });
     }
 
@@ -59,13 +59,17 @@ export class ContextCoordinator {
     }
 
     public handleResponse(response: Response): Promise<void> {
+        log.debug('handleResponse');
+
         return new Promise<void>((resolve, reject) => {
+
             if (response.contextId === undefined) {
 
                 // Not meant for a particular context
 
                 if (response.type === 'info' && response.subtype === 'contexts_list') {
-                    log.debug('handleResponse: updating list of available contexts');
+                    log.debug('updating list of available contexts');
+                    assert.ok(response.content.hasOwnProperty('contexts'));
 
                     // Add new contexts
                     response.content.contexts.forEach(element => {
