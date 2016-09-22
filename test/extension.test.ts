@@ -106,7 +106,12 @@ suite("protocol tests", () => {
     suite("serialize command", () => {
         test("pause", () => {
             let cmd = new Command('pause');
-            assert.equal(cmd.serialize(0), `0/{"name":"pause","type":"command","id":"${cmd.id}"}\n`);
+            assert.equal(cmd.serialize(11), `11/{"name":"pause","type":"command","id":"${cmd.id}"}\n`);
+        });
+
+        test("get_all_source_urls", () => {
+            let cmd = new Command('get_all_source_urls');
+            assert.equal(cmd.serialize(), `{"name":"get_all_source_urls","type":"command","id":"${cmd.id}"}\n`);
         });
     });
 

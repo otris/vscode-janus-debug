@@ -5,6 +5,7 @@ import { DebugSession, InitializedEvent, StoppedEvent, ContinuedEvent } from 'vs
 import { DebugProtocol } from 'vscode-debugprotocol';
 import { CommonArguments, AttachRequestArguments } from './config';
 import { DebugConnection } from './connection';
+import { Command } from './protocol';
 import { ContextId } from './context';
 import { Logger } from './log';
 
@@ -49,15 +50,23 @@ export class SpiderMonkeyDebugSession extends DebugSession {
         this.readConfig(args);
         log.debug("attachRequest");
 
-        let socket = connect(args.port || 8089, args.host || 'localhost');
+        let port: number = args.port || 8089;
+        let host: string = args.host || 'localhost';
+        let socket = connect(port, host);
         this.startSession(socket);
 
-        socket.on('connect', () => this.sendResponse(response));
+        socket.on('connect', () => {
+            log.debug('attachRequest: connection established. Testing...');
+            let cmd = new Command('get_all_source_urls');
+            this.connection.sendRequest(cmd.serialize());
+
+            this.sendResponse(response)
+        });
 
         socket.on('error', (err) => {
-            log.error(`attachRequest: failed to connect on socket ${socket.localAddress}:${socket.localPort}`);
+            log.error(`attachRequest: failed to connect to ${host}:${port}`);
             response.success = false;
-            response.message = err.toString();
+            response.message = `Could not connect to ${host}:${port}`;
             this.sendResponse(response);
         });
     }
@@ -80,7 +89,6 @@ export class SpiderMonkeyDebugSession extends DebugSession {
         log.debug("configurationDoneRequest");
         this.sendResponse(response);
     }
-
 
     protected continueRequest(response: DebugProtocol.ContinueResponse, args: DebugProtocol.ContinueArguments): void {
         log.debug(`continueRequest for threadId: ${args.threadId}`);

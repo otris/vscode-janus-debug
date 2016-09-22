@@ -55,8 +55,12 @@ export class Command {
         this.id = uuid.v4();
     }
 
-    public serialize(contextId: number): string {
-        return `${contextId}/${JSON.stringify(this)}\n`;
+    public serialize(contextId?: number): string {
+        if (contextId) {
+            return `${contextId}/${JSON.stringify(this)}\n`;
+        } else {
+            return `${JSON.stringify(this)}\n`;
+        }
     }
 }
 
