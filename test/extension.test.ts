@@ -2,7 +2,7 @@ import * as assert from 'assert';
 import * as vscode from 'vscode';
 import { DebugClient } from 'vscode-debugadapter-testsupport';
 import { EventEmitter } from 'events';
-import { parseResponse, Response } from '../src/protocol';
+import { parseResponse, Response, Command } from '../src/protocol';
 import { SocketLike, DebugProtocolTransport } from '../src/transport';
 
 suite("debug adapter tests", () => {
@@ -102,6 +102,13 @@ suite("transport tests", () => {
 });
 
 suite("protocol tests", () => {
+
+    suite("serialize command", () => {
+        test("pause", () => {
+            let cmd = new Command('pause');
+            assert.equal(cmd.serialize(0), `0/{"name":"pause","type":"command","id":"${cmd.id}"}\n`);
+        });
+    });
 
     suite("parse response", () => {
 

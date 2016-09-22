@@ -1,6 +1,7 @@
 'use strict';
 
 import * as assert from 'assert';
+import * as uuid from 'node-uuid';
 
 export type CommandName = 'pc' | 'step' | 'next' | 'continue' | 'source_code' | 'delete_all_breakpoints' | 'pause' | 'set_breakpoint' | 'get_stacktrace' | 'get_variables' | 'evaluate' | 'get_all_source_urls' | 'get_breakpoints' | 'get_available_contexts' | 'exit';
 
@@ -46,12 +47,16 @@ export function parseResponse(responseString: string): Response {
 }
 
 export class Command {
-    private type: string;
-    private id: string;
+    public type: string;
+    public id: string;
 
     constructor(public name: CommandName) {
-        this.id = null;
         this.type = 'command';
+        this.id = uuid.v4();
+    }
+
+    public serialize(contextId: number): string {
+        return `${contextId}/${JSON.stringify(this)}\n`;
     }
 }
 
