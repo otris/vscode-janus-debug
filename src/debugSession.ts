@@ -1,7 +1,7 @@
 'use strict';
 
 import { connect, Socket } from 'net';
-import { DebugSession, InitializedEvent, StoppedEvent } from 'vscode-debugadapter';
+import { DebugSession, InitializedEvent, StoppedEvent, ContinuedEvent } from 'vscode-debugadapter';
 import { DebugProtocol } from 'vscode-debugprotocol';
 import { CommonArguments, AttachRequestArguments } from './config';
 import { DebugConnection } from './connection';
@@ -84,6 +84,25 @@ export class SpiderMonkeyDebugSession extends DebugSession {
 
     protected continueRequest(response: DebugProtocol.ContinueResponse, args: DebugProtocol.ContinueArguments): void {
         log.debug(`continueRequest for threadId: ${args.threadId}`);
+        let contextId: ContextId = args.threadId || 0;
+        let context = this.connection.coordinator.getContext(contextId);
+        if (!context) {
+            log.warn(`cannot continue context ${contextId}: no such context exists`);
+            response.success = false;
+            response.message = 'Cannot continue execution: internal error';
+            this.sendResponse(response);
+        }
+        context.continue().then(() => {
+            log.debug('continueRequest succeeded');
+            this.sendResponse(response);
+            let continuedEvent = new ContinuedEvent(context.id);
+            this.sendEvent(continuedEvent);
+        }, (err) => {
+            log.error('continueRequest failed: ' + err);
+            response.success = false;
+            response.message = err.toString();
+            this.sendResponse(response);
+        });
         this.sendResponse(response);
     }
 
@@ -101,13 +120,13 @@ export class SpiderMonkeyDebugSession extends DebugSession {
         const contextId: ContextId = args.threadId || 0;
         let context = this.connection.coordinator.getContext(contextId);
         if (!context) {
-            log.info(`cannot pause context ${contextId}: no such context exists`);
+            log.warn(`cannot pause context ${contextId}: no such context exists`);
             response.success = false;
-            response.message = 'Cannot pause execution: no context available';
+            response.message = 'Cannot pause execution: internal error';
             this.sendResponse(response);
             return;
         }
-        context.pauseRequest().then(() => {
+        context.pause().then(() => {
             log.debug('pauseRequest succeeded');
             this.sendResponse(response);
             let stoppedEvent = new StoppedEvent('pause', contextId);

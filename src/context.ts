@@ -1,7 +1,7 @@
 'use strict';
 
 import * as assert from 'assert';
-import { Response } from './protocol';
+import { Response, Command } from './protocol';
 import { Logger } from './log';
 import { DebugConnection } from './connection';
 
@@ -17,14 +17,22 @@ export class Context {
 
     public isStopped(): boolean { return this.stopped; }
 
-    constructor(id: ContextId, name: string, private stopped?: boolean) {
+    constructor(private debugConnection: DebugConnection, id: ContextId, name: string, private stopped?: boolean) {
         this._id = id;
         this._name = name;
     }
 
-    public pauseRequest(): Promise<void> {
+    public pause(): Promise<void> {
         return new Promise<void>((resolve, reject) => {
-            throw new Error("something bad happened");
+            let cmd = new Command('pause');
+            this.debugConnection.sendRequest(cmd.serialize(this.id));
+        });
+    }
+
+    public continue(): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            let cmd = new Command('continue');
+            this.debugConnection.sendRequest(cmd.serialize(this.id));
         });
     }
 
@@ -63,7 +71,8 @@ export class ContextCoordinator {
                     response.content.contexts.forEach(element => {
                         if (!this.contextById.has(element.contextId)) {
                             log.debug(`creating new context with id: ${element.contextId}`);
-                            let newContext: Context = new Context(element.contextId, element.contextName, element.paused);
+                            let newContext: Context = new Context(this.debugConnection, element.contextId, element.contextName,
+                                element.paused);
                             this.contextById.set(element.contextId, newContext);
 
                             // Notify the frontend that we have a new context in the target

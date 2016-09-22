@@ -33,10 +33,9 @@ export class DebugConnection extends EventEmitter {
         });
     }
 
-    public sendRequest(req: any): void {
-        const message = req.toString();
-        log.debug(`send request: ${message}`);
-        this.transport.sendMessage(message);
+    public sendRequest(msg: string): void {
+        log.debug(`send request: ${msg}`);
+        this.transport.sendMessage(msg);
     }
 
     public disconnect(): Promise<void> {
