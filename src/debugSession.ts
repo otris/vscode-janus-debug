@@ -13,7 +13,7 @@ import { Logger } from './log';
 let log = Logger.create('SpiderMonkeyDebugSession');
 
 export class SpiderMonkeyDebugSession extends DebugSession {
-    private connection: DebugConnection;
+    private connection: DebugConnection | null;
 
     public constructor() {
         log.debug("constructor");
@@ -24,7 +24,10 @@ export class SpiderMonkeyDebugSession extends DebugSession {
     protected initializeRequest(response: DebugProtocol.InitializeResponse, args: DebugProtocol.InitializeRequestArguments): void {
         log.debug("initializeRequest");
 
-        response.body.supportsConfigurationDoneRequest = true;
+        let body = {
+            supportsConfigurationDoneRequest: true
+        };
+        response.body = body;
         this.sendResponse(response);
     }
 
@@ -58,9 +61,14 @@ export class SpiderMonkeyDebugSession extends DebugSession {
 
         socket.on('connect', () => {
             log.debug('attachRequest: connection established. Testing...');
+
+            if (this.connection == null) {
+                throw new Error('this.connection is unexpectedly null');
+            }
+
             let cmd = new Command('get_all_source_urls');
             this.connection.sendRequest(cmd, (res: Response) => {
-                assert.ok(res !== undefined);
+                assert.notEqual(res, undefined);
 
                 if (res.subtype == 'all_source_urls') {
                     log.debug('attachRequest: ...looks good');
@@ -83,7 +91,8 @@ export class SpiderMonkeyDebugSession extends DebugSession {
     }
 
     protected setBreakPointsRequest(response: DebugProtocol.SetBreakpointsResponse, args: DebugProtocol.SetBreakpointsArguments): void {
-        log.debug(`setBreakPointsRequest for ${args.breakpoints.length} breakpoint(s): ${JSON.stringify(args)}`);
+        const numberOfBreakpoints = args.breakpoints ? args.breakpoints.length : undefined;
+        log.debug(`setBreakPointsRequest for ${numberOfBreakpoints} breakpoint(s): ${JSON.stringify(args)}`);
         this.sendResponse(response);
     }
 
@@ -95,6 +104,7 @@ export class SpiderMonkeyDebugSession extends DebugSession {
     /*
         protected setExceptionBreakPointsRequest(response: DebugProtocol.SetExceptionBreakpointsResponse, args: DebugProtocol.SetExceptionBreakpointsArguments): void;
     */
+
     protected configurationDoneRequest(response: DebugProtocol.ConfigurationDoneResponse, args: DebugProtocol.ConfigurationDoneArguments): void {
         log.debug("configurationDoneRequest");
         this.sendResponse(response);
@@ -102,6 +112,11 @@ export class SpiderMonkeyDebugSession extends DebugSession {
 
     protected continueRequest(response: DebugProtocol.ContinueResponse, args: DebugProtocol.ContinueArguments): void {
         log.debug(`continueRequest for threadId: ${args.threadId}`);
+
+        if (this.connection == null) {
+            throw new Error('this.connection is unexpectedly null');
+        }
+
         let contextId: ContextId = args.threadId || 0;
         let context = this.connection.coordinator.getContext(contextId);
         if (!context) {
@@ -135,6 +150,11 @@ export class SpiderMonkeyDebugSession extends DebugSession {
 
     protected pauseRequest(response: DebugProtocol.PauseResponse, args: DebugProtocol.PauseArguments): void {
         log.debug(`pauseRequest with threadId: ${args.threadId}`);
+
+        if (this.connection == null) {
+            throw new Error('this.connection is unexpectedly null');
+        }
+
         const contextId: ContextId = args.threadId || 0;
         let context = this.connection.coordinator.getContext(contextId);
         if (!context) {

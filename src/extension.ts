@@ -8,7 +8,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     disposable = vscode.commands.registerCommand('extension.getHostName', () => {
         return vscode.window.showInputBox({
-            placeHolder: "Please enter the IP of host where the application runs on",
+            placeHolder: "Please enter the IP of the host where the application runs on",
             value: "localhost"
         });
     });

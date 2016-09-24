@@ -21,7 +21,7 @@ export interface Response {
 }
 
 export function parseResponse(responseString: string): Response {
-    let contextId: number = undefined;
+    let contextId: number | undefined = undefined;
     let indexStart = 0;
     const match = responseString.match(/^([0-9]+)\/{/);
     if (match) {
@@ -48,7 +48,7 @@ export function parseResponse(responseString: string): Response {
 
 export class Command {
     private payload: any;
-    private contextId: number /* | undefined */;
+    private contextId: number | undefined;
 
     public get name(): CommandName { return this.payload.name; }
     public get type(): string { return this.payload.type; }

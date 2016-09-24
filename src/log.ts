@@ -6,7 +6,7 @@ export type LogLevel = 'Debug' | 'Info' | 'Warn' | 'Error';
 
 enum NumericLogLevel { Debug, Info, Warn, Error }
 
-function toNumericLogLevel(logLevel: LogLevel): NumericLogLevel /*| undefined*/ {
+function toNumericLogLevel(logLevel: LogLevel): NumericLogLevel | undefined {
     switch (logLevel) {
         case 'Debug':
             return NumericLogLevel.Debug;
@@ -32,10 +32,10 @@ export interface LogConfiguration {
 export class Logger {
     private static loggers = new Map<string, Logger>();
     private static _config: LogConfiguration = {};
-    private static fd: number;
+    private static fd: number | undefined;
     private static startTime = Date.now();
 
-    private logLevel: NumericLogLevel;
+    private logLevel: NumericLogLevel | undefined;
     private minLevel: NumericLogLevel;
 
     constructor(private name: string) {
@@ -99,6 +99,6 @@ export class Logger {
             }
         }
 
-        this.minLevel = this.logLevel;
+        this.minLevel = this.logLevel |  NumericLogLevel.Info;
     }
 }

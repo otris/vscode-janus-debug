@@ -18,17 +18,13 @@ let log = Logger.create('DebugConnection');
 export class DebugConnection extends EventEmitter {
     private transport: DebugProtocolTransport;
     private responseHandlers: Map<string, Function>;
-    private _coordinator: ContextCoordinator;
-
-    public get coordinator(): ContextCoordinator {
-        return this._coordinator;
-    }
+    public readonly coordinator: ContextCoordinator;
 
     constructor(socket: Socket) {
         super();
 
         this.responseHandlers = new Map();
-        this._coordinator = new ContextCoordinator(this);
+        this.coordinator = new ContextCoordinator(this);
         this.transport = new DebugProtocolTransport(socket);
         this.transport.on('response', (response: Response) => {
             log.info(`handle response: ${JSON.stringify(response)}`);

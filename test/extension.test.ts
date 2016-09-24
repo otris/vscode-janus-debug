@@ -22,7 +22,8 @@ suite("debug adapter tests", () => {
 
         test('should respond with supported features', () => {
             return debugClient.initializeRequest().then(response => {
-                assert.equal(response.body.supportsConfigurationDoneRequest, true);
+                let body = response.body || {};
+                assert.equal(body.supportsConfigurationDoneRequest, true);
             })
         });
     });

@@ -8,19 +8,14 @@ import { DebugConnection } from './connection';
 export type ContextId = number;
 
 export class Context {
-    private _id: ContextId;
-    private _name: string;
-
-    public get id(): ContextId { return this._id; }
-
-    public get name(): string { return this._name; }
-
-    public isStopped(): boolean { return this.stopped; }
-
-    constructor(private debugConnection: DebugConnection, id: ContextId, name: string, private stopped?: boolean) {
-        this._id = id;
-        this._name = name;
+    public isStopped(): boolean {
+        return this.stopped ? this.stopped : false;
     }
+
+    constructor(private debugConnection: DebugConnection,
+        public readonly id: ContextId,
+        public readonly name: string,
+        private readonly stopped?: boolean) { }
 
     public pause(): Promise<void> {
         return new Promise<void>((resolve, reject) => {
