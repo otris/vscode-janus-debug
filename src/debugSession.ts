@@ -92,8 +92,58 @@ export class SpiderMonkeyDebugSession extends DebugSession {
     }
 
     protected setBreakPointsRequest(response: DebugProtocol.SetBreakpointsResponse, args: DebugProtocol.SetBreakpointsArguments): void {
-        const numberOfBreakpoints = args.breakpoints ? args.breakpoints.length : undefined;
+        const numberOfBreakpoints: number = args.breakpoints ? args.breakpoints.length : 0;
         log.debug(`setBreakPointsRequest for ${numberOfBreakpoints} breakpoint(s): ${JSON.stringify(args)}`);
+
+        if (!args.breakpoints || !args.source.path) {
+            response.success = false;
+            response.message = `An internal error occurred`;
+            this.sendResponse(response);
+            return;
+        }
+
+        interface BreakpointInfo {
+            bid: number;
+            url: string;
+            line: number;
+            pending: boolean;
+        }
+
+        const localUrl: string = args.source.path;
+        const remoteSourceUrl = localUrl;
+        let errorCount: number = 0;
+        let actualBreakpoints: BreakpointInfo[] = [];
+        args.breakpoints.forEach((breakpoint => {
+
+            // TODO: move up. Flow analysis doesn't work well with lambdas yet, see #11090, should be fixed with
+            // TypeScript 2.1
+
+            if (this.connection === null) {
+                throw new Error('this.connection is unexpectedly null');
+            }
+
+            let setBreakpointCommand = Command.setBreakpoint(remoteSourceUrl, breakpoint.line);
+            this.connection.sendRequest(setBreakpointCommand, (response: Response) => {
+                if (response.type === 'error') {
+                    errorCount++;
+                } else {
+                    actualBreakpoints.push({
+                        bid: response.content.bid,
+                        url: response.content.url,
+                        line: response.content.line,
+                        pending: response.content.pending
+                    });
+                }
+            });
+        }));
+
+        if (errorCount === numberOfBreakpoints) {
+            response.success = false;
+            response.message = `Could not set any breakpoint`;
+            this.sendResponse(response);
+            return;
+        }
+
         this.sendResponse(response);
     }
 
