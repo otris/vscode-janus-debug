@@ -82,6 +82,9 @@ export class Logger {
         while (elapsedTimeString.length < 9) {
             elapsedTimeString = '0' + elapsedTimeString;
         }
+        while (displayLevel.length < 5) {
+            displayLevel = displayLevel + ' ';
+        }
         const logLine = displayLevel + '|' + elapsedTimeString + '|' + this.name + ': ' + msg;
 
         if ((Logger.fd !== undefined)) {
