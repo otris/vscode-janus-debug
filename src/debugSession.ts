@@ -25,7 +25,8 @@ export class SpiderMonkeyDebugSession extends DebugSession {
         log.debug("initializeRequest");
 
         let body = {
-            supportsConfigurationDoneRequest: true
+            supportsConfigurationDoneRequest: true,
+            supportsConditionalBreakpoints: false,
         };
         response.body = body;
         this.sendResponse(response);

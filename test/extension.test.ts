@@ -24,6 +24,7 @@ suite("debug adapter tests", () => {
             return debugClient.initializeRequest().then(response => {
                 let body = response.body || {};
                 assert.equal(body.supportsConfigurationDoneRequest, true);
+                assert.equal(body.supportsConditionalBreakpoints, false);
             })
         });
     });
