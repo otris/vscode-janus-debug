@@ -114,7 +114,7 @@ export class SpiderMonkeyDebugSession extends DebugSession {
     protected continueRequest(response: DebugProtocol.ContinueResponse, args: DebugProtocol.ContinueArguments): void {
         log.debug(`continueRequest for threadId: ${args.threadId}`);
 
-        if (this.connection == null) {
+        if (this.connection === null) {
             throw new Error('this.connection is unexpectedly null');
         }
 
@@ -152,7 +152,7 @@ export class SpiderMonkeyDebugSession extends DebugSession {
     protected pauseRequest(response: DebugProtocol.PauseResponse, args: DebugProtocol.PauseArguments): void {
         log.debug(`pauseRequest with threadId: ${args.threadId}`);
 
-        if (this.connection == null) {
+        if (this.connection === null) {
             throw new Error('this.connection is unexpectedly null');
         }
 
