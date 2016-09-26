@@ -115,6 +115,12 @@ suite("protocol tests", () => {
             let cmd = new Command('get_all_source_urls');
             assert.equal(cmd.toString(), `{"name":"get_all_source_urls","type":"command","id":"${cmd.id}"}\n`);
         });
+
+        test("set_breakpoint", () => {
+            let cmd = Command.setBreakpoint('fubar.js', 9);
+            assert.equal(cmd.toString(),
+                `{"name":"set_breakpoint","type":"command","id":"${cmd.id}","url":"fubar.js","line":9,"pending":true}\n`);
+        });
     });
 
     suite("parse response", () => {

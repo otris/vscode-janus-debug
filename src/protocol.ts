@@ -68,6 +68,14 @@ export class Command {
         }
         return `${JSON.stringify(this.payload)}\n`;
     }
+
+    public static setBreakpoint(url: string, lineNumber: number, pending?: boolean): Command {
+        let cmd = new Command('set_breakpoint');
+        cmd.payload['url'] = url;
+        cmd.payload['line'] = lineNumber;
+        cmd.payload['pending'] = pending || true;
+        return cmd;
+    }
 }
 
 export enum ErrorCode {
