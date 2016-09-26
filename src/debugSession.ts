@@ -194,6 +194,7 @@ export class SpiderMonkeyDebugSession extends DebugSession {
         if (args.log) {
             Logger.config = args.log;
         }
+        log.info(`readConfig: ${JSON.stringify(args)}`);
     }
 
     private startSession(socket: Socket): void {

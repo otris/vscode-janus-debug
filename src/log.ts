@@ -36,7 +36,6 @@ export class Logger {
     private static startTime = Date.now();
 
     private logLevel: NumericLogLevel | undefined;
-    private minLevel: NumericLogLevel;
 
     constructor(private name: string) {
         this.configure();
@@ -74,7 +73,7 @@ export class Logger {
     }
 
     private log(level: NumericLogLevel, displayLevel: string, msg: string): void {
-        if (level < this.minLevel) {
+        if (level < this.logLevel) {
             return;
         }
 
@@ -85,7 +84,7 @@ export class Logger {
         }
         const logLine = displayLevel + '|' + elapsedTimeString + '|' + this.name + ': ' + msg;
 
-        if ((Logger.fd !== undefined) && level >= this.logLevel) {
+        if ((Logger.fd !== undefined)) {
             fs.write(Logger.fd, logLine + '\n');
         }
     }
@@ -97,8 +96,10 @@ export class Logger {
             if (this.logLevel === undefined) {
                 this.logLevel = toNumericLogLevel(Logger._config.logLevel['default']);
             }
-        }
 
-        this.minLevel = this.logLevel |  NumericLogLevel.Info;
+            if (this.logLevel === undefined) {
+                this.logLevel = NumericLogLevel.Info;
+            }
+        }
     }
 }
