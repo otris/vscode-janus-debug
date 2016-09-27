@@ -12,7 +12,7 @@ suite("debug adapter tests", () => {
     let debugClient: DebugClient;
 
     setup(() => {
-        debugClient = new DebugClient('node', DEBUG_ADAPTER, 'spidermonkey');
+        debugClient = new DebugClient('node', DEBUG_ADAPTER, 'janus');
         return debugClient.start();
     });
 

@@ -1,7 +1,7 @@
 {
-    "name": "vscode-spidermonkey-debug",
-    "displayName": "vscode-spidermonkey-debug",
-    "description": "VS Code plugin for debugging applications with an embedded SpiderMonkey",
+    "name": "vscode-janus-debug",
+    "displayName": "vscode-janus-debug",
+    "description": "VS Code plugin for debugging JANUS applications",
     "version": "0.0.1",
     "publisher": "bkircher",
     "author": {
@@ -26,8 +26,8 @@
         ],
         "debuggers": [
             {
-                "type": "spidermonkey",
-                "label": "SpiderMonkey Debugger",
+                "type": "janus",
+                "label": "JANUS Debugger",
                 "program": "./out/src/debugSession.js",
                 "runtime": "node",
                 "variables": {
@@ -59,7 +59,7 @@
                                     "fileName": {
                                         "type": "string",
                                         "description": "The name of the logfile.",
-                                        "default": "${workspaceRoot}/vscode-spidermonkey-debug.log"
+                                        "default": "${workspaceRoot}/vscode-janus-debug.log"
                                     },
                                     "logLevel": {
                                         "type": "object",
@@ -96,14 +96,14 @@
                 },
                 "initialConfigurations": [
                     {
-                        "name": "Debug SpiderMonkey app",
-                        "type": "spidermonkey",
+                        "name": "Debug JANUS app",
+                        "type": "janus",
                         "request": "attach",
                         "port": 8089,
                         "host": "${workspaceRoot}/${command.AskForHostName}",
                         "stopOnEntry": false,
                         "log": {
-                            "fileName": "${workspaceRoot}/vscode-spidermonkey-debug.log",
+                            "fileName": "${workspaceRoot}/vscode-janus-debug.log",
                             "logLevel": {
                                 "default": "Debug"
                             }

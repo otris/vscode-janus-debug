@@ -1,6 +1,6 @@
-# vscode-spidermonkey-debug README
+# vscode-janus-debug README
 
-This is the README for your extension "vscode-spidermonkey-debug". After writing up a brief description, we recommend including the following sections.
+This is the README for your extension "vscode-janus-debug". After writing up a brief description, we recommend including the following sections.
 
 ## Features
 

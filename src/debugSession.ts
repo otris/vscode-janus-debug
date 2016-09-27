@@ -10,9 +10,9 @@ import { Command, Response } from './protocol';
 import { ContextId } from './context';
 import { Logger } from './log';
 
-let log = Logger.create('SpiderMonkeyDebugSession');
+let log = Logger.create('JanusDebugSession');
 
-export class SpiderMonkeyDebugSession extends DebugSession {
+export class JanusDebugSession extends DebugSession {
     private connection: DebugConnection | null;
 
     public constructor() {
@@ -290,4 +290,4 @@ export class SpiderMonkeyDebugSession extends DebugSession {
     }
 }
 
-DebugSession.run(SpiderMonkeyDebugSession);
+DebugSession.run(JanusDebugSession);
