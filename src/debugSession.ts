@@ -68,18 +68,24 @@ export class SpiderMonkeyDebugSession extends DebugSession {
             }
 
             let cmd = new Command('get_all_source_urls');
-            this.connection.sendRequest(cmd, (res: Response) => {
-                assert.notEqual(res, undefined);
+            this.connection.sendRequest(cmd, (res: Response): Promise<void> => {
 
-                if (res.subtype == 'all_source_urls') {
-                    log.debug('attachRequest: ...looks good');
-                    this.sendResponse(response);
-                } else {
-                    log.error(`attachRequest: error while connecting to ${host}:${port}`);
-                    response.success = false;
-                    response.message = `Error while connecting to ${host}:${port}`;
-                    this.sendResponse(response);
-                }
+                return new Promise<void>((resolve, reject) => {
+
+                    assert.notEqual(res, undefined);
+
+                    if (res.subtype == 'all_source_urls') {
+                        log.debug('attachRequest: ...looks good');
+                        this.sendResponse(response);
+                        resolve();
+                    } else {
+                        log.error(`attachRequest: error while connecting to ${host}:${port}`);
+                        response.success = false;
+                        response.message = `Error while connecting to ${host}:${port}`;
+                        this.sendResponse(response);
+                        reject(response.message);
+                    }
+                });
             });
         });
 
@@ -111,8 +117,7 @@ export class SpiderMonkeyDebugSession extends DebugSession {
 
         const localUrl: string = args.source.path;
         const remoteSourceUrl = localUrl;
-        let errorCount: number = 0;
-        let actualBreakpoints: BreakpointInfo[] = [];
+        let actualBreakpoints: Promise<BreakpointInfo>[] = [];
         args.breakpoints.forEach((breakpoint => {
 
             // TODO: move up. Flow analysis doesn't work well with lambdas yet, see #11090, should be fixed with
@@ -123,28 +128,43 @@ export class SpiderMonkeyDebugSession extends DebugSession {
             }
 
             let setBreakpointCommand = Command.setBreakpoint(remoteSourceUrl, breakpoint.line);
-            this.connection.sendRequest(setBreakpointCommand, (response: Response) => {
-                if (response.type === 'error') {
-                    errorCount++;
-                } else {
-                    actualBreakpoints.push({
-                        bid: response.content.bid,
-                        url: response.content.url,
-                        line: response.content.line,
-                        pending: response.content.pending
+
+            actualBreakpoints.push(
+                this.connection.sendRequest(setBreakpointCommand, (response: Response): Promise<BreakpointInfo> => {
+                    return new Promise<BreakpointInfo>((resolve, reject) => {
+
+                        if (response.type === 'error') {
+                            reject(new Error(`Target responded with error '${response.content.message}''`));
+                        } else {
+                            resolve({
+                                bid: response.content.bid,
+                                url: response.content.url,
+                                line: response.content.line,
+                                pending: response.content.pending
+                            });
+                        }
                     });
-                }
-            });
+                }));
         }));
 
-        if (errorCount === numberOfBreakpoints) {
-            response.success = false;
-            response.message = `Could not set any breakpoint`;
+        Promise.all(actualBreakpoints).then((res: BreakpointInfo[]) => {
+            let breakpoints: DebugProtocol.Breakpoint[] = res.map(actualBreakpoint => {
+                return {
+                    id: actualBreakpoint.bid,
+                    verified: !actualBreakpoint.pending,
+                    line: actualBreakpoint.line,
+                    source: {
+                        path: actualBreakpoint.url
+                    }
+                };
+            });
+            response.body.breakpoints = breakpoints;
             this.sendResponse(response);
-            return;
-        }
-
-        this.sendResponse(response);
+        }).catch((err) => {
+            response.success = false;
+            response.message = `Could not set breakpoint(s): ${err}`;
+            this.sendResponse(response);
+        });
     }
 
     protected setFunctionBreakPointsRequest(response: DebugProtocol.SetFunctionBreakpointsResponse, args: DebugProtocol.SetFunctionBreakpointsArguments): void {

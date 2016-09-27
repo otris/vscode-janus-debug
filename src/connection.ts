@@ -55,13 +55,28 @@ export class DebugConnection extends EventEmitter {
         return this.transport.disconnect();
     }
 
-    public sendRequest(req: Command, responseHandler?: Function): void {
-        let message = req.toString();
-        if (responseHandler !== undefined) {
-            this.registerResponseHandler(req.id, responseHandler);
-        }
-        log.debug(`sendRequest: ${String(message).trim()}`);
-        this.transport.sendMessage(message);
+    public sendRequest(request: Command, responseHandler?: (response: Response) => Promise<any>): Promise<any> {
+
+        return new Promise<any>((resolve, reject) => {
+
+            if (responseHandler) {
+                this.registerResponseHandler(request.id, (response: Response) => {
+                    responseHandler(response).then((value) => {
+                        resolve(value);
+                    }).catch((reason) => {
+                        reject(reason);
+                    });
+                });
+            }
+
+            const message = request.toString();
+            log.debug(`sendRequest: ${message.trim()}`);
+            this.transport.sendMessage(message);
+
+            if (!responseHandler) {
+                resolve();
+            }
+        });
     }
 
     private registerResponseHandler(commandId: string, handler: Function): void {
