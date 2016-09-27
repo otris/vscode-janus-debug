@@ -3,6 +3,21 @@
 import * as assert from 'assert';
 import * as uuid from 'node-uuid';
 
+export enum ErrorCode {
+    UNKNOWN_COMMAND = 1,
+    NO_COMMAND_NAME = 2,
+    NOT_A_COMMAND_PACKAGE = 3,
+    NOT_PAUSED = 4,
+    BAD_ARGS = 5,
+    SCRIPT_NOT_FOUND = 6,
+    CANNOT_SET_BREAKPOINT = 8,
+    IS_PAUSED = 9,
+    UNEXPECTED_EXC = 10,
+    EVALUATION_FAILED = 11,
+    PC_NOT_AVAILABLE = 12,
+    NO_ACTIVE_FRAME = 13,
+}
+
 export type CommandName = 'pc' | 'step' | 'next' | 'continue' | 'source_code' | 'delete_all_breakpoints' | 'pause' | 'set_breakpoint' | 'get_stacktrace' | 'get_variables' | 'evaluate' | 'get_all_source_urls' | 'get_breakpoints' | 'get_available_contexts' | 'exit';
 
 export type ResponseType = 'info' | 'error';
@@ -76,19 +91,4 @@ export class Command {
         cmd.payload['pending'] = pending || true;
         return cmd;
     }
-}
-
-export enum ErrorCode {
-    UNKNOWN_COMMAND = 1,
-    NO_COMMAND_NAME = 2,
-    NOT_A_COMMAND_PACKAGE = 3,
-    NOT_PAUSED = 4,
-    BAD_ARGS = 5,
-    SCRIPT_NOT_FOUND = 6,
-    CANNOT_SET_BREAKPOINT = 8,
-    IS_PAUSED = 9,
-    UNEXPECTED_EXC = 10,
-    EVALUATION_FAILED = 11,
-    PC_NOT_AVAILABLE = 12,
-    NO_ACTIVE_FRAME = 13,
 }

@@ -240,7 +240,7 @@ export class JanusDebugSession extends DebugSession {
             this.sendResponse(response);
             let stoppedEvent = new StoppedEvent('pause', contextId);
             this.sendEvent(stoppedEvent);
-        }, (err) => {
+        }).catch((err) => {
             log.error('pauseRequest failed: ' + err);
             response.success = false;
             response.message = err.toString();

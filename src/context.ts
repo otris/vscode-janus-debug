@@ -1,11 +1,13 @@
 'use strict';
 
 import * as assert from 'assert';
-import { Response, Command } from './protocol';
+import { Response, Command, ErrorCode } from './protocol';
 import { Logger } from './log';
 import { DebugConnection } from './connection';
 
 export type ContextId = number;
+
+let contextLog = Logger.create('Context');
 
 export class Context {
     public isStopped(): boolean {
@@ -18,25 +20,42 @@ export class Context {
         private readonly stopped?: boolean) { }
 
     public pause(): Promise<void> {
-        return new Promise<void>((resolve, reject) => {
-            let cmd = new Command('pause', this.id);
-            this.debugConnection.sendRequest(cmd);
+        contextLog.debug(`request pause for context ${this.id}`);
+
+        let cmd = new Command('pause', this.id);
+        return this.debugConnection.sendRequest(cmd, (response: Response) => {
+
+            return new Promise<void>((resolve, reject) => {
+                if (response.type === 'error') {
+                    if (response.content.code === ErrorCode.IS_PAUSED) {
+                        contextLog.warn(`context ${this.id} is already paused`);
+                        resolve();
+                        return;
+                    }
+
+                    reject(new Error(response.content.message));
+                    return;
+                }
+
+                resolve();
+            });
         });
     }
 
     public continue(): Promise<void> {
-        return new Promise<void>((resolve, reject) => {
-            let cmd = new Command('continue', this.id);
-            this.debugConnection.sendRequest(cmd);
-        });
+        contextLog.debug(`request continue for context ${this.id}`);
+
+        let cmd = new Command('continue', this.id);
+        return this.debugConnection.sendRequest(cmd);
     }
 
     public handleResponse(response: Response): Promise<void> {
-        return new Promise<void>(() => { });
+        contextLog.debug(`handleResponse ${response} for context ${this.id}`);
+        return Promise.resolve();
     }
 }
 
-let log = Logger.create('ContextCoordinator');
+let coordinatorLog = Logger.create('ContextCoordinator');
 
 /** Coordinates requests and responses for all available contexts.
  *
@@ -54,7 +73,7 @@ export class ContextCoordinator {
     }
 
     public handleResponse(response: Response): Promise<void> {
-        log.debug('handleResponse');
+        coordinatorLog.debug(`handleResponse ${response}`);
 
         return new Promise<void>((resolve, reject) => {
 
@@ -63,13 +82,13 @@ export class ContextCoordinator {
                 // Not meant for a particular context
 
                 if (response.type === 'info' && response.subtype === 'contexts_list') {
-                    log.debug('updating list of available contexts');
+                    coordinatorLog.debug('updating list of available contexts');
                     assert.ok(response.content.hasOwnProperty('contexts'));
 
                     // Add new contexts
                     response.content.contexts.forEach(element => {
                         if (!this.contextById.has(element.contextId)) {
-                            log.debug(`creating new context with id: ${element.contextId}`);
+                            coordinatorLog.debug(`creating new context with id: ${element.contextId}`);
                             let newContext: Context = new Context(this.debugConnection, element.contextId, element.contextName,
                                 element.paused);
                             this.contextById.set(element.contextId, newContext);
@@ -83,7 +102,7 @@ export class ContextCoordinator {
                     let dead: ContextId[] = [];
                     this.contextById.forEach(context => {
                         if (!response.content.contexts.find(element => element.contextId === context.id)) {
-                            log.debug(`context ${context.id} no longer exists`);
+                            coordinatorLog.debug(`context ${context.id} no longer exists`);
                             dead.push(context.id);
                         }
                     });
@@ -93,7 +112,6 @@ export class ContextCoordinator {
 
                 // Dispatch to the corresponding context
 
-                log.debug(`handleResponse for contextId: ${response.contextId}`);
                 let context: Context = this.contextById.get(response.contextId);
                 assert.ok(context !== undefined, "response for unknown context");
                 context.handleResponse(response);
