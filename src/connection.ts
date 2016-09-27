@@ -55,10 +55,17 @@ export class DebugConnection extends EventEmitter {
         return this.transport.disconnect();
     }
 
+    /**
+     * Send given request to the target.
+     * @param {Command} request - The request that is send to the target.
+     * @param {Function} responseHandler - An optional handler for the response from the target, if any.
+    */
     public sendRequest(request: Command, responseHandler?: (response: Response) => Promise<any>): Promise<any> {
 
         return new Promise<any>((resolve, reject) => {
 
+            // If we have to wait for a response and handle it, make sure that we resolve after the handler function
+            // has finished
             if (responseHandler) {
                 this.registerResponseHandler(request.id, (response: Response) => {
                     responseHandler(response).then((value) => {
@@ -73,6 +80,7 @@ export class DebugConnection extends EventEmitter {
             log.debug(`sendRequest: ${message.trim()}`);
             this.transport.sendMessage(message);
 
+            // If we don't have to wait for a response, resolve immediately
             if (!responseHandler) {
                 resolve();
             }
