@@ -8,17 +8,27 @@ import { CommonArguments, AttachRequestArguments } from './config';
 import { DebugConnection } from './connection';
 import { Command, Response } from './protocol';
 import { ContextId } from './context';
+import { SourceMap } from './sourceMap';
 import { Logger } from './log';
+
+interface BreakpointInfo {
+    bid: number;
+    url: string;
+    line: number;
+    pending: boolean;
+}
 
 let log = Logger.create('JanusDebugSession');
 
 export class JanusDebugSession extends DebugSession {
     private connection: DebugConnection | null;
+    private sourceMap: SourceMap;
 
     public constructor() {
         log.debug("constructor");
         super();
         this.connection = null;
+        this.sourceMap = new SourceMap();
     }
 
     protected initializeRequest(response: DebugProtocol.InitializeResponse, args: DebugProtocol.InitializeRequestArguments): void {
@@ -26,7 +36,17 @@ export class JanusDebugSession extends DebugSession {
 
         let body = {
             supportsConfigurationDoneRequest: true,
+            supportsFunctionBreakpoints: false,
             supportsConditionalBreakpoints: false,
+            supportsHitConditionalBreakpoints: false,
+            supportsEvaluateForHovers: false,
+            exceptionBreakpointFilters: [],
+            supportsStepBack: false,
+            supportsSetVariable: false,
+            supportsRestartFrame: false,
+            supportsGotoTargetsRequest: false,
+            supportsStepInTargetsRequest: false,
+            supportsCompletionsRequest: false
         };
         response.body = body;
         this.sendResponse(response);
@@ -77,6 +97,7 @@ export class JanusDebugSession extends DebugSession {
                     if (res.subtype == 'all_source_urls') {
                         log.debug('attachRequest: ...looks good');
                         this.sendResponse(response);
+                        this.sourceMap.setAllSourceUrls(res.content.urls);
                         resolve();
                     } else {
                         log.error(`attachRequest: error while connecting to ${host}:${port}`);
@@ -108,21 +129,12 @@ export class JanusDebugSession extends DebugSession {
             return;
         }
 
-        interface BreakpointInfo {
-            bid: number;
-            url: string;
-            line: number;
-            pending: boolean;
-        }
-
         const localUrl: string = args.source.path;
-        const remoteSourceUrl = localUrl;
+        const remoteSourceUrl = this.sourceMap.remoteSourceUrl(localUrl);
         let actualBreakpoints: Promise<BreakpointInfo>[] = [];
         args.breakpoints.forEach((breakpoint => {
-
             // TODO: move up. Flow analysis doesn't work well with lambdas yet, see #11090, should be fixed with
             // TypeScript 2.1
-
             if (this.connection === null) {
                 throw new Error('this.connection is unexpectedly null');
             }
@@ -136,12 +148,7 @@ export class JanusDebugSession extends DebugSession {
                         if (response.type === 'error') {
                             reject(new Error(`Target responded with error '${response.content.message}''`));
                         } else {
-                            resolve({
-                                bid: response.content.bid,
-                                url: response.content.url,
-                                line: response.content.line,
-                                pending: response.content.pending
-                            });
+                            resolve(response.content);
                         }
                     });
                 }));
@@ -158,11 +165,13 @@ export class JanusDebugSession extends DebugSession {
                     }
                 };
             });
+            log.debug(`setBreakPointsRequest succeeded: ${JSON.stringify(breakpoints)}`);
             response.body.breakpoints = breakpoints;
             this.sendResponse(response);
-        }).catch((err) => {
+        }).catch((reason) => {
+            log.error(`setBreakPointsRequest failed: ${reason}`);
             response.success = false;
-            response.message = `Could not set breakpoint(s): ${err}`;
+            response.message = `Could not set breakpoint(s): ${reason}`;
             this.sendResponse(response);
         });
     }
@@ -248,8 +257,13 @@ export class JanusDebugSession extends DebugSession {
         });
     }
 
+
+    protected sourceRequest(response: DebugProtocol.SourceResponse, args: DebugProtocol.SourceArguments): void {
+        log.debug(`sourceRequest`);
+        this.sendResponse(response);
+    }
+
     /*
-        protected sourceRequest(response: DebugProtocol.SourceResponse, args: DebugProtocol.SourceArguments): void;
         protected threadsRequest(response: DebugProtocol.ThreadsResponse): void;
         protected stackTraceRequest(response: DebugProtocol.StackTraceResponse, args: DebugProtocol.StackTraceArguments): void;
         protected scopesRequest(response: DebugProtocol.ScopesResponse, args: DebugProtocol.ScopesArguments): void;
@@ -280,12 +294,14 @@ export class JanusDebugSession extends DebugSession {
             log.info(`new context on target: ${contextId}, ${contextName}, stopped: ${stopped}`);
             if (stopped) {
                 let stoppedEvent = new StoppedEvent('pause', contextId);
+                log.debug(`sending StoppedEvent, reason: 'pause'`);
                 this.sendEvent(stoppedEvent);
             }
         });
 
         // Tell the frontend that we are ready to set breakpoints and so on. The frontend will end the configuration
         // sequence by calling 'configurationDone' request
+        log.debug(`sending InitializedEvent`);
         this.sendEvent(new InitializedEvent());
     }
 }
