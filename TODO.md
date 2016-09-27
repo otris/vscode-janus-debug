@@ -1,8 +1,8 @@
 # TODO
 
-- sendRequest should return a Promise rather than take a callback function
-- use Promise.all() for this here
-- write tests for DebugConnection, esp. the response handling code
+- write tests for DebugConnection, esp. the response handling code. Maybe make a
+  DebugConnection.handleResponse = (response: Response) => { /* ... */ }
 - rename extension to vscode-janus-debug
 - write test/fix behavior when no target is available, try use setTimeout from
   'net' to get a reasonable response time
+- make this all Apache 2.0 licensed if possible, otherwise MIT, remember vscode-firefox-debug
