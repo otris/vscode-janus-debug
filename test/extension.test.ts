@@ -14,7 +14,7 @@ suite("source map tests", () => {
 
         setup(() => {
             sourceMap = new SourceMap();
-            sourceMap.setAllSourceUrls([
+            sourceMap.setAllRemoteUrls([
                 '/usr/lib/fubar/script1.js',
                 '/usr/lib/fubar/extension/script2.js',
                 '/usr/lib/fubar/extension/script3.js',

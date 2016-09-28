@@ -96,17 +96,27 @@ export class JanusDebugSession extends DebugSession {
 
                     if (res.subtype == 'all_source_urls') {
                         log.debug('attachRequest: ...looks good');
-                        this.sendResponse(response);
-                        this.sourceMap.setAllSourceUrls(res.content.urls);
+                        this.sourceMap.setAllRemoteUrls(res.content.urls);
                         resolve();
                     } else {
                         log.error(`attachRequest: error while connecting to ${host}:${port}`);
-                        response.success = false;
-                        response.message = `Error while connecting to ${host}:${port}`;
-                        this.sendResponse(response);
-                        reject(response.message);
+                        reject(`Error while connecting to ${host}:${port}`);
                     }
                 });
+            }).then(() => {
+
+                // Tell the frontend that we are ready to set breakpoints and so on. The frontend will end the configuration
+                // sequence by calling 'configurationDone' request
+                log.debug(`sending InitializedEvent`);
+                this.sendEvent(new InitializedEvent());
+
+                this.sendResponse(response);
+
+            }).catch(reason => {
+
+                response.success = false;
+                response.message = reason;
+                this.sendResponse(response);
             });
         });
 
@@ -298,11 +308,6 @@ export class JanusDebugSession extends DebugSession {
                 this.sendEvent(stoppedEvent);
             }
         });
-
-        // Tell the frontend that we are ready to set breakpoints and so on. The frontend will end the configuration
-        // sequence by calling 'configurationDone' request
-        log.debug(`sending InitializedEvent`);
-        this.sendEvent(new InitializedEvent());
     }
 }
 
