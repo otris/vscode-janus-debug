@@ -1,6 +1,5 @@
 # TODO
 
-- get a quick and dirty source mapping done
 - write tests for DebugConnection, esp. the response handling code
 - write test/fix behavior when no target is available, try use setTimeout from
   'net' to get a reasonable response time
