@@ -35,6 +35,19 @@ export interface Response {
     contextId?: number;
 }
 
+export interface Breakpoint {
+    bid: number;
+    url: string;
+    line: number;
+    pending: boolean;
+}
+
+export interface StackFrame {
+    url: string;
+    line: number;
+    rDepth: number;
+}
+
 export function parseResponse(responseString: string): Response {
     let contextId: number | undefined = undefined;
     let indexStart = 0;
@@ -73,11 +86,16 @@ export class Command {
         this.payload = {};
         this.payload['name'] = name;
         this.payload['type'] = 'command';
-        this.payload['id'] = uuid.v4();
         this.contextId = contextId;
+        if (name !== 'get_available_contexts') {
+            this.payload['id'] = uuid.v4();
+        }
     }
 
     public toString(): string {
+        if (this.name === 'get_available_contexts') {
+            return 'get_available_contexts\n';
+        }
         if (this.contextId) {
             return `${this.contextId}/${JSON.stringify(this.payload)}\n`;
         }

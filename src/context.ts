@@ -1,7 +1,7 @@
 'use strict';
 
 import * as assert from 'assert';
-import { Response, Command, ErrorCode } from './protocol';
+import { Response, Command, ErrorCode, StackFrame } from './protocol';
 import { Logger } from './log';
 import { DebugConnection } from './connection';
 
@@ -49,8 +49,25 @@ export class Context {
         return this.debugConnection.sendRequest(cmd);
     }
 
+    public getStacktrace(): Promise<StackFrame[]> {
+        contextLog.debug(`request stacktrace for context ${this.id}`);
+
+        let cmd = new Command('get_stacktrace', this.id);
+        return this.debugConnection.sendRequest(cmd, (response: Response) => {
+            return new Promise<StackFrame[]>((resolve, reject) => {
+                if (response.type === 'error') {
+                    reject(new Error(response.content.message));
+                } else {
+                    let stacktrace: StackFrame[] = [];
+                    assert.ok(response.content.stacktrace);
+                    resolve(response.content.stacktrace);
+                }
+            });
+        });
+    }
+
     public handleResponse(response: Response): Promise<void> {
-        contextLog.debug(`handleResponse ${response} for context ${this.id}`);
+        contextLog.debug(`handleResponse ${JSON.stringify(response)} for context ${this.id}`);
         return Promise.resolve();
     }
 }
@@ -66,7 +83,16 @@ let coordinatorLog = Logger.create('ContextCoordinator');
 export class ContextCoordinator {
     private contextById: Map<ContextId, Context> = new Map();
 
-    constructor(private debugConnection: DebugConnection) { }
+    constructor(private connection: DebugConnection) { }
+
+    public getAllAvailableContexts(): Context[] {
+        coordinatorLog.debug(`getAllAvailableContexts`);
+
+        // Meh, this is shitty. We return (most probably) an old state here. But protocol does not allow an id send in
+        // an 'get_available_contexts' request so no way to handle and synchronize with the particular response here
+        this.connection.sendRequest(new Command('get_available_contexts'));
+        return Array.from(this.contextById.values());
+    }
 
     public getContext(id: ContextId): Context /* | undefined */ {
         return this.contextById.get(id);
@@ -89,12 +115,12 @@ export class ContextCoordinator {
                     response.content.contexts.forEach(element => {
                         if (!this.contextById.has(element.contextId)) {
                             coordinatorLog.debug(`creating new context with id: ${element.contextId}`);
-                            let newContext: Context = new Context(this.debugConnection, element.contextId, element.contextName,
+                            let newContext: Context = new Context(this.connection, element.contextId, element.contextName,
                                 element.paused);
                             this.contextById.set(element.contextId, newContext);
 
                             // Notify the frontend that we have a new context in the target
-                            this.debugConnection.emit('newContext', newContext.id, newContext.name, newContext.isStopped());
+                            this.connection.emit('newContext', newContext.id, newContext.name, newContext.isStopped());
                         }
                     });
 

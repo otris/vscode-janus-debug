@@ -156,11 +156,16 @@ suite("protocol tests", () => {
             assert.equal(cmd.toString(),
                 `{"name":"set_breakpoint","type":"command","id":"${cmd.id}","breakpoint":{"url":"script.js","line":1,"pending":true}}\n`);
         });
+
+        test("get_available_contexts", () => {
+            let cmd = new Command('get_available_contexts');
+            assert.equal(`get_available_contexts\n`, cmd.toString());
+        });
     });
 
     suite("parse response", () => {
 
-        test("get_available_contexts", () => {
+        test("contexts_list", () => {
             const response =
                 '{"type":"info","subtype":"contexts_list","contexts":[{"contextId":0,"contextName":"/home/bob/script.js","paused":true}]}\n';
             const result = parseResponse(response);
@@ -177,7 +182,7 @@ suite("protocol tests", () => {
             assert.equal(result.content.code, 2);
         });
 
-        test("get_stacktrace", () => {
+        test("stacktrace", () => {
             const response =
                 '17/{"type":"info","subtype":"stacktrace","stacktrace":[{"url":"/home/bob/script.js","line":18,"rDepth":0}],"id":"857B3B96591A5163"}\n';
             const result = parseResponse(response);

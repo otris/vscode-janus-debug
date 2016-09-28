@@ -6,17 +6,10 @@ import { DebugSession, InitializedEvent, StoppedEvent, ContinuedEvent } from 'vs
 import { DebugProtocol } from 'vscode-debugprotocol';
 import { CommonArguments, AttachRequestArguments } from './config';
 import { DebugConnection } from './connection';
-import { Command, Response } from './protocol';
+import { Command, Response, Breakpoint, StackFrame } from './protocol';
 import { ContextId } from './context';
 import { SourceMap } from './sourceMap';
 import { Logger } from './log';
-
-interface BreakpointInfo {
-    bid: number;
-    url: string;
-    line: number;
-    pending: boolean;
-}
 
 let log = Logger.create('JanusDebugSession');
 
@@ -25,14 +18,13 @@ export class JanusDebugSession extends DebugSession {
     private sourceMap: SourceMap;
 
     public constructor() {
-        log.debug("constructor");
         super();
         this.connection = null;
         this.sourceMap = new SourceMap();
     }
 
     protected initializeRequest(response: DebugProtocol.InitializeResponse, args: DebugProtocol.InitializeRequestArguments): void {
-        log.debug("initializeRequest");
+        log.info("initializeRequest");
 
         let body = {
             supportsConfigurationDoneRequest: true,
@@ -53,7 +45,7 @@ export class JanusDebugSession extends DebugSession {
     }
 
     protected disconnectRequest(response: DebugProtocol.DisconnectResponse, args: DebugProtocol.DisconnectArguments): void {
-        log.debug("disconnectRequest");
+        log.info("disconnectRequest");
 
         if (this.connection) {
             this.connection.disconnect().then(() => {
@@ -73,7 +65,7 @@ export class JanusDebugSession extends DebugSession {
 
     protected attachRequest(response: DebugProtocol.AttachResponse, args: AttachRequestArguments): void {
         this.readConfig(args);
-        log.debug("attachRequest");
+        log.info("attachRequest");
 
         let port: number = args.port || 8089;
         let host: string = args.host || 'localhost';
@@ -130,7 +122,7 @@ export class JanusDebugSession extends DebugSession {
 
     protected setBreakPointsRequest(response: DebugProtocol.SetBreakpointsResponse, args: DebugProtocol.SetBreakpointsArguments): void {
         const numberOfBreakpoints: number = args.breakpoints ? args.breakpoints.length : 0;
-        log.debug(`setBreakPointsRequest for ${numberOfBreakpoints} breakpoint(s): ${JSON.stringify(args)}`);
+        log.info(`setBreakPointsRequest for ${numberOfBreakpoints} breakpoint(s): ${JSON.stringify(args)}`);
 
         if (!args.breakpoints || !args.source.path) {
             response.success = false;
@@ -141,7 +133,7 @@ export class JanusDebugSession extends DebugSession {
 
         const localUrl: string = args.source.path;
         const remoteSourceUrl = this.sourceMap.remoteSourceUrl(localUrl);
-        let actualBreakpoints: Promise<BreakpointInfo>[] = [];
+        let actualBreakpoints: Promise<Breakpoint>[] = [];
         args.breakpoints.forEach((breakpoint => {
             // TODO: move up. Flow analysis doesn't work well with lambdas yet, see #11090, should be fixed with
             // TypeScript 2.1
@@ -152,8 +144,8 @@ export class JanusDebugSession extends DebugSession {
             let setBreakpointCommand = Command.setBreakpoint(remoteSourceUrl, breakpoint.line);
 
             actualBreakpoints.push(
-                this.connection.sendRequest(setBreakpointCommand, (response: Response): Promise<BreakpointInfo> => {
-                    return new Promise<BreakpointInfo>((resolve, reject) => {
+                this.connection.sendRequest(setBreakpointCommand, (response: Response): Promise<Breakpoint> => {
+                    return new Promise<Breakpoint>((resolve, reject) => {
 
                         if (response.type === 'error') {
                             reject(new Error(`Target responded with error '${response.content.message}''`));
@@ -164,7 +156,7 @@ export class JanusDebugSession extends DebugSession {
                 }));
         }));
 
-        Promise.all(actualBreakpoints).then((res: BreakpointInfo[]) => {
+        Promise.all(actualBreakpoints).then((res: Breakpoint[]) => {
             let breakpoints: DebugProtocol.Breakpoint[] = res.map(actualBreakpoint => {
                 return {
                     id: actualBreakpoint.bid,
@@ -189,7 +181,7 @@ export class JanusDebugSession extends DebugSession {
     }
 
     protected setFunctionBreakPointsRequest(response: DebugProtocol.SetFunctionBreakpointsResponse, args: DebugProtocol.SetFunctionBreakpointsArguments): void {
-        log.debug("setFunctionBreakPointsRequest");
+        log.info("setFunctionBreakPointsRequest");
         this.sendResponse(response);
     }
 
@@ -198,12 +190,12 @@ export class JanusDebugSession extends DebugSession {
     */
 
     protected configurationDoneRequest(response: DebugProtocol.ConfigurationDoneResponse, args: DebugProtocol.ConfigurationDoneArguments): void {
-        log.debug("configurationDoneRequest");
+        log.info("configurationDoneRequest");
         this.sendResponse(response);
     }
 
     protected continueRequest(response: DebugProtocol.ContinueResponse, args: DebugProtocol.ContinueArguments): void {
-        log.debug(`continueRequest for threadId: ${args.threadId}`);
+        log.info(`continueRequest for threadId: ${args.threadId}`);
 
         if (this.connection === null) {
             throw new Error('this.connection is unexpectedly null');
@@ -219,16 +211,16 @@ export class JanusDebugSession extends DebugSession {
         }
         context.continue().then(() => {
             log.debug('continueRequest succeeded');
-            this.sendResponse(response);
+
             let continuedEvent = new ContinuedEvent(context.id);
             this.sendEvent(continuedEvent);
+            this.sendResponse(response);
         }, (err) => {
             log.error('continueRequest failed: ' + err);
             response.success = false;
             response.message = err.toString();
             this.sendResponse(response);
         });
-        this.sendResponse(response);
     }
 
     /*
@@ -241,7 +233,7 @@ export class JanusDebugSession extends DebugSession {
     */
 
     protected pauseRequest(response: DebugProtocol.PauseResponse, args: DebugProtocol.PauseArguments): void {
-        log.debug(`pauseRequest with threadId: ${args.threadId}`);
+        log.info(`pauseRequest with threadId: ${args.threadId}`);
 
         if (this.connection === null) {
             throw new Error('this.connection is unexpectedly null');
@@ -261,25 +253,88 @@ export class JanusDebugSession extends DebugSession {
             this.sendResponse(response);
             let stoppedEvent = new StoppedEvent('pause', contextId);
             this.sendEvent(stoppedEvent);
-        }).catch((err) => {
-            log.error('pauseRequest failed: ' + err);
+        }).catch(reason => {
+            log.error('pauseRequest failed: ' + reason);
             response.success = false;
-            response.message = err.toString();
+            response.message = reason.toString();
             this.sendResponse(response);
         });
     }
 
 
     protected sourceRequest(response: DebugProtocol.SourceResponse, args: DebugProtocol.SourceArguments): void {
-        log.debug(`sourceRequest`);
+        log.info(`sourceRequest`);
+        this.sendResponse(response);
+    }
+
+    protected threadsRequest(response: DebugProtocol.ThreadsResponse): void {
+        log.info(`threadsRequest`);
+
+        if (this.connection === null) {
+            throw new Error('this.connection is unexpectedly null');
+        }
+        let contexts = this.connection.coordinator.getAllAvailableContexts();
+        let threads: DebugProtocol.Thread[] = contexts.map(context => {
+            return {
+                id: context.id,
+                name: context.name
+            };
+        });
+        response.body = {
+            threads: threads
+        };
+        log.debug(`threadsRequest succeeded with ${JSON.stringify(response.body.threads)}`);
+        this.sendResponse(response);
+    }
+
+    protected stackTraceRequest(response: DebugProtocol.StackTraceResponse, args: DebugProtocol.StackTraceArguments): void {
+        log.info(`stackTraceRequest for threadId ${args.threadId}`);
+
+        if (this.connection === null) {
+            throw new Error('this.connection is unexpectedly null');
+        }
+
+        const contextId: ContextId = args.threadId || 0;
+        let context = this.connection.coordinator.getContext(contextId);
+        if (!context) {
+            log.warn(`cannot get backtrace for context ${contextId}: no such context exists`);
+            response.success = false;
+            response.message = 'Cannot return stacktrace execution: internal error';
+            this.sendResponse(response);
+            return;
+        }
+        context.getStacktrace().then((trace: StackFrame[]) => {
+            let stackFrames: DebugProtocol.StackFrame[] = trace.map(frame => {
+                return {
+                    id: 1, // TODO
+                    name: '', // TODO
+                    source: {
+                        path: frame.url
+                    },
+                    line: frame.line,
+                    column: 0
+                };
+            });
+            response.body = {
+                stackFrames: stackFrames,
+                totalFrames: trace.length
+            };
+            log.debug(`stackTraceRequest succeeded`);
+            this.sendResponse(response);
+        });
+    }
+
+    protected scopesRequest(response: DebugProtocol.ScopesResponse, args: DebugProtocol.ScopesArguments): void {
+        log.info(`scopesRequest for frameId ${args.frameId}`);
+        this.sendResponse(response);
+    }
+
+    protected variablesRequest(response: DebugProtocol.VariablesResponse, args: DebugProtocol.VariablesArguments): void {
+        log.info(`variablesRequest`);
         this.sendResponse(response);
     }
 
     /*
-        protected threadsRequest(response: DebugProtocol.ThreadsResponse): void;
-        protected stackTraceRequest(response: DebugProtocol.StackTraceResponse, args: DebugProtocol.StackTraceArguments): void;
-        protected scopesRequest(response: DebugProtocol.ScopesResponse, args: DebugProtocol.ScopesArguments): void;
-        protected variablesRequest(response: DebugProtocol.VariablesResponse, args: DebugProtocol.VariablesArguments): void;
         protected setVariableRequest(response: DebugProtocol.SetVariableResponse, args: DebugProtocol.SetVariableArguments): void;
         protected evaluateRequest(response: DebugProtocol.EvaluateResponse, args: DebugProtocol.EvaluateArguments): void;
         protected stepInTargetsRequest(response: DebugProtocol.StepInTargetsResponse, args: DebugProtocol.StepInTargetsArguments): void;
