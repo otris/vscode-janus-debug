@@ -22,7 +22,7 @@ suite("source map tests", () => {
             ]);
         });
 
-        test("different paths on localhost and target", () => {
+        test("different urls on localhost and target", () => {
             let result = sourceMap.remoteSourceUrl('/Users/bob/fubar/src/server/script1.js');
             assert.equal(result, '/usr/lib/fubar/script1.js');
         });
@@ -145,10 +145,16 @@ suite("protocol tests", () => {
             assert.equal(cmd.toString(), `{"name":"get_all_source_urls","type":"command","id":"${cmd.id}"}\n`);
         });
 
-        test("set_breakpoint", () => {
-            let cmd = Command.setBreakpoint('fubar.js', 9);
+        test("set_breakpoint pending === false", () => {
+            let cmd = Command.setBreakpoint('fubar.js', 17, false);
             assert.equal(cmd.toString(),
-                `{"name":"set_breakpoint","type":"command","id":"${cmd.id}","url":"fubar.js","line":9,"pending":true}\n`);
+                `{"name":"set_breakpoint","type":"command","id":"${cmd.id}","breakpoint":{"url":"fubar.js","line":17,"pending":false}}\n`);
+        });
+
+        test("set_breakpoint pending === true", () => {
+            let cmd = Command.setBreakpoint('script.js', 1);
+            assert.equal(cmd.toString(),
+                `{"name":"set_breakpoint","type":"command","id":"${cmd.id}","breakpoint":{"url":"script.js","line":1,"pending":true}}\n`);
         });
     });
 

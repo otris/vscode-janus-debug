@@ -175,8 +175,10 @@ export class JanusDebugSession extends DebugSession {
                     }
                 };
             });
-            log.debug(`setBreakPointsRequest succeeded: ${JSON.stringify(breakpoints)}`);
-            response.body.breakpoints = breakpoints;
+            log.debug(`setting breakpoint(s) on target succeeded: ${JSON.stringify(breakpoints)}`);
+            response.body = {
+                breakpoints: breakpoints
+            };
             this.sendResponse(response);
         }).catch((reason) => {
             log.error(`setBreakPointsRequest failed: ${reason}`);

@@ -86,9 +86,11 @@ export class Command {
 
     public static setBreakpoint(url: string, lineNumber: number, pending?: boolean): Command {
         let cmd = new Command('set_breakpoint');
-        cmd.payload['url'] = url;
-        cmd.payload['line'] = lineNumber;
-        cmd.payload['pending'] = pending || true;
+        cmd.payload['breakpoint'] = {
+            url: url,
+            line: lineNumber,
+            pending: pending === undefined ? true : pending
+        };
         return cmd;
     }
 }
