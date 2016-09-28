@@ -8,6 +8,11 @@
         "name": "otris software",
         "email": "kircher@otris.de"
     },
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://gitlab.otris.de/kircher/vscode-janus-debug"
+    },
     "engines": {
         "vscode": "^1.4.0"
     },
