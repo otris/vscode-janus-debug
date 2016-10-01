@@ -5,6 +5,7 @@ import { EventEmitter } from 'events';
 import { parseResponse, Response, Command } from '../src/protocol';
 import { SocketLike, DebugProtocolTransport } from '../src/transport';
 import { SourceMap } from '../src/sourceMap';
+import { cantorPairing, reverseCantorPairing } from '../src/cantor';
 
 suite("source map tests", () => {
 
@@ -196,5 +197,18 @@ suite("protocol tests", () => {
             assert.equal(result.contextId, 17);
             assert.equal(result.content.id, '857B3B96591A5163');
         });
+    });
+});
+
+suite("cantor", () => {
+
+    test("pairing", () => {
+        assert.equal(cantorPairing(47, 32), 3192);
+    });
+
+    test("reverse pairing", () => {
+        let result = reverseCantorPairing(1432);
+        assert.equal(result.x, 52);
+        assert.equal(result.y, 1);
     });
 });
