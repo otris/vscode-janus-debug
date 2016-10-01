@@ -14,12 +14,12 @@ import { Logger } from './log';
 let log = Logger.create('JanusDebugSession');
 
 export class JanusDebugSession extends DebugSession {
-    private connection: DebugConnection | null;
+    private connection: DebugConnection | undefined;
     private sourceMap: SourceMap;
 
     public constructor() {
         super();
-        this.connection = null;
+        this.connection = undefined;
         this.sourceMap = new SourceMap();
     }
 
@@ -49,7 +49,7 @@ export class JanusDebugSession extends DebugSession {
 
         if (this.connection) {
             this.connection.disconnect().then(() => {
-                this.connection = null;
+                this.connection = undefined;
                 this.sendResponse(response);
             });
         } else {
@@ -75,8 +75,8 @@ export class JanusDebugSession extends DebugSession {
         socket.on('connect', () => {
             log.debug('attachRequest: connection established. Testing...');
 
-            if (this.connection == null) {
-                throw new Error('this.connection is unexpectedly null');
+            if (this.connection === undefined) {
+                throw new Error('this.connection is unexpectedly undefined');
             }
 
             let cmd = new Command('get_all_source_urls');
@@ -131,8 +131,8 @@ export class JanusDebugSession extends DebugSession {
             return;
         }
 
-        if (this.connection === null) {
-            throw new Error('this.connection is unexpectedly null');
+        if (this.connection === undefined) {
+            throw new Error('this.connection is unexpectedly undefined');
         }
 
         let deleteAllBreakpointsCommand = new Command('delete_all_breakpoints');
@@ -152,8 +152,8 @@ export class JanusDebugSession extends DebugSession {
         args.breakpoints.forEach((breakpoint => {
             // TODO: move up. Flow analysis doesn't work well with lambdas yet, see #11090, should be fixed with
             // TypeScript 2.1
-            if (this.connection === null) {
-                throw new Error('this.connection is unexpectedly null');
+            if (this.connection === undefined) {
+                throw new Error('this.connection is unexpectedly undefined');
             }
 
             let setBreakpointCommand = Command.setBreakpoint(remoteSourceUrl, breakpoint.line);
@@ -212,8 +212,8 @@ export class JanusDebugSession extends DebugSession {
     protected continueRequest(response: DebugProtocol.ContinueResponse, args: DebugProtocol.ContinueArguments): void {
         log.info(`continueRequest for threadId: ${args.threadId}`);
 
-        if (this.connection === null) {
-            throw new Error('this.connection is unexpectedly null');
+        if (this.connection === undefined) {
+            throw new Error('this.connection is unexpectedly undefined');
         }
 
         let contextId: ContextId = args.threadId || 0;
@@ -250,8 +250,8 @@ export class JanusDebugSession extends DebugSession {
     protected pauseRequest(response: DebugProtocol.PauseResponse, args: DebugProtocol.PauseArguments): void {
         log.info(`pauseRequest with threadId: ${args.threadId}`);
 
-        if (this.connection === null) {
-            throw new Error('this.connection is unexpectedly null');
+        if (this.connection === undefined) {
+            throw new Error('this.connection is unexpectedly undefined');
         }
 
         const contextId: ContextId = args.threadId || 0;
@@ -285,8 +285,8 @@ export class JanusDebugSession extends DebugSession {
     protected threadsRequest(response: DebugProtocol.ThreadsResponse): void {
         log.info(`threadsRequest`);
 
-        if (this.connection === null) {
-            throw new Error('this.connection is unexpectedly null');
+        if (this.connection === undefined) {
+            throw new Error('this.connection is unexpectedly undefined');
         }
         let contexts = this.connection.coordinator.getAllAvailableContexts();
         let threads: DebugProtocol.Thread[] = contexts.map(context => {
@@ -305,8 +305,8 @@ export class JanusDebugSession extends DebugSession {
     protected stackTraceRequest(response: DebugProtocol.StackTraceResponse, args: DebugProtocol.StackTraceArguments): void {
         log.info(`stackTraceRequest for threadId ${args.threadId}`);
 
-        if (this.connection === null) {
-            throw new Error('this.connection is unexpectedly null');
+        if (this.connection === undefined) {
+            throw new Error('this.connection is unexpectedly undefined');
         }
 
         const contextId: ContextId = args.threadId || 0;
