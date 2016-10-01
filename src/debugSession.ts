@@ -131,6 +131,21 @@ export class JanusDebugSession extends DebugSession {
             return;
         }
 
+        if (this.connection === null) {
+            throw new Error('this.connection is unexpectedly null');
+        }
+
+        let deleteAllBreakpointsCommand = new Command('delete_all_breakpoints');
+        this.connection.sendRequest(deleteAllBreakpointsCommand, (response: Response) => {
+            return new Promise<void>((resolve, reject) => {
+                if (response.type === 'error') {
+                    reject(new Error(`Target responded with error '${response.content.message}'`));
+                } else {
+                    resolve();
+                }
+            });
+        });
+
         const localUrl: string = args.source.path;
         const remoteSourceUrl = this.sourceMap.remoteSourceUrl(localUrl);
         let actualBreakpoints: Promise<Breakpoint>[] = [];
@@ -148,7 +163,7 @@ export class JanusDebugSession extends DebugSession {
                     return new Promise<Breakpoint>((resolve, reject) => {
 
                         if (response.type === 'error') {
-                            reject(new Error(`Target responded with error '${response.content.message}''`));
+                            reject(new Error(`Target responded with error '${response.content.message}'`));
                         } else {
                             resolve(response.content);
                         }

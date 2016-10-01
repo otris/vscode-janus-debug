@@ -161,6 +161,11 @@ suite("protocol tests", () => {
             let cmd = new Command('get_available_contexts');
             assert.equal(`get_available_contexts\n`, cmd.toString());
         });
+
+        test("delete_all_breakpoints", () => {
+            let cmd = new Command('delete_all_breakpoints');
+            assert.equal(cmd.toString(), `{"name":"delete_all_breakpoints","type":"command","id":"${cmd.id}"}\n`);
+        });
     });
 
     suite("parse response", () => {
