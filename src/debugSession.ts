@@ -9,6 +9,7 @@ import { DebugConnection } from './connection';
 import { Command, Response, Breakpoint, StackFrame } from './protocol';
 import { ContextId } from './context';
 import { SourceMap } from './sourceMap';
+import { FrameMap } from './frameMap';
 import { Logger } from './log';
 
 let log = Logger.create('JanusDebugSession');
@@ -16,11 +17,13 @@ let log = Logger.create('JanusDebugSession');
 export class JanusDebugSession extends DebugSession {
     private connection: DebugConnection | undefined;
     private sourceMap: SourceMap;
+    private frameMap: FrameMap;
 
     public constructor() {
         super();
         this.connection = undefined;
         this.sourceMap = new SourceMap();
+        this.frameMap = new FrameMap();
     }
 
     protected initializeRequest(response: DebugProtocol.InitializeResponse, args: DebugProtocol.InitializeRequestArguments): void {
@@ -276,7 +279,6 @@ export class JanusDebugSession extends DebugSession {
         });
     }
 
-
     protected sourceRequest(response: DebugProtocol.SourceResponse, args: DebugProtocol.SourceArguments): void {
         log.info(`sourceRequest`);
         this.sendResponse(response);
@@ -319,14 +321,16 @@ export class JanusDebugSession extends DebugSession {
             return;
         }
         context.getStacktrace().then((trace: StackFrame[]) => {
-            let stackFrames: DebugProtocol.StackFrame[] = trace.map(frame => {
+
+            const frames = this.frameMap.addFrames(contextId, trace);
+            let stackFrames: DebugProtocol.StackFrame[] = frames.map(frame => {
                 return {
-                    id: 1, // TODO
+                    id: frame.frameId,
                     name: '', // TODO
                     source: {
-                        path: frame.url
+                        path: frame.sourceUrl
                     },
-                    line: frame.line,
+                    line: frame.sourceLine,
                     column: 0
                 };
             });
