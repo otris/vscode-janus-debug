@@ -119,21 +119,23 @@
         ]
     },
     "scripts": {
-        "vscode:prepublish": "node ./node_modules/vscode/bin/compile",
-        "compile": "node ./node_modules/vscode/bin/compile -watch -p ./",
+        "vscode:prepublish": "tsc -p ./",
+        "compile": "tsc -watch -p ./",
         "watch": "node ./node_modules/typescript/bin/tsc -w -p ./src",
         "test": "node ./node_modules/mocha/bin/mocha --timeout 10000 -u tdd ./out/test/",
         "postinstall": "node ./node_modules/vscode/bin/install"
     },
     "dependencies": {
         "uuid": "^2.0.3",
-        "vscode-debugprotocol": "^1.12.0",
-        "vscode-debugadapter": "^1.12.0"
+        "vscode-debugprotocol": "^1.14.0",
+        "vscode-debugadapter": "^1.14.0"
     },
     "devDependencies": {
-        "typescript": "^2.0.3",
-        "vscode": "^0.11.13",
+        "typescript": "^2.0.6",
+        "vscode": "^1.0.1",
         "mocha": "^2.4.5",
-        "vscode-debugadapter-testsupport": "^1.12.0"
+        "vscode-debugadapter-testsupport": "^1.14.0",
+        "@types/node": "^6.0.40",
+        "@types/mocha": "^2.2.32"
     }
 }
