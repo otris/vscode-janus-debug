@@ -41,7 +41,8 @@ export class JanusDebugSession extends DebugSession {
             supportsRestartFrame: false,
             supportsGotoTargetsRequest: false,
             supportsStepInTargetsRequest: false,
-            supportsCompletionsRequest: false
+            supportsCompletionsRequest: false,
+            supportsRunInTerminalRequest: false
         };
         response.body = body;
         this.sendResponse(response);
