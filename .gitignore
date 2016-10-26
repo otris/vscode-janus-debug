@@ -1,3 +1,6 @@
+# Visual Studio Code extension packages
+*.vsix
+
 ### Windows ###
 # Windows image file caches
 Thumbs.db

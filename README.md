@@ -1,6 +1,6 @@
-# vscode-janus-debug README
+# vscode-janus-debug
 
-This is the README for your extension "vscode-janus-debug". After writing up a brief description, we recommend including the following sections.
+Visual Studio Code plugin for debugging JANUS-based applications.
 
 ## Features
 
