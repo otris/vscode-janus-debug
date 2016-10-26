@@ -18,14 +18,11 @@ export class SourceMap {
 
     public remoteSourceUrl(localUrl: string): string {
         const path = parse(localUrl);
-        let remoteUrl: string;
-        if (this.baseToRemoteUrl.has(path.base)) {
-            remoteUrl = this.baseToRemoteUrl.get(path.base);
-        } else {
+        let remoteUrl: string | undefined = this.baseToRemoteUrl.get(path.base);
+        if (remoteUrl === undefined) {
             // Fallback
             remoteUrl = localUrl;
         }
-
         log.debug(`remoteSourceUrl requested for '${localUrl}' -> '${remoteUrl}'`);
         return remoteUrl;
     }

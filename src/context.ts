@@ -94,8 +94,12 @@ export class ContextCoordinator {
         return Array.from(this.contextById.values());
     }
 
-    public getContext(id: ContextId): Context /* | undefined */ {
-        return this.contextById.get(id);
+    public getContext(id: ContextId): Context {
+         let context = this.contextById.get(id);
+         if (context === undefined) {
+             throw new Error(`No such context ${id}`);
+         }
+         return context;
     }
 
     public handleResponse(response: Response): Promise<void> {
@@ -138,8 +142,10 @@ export class ContextCoordinator {
 
                 // Dispatch to the corresponding context
 
-                let context: Context = this.contextById.get(response.contextId);
-                assert.ok(context !== undefined, "response for unknown context");
+                let context: Context | undefined = this.contextById.get(response.contextId);
+                if (context === undefined) {
+                    throw new Error(`response for unknown context`);
+                }
                 context.handleResponse(response);
             }
         });

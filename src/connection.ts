@@ -38,6 +38,9 @@ export class DebugConnection extends EventEmitter {
                 // Meant to be handled by a particular response handler function that was given when sending the
                 // request
                 let handler = this.responseHandlers.get(uuid);
+                if (handler === undefined) {
+                    throw new Error(`No response handler for ${uuid}`);
+                }
                 try {
                     handler(response);
                 } finally {
