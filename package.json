@@ -3,7 +3,7 @@
     "displayName": "vscode-janus-debug",
     "description": "VS Code plugin for debugging JANUS applications",
     "version": "0.0.1",
-    "publisher": "bkircher",
+    "publisher": "otris-software",
     "author": {
         "name": "otris software",
         "email": "kircher@otris.de"
