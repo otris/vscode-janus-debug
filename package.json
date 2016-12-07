@@ -126,16 +126,16 @@
         "postinstall": "node ./node_modules/vscode/bin/install"
     },
     "dependencies": {
-        "uuid": "^2.0.3",
+        "uuid": "^3.0.1",
         "vscode-debugprotocol": "^1.14.0",
         "vscode-debugadapter": "^1.14.0"
     },
     "devDependencies": {
-        "typescript": "^2.0.6",
-        "vscode": "^1.0.1",
+        "typescript": "^2.0.10",
+        "vscode": "^1.0.3",
         "mocha": "^2.4.5",
         "vscode-debugadapter-testsupport": "^1.14.0",
         "@types/node": "^6.0.40",
-        "@types/mocha": "^2.2.32"
+        "@types/mocha": "^2.2.33"
     }
 }
