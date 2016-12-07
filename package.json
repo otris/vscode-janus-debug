@@ -119,10 +119,10 @@
         ]
     },
     "scripts": {
-        "vscode:prepublish": "node_modules\\.bin\\tsc -p ./",
-        "compile": "node_modules/.bin/tsc -p ./",
-        "watch": "node_modules/.bin/tsc -watch -p ./",
-        "test": "node_modules/.bin/mocha --timeout 10000 -u tdd ./out/test/",
+        "vscode:prepublish": "tsc -p ./",
+        "compile": "tsc -p ./",
+        "watch": "tsc -watch -p ./",
+        "test": "tsc -p ./ && mocha --timeout 10000 -u tdd out/test/",
         "postinstall": "node ./node_modules/vscode/bin/install"
     },
     "dependencies": {
