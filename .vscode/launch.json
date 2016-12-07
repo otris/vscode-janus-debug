@@ -34,7 +34,8 @@
             ],
             "sourceMaps": true,
             "outDir": "${workspaceRoot}/out/src",
-            "internalConsoleOptions": "openOnSessionStart"
+            "internalConsoleOptions": "openOnSessionStart",
+            "preLaunchTask": "npm"
         }
     ]
 }
