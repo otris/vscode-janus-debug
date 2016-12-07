@@ -1,7 +1,7 @@
 'use strict';
 
 import * as assert from 'assert';
-import * as uuid from 'node-uuid';
+import * as uuid from 'uuid';
 
 export enum ErrorCode {
     UNKNOWN_COMMAND = 1,

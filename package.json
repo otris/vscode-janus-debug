@@ -126,7 +126,8 @@
         "postinstall": "node ./node_modules/vscode/bin/install"
     },
     "dependencies": {
-        "uuid": "^3.0.1",
+        "@types/uuid": "^2.0.29",
+        "uuid": "^2.0.3",
         "vscode-debugprotocol": "^1.14.0",
         "vscode-debugadapter": "^1.14.0"
     },

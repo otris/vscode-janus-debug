@@ -1,6 +1,0 @@
-{
-  "name": "vscode-janus-debug",
-  "dependencies": {
-    "node-uuid": "registry:npm/node-uuid#1.4.7+20160723033700"
-  }
-}
