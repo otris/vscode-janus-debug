@@ -1,8 +1,8 @@
 {
     "name": "vscode-janus-debug",
-    "displayName": "vscode-janus-debug",
-    "description": "VS Code plugin for debugging JANUS applications",
-    "version": "0.0.1",
+    "displayName": "JavaScript Remote Debugger for JANUS Apps",
+    "description": "Debug your JANUS-based applications in Visual Studio Code",
+    "version": "0.0.2",
     "publisher": "otris-software",
     "author": {
         "name": "otris software",
