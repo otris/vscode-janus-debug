@@ -27,7 +27,7 @@ class StackFrame {
 let log = Logger.create('FrameMap');
 
 export class FrameMap {
-    private frameIdToFrame: Map<FrameId, StackFrame>;
+    private frameIdToFrame: Map<FrameId, StackFrame> = new Map();
 
     public addFrames(contextId: ContextId, frames: protocol.StackFrame[]): StackFrame[] {
         log.debug(`adding frames ${JSON.stringify(frames)} for context id ${contextId}`);
@@ -36,7 +36,7 @@ export class FrameMap {
         frames.forEach(frame => {
             let entry = new StackFrame(contextId, frame);
             if (this.frameIdToFrame.has(entry.frameId)) {
-                log.info(`already mapped entry: ${entry.frameId} -> (${contextId}, ${entry.rDepth})`);
+                log.warn(`already mapped entry: ${entry.frameId} -> (${contextId}, ${entry.rDepth})`);
             }
             this.frameIdToFrame.set(entry.frameId, entry);
             added.push(entry);
