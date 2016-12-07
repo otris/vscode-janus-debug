@@ -80,7 +80,7 @@ export class JanusDebugSession extends DebugSession {
             log.debug('attachRequest: connection established. Testing...');
 
             if (this.connection === undefined) {
-                throw new Error('this.connection is unexpectedly undefined');
+                throw new Error('No connection');
             }
 
             let cmd = new Command('get_all_source_urls');
@@ -136,7 +136,7 @@ export class JanusDebugSession extends DebugSession {
         }
 
         if (this.connection === undefined) {
-            throw new Error('this.connection is unexpectedly undefined');
+            throw new Error('No connection');
         }
 
         let deleteAllBreakpointsCommand = new Command('delete_all_breakpoints');
@@ -157,7 +157,7 @@ export class JanusDebugSession extends DebugSession {
             // TODO: move up. Flow analysis doesn't work well with lambdas yet, see #11090, should be fixed with
             // TypeScript 2.1
             if (this.connection === undefined) {
-                throw new Error('this.connection is unexpectedly undefined');
+                throw new Error('No connection');
             }
 
             let setBreakpointCommand = Command.setBreakpoint(remoteSourceUrl, breakpoint.line);
@@ -217,7 +217,7 @@ export class JanusDebugSession extends DebugSession {
         log.info(`continueRequest for threadId: ${args.threadId}`);
 
         if (this.connection === undefined) {
-            throw new Error('this.connection is unexpectedly undefined');
+            throw new Error('No connection');
         }
 
         let contextId: ContextId = args.threadId || 0;
@@ -255,29 +255,31 @@ export class JanusDebugSession extends DebugSession {
         log.info(`pauseRequest with threadId: ${args.threadId}`);
 
         if (this.connection === undefined) {
-            throw new Error('this.connection is unexpectedly undefined');
+            throw new Error('No connection');
         }
 
-        const contextId: ContextId = args.threadId || 0;
-        let context = this.connection.coordinator.getContext(contextId);
-        if (!context) {
-            log.warn(`cannot pause context ${contextId}: no such context exists`);
+        try {
+            const contextId: ContextId = args.threadId || 0;
+
+            let context = this.connection.coordinator.getContext(contextId);
+            context.pause().then(() => {
+                log.debug('pauseRequest succeeded');
+                this.sendResponse(response);
+                let stoppedEvent = new StoppedEvent('pause', contextId);
+                this.sendEvent(stoppedEvent);
+            }).catch(reason => {
+                log.error('pauseRequest failed: ' + reason);
+                response.success = false;
+                response.message = reason.toString();
+                this.sendResponse(response);
+            });
+
+        } catch (err) {
+            log.error(`Cannot pause context: ${err}`);
             response.success = false;
-            response.message = 'Cannot pause execution: internal error';
+            response.message = err.toString();
             this.sendResponse(response);
-            return;
         }
-        context.pause().then(() => {
-            log.debug('pauseRequest succeeded');
-            this.sendResponse(response);
-            let stoppedEvent = new StoppedEvent('pause', contextId);
-            this.sendEvent(stoppedEvent);
-        }).catch(reason => {
-            log.error('pauseRequest failed: ' + reason);
-            response.success = false;
-            response.message = reason.toString();
-            this.sendResponse(response);
-        });
     }
 
     protected sourceRequest(response: DebugProtocol.SourceResponse, args: DebugProtocol.SourceArguments): void {
@@ -289,7 +291,7 @@ export class JanusDebugSession extends DebugSession {
         log.info(`threadsRequest`);
 
         if (this.connection === undefined) {
-            throw new Error('this.connection is unexpectedly undefined');
+            throw new Error('No connection');
         }
         let contexts = this.connection.coordinator.getAllAvailableContexts();
         let threads: DebugProtocol.Thread[] = contexts.map(context => {
@@ -309,20 +311,12 @@ export class JanusDebugSession extends DebugSession {
         log.info(`stackTraceRequest for threadId ${args.threadId}`);
 
         if (this.connection === undefined) {
-            throw new Error('this.connection is unexpectedly undefined');
+            throw new Error('No connection');
         }
 
         const contextId: ContextId = args.threadId || 0;
         let context = this.connection.coordinator.getContext(contextId);
-        if (!context) {
-            log.warn(`cannot get backtrace for context ${contextId}: no such context exists`);
-            response.success = false;
-            response.message = 'Cannot return stacktrace execution: internal error';
-            this.sendResponse(response);
-            return;
-        }
         context.getStacktrace().then((trace: StackFrame[]) => {
-
             const frames = this.frameMap.addFrames(contextId, trace);
             let stackFrames: DebugProtocol.StackFrame[] = frames.map(frame => {
                 return {
@@ -378,7 +372,7 @@ export class JanusDebugSession extends DebugSession {
 
         this.connection = new DebugConnection(socket);
         this.connection.on('newContext', (contextId, contextName, stopped) => {
-            log.info(`new context on target: ${contextId}, ${contextName}, stopped: ${stopped}`);
+            log.info(`new context on target: ${contextId}, context name: "${contextName}", stopped: ${stopped}`);
             if (stopped) {
                 let stoppedEvent = new StoppedEvent('pause', contextId);
                 log.debug(`sending StoppedEvent, reason: 'pause'`);
