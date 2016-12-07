@@ -9,11 +9,18 @@ import { ContextCoordinator } from './context';
 
 let log = Logger.create('DebugConnection');
 
+export interface ConnectionLike {
+    emit(event: string, ...args: any[]);
+    sendRequest(request: Command, responseHandler?: (response: Response) => Promise<any>): Promise<any>;
+    handleResponse(response: Response): void;
+    disconnect(): Promise<void>;
+}
+
 /**
  * Represents a connection to a target.
  * @fires DebugConnection.newContext
  */
-export class DebugConnection extends EventEmitter {
+export class DebugConnection extends EventEmitter implements ConnectionLike {
     private transport: DebugProtocolTransport;
     private responseHandlers: Map<string, Function>;
     public readonly coordinator: ContextCoordinator;
@@ -27,7 +34,7 @@ export class DebugConnection extends EventEmitter {
         this.transport.on('response', this.handleResponse);
     }
 
-    public handleResponse = (response: Response) => {
+    public handleResponse = (response: Response): void => {
         log.info(`handle response: ${JSON.stringify(response)}`);
 
         if (response.content.hasOwnProperty('id')) {

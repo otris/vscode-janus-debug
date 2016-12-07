@@ -3,7 +3,7 @@
 import * as assert from 'assert';
 import { Response, Command, ErrorCode, StackFrame } from './protocol';
 import { Logger } from './log';
-import { DebugConnection } from './connection';
+import { ConnectionLike } from './connection';
 
 export type ContextId = number;
 
@@ -14,7 +14,7 @@ export class Context {
         return this.stopped ? this.stopped : false;
     }
 
-    constructor(private debugConnection: DebugConnection,
+    constructor(private debugConnection: ConnectionLike,
         public readonly id: ContextId,
         public readonly name: string,
         private readonly stopped?: boolean) { }
@@ -83,7 +83,7 @@ let coordinatorLog = Logger.create('ContextCoordinator');
 export class ContextCoordinator {
     private contextById: Map<ContextId, Context> = new Map();
 
-    constructor(private connection: DebugConnection) { }
+    constructor(private connection: ConnectionLike) { }
 
     public getAllAvailableContexts(): Context[] {
         coordinatorLog.debug(`getAllAvailableContexts`);
@@ -95,11 +95,23 @@ export class ContextCoordinator {
     }
 
     public getContext(id: ContextId): Context {
-         let context = this.contextById.get(id);
-         if (context === undefined) {
-             throw new Error(`No such context ${id}`);
-         }
-         return context;
+        let context = this.contextById.get(id);
+        if (context === undefined) {
+
+            // Well, somebody requests a context that does not exist. What could we possibly do?
+
+            let contents = Array.from(this.contextById.values());
+            coordinatorLog.warn(`unknown context ${id} requested; contexts available: ${
+                contents.map(context => { return context.id.toString(); }).join(', ')}`);
+
+            // Shitty but maybe helps in cases we're caught by surprise
+            // if (id === 0 && contents.length === 1) {
+            //    return contents[0];
+            // }
+
+            throw new Error(`No such context ${id}`);
+        }
+        return context;
     }
 
     public handleResponse(response: Response): Promise<void> {

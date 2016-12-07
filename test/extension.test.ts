@@ -6,6 +6,8 @@ import { parseResponse, Response, Command } from '../src/protocol';
 import { SocketLike, DebugProtocolTransport } from '../src/transport';
 import { SourceMap } from '../src/sourceMap';
 import { cantorPairing, reverseCantorPairing } from '../src/cantor';
+import { ConnectionLike } from '../src/connection';
+import { ContextCoordinator } from '../src/context';
 
 suite("source map tests", () => {
 
@@ -50,7 +52,7 @@ suite("debug adapter tests", () => {
 
     suite("initialize", () => {
 
-        test('should respond with supported features', () => {
+        test("should respond with supported features", () => {
             return debugClient.initializeRequest().then(response => {
                 let body = response.body || {};
                 assert.equal(body.supportsConfigurationDoneRequest, true);
@@ -200,7 +202,7 @@ suite("protocol tests", () => {
     });
 });
 
-suite("cantor", () => {
+suite("cantor algorithm tests", () => {
 
     test("pairing", () => {
         assert.equal(cantorPairing(47, 32), 3192);
@@ -210,5 +212,128 @@ suite("cantor", () => {
         let result = reverseCantorPairing(1432);
         assert.equal(result.x, 52);
         assert.equal(result.y, 1);
+    });
+});
+
+suite("context coordinator coordinates requests and responses", () => {
+
+    class MockConnection extends EventEmitter implements ConnectionLike {
+        public sendRequest(request: Command, responseHandler?: (response: Response) => Promise<any>): Promise<any> {
+            return Promise.resolve();
+        }
+
+        public handleResponse(response: Response): void {
+
+        }
+
+        public disconnect(): Promise<void> {
+            return Promise.resolve();
+        }
+    }
+
+    let coordinator: ContextCoordinator;
+    let mockConnection: MockConnection;
+    let eventsEmitted: any[] = [];
+
+    setup(() => {
+        mockConnection = new MockConnection();
+        coordinator = new ContextCoordinator(mockConnection);
+        mockConnection.on('newContext', (contextId, contextName, stopped) => {
+            eventsEmitted.push({ contextId, contextName, stopped });
+        });
+    });
+
+    teardown(() => {
+        eventsEmitted = [];
+    });
+
+    test("has no contexts after construction", () => {
+        assert.equal(coordinator.getAllAvailableContexts().length, 0);
+        assert.throws(() => { coordinator.getContext(23) }, "No such context");
+    });
+
+    suite("a 'contexts_list' response should...", () => {
+
+        let response: Response = {
+            type: 'info',
+            content: {
+                contexts: [{
+                    contextId: 7,
+                    contextName: 'seventh context',
+                    paused: false
+                },
+                {
+                    contextId: 8,
+                    contextName: 'eighth context',
+                    paused: true
+                }]
+            },
+            subtype: 'contexts_list'
+        };
+
+        test("remember all contexts in the response", () => {
+            coordinator.handleResponse(response).then(() => {
+                let contexts = coordinator.getAllAvailableContexts();
+
+                assert.equal(contexts.length, 2);
+                assert.throws(() => { coordinator.getContext(23) }, "No such context");
+
+                let context = coordinator.getContext(7);
+                assert.equal(context.id, 7);
+                assert.equal(context.name, 'seventh context');
+                assert.equal(context.isStopped(), false);
+
+                context = coordinator.getContext(8);
+                assert.equal(context.id, 8);
+                assert.equal(context.name, 'eighth context');
+                assert.equal(context.isStopped(), true);
+            });
+        });
+
+        test("emit a 'newContext' event as soon a new context is found", () => {
+            coordinator.handleResponse(response).then(() => {
+                assert.equal(eventsEmitted.length, 2);
+            });
+        });
+
+        test("emit a 'newContext' event only for unknown contexts", () => {
+            coordinator.handleResponse(response).then(() => {
+                let newResponse = response;
+                newResponse.content.contexts.push({
+                    contextId: 9,
+                    contextName: 'ninth context',
+                    paused: false
+                });
+                eventsEmitted = [];
+                coordinator.handleResponse(newResponse).then(() => {
+                    assert.equal(eventsEmitted.length, 1);
+                    assert.equal(eventsEmitted[0].contextId, 9);
+                    assert.equal(eventsEmitted[0].contextName, 'ninth context');
+                    assert.equal(eventsEmitted[0].paused, false);
+                });
+            });
+        });
+
+        test("forget about contexts that no longer exist", () => {
+            let eventsEmitted: any[] = [];
+            let newResponse: Response = {
+                type: 'info',
+                content: {
+                    contexts: [{
+                        contextId: 8,
+                        contextName: 'eighth context',
+                        paused: true
+                    }]
+                },
+                subtype: 'contexts_list'
+            };
+            coordinator.handleResponse(response).then(() => {
+                assert.equal(eventsEmitted.length, 0);
+
+                let contexts = coordinator.getAllAvailableContexts();
+                assert.equal(contexts.length, 1);
+                assert.throws(() => { coordinator.getContext(7) }, "No such context");
+            });
+        });
     });
 });
