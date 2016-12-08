@@ -18,11 +18,37 @@ export enum ErrorCode {
     NO_ACTIVE_FRAME = 13,
 }
 
-export type CommandName = 'pc' | 'step' | 'next' | 'continue' | 'source_code' | 'delete_all_breakpoints' | 'pause' | 'set_breakpoint' | 'get_stacktrace' | 'get_variables' | 'evaluate' | 'get_all_source_urls' | 'get_breakpoints' | 'get_available_contexts' | 'exit';
+export type CommandName =
+    'pc' |
+    'step' |
+    'next' |
+    'continue' |
+    'source_code' |
+    'delete_all_breakpoints' |
+    'pause' |
+    'set_breakpoint' |
+    'get_stacktrace' |
+    'get_variables' |
+    'evaluate' |
+    'get_all_source_urls' |
+    'get_breakpoints' |
+    'get_available_contexts' |
+    'exit';
 
 export type ResponseType = 'info' | 'error';
 
-export type ResponseSubType = 'pc' | 'source_code' | 'all_breakpoints_deleted' | 'breakpoint_set' | 'breakpoint_deleted' | 'stacktrace' | 'variables' | 'evaluated' | 'all_source_urls' | 'breakpoints_list' | 'contexts_list';
+export type ResponseSubType =
+    'pc' |
+    'source_code' |
+    'all_breakpoints_deleted' |
+    'breakpoint_set' |
+    'breakpoint_deleted' |
+    'stacktrace' |
+    'variables' |
+    'evaluated' |
+    'all_source_urls' |
+    'breakpoints_list' |
+    'contexts_list';
 
 export interface Response {
     /** Tyep of the response: 'info' for normal responses, 'error' for errors. */
@@ -88,11 +114,16 @@ export class Command {
             type: 'command',
         };
         this.contextId = contextId;
+
+        // Only commands that expect a response need an id. For example, 'exit' does not entail a
+        // response from the server so we do not need to generate a UUID v4 for this command.
+
         let needsId = true;
         const exceptions = [
             () => { return name === 'get_available_contexts'; },
             () => { return name === 'exit'; },
-            () => { return name === 'continue' && contextId === undefined; }
+            () => { return name === 'continue' && contextId === undefined; },
+            () => { return name === 'next'; }
         ];
         for (var i = 0; i < exceptions.length; i++) {
             needsId = !exceptions[i]();

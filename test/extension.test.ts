@@ -143,6 +143,11 @@ suite("protocol tests", () => {
             assert.equal(cmd.toString(), `42/{"name":"pause","type":"command","id":"${cmd.id}"}\n`);
         });
 
+        test("'next'", () => {
+            let cmd = new Command('next', 1);
+            assert.equal(cmd.toString(), `1/{"name":"next","type":"command"}\n`);
+        });
+
         test("'get_all_source_urls'", () => {
             let cmd = new Command('get_all_source_urls');
             assert.equal(cmd.toString(), `{"name":"get_all_source_urls","type":"command","id":"${cmd.id}"}\n`);

@@ -225,12 +225,7 @@ export class JanusDebugSession extends DebugSession {
 
         let contextId: ContextId = args.threadId || 0;
         let context = this.connection.coordinator.getContext(contextId);
-        if (!context) {
-            log.warn(`cannot continue context ${contextId}: no such context exists`);
-            response.success = false;
-            response.message = 'Cannot continue execution: internal error';
-            this.sendResponse(response);
-        }
+
         context.continue().then(() => {
             log.debug('continueRequest succeeded');
 
@@ -245,8 +240,31 @@ export class JanusDebugSession extends DebugSession {
         });
     }
 
+
+    protected nextRequest(response: DebugProtocol.NextResponse, args: DebugProtocol.NextArguments): void {
+        log.info(`nextRequest for threadId: ${args.threadId}`);
+
+        if (this.connection === undefined) {
+            throw new Error('No connection');
+        }
+
+        let contextId: ContextId = args.threadId || 0;
+        let context = this.connection.coordinator.getContext(contextId);
+
+        context.next().then(() => {
+            log.debug('nextRequest succeeded');
+            let stoppedEvent = new StoppedEvent('step', contextId);
+            this.sendResponse(response);
+            this.sendEvent(stoppedEvent);
+        }, (err) => {
+            log.error('nextRequest failed: ' + err);
+            response.success = false;
+            response.message = err.toString();
+            this.sendResponse(response);
+        });
+    }
+
     /*
-        protected nextRequest(response: DebugProtocol.NextResponse, args: DebugProtocol.NextArguments): void;
         protected stepInRequest(response: DebugProtocol.StepInResponse, args: DebugProtocol.StepInArguments): void;
         protected stepOutRequest(response: DebugProtocol.StepOutResponse, args: DebugProtocol.StepOutArguments): void;
         protected stepBackRequest(response: DebugProtocol.StepBackResponse, args: DebugProtocol.StepBackArguments): void;
@@ -255,7 +273,7 @@ export class JanusDebugSession extends DebugSession {
     */
 
     protected pauseRequest(response: DebugProtocol.PauseResponse, args: DebugProtocol.PauseArguments): void {
-        log.info(`pauseRequest with threadId: ${args.threadId}`);
+        log.info(`pauseRequest for threadId: ${args.threadId}`);
 
         if (this.connection === undefined) {
             throw new Error('No connection');

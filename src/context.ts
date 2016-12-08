@@ -20,7 +20,7 @@ export class Context {
         private readonly stopped?: boolean) { }
 
     public pause(): Promise<void> {
-        contextLog.debug(`request pause for context ${this.id}`);
+        contextLog.debug(`request 'pause' for context ${this.id}`);
 
         let cmd = new Command('pause', this.id);
         return this.debugConnection.sendRequest(cmd, (response: Response) => {
@@ -43,14 +43,14 @@ export class Context {
     }
 
     public continue(): Promise<void> {
-        contextLog.debug(`request continue for context ${this.id}`);
+        contextLog.debug(`request 'continue' for context ${this.id}`);
 
         let cmd = new Command('continue', this.id);
         return this.debugConnection.sendRequest(cmd);
     }
 
     public getStacktrace(): Promise<StackFrame[]> {
-        contextLog.debug(`request stacktrace for context ${this.id}`);
+        contextLog.debug(`request 'get_stacktrace' for context ${this.id}`);
 
         let cmd = new Command('get_stacktrace', this.id);
         return this.debugConnection.sendRequest(cmd, (response: Response) => {
@@ -64,6 +64,11 @@ export class Context {
                 }
             });
         });
+    }
+
+    public next(): Promise<void> {
+        contextLog.debug(`request 'next' for context ${this.id}`);
+        return this.debugConnection.sendRequest(new Command('next', this.id));
     }
 
     public handleResponse(response: Response): Promise<void> {
