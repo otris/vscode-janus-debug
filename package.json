@@ -132,7 +132,7 @@
         "vscode-debugadapter": "^1.14.0"
     },
     "devDependencies": {
-        "typescript": "^2.0.10",
+        "typescript": "^2.1.4",
         "vscode": "^1.0.3",
         "mocha": "^2.4.5",
         "vscode-debugadapter-testsupport": "^1.14.0",
