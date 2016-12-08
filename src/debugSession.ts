@@ -145,9 +145,10 @@ export class JanusDebugSession extends DebugSession {
         if (this.connection === undefined) {
             throw new Error('No connection');
         }
+        const conn = this.connection;
 
         let deleteAllBreakpointsCommand = new Command('delete_all_breakpoints');
-        this.connection.sendRequest(deleteAllBreakpointsCommand, (response: Response) => {
+        conn.sendRequest(deleteAllBreakpointsCommand, (response: Response) => {
             return new Promise<void>((resolve, reject) => {
                 if (response.type === 'error') {
                     reject(new Error(`Target responded with error '${response.content.message}'`));
@@ -161,16 +162,11 @@ export class JanusDebugSession extends DebugSession {
         const remoteSourceUrl = this.sourceMap.remoteSourceUrl(localUrl);
         let actualBreakpoints: Promise<Breakpoint>[] = [];
         args.breakpoints.forEach((breakpoint => {
-            // TODO: move up. Flow analysis doesn't work well with lambdas yet, see #11090, should be fixed with
-            // TypeScript 2.1
-            if (this.connection === undefined) {
-                throw new Error('No connection');
-            }
 
             let setBreakpointCommand = Command.setBreakpoint(remoteSourceUrl, breakpoint.line);
 
             actualBreakpoints.push(
-                this.connection.sendRequest(setBreakpointCommand, (response: Response): Promise<Breakpoint> => {
+                conn.sendRequest(setBreakpointCommand, (response: Response): Promise<Breakpoint> => {
                     return new Promise<Breakpoint>((resolve, reject) => {
 
                         if (response.type === 'error') {
