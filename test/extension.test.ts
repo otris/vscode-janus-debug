@@ -183,6 +183,21 @@ suite("protocol tests", () => {
             assert.equal(cmd.toString(), `exit\n`);
         });
 
+        test("'get_variables'", () => {
+            let cmd = new Command('get_variables', 16);
+            cmd.append({
+                query: {
+                    depth: 0,
+                    options: {
+                        "show-hierarchy": true,
+                        "evaluation-depth": 1
+                    }
+                }
+            });
+            assert.equal(cmd.toString(),
+                `16/{"name":"get_variables","type":"command","id":"${cmd.id}","query":{"depth":0,"options":{"show-hierarchy":true,"evaluation-depth":1}}}\n`);
+        });
+
         suite("'continue'", () => {
 
             test("all contexts", () => {
@@ -231,6 +246,16 @@ suite("protocol tests", () => {
                 assert.equal(result.contextId, 17);
                 assert.equal(result.content.id, '857B3B96591A5163');
             });
+
+            test("subtype: 'variables'", () => {
+                const response =
+                    '13/{"type":"info","subtype":"variables","variables":[{"stackElement":{"url":"Some script","line":23,"rDepth":0},"variables":[{"name":"sleep","value":{"___jsrdbg_function_desc___":{"displayName":"sleep","name":"sleep","parameterNames":["millis"]},"prototype":{"___jsrdbg_collapsed___":true},"length":1,"name":"sleep","arguments":null,"caller":null}},{"name":"log","value":{"___jsrdbg_function_desc___":{"displayName":"log","name":"log","parameterNames":["msg"]},"prototype":{"___jsrdbg_collapsed___":true},"length":1,"name":"log","arguments":null,"caller":null}},{"name":"i","value":0},{"name":"arguments","value":{"length":0,"callee":{"___jsrdbg_collapsed___":true}}}]}],"id":"63DFE5D533FD5EB4"}\n';
+                const result = parseResponse(response);
+                assert.equal(result.type, 'info');
+                assert.equal(result.subtype, 'variables');
+                assert.equal(result.contextId, 13);
+                assert.equal(result.content.variables.length, 1);
+            })
         });
     });
 });

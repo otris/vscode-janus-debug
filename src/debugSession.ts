@@ -361,11 +361,22 @@ export class JanusDebugSession extends DebugSession {
 
     protected scopesRequest(response: DebugProtocol.ScopesResponse, args: DebugProtocol.ScopesArguments): void {
         log.info(`scopesRequest for frameId ${args.frameId}`);
+
+        let scopes: DebugProtocol.Scope[] = [{
+            name: 'Locals',
+            variablesReference: 0,
+            expensive: false
+        }];
+
+        response.body = {
+            scopes: scopes
+        };
         this.sendResponse(response);
     }
 
     protected variablesRequest(response: DebugProtocol.VariablesResponse, args: DebugProtocol.VariablesArguments): void {
-        log.info(`variablesRequest`);
+        log.info(`variablesRequest with variablesReference ${args.variablesReference}`);
+
         this.sendResponse(response);
     }
 

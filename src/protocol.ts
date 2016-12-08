@@ -133,6 +133,13 @@ export class Command {
         }
     }
 
+    public append(options: Object) {
+        this.payload = {
+            ...this.payload,
+            ...options
+        }
+    }
+
     public toString(): string {
         if (this.name === 'get_available_contexts') {
             return 'get_available_contexts\n';
