@@ -52,6 +52,13 @@ export class JanusDebugSession extends DebugSession {
         log.info("disconnectRequest");
 
         if (this.connection) {
+
+            // Not really sure if this 'continue' really resumes all stopped contexts. And not sure
+            // if this is really what we want. So this is an experiment
+            this.connection.sendRequest(new Command('continue'));
+
+            this.connection.sendRequest(new Command('exit'));
+
             this.connection.disconnect().then(() => {
                 this.connection = undefined;
                 this.sendResponse(response);
@@ -77,7 +84,7 @@ export class JanusDebugSession extends DebugSession {
         this.startSession(socket);
 
         socket.on('connect', () => {
-            log.debug('attachRequest: connection established. Testing...');
+            log.debug(`attachRequest: connection to ${host}:${port} established. Testing...`);
 
             if (this.connection === undefined) {
                 throw new Error('No connection');

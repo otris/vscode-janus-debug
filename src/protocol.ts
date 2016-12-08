@@ -83,11 +83,21 @@ export class Command {
     public get id(): string { return this.payload.id; }
 
     constructor(name: CommandName, contextId?: number) {
-        this.payload = {};
-        this.payload['name'] = name;
-        this.payload['type'] = 'command';
+        this.payload = {
+            name: name,
+            type: 'command',
+        };
         this.contextId = contextId;
-        if (name !== 'get_available_contexts') {
+        let needsId = true;
+        const exceptions = [
+            () => { return name === 'get_available_contexts'; },
+            () => { return name === 'exit'; },
+            () => { return name === 'continue' && contextId === undefined; }
+        ];
+        for (var i = 0; i < exceptions.length; i++) {
+            needsId = !exceptions[i]();
+        }
+        if (needsId) {
             this.payload['id'] = uuid.v4();
         }
     }
@@ -95,6 +105,12 @@ export class Command {
     public toString(): string {
         if (this.name === 'get_available_contexts') {
             return 'get_available_contexts\n';
+        }
+        if (this.name === 'exit') {
+            return 'exit\n';
+        }
+        if ((this.name === 'continue') && !this.contextId) {
+            return '{"type":"command","name":"continue"}\n';
         }
         if (this.contextId) {
             return `${this.contextId}/${JSON.stringify(this.payload)}\n`;

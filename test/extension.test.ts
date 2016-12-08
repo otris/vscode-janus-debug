@@ -138,66 +138,94 @@ suite("transport tests", () => {
 suite("protocol tests", () => {
 
     suite("serialize command", () => {
-        test("pause", () => {
+        test("'pause'", () => {
             let cmd = new Command('pause', 42);
             assert.equal(cmd.toString(), `42/{"name":"pause","type":"command","id":"${cmd.id}"}\n`);
         });
 
-        test("get_all_source_urls", () => {
+        test("'get_all_source_urls'", () => {
             let cmd = new Command('get_all_source_urls');
             assert.equal(cmd.toString(), `{"name":"get_all_source_urls","type":"command","id":"${cmd.id}"}\n`);
         });
 
-        test("set_breakpoint pending === false", () => {
-            let cmd = Command.setBreakpoint('fubar.js', 17, false);
-            assert.equal(cmd.toString(),
-                `{"name":"set_breakpoint","type":"command","id":"${cmd.id}","breakpoint":{"url":"fubar.js","line":17,"pending":false}}\n`);
+        suite("'set_breakpoint'", () => {
+
+            test("with pending === false", () => {
+                let cmd = Command.setBreakpoint('fubar.js', 17, false);
+                assert.equal(cmd.toString(),
+                    `{"name":"set_breakpoint","type":"command","id":"${cmd.id}","breakpoint":{"url":"fubar.js","line":17,"pending":false}}\n`);
+            });
+
+            test("with pending === true", () => {
+                let cmd = Command.setBreakpoint('script.js', 1);
+                assert.equal(cmd.toString(),
+                    `{"name":"set_breakpoint","type":"command","id":"${cmd.id}","breakpoint":{"url":"script.js","line":1,"pending":true}}\n`);
+            });
         });
 
-        test("set_breakpoint pending === true", () => {
-            let cmd = Command.setBreakpoint('script.js', 1);
-            assert.equal(cmd.toString(),
-                `{"name":"set_breakpoint","type":"command","id":"${cmd.id}","breakpoint":{"url":"script.js","line":1,"pending":true}}\n`);
-        });
-
-        test("get_available_contexts", () => {
+        test("'get_available_contexts'", () => {
             let cmd = new Command('get_available_contexts');
             assert.equal(`get_available_contexts\n`, cmd.toString());
         });
 
-        test("delete_all_breakpoints", () => {
+        test("'delete_all_breakpoints'", () => {
             let cmd = new Command('delete_all_breakpoints');
             assert.equal(cmd.toString(), `{"name":"delete_all_breakpoints","type":"command","id":"${cmd.id}"}\n`);
+        });
+
+        test("'exit'", () => {
+            let cmd = new Command('exit');
+            assert.equal(cmd.toString(), `exit\n`);
+        });
+
+        suite("'continue'", () => {
+
+            test("all contexts", () => {
+
+                let cmd = new Command('continue');
+                assert.equal(cmd.toString(), `{"type":"command","name":"continue"}\n`);
+            });
+
+            test("a single context", () => {
+                let cmd = new Command('continue', 5);
+                assert.equal(cmd.toString(), `5/{"name":"continue","type":"command","id":"${cmd.id}"}\n`);
+            });
         });
     });
 
     suite("parse response", () => {
 
-        test("contexts_list", () => {
-            const response =
-                '{"type":"info","subtype":"contexts_list","contexts":[{"contextId":0,"contextName":"/home/bob/script.js","paused":true}]}\n';
-            const result = parseResponse(response);
-            assert.equal(result.type, 'info');
-            assert.equal(result.subtype, 'contexts_list');
+        suite("type: 'error'", () => {
+
+            test("2", () => {
+                const response =
+                    '{"type":"error","code":2,"message":"Unknown JS Context."}\n';
+                const result = parseResponse(response);
+                assert.equal(result.type, 'error');
+                assert.equal(result.content.message, 'Unknown JS Context.');
+                assert.equal(result.content.code, 2);
+            });
         });
 
-        test("error", () => {
-            const response =
-                '{"type":"error","code":2,"message":"Unknown JS Context."}\n';
-            const result = parseResponse(response);
-            assert.equal(result.type, 'error');
-            assert.equal(result.content.message, 'Unknown JS Context.');
-            assert.equal(result.content.code, 2);
-        });
+        suite("type: 'info'", () => {
 
-        test("stacktrace", () => {
-            const response =
-                '17/{"type":"info","subtype":"stacktrace","stacktrace":[{"url":"/home/bob/script.js","line":18,"rDepth":0}],"id":"857B3B96591A5163"}\n';
-            const result = parseResponse(response);
-            assert.equal(result.type, 'info');
-            assert.equal(result.subtype, 'stacktrace');
-            assert.equal(result.contextId, 17);
-            assert.equal(result.content.id, '857B3B96591A5163');
+            test("subtype: 'contexts_list'", () => {
+                const response =
+                    '{"type":"info","subtype":"contexts_list","contexts":[{"contextId":0,"contextName":"/home/bob/script.js","paused":true}]}\n';
+                const result = parseResponse(response);
+                assert.equal(result.type, 'info');
+                assert.equal(result.subtype, 'contexts_list');
+            });
+
+            test("subtype: 'stacktrace'", () => {
+                const response =
+                    '17/{"type":"info","subtype":"stacktrace","stacktrace":[{"url":"/home/bob/script.js","line":18,"rDepth":0}],"id":"857B3B96591A5163"}\n';
+                const result = parseResponse(response);
+                assert.equal(result.type, 'info');
+                assert.equal(result.subtype, 'stacktrace');
+                assert.equal(result.contextId, 17);
+                assert.equal(result.content.id, '857B3B96591A5163');
+            });
         });
     });
 });
