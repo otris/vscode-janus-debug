@@ -84,21 +84,23 @@ export class JanusDebugSession extends DebugSession {
         this.startSession(socket);
 
         socket.on('connect', () => {
-            log.debug(`attachRequest: connection to ${host}:${port} established. Testing...`);
-
             if (this.connection === undefined) {
                 throw new Error('No connection');
             }
 
+            log.info(`attachRequest: connection to ${host}:${port} established. Testing...`);
             let cmd = new Command('get_all_source_urls');
-            this.connection.sendRequest(cmd, (res: Response): Promise<void> => {
+            let timeout = new Promise<void>((resolve, reject) => {
+                setTimeout(reject, args.timeout || 6000, "Operation timed out");
+            });
+            let request = this.connection.sendRequest(cmd, (res: Response): Promise<void> => {
 
                 return new Promise<void>((resolve, reject) => {
 
                     assert.notEqual(res, undefined);
 
                     if (res.subtype == 'all_source_urls') {
-                        log.debug('attachRequest: ...looks good');
+                        log.info('attachRequest: ...looks good');
                         this.sourceMap.setAllRemoteUrls(res.content.urls);
                         resolve();
                     } else {
@@ -106,7 +108,8 @@ export class JanusDebugSession extends DebugSession {
                         reject(`Error while connecting to ${host}:${port}`);
                     }
                 });
-            }).then(() => {
+            });
+            Promise.race([request, timeout]).then(() => {
 
                 // Tell the frontend that we are ready to set breakpoints and so on. The frontend will end the configuration
                 // sequence by calling 'configurationDone' request
@@ -116,7 +119,7 @@ export class JanusDebugSession extends DebugSession {
                 this.sendResponse(response);
 
             }).catch(reason => {
-
+                log.error(`attachRequest: ...failed. ${reason}`);
                 response.success = false;
                 response.message = reason;
                 this.sendResponse(response);

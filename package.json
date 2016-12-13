@@ -95,6 +95,11 @@
                                         }
                                     }
                                 }
+                            },
+                            "timeout": {
+                                "type": "number",
+                                "description": "Time in ms until we give up trying to connect.",
+                                "default": 6000
                             }
                         }
                     }
@@ -106,6 +111,7 @@
                         "request": "attach",
                         "port": 8089,
                         "host": "${workspaceRoot}/${command.AskForHostName}",
+                        "timeout": 6000,
                         "stopOnEntry": false,
                         "log": {
                             "fileName": "${workspaceRoot}/vscode-janus-debug.log",

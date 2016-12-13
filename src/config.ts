@@ -12,6 +12,8 @@ export interface CommonArguments {
     stopOnEntry?: boolean;
     /** Lets you configure diagnostic logging of the debug adapter. */
     log: LogConfiguration;
+    /** Time in ms until we give up trying to connect. */
+    timeout: number;
 }
 
 export interface AttachRequestArguments extends DebugProtocol.AttachRequestArguments,
