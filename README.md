@@ -1,5 +1,7 @@
 # vscode-janus-debug
 
+[![Build Status](https://travis-ci.org/otris/vscode-janus-debug.svg?branch=master)](https://travis-ci.org/otris/vscode-janus-debug)
+
 Visual Studio Code plugin for debugging JANUS-based applications.
 
 ## Features
