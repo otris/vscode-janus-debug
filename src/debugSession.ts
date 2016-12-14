@@ -99,7 +99,7 @@ export class JanusDebugSession extends DebugSession {
 
                     assert.notEqual(res, undefined);
 
-                    if (res.subtype == 'all_source_urls') {
+                    if (res.subtype === 'all_source_urls') {
                         log.info('attachRequest: ...looks good');
                         this.sourceMap.setAllRemoteUrls(res.content.urls);
                         resolve();

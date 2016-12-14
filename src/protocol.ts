@@ -137,7 +137,7 @@ export class Command {
         this.payload = {
             ...this.payload,
             ...options
-        }
+        };
     }
 
     public toString(): string {

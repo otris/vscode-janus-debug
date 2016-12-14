@@ -5,14 +5,18 @@ import * as protocol from './protocol';
 import { cantorPairing, reverseCantorPairing } from './cantor';
 import { Logger } from './log';
 
-/** VS Code identifier for a stack frame. Must be unique across all threads. Used to retrieve the scopes of the
- * frame within the 'scopesRequest'. */
+/**
+ * VS Code identifier for a stack frame.
+ *
+ * Must be unique across all threads. Used to retrieve the scopes of the frame within
+ * the 'scopesRequest'.
+ */
 export type FrameId = number;
 
 class StackFrame {
 
     public readonly frameId: FrameId;
-    public readonly rDepth: number
+    public readonly rDepth: number;
     public readonly sourceLine: number;
     public readonly sourceUrl: string;
 

@@ -107,8 +107,8 @@ export class ContextCoordinator {
             // Well, somebody requests a context that does not exist. What could we possibly do?
 
             let contents = Array.from(this.contextById.values());
-            coordinatorLog.warn(`unknown context ${id} requested; contexts available: ${
-                contents.map(context => { return context.id.toString(); }).join(', ')}`);
+            coordinatorLog.warn(
+                `unknown context ${id} requested; available: ${contents.map(context => { return context.id; })}`);
 
             // Shitty but maybe helps in cases we're caught by surprise
             // if (id === 0 && contents.length === 1) {
