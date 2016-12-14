@@ -87,7 +87,7 @@ export class DebugConnection extends EventEmitter implements ConnectionLike {
             }
 
             const message = request.toString();
-            log.debug(`sendRequest: ${message.trim()}`);
+            log.debug(`sendRequest: ${message.trim()}\\n`);
             this.transport.sendMessage(message);
 
             // If we don't have to wait for a response, resolve immediately

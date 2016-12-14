@@ -121,7 +121,7 @@ export class JanusDebugSession extends DebugSession {
             }).catch(reason => {
                 log.error(`attachRequest: ...failed. ${reason}`);
                 response.success = false;
-                response.message = reason;
+                response.message = `Could attach to remote process: ${reason}`;
                 this.sendResponse(response);
             });
         });

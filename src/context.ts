@@ -79,7 +79,8 @@ export class Context {
 
 let coordinatorLog = Logger.create('ContextCoordinator');
 
-/** Coordinates requests and responses for all available contexts.
+/**
+ * Coordinates requests and responses for all available contexts.
  *
  * Resposibilities:
  * - Keep track of all available contexts of the target.
