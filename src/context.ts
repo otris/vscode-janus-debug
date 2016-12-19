@@ -74,14 +74,11 @@ export class Context {
     public getVariables(): Promise<Variable[]> {
         contextLog.debug(`request 'get_variables' for context ${this.id}`);
 
-        let req = new Command('get_variables', this.id);
-        req.append({
-            query: {
-                depth: 0,
-                options: {
-                    "show-hierarchy": true,
-                    "evaluation-depth": 1
-                }
+        let req = Command.getVariables(this.id, {
+            depth: 0,
+            options: {
+                "show-hierarchy": true,
+                "evaluation-depth": 1
             }
         });
         return this.connection.sendRequest(req, (res: Response) => {

@@ -189,14 +189,11 @@ suite("protocol tests", () => {
         });
 
         test("'get_variables'", () => {
-            let cmd = new Command('get_variables', 16);
-            cmd.append({
-                query: {
-                    depth: 0,
-                    options: {
-                        "show-hierarchy": true,
-                        "evaluation-depth": 1
-                    }
+            let cmd = Command.getVariables(16, {
+                depth: 0,
+                options: {
+                    "show-hierarchy": true,
+                    "evaluation-depth": 1
                 }
             });
             assert.equal(cmd.toString(),

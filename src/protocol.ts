@@ -61,6 +61,11 @@ export interface Response {
     contextId?: number;
 }
 
+export interface Query {
+    depth: number;
+    options?: Object
+}
+
 export interface Breakpoint {
     bid: number;
     url: string;
@@ -138,13 +143,6 @@ export class Command {
         }
     }
 
-    public append(options: Object) {
-        this.payload = {
-            ...this.payload,
-            ...options
-        };
-    }
-
     public toString(): string {
         if (this.name === 'get_available_contexts') {
             return 'get_available_contexts\n';
@@ -174,6 +172,12 @@ export class Command {
     public static getSource(url: string): Command {
         let cmd = new Command('get_source');
         cmd.payload['url'] = url;
+        return cmd;
+    }
+
+    public static getVariables(contextId: number, query: Query): Command {
+        let cmd = new Command('get_variables', contextId);
+        cmd.payload['query'] = query;
         return cmd;
     }
 }
