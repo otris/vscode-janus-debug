@@ -2,7 +2,7 @@
 
 import * as assert from 'assert';
 import { connect, Socket } from 'net';
-import { DebugSession, InitializedEvent, StoppedEvent, ContinuedEvent } from 'vscode-debugadapter';
+import { DebugSession, InitializedEvent, StoppedEvent, ContinuedEvent, TerminatedEvent } from 'vscode-debugadapter';
 import { DebugProtocol } from 'vscode-debugprotocol';
 import { CommonArguments, AttachRequestArguments } from './config';
 import { DebugConnection } from './connection';
@@ -51,26 +51,22 @@ export class JanusDebugSession extends DebugSession {
     protected disconnectRequest(response: DebugProtocol.DisconnectResponse, args: DebugProtocol.DisconnectArguments): void {
         log.info("disconnectRequest");
 
-        if (this.connection) {
-
-            // Not really sure if this 'continue' really resumes all stopped contexts. And not sure
-            // if this is really what we want. So this is an experiment
-            this.connection.sendRequest(new Command('continue'));
-
-            this.connection.sendRequest(new Command('exit'));
-
-            this.connection.disconnect().then(() => {
-                this.connection = undefined;
-                this.sendResponse(response);
-            });
-        } else {
+        const connection = this.connection;
+        if (!connection) {
             this.sendResponse(response);
+            return;
         }
+
+        connection.sendRequest(new Command('exit')).then(() => {
+            return connection.disconnect();
+        }).then(() => {
+            this.connection = undefined;
+            this.sendResponse(response);
+        });
     }
 
     /*
         Not supported:
-
         protected launchRequest(response: DebugProtocol.LaunchResponse, args: LaunchRequestArguments): void;
     */
 
@@ -81,19 +77,25 @@ export class JanusDebugSession extends DebugSession {
         let port: number = args.port || 8089;
         let host: string = args.host || 'localhost';
         let socket = connect(port, host);
-        this.startSession(socket);
+
+        if (this.connection) {
+            console.warn("attachRequest: already made a connection");
+        }
+
+        const connection = new DebugConnection(socket);
+        this.connection = connection;
 
         socket.on('connect', () => {
-            if (this.connection === undefined) {
-                throw new Error('No connection');
-            }
+
+            // TCP connection established. It is important for this client that we first send a 'get_all_source_urls'
+            // request to the server. This way we have a list of all currently active contexts.
 
             log.info(`attachRequest: connection to ${host}:${port} established. Testing...`);
-            let cmd = new Command('get_all_source_urls');
+
             let timeout = new Promise<void>((resolve, reject) => {
                 setTimeout(reject, args.timeout || 6000, "Operation timed out");
             });
-            let request = this.connection.sendRequest(cmd, (res: Response): Promise<void> => {
+            let request = connection.sendRequest(new Command('get_all_source_urls'), (res: Response): Promise<void> => {
 
                 return new Promise<void>((resolve, reject) => {
 
@@ -121,16 +123,29 @@ export class JanusDebugSession extends DebugSession {
             }).catch(reason => {
                 log.error(`attachRequest: ...failed. ${reason}`);
                 response.success = false;
-                response.message = `Could attach to remote process: ${reason}`;
+                response.message = `Could not attach to remote process: ${reason}`;
                 this.sendResponse(response);
             });
         });
 
-        socket.on('error', (err) => {
-            log.error(`attachRequest: failed to connect to ${host}:${port}`);
-            response.success = false;
-            response.message = `Could not connect to ${host}:${port}`;
-            this.sendResponse(response);
+        socket.on('close', (had_error: boolean) => {
+            if (had_error) {
+                log.error(`remote closed the connection due to error`);
+            }
+            else {
+                log.info(`remote closed the connection`);
+            }
+            this.connection = undefined;
+            this.sendEvent(new TerminatedEvent());
+        });
+
+        socket.on('error', (err: Error) => {
+            log.error(`failed to connect to ${host}:${port}`);
+            if (err.stack) {
+                log.debug(err.stack);
+            }
+            this.connection = undefined;
+            this.sendEvent(new TerminatedEvent());
         });
     }
 
@@ -216,6 +231,33 @@ export class JanusDebugSession extends DebugSession {
 
     protected configurationDoneRequest(response: DebugProtocol.ConfigurationDoneResponse, args: DebugProtocol.ConfigurationDoneArguments): void {
         log.info("configurationDoneRequest");
+
+        if (this.connection === undefined) {
+            throw new Error('No connection');
+        }
+
+        // Only after all configuration is done it is allowed to notify the frontend about paused contexts. We do
+        // this once initially for all already discovered contexts and then let an event handler do this for future
+        // contexts.
+
+        let contexts = this.connection.coordinator.getAllAvailableContexts();
+        contexts.forEach(context => {
+            if (context.isStopped()) {
+                log.debug(`sending StoppedEvent('pause', ${context.id})`);
+                let stoppedEvent = new StoppedEvent('pause', context.id);
+                this.sendEvent(stoppedEvent);
+            }
+        });
+
+        this.connection.on('newContext', (contextId, contextName, stopped) => {
+            log.info(`new context on target: ${contextId}, context name: "${contextName}", stopped: ${stopped}`);
+            if (stopped) {
+                let stoppedEvent = new StoppedEvent('pause', contextId);
+                log.debug(`sending StoppedEvent('pause', ${contextId})`);
+                this.sendEvent(stoppedEvent);
+            }
+        });
+
         this.sendResponse(response);
     }
 
@@ -396,24 +438,6 @@ export class JanusDebugSession extends DebugSession {
             Logger.config = args.log;
         }
         log.info(`readConfig: ${JSON.stringify(args)}`);
-    }
-
-    private startSession(socket: Socket): void {
-        log.debug("startSession");
-
-        if (this.connection) {
-            console.warn("startSession: already made a connection");
-        }
-
-        this.connection = new DebugConnection(socket);
-        this.connection.on('newContext', (contextId, contextName, stopped) => {
-            log.info(`new context on target: ${contextId}, context name: "${contextName}", stopped: ${stopped}`);
-            if (stopped) {
-                let stoppedEvent = new StoppedEvent('pause', contextId);
-                log.debug(`sending StoppedEvent, reason: 'pause'`);
-                this.sendEvent(stoppedEvent);
-            }
-        });
     }
 }
 
