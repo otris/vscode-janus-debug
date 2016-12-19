@@ -32,7 +32,7 @@ suite("source map tests", () => {
 
         test("fallback to local url", () => {
             let result = sourceMap.remoteSourceUrl('/Users/bob/fubar/bielefeld.js');
-            assert.equal(result, '/Users/bob/fubar/bielefeld.js')
+            assert.equal(result, '/Users/bob/fubar/bielefeld.js');
         });
     });
 });
@@ -57,7 +57,7 @@ suite("debug adapter tests", () => {
                 let body = response.body || {};
                 assert.equal(body.supportsConfigurationDoneRequest, true);
                 assert.equal(body.supportsConditionalBreakpoints, false);
-            })
+            });
         });
     });
 });
@@ -125,7 +125,7 @@ suite("transport tests", () => {
             socket.receive('1/{"type":"info","subtype":"stacktr');
             socket.receive('ace","stacktrace":[{"url":"/home/bob/script.js","line":1');
             socket.receive('8,"rDepth":0}],"id":"857B3B96591A5163"}\n{"type":"error","code":2,"message":"Unknown');
-            socket.receive(' JS Context."}\n')
+            socket.receive(' JS Context."}\n');
             assert.equal(responses.length, 2);
             assert.equal(responses[0].type, 'info');
             assert.equal(responses[0].content.id, '857B3B96591A5163');
@@ -255,7 +255,7 @@ suite("protocol tests", () => {
                 assert.equal(result.subtype, 'variables');
                 assert.equal(result.contextId, 13);
                 assert.equal(result.content.variables.length, 1);
-            })
+            });
         });
     });
 });
@@ -307,7 +307,7 @@ suite("context coordinator coordinates requests and responses", () => {
 
     test("has no contexts after construction", () => {
         assert.equal(coordinator.getAllAvailableContexts().length, 0);
-        assert.throws(() => { coordinator.getContext(23) }, "No such context");
+        assert.throws(() => { coordinator.getContext(23); }, "No such context");
     });
 
     suite("a 'contexts_list' response should...", () => {
@@ -334,7 +334,7 @@ suite("context coordinator coordinates requests and responses", () => {
                 let contexts = coordinator.getAllAvailableContexts();
 
                 assert.equal(contexts.length, 2);
-                assert.throws(() => { coordinator.getContext(23) }, "No such context");
+                assert.throws(() => { coordinator.getContext(23); }, "No such context");
 
                 let context = coordinator.getContext(7);
                 assert.equal(context.id, 7);
@@ -390,7 +390,7 @@ suite("context coordinator coordinates requests and responses", () => {
 
                 let contexts = coordinator.getAllAvailableContexts();
                 assert.equal(contexts.length, 1);
-                assert.throws(() => { coordinator.getContext(7) }, "No such context");
+                assert.throws(() => { coordinator.getContext(7); }, "No such context");
             });
         });
     });
