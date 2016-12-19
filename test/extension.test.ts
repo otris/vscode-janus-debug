@@ -2,7 +2,7 @@ import * as assert from 'assert';
 import * as vscode from 'vscode';
 import { DebugClient } from 'vscode-debugadapter-testsupport';
 import { EventEmitter } from 'events';
-import { parseResponse, Response, Command } from '../src/protocol';
+import { parseResponse, Response, Command, ErrorCode } from '../src/protocol';
 import { SocketLike, DebugProtocolTransport } from '../src/transport';
 import { SourceMap } from '../src/sourceMap';
 import { cantorPairing, reverseCantorPairing } from '../src/cantor';
@@ -219,19 +219,19 @@ suite("protocol tests", () => {
 
         suite("type: 'error'", () => {
 
-            test("2", () => {
+            test("NO_COMMAND_NAME", () => {
                 const response =
                     '{"type":"error","code":2,"message":"Unknown JS Context."}\n';
                 const result = parseResponse(response);
                 assert.equal(result.type, 'error');
                 assert.equal(result.content.message, 'Unknown JS Context.');
-                assert.equal(result.content.code, 2);
+                assert.equal(result.content.code, ErrorCode.NO_COMMAND_NAME);
             });
         });
 
         suite("type: 'info'", () => {
 
-            test("subtype: 'contexts_list'", () => {
+            test("contexts_list", () => {
                 const response =
                     '{"type":"info","subtype":"contexts_list","contexts":[{"contextId":0,"contextName":"/home/bob/script.js","paused":true}]}\n';
                 const result = parseResponse(response);
@@ -239,7 +239,7 @@ suite("protocol tests", () => {
                 assert.equal(result.subtype, 'contexts_list');
             });
 
-            test("subtype: 'stacktrace'", () => {
+            test("stacktrace", () => {
                 const response =
                     '17/{"type":"info","subtype":"stacktrace","stacktrace":[{"url":"/home/bob/script.js","line":18,"rDepth":0}],"id":"857B3B96591A5163"}\n';
                 const result = parseResponse(response);
@@ -249,7 +249,7 @@ suite("protocol tests", () => {
                 assert.equal(result.content.id, '857B3B96591A5163');
             });
 
-            test("subtype: 'variables'", () => {
+            test("variables", () => {
                 const response =
                     '13/{"type":"info","subtype":"variables","variables":[{"stackElement":{"url":"Some script","line":23,"rDepth":0},"variables":[{"name":"sleep","value":{"___jsrdbg_function_desc___":{"displayName":"sleep","name":"sleep","parameterNames":["millis"]},"prototype":{"___jsrdbg_collapsed___":true},"length":1,"name":"sleep","arguments":null,"caller":null}},{"name":"log","value":{"___jsrdbg_function_desc___":{"displayName":"log","name":"log","parameterNames":["msg"]},"prototype":{"___jsrdbg_collapsed___":true},"length":1,"name":"log","arguments":null,"caller":null}},{"name":"i","value":0},{"name":"arguments","value":{"length":0,"callee":{"___jsrdbg_collapsed___":true}}}]}],"id":"63DFE5D533FD5EB4"}\n';
                 const result = parseResponse(response);
@@ -257,6 +257,19 @@ suite("protocol tests", () => {
                 assert.equal(result.subtype, 'variables');
                 assert.equal(result.contextId, 13);
                 assert.equal(result.content.variables.length, 1);
+            });
+
+            test("source_code", () => {
+                const response =
+                    '{"type":"info","subtype":"source_code","script":"fubar.js","source":["debugger;","var i = 42;"],"displacement":0,"id":"857B3B96591A5163"}';
+                const result = parseResponse(response);
+                assert.equal(result.type, 'info');
+                assert.equal(result.subtype, 'source_code');
+                assert.equal(result.contextId, undefined);
+                assert.equal(result.content.script, 'fubar.js');
+                assert.equal(result.content.source.length, 2);
+                assert.equal(result.content.source[0], 'debugger;');
+                assert.equal(result.content.source[1], 'var i = 42;');
             });
         });
     });
