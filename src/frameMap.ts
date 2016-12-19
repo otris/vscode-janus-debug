@@ -48,7 +48,11 @@ export class FrameMap {
         return added;
     }
 
-    public getStackFrame(frameId: FrameId): StackFrame | undefined {
-        return this.frameIdToFrame.get(frameId);
+    public getStackFrame(frameId: FrameId): StackFrame {
+        let frame = this.frameIdToFrame.get(frameId);
+        if (frame === undefined) {
+            throw new Error(`No such frame ${frameId}`);
+        }
+        return frame;
     }
 }

@@ -74,6 +74,11 @@ export interface StackFrame {
     rDepth: number;
 }
 
+export interface Variable {
+    name: string;
+    value: any;
+}
+
 export function parseResponse(responseString: string): Response {
     let contextId: number | undefined = undefined;
     let indexStart = 0;

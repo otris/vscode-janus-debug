@@ -1,7 +1,7 @@
 'use strict';
 
 import * as assert from 'assert';
-import { Response, Command, ErrorCode, StackFrame } from './protocol';
+import { Response, Command, ErrorCode, StackFrame, Variable } from './protocol';
 import { Logger } from './log';
 import { ConnectionLike } from './connection';
 
@@ -14,26 +14,28 @@ export class Context {
         return this.stopped ? this.stopped : false;
     }
 
-    constructor(private debugConnection: ConnectionLike,
+    constructor(private connection: ConnectionLike,
         public readonly id: ContextId,
         public readonly name: string,
-        private readonly stopped?: boolean) { }
+        private readonly stopped?: boolean) {
+
+    }
 
     public pause(): Promise<void> {
         contextLog.debug(`request 'pause' for context ${this.id}`);
 
-        let cmd = new Command('pause', this.id);
-        return this.debugConnection.sendRequest(cmd, (response: Response) => {
+        let req = new Command('pause', this.id);
+        return this.connection.sendRequest(req, (res: Response) => {
 
             return new Promise<void>((resolve, reject) => {
-                if (response.type === 'error') {
-                    if (response.content.code === ErrorCode.IS_PAUSED) {
+                if (res.type === 'error') {
+                    if (res.content.code === ErrorCode.IS_PAUSED) {
                         contextLog.warn(`context ${this.id} is already paused`);
                         resolve();
                         return;
                     }
 
-                    reject(new Error(response.content.message));
+                    reject(new Error(res.content.message));
                     return;
                 }
 
@@ -46,21 +48,65 @@ export class Context {
         contextLog.debug(`request 'continue' for context ${this.id}`);
 
         let cmd = new Command('continue', this.id);
-        return this.debugConnection.sendRequest(cmd);
+        return this.connection.sendRequest(cmd);
     }
 
     public getStacktrace(): Promise<StackFrame[]> {
         contextLog.debug(`request 'get_stacktrace' for context ${this.id}`);
 
-        let cmd = new Command('get_stacktrace', this.id);
-        return this.debugConnection.sendRequest(cmd, (response: Response) => {
+        let req = new Command('get_stacktrace', this.id);
+        return this.connection.sendRequest(req, (res: Response) => {
             return new Promise<StackFrame[]>((resolve, reject) => {
-                if (response.type === 'error') {
-                    reject(new Error(response.content.message));
+                if (res.type === 'error') {
+                    reject(new Error(res.content.message));
                 } else {
                     let stacktrace: StackFrame[] = [];
-                    assert.ok(response.content.stacktrace);
-                    resolve(response.content.stacktrace);
+                    assert.ok(res.content.stacktrace);
+                    resolve(res.content.stacktrace);
+                }
+            });
+        });
+    }
+
+    /**
+     * Returns all variables in the top-most frame of this context.
+     */
+    public getVariables(): Promise<Variable[]> {
+        contextLog.debug(`request 'get_variables' for context ${this.id}`);
+
+        let req = new Command('get_variables', this.id);
+        req.append({
+            query: {
+                depth: 0,
+                options: {
+                    "show-hierarchy": true,
+                    "evaluation-depth": 1
+                }
+            }
+        });
+        return this.connection.sendRequest(req, (res: Response) => {
+            return new Promise<Variable[]>((resolve, reject) => {
+                if (res.type === 'error') {
+                    reject(new Error(res.content.message));
+                } else {
+
+                    let variables: Variable[] = [];
+
+                    // This should be named 'frames' because it really holds all frames and for each frame
+                    // an array of variables
+                    assert.equal(res.content.variables.length, 1);
+
+                    res.content.variables.forEach(element => {
+
+                        // Each element got a stackElement which descripes the frame and a list of
+                        // variables.
+
+                        element.variables.forEach(variable => {
+                            variables.push(variable);
+                        });
+                    });
+
+                    resolve(variables);
                 }
             });
         });
@@ -68,7 +114,7 @@ export class Context {
 
     public next(): Promise<void> {
         contextLog.debug(`request 'next' for context ${this.id}`);
-        return this.debugConnection.sendRequest(new Command('next', this.id));
+        return this.connection.sendRequest(new Command('next', this.id));
     }
 
     public handleResponse(response: Response): Promise<void> {

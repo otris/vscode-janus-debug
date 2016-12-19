@@ -6,7 +6,7 @@ import { DebugSession, InitializedEvent, StoppedEvent, ContinuedEvent, Terminate
 import { DebugProtocol } from 'vscode-debugprotocol';
 import { CommonArguments, AttachRequestArguments } from './config';
 import { DebugConnection } from './connection';
-import { Command, Response, Breakpoint, StackFrame } from './protocol';
+import { Command, Response, Breakpoint, StackFrame, Variable } from './protocol';
 import { ContextId } from './context';
 import { SourceMap } from './sourceMap';
 import { FrameMap } from './frameMap';
@@ -200,14 +200,14 @@ export class JanusDebugSession extends DebugSession {
             let breakpoints: DebugProtocol.Breakpoint[] = res.map(actualBreakpoint => {
                 return {
                     id: actualBreakpoint.bid,
-                    verified: !actualBreakpoint.pending,
+                    verified: true,
                     line: actualBreakpoint.line,
                     source: {
                         path: actualBreakpoint.url
                     }
                 };
             });
-            log.debug(`setting breakpoint(s) on target succeeded: ${JSON.stringify(breakpoints)}`);
+            log.debug(`setBreakPointsRequest succeeded: ${JSON.stringify(breakpoints)}`);
             response.body = {
                 breakpoints: breakpoints
             };
@@ -407,9 +407,11 @@ export class JanusDebugSession extends DebugSession {
     protected scopesRequest(response: DebugProtocol.ScopesResponse, args: DebugProtocol.ScopesArguments): void {
         log.info(`scopesRequest for frameId ${args.frameId}`);
 
+        // The variablesReference is just the frameId because we do not keep track of individual scopes in a frame.
+
         let scopes: DebugProtocol.Scope[] = [{
             name: 'Locals',
-            variablesReference: 0,
+            variablesReference: args.frameId,
             expensive: false
         }];
 
@@ -422,7 +424,32 @@ export class JanusDebugSession extends DebugSession {
     protected variablesRequest(response: DebugProtocol.VariablesResponse, args: DebugProtocol.VariablesArguments): void {
         log.info(`variablesRequest with variablesReference ${args.variablesReference}`);
 
-        this.sendResponse(response);
+        if (this.connection === undefined) {
+            throw new Error('No connection');
+        }
+
+        let frame = this.frameMap.getStackFrame(args.variablesReference);
+        let context = this.connection.coordinator.getContext(frame.contextId);
+        context.getVariables().then((locals: Variable[]) => {
+            let variables: DebugProtocol.Variable[] = locals.map(variable => {
+                return {
+                    name: variable.name,
+                    value: variable.value,
+                    variablesReference: 0
+                };
+            });
+
+            response.body = {
+                variables: variables
+            };
+            log.debug(`variablesRequest succeeded`);
+            this.sendResponse(response);
+        }).catch(reason => {
+            log.error(`variablesRequest failed: ${reason}`);
+            response.success = false;
+            response.message = `Could not get variable(s): ${reason}`;
+            this.sendResponse(response);
+        });
     }
 
     /*
