@@ -23,7 +23,7 @@ export type CommandName =
     'step' |
     'next' |
     'continue' |
-    'source_code' |
+    'get_source' |
     'delete_all_breakpoints' |
     'pause' |
     'set_breakpoint' |
@@ -168,6 +168,12 @@ export class Command {
             line: lineNumber,
             pending: pending === undefined ? true : pending
         };
+        return cmd;
+    }
+
+    public static getSource(url: string): Command {
+        let cmd = new Command('get_source');
+        cmd.payload['url'] = url;
         return cmd;
     }
 }

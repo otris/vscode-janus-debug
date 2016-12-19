@@ -153,6 +153,11 @@ suite("protocol tests", () => {
             assert.equal(cmd.toString(), `{"name":"get_all_source_urls","type":"command","id":"${cmd.id}"}\n`);
         });
 
+        test("'get_source'", () => {
+            let cmd = Command.getSource('fubar.js');
+            assert.equal(cmd.toString(), `{"name":"get_source","type":"command","id":"${cmd.id}","url":"fubar.js"}\n`);
+        });
+
         suite("'set_breakpoint'", () => {
 
             test("with pending === false", () => {
