@@ -79,9 +79,39 @@ export interface StackFrame {
     rDepth: number;
 }
 
+export type VariableValue = '___jsrdbg_undefined___' | any;
+
 export interface Variable {
     name: string;
-    value: any;
+    value: VariableValue;
+}
+
+export function variableValueToString(value: VariableValue): string {
+    if (typeof value === 'string') {
+        switch (value) {
+            case '___jsrdbg_undefined___':
+                return 'undefined';
+        }
+    }
+    else {
+
+        // Functions
+
+        if (value.hasOwnProperty('___jsrdbg_function_desc___')) {
+            assert.ok(value.___jsrdbg_function_desc___.hasOwnProperty('parameterNames'));
+            const parameterNames: string[] = value.___jsrdbg_function_desc___.parameterNames;
+            const parameters = parameterNames.join(', ');
+            return `function (${parameters}) { … }`;
+        }
+
+        // Arrays
+
+        if (value.hasOwnProperty('length')) {
+            const length = value.length;
+            return `Array[${length}] []`;
+        }
+    }
+    return value.toString();
 }
 
 export function parseResponse(responseString: string): Response {

@@ -2,7 +2,7 @@ import * as assert from 'assert';
 import * as vscode from 'vscode';
 import { DebugClient } from 'vscode-debugadapter-testsupport';
 import { EventEmitter } from 'events';
-import { parseResponse, Response, Command, ErrorCode } from '../src/protocol';
+import { parseResponse, Response, Command, ErrorCode, variableValueToString } from '../src/protocol';
 import { SocketLike, DebugProtocolTransport } from '../src/transport';
 import { SourceMap } from '../src/sourceMap';
 import { cantorPairing, reverseCantorPairing } from '../src/cantor';
@@ -271,6 +271,33 @@ suite("protocol tests", () => {
                 assert.equal(result.content.source[0], 'debugger;');
                 assert.equal(result.content.source[1], 'var i = 42;');
             });
+        });
+    });
+
+    suite("variableValueToString", () => {
+
+        test("value is undefined", () => {
+            assert.equal(variableValueToString(
+                '___jsrdbg_undefined___'),
+                'undefined');
+        });
+
+        test("value is a number", () => {
+            assert.equal(variableValueToString(
+                '42'),
+                '42');
+        });
+
+        test("value is an empty array", () => {
+            assert.equal(variableValueToString(
+                { "length": 0, "callee": { "___jsrdbg_collapsed___": true } }),
+                'Array[0] []');
+        });
+
+        test("value is a function", () => {
+            assert.equal(variableValueToString(
+                { "___jsrdbg_function_desc___": { "displayName": "log", "name": "log", "parameterNames": ["msg"] }, "prototype": { "___jsrdbg_collapsed___": true }, "length": 1, "name": "log", "arguments": null, "caller": null }),
+                'function (msg) { … }');
         });
     });
 });

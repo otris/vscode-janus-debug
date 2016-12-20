@@ -6,7 +6,7 @@ import { DebugSession, InitializedEvent, StoppedEvent, ContinuedEvent, Terminate
 import { DebugProtocol } from 'vscode-debugprotocol';
 import { CommonArguments, AttachRequestArguments } from './config';
 import { DebugConnection } from './connection';
-import { Command, Response, Breakpoint, StackFrame, Variable } from './protocol';
+import { Command, Response, Breakpoint, StackFrame, Variable, variableValueToString } from './protocol';
 import { ContextId } from './context';
 import { SourceMap } from './sourceMap';
 import { FrameMap } from './frameMap';
@@ -434,7 +434,7 @@ export class JanusDebugSession extends DebugSession {
             let variables: DebugProtocol.Variable[] = locals.map(variable => {
                 return {
                     name: variable.name,
-                    value: variable.value,
+                    value: variableValueToString(variable.value),
                     variablesReference: 0
                 };
             });
