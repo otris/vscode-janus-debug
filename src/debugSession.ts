@@ -128,8 +128,8 @@ export class JanusDebugSession extends DebugSession {
             });
         });
 
-        socket.on('close', (had_error: boolean) => {
-            if (had_error) {
+        socket.on('close', (hadError: boolean) => {
+            if (hadError) {
                 log.error(`remote closed the connection due to error`);
             }
             else {

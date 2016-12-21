@@ -22,8 +22,7 @@ export class DebugProtocolTransport extends EventEmitter {
     constructor(private socket: SocketLike) {
         super();
 
-        this.buffer = new Buffer(INITIAL_BUFFER_SIZE);
-        this.buffer.fill(0); // Node.js 6: use Buffer.alloc
+        this.buffer = Buffer.alloc(INITIAL_BUFFER_SIZE);
         this.bufferedLength = 0;
 
         this.socket.on('data', (chunk: Buffer) => {
@@ -32,7 +31,7 @@ export class DebugProtocolTransport extends EventEmitter {
     }
 
     public sendMessage(msg: string): void {
-        let buf = new Buffer(msg, 'utf-8');
+        let buf = Buffer.from(msg, 'utf-8');
         this.socket.write(buf);
     }
 
@@ -77,8 +76,7 @@ export class DebugProtocolTransport extends EventEmitter {
         const spaceLeft = this.buffer.length - this.bufferedLength;
         if (spaceLeft < chunk.length) {
             const newCapacity = Math.max(this.bufferedLength + chunk.length, 1.5 * this.buffer.length);
-            let newBuffer = new Buffer(newCapacity);
-            newBuffer.fill(0);
+            let newBuffer = Buffer.alloc(newCapacity);
             this.buffer.copy(newBuffer);
             this.buffer = newBuffer;
         }
