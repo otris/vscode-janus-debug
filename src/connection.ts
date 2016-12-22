@@ -1,11 +1,11 @@
 'use strict';
 
-import { Socket } from 'net';
 import { EventEmitter } from 'events';
-import { DebugProtocolTransport } from './transport';
-import { Command, Response } from './protocol';
-import { Logger } from './log';
+import { Socket } from 'net';
 import { ContextCoordinator } from './context';
+import { Logger } from './log';
+import { Command, Response } from './protocol';
+import { DebugProtocolTransport } from './transport';
 
 let log = Logger.create('DebugConnection');
 
@@ -21,9 +21,9 @@ export interface ConnectionLike {
  * @fires DebugConnection.newContext
  */
 export class DebugConnection extends EventEmitter implements ConnectionLike {
+    public readonly coordinator: ContextCoordinator;
     private transport: DebugProtocolTransport;
     private responseHandlers: Map<string, Function>;
-    public readonly coordinator: ContextCoordinator;
 
     constructor(socket: Socket) {
         super();
@@ -69,7 +69,7 @@ export class DebugConnection extends EventEmitter implements ConnectionLike {
      * Send given request to the target.
      * @param {Command} request - The request that is send to the target.
      * @param {Function} responseHandler - An optional handler for the response from the target, if any.
-    */
+     */
     public sendRequest(request: Command, responseHandler?: (response: Response) => Promise<any>): Promise<any> {
 
         return new Promise<any>((resolve, reject) => {

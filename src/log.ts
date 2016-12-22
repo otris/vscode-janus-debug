@@ -19,6 +19,9 @@ function toNumericLogLevel(logLevel: LogLevel): NumericLogLevel | undefined {
 
         case 'Error':
             return NumericLogLevel.Error;
+
+        default:
+            throw new Error('unknown log level');
     }
 }
 
@@ -30,6 +33,10 @@ export interface LogConfiguration {
 }
 
 export class Logger {
+    public static create(name: string): Logger {
+        return new Logger(name);
+    }
+
     private static loggers = new Map<string, Logger>();
     private static _config: LogConfiguration = {};
     private static fd: number | undefined;
@@ -49,10 +56,6 @@ export class Logger {
     public warn(msg: string): void { this.log(NumericLogLevel.Warn, 'WARN', msg); }
 
     public error(msg: string): void { this.log(NumericLogLevel.Error, 'ERROR', msg); }
-
-    public static create(name: string): Logger {
-        return new Logger(name);
-    }
 
     public static set config(newConfig: LogConfiguration) {
         if (Logger.fd !== undefined) {

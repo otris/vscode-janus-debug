@@ -11,7 +11,11 @@
     ],
     "no-bitwise": false,
     "interface-name": [
-      true, "never-prefix"
+      true,
+      "never-prefix"
+    ],
+    "max-classes-per-file": [
+      false
     ]
   }
 }

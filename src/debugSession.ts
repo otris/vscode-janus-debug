@@ -2,15 +2,15 @@
 
 import * as assert from 'assert';
 import { connect, Socket } from 'net';
-import { DebugSession, InitializedEvent, StoppedEvent, ContinuedEvent, TerminatedEvent } from 'vscode-debugadapter';
+import { ContinuedEvent, DebugSession, InitializedEvent, StoppedEvent, TerminatedEvent } from 'vscode-debugadapter';
 import { DebugProtocol } from 'vscode-debugprotocol';
-import { CommonArguments, AttachRequestArguments } from './config';
+import { AttachRequestArguments, CommonArguments } from './config';
 import { DebugConnection } from './connection';
-import { Command, Response, Breakpoint, StackFrame, Variable, variableValueToString } from './protocol';
 import { ContextId } from './context';
-import { SourceMap } from './sourceMap';
 import { FrameMap } from './frameMap';
 import { Logger } from './log';
+import { Breakpoint, Command, Response, StackFrame, Variable, variableValueToString } from './protocol';
+import { SourceMap } from './sourceMap';
 
 let log = Logger.create('JanusDebugSession');
 
@@ -26,29 +26,31 @@ export class JanusDebugSession extends DebugSession {
         this.frameMap = new FrameMap();
     }
 
-    protected initializeRequest(response: DebugProtocol.InitializeResponse, args: DebugProtocol.InitializeRequestArguments): void {
+    protected initializeRequest(response: DebugProtocol.InitializeResponse,
+                                args: DebugProtocol.InitializeRequestArguments): void {
         log.info("initializeRequest");
 
         let body = {
-            supportsConfigurationDoneRequest: true,
-            supportsFunctionBreakpoints: false,
-            supportsConditionalBreakpoints: false,
-            supportsHitConditionalBreakpoints: false,
-            supportsEvaluateForHovers: false,
             exceptionBreakpointFilters: [],
-            supportsStepBack: false,
-            supportsSetVariable: false,
-            supportsRestartFrame: false,
-            supportsGotoTargetsRequest: false,
-            supportsStepInTargetsRequest: false,
             supportsCompletionsRequest: false,
-            supportsRunInTerminalRequest: false
+            supportsConditionalBreakpoints: false,
+            supportsConfigurationDoneRequest: true,
+            supportsEvaluateForHovers: false,
+            supportsFunctionBreakpoints: false,
+            supportsGotoTargetsRequest: false,
+            supportsHitConditionalBreakpoints: false,
+            supportsRestartFrame: false,
+            supportsRunInTerminalRequest: false,
+            supportsSetVariable: false,
+            supportsStepBack: false,
+            supportsStepInTargetsRequest: false,
         };
         response.body = body;
         this.sendResponse(response);
     }
 
-    protected disconnectRequest(response: DebugProtocol.DisconnectResponse, args: DebugProtocol.DisconnectArguments): void {
+    protected disconnectRequest(response: DebugProtocol.DisconnectResponse,
+                                args: DebugProtocol.DisconnectArguments): void {
         log.info("disconnectRequest");
 
         const connection = this.connection;
@@ -113,14 +115,14 @@ export class JanusDebugSession extends DebugSession {
             });
             Promise.race([request, timeout]).then(() => {
 
-                // Tell the frontend that we are ready to set breakpoints and so on. The frontend will end the configuration
-                // sequence by calling 'configurationDone' request
+                // Tell the frontend that we are ready to set breakpoints and so on. The frontend will end the
+                // configuration sequence by calling 'configurationDone' request
                 log.debug(`sending InitializedEvent`);
                 this.sendEvent(new InitializedEvent());
 
                 this.sendResponse(response);
 
-            }).catch(reason => {
+            }).catch((reason) => {
                 log.error(`attachRequest: ...failed. ${reason}`);
                 response.success = false;
                 response.message = `Could not attach to remote process: ${reason}`;
@@ -131,8 +133,7 @@ export class JanusDebugSession extends DebugSession {
         socket.on('close', (hadError: boolean) => {
             if (hadError) {
                 log.error(`remote closed the connection due to error`);
-            }
-            else {
+            } else {
                 log.info(`remote closed the connection`);
             }
             this.connection = undefined;
@@ -149,7 +150,8 @@ export class JanusDebugSession extends DebugSession {
         });
     }
 
-    protected setBreakPointsRequest(response: DebugProtocol.SetBreakpointsResponse, args: DebugProtocol.SetBreakpointsArguments): void {
+    protected setBreakPointsRequest(response: DebugProtocol.SetBreakpointsResponse,
+                                    args: DebugProtocol.SetBreakpointsArguments): void {
         const numberOfBreakpoints: number = args.breakpoints ? args.breakpoints.length : 0;
         log.info(`setBreakPointsRequest for ${numberOfBreakpoints} breakpoint(s): ${JSON.stringify(args)}`);
 
@@ -166,10 +168,10 @@ export class JanusDebugSession extends DebugSession {
         const conn = this.connection;
 
         let deleteAllBreakpointsCommand = new Command('delete_all_breakpoints');
-        conn.sendRequest(deleteAllBreakpointsCommand, (response: Response) => {
+        conn.sendRequest(deleteAllBreakpointsCommand, (res: Response) => {
             return new Promise<void>((resolve, reject) => {
-                if (response.type === 'error') {
-                    reject(new Error(`Target responded with error '${response.content.message}'`));
+                if (res.type === 'error') {
+                    reject(new Error(`Target responded with error '${res.content.message}'`));
                 } else {
                     resolve();
                 }
@@ -178,38 +180,38 @@ export class JanusDebugSession extends DebugSession {
 
         const localUrl: string = args.source.path;
         const remoteSourceUrl = this.sourceMap.remoteSourceUrl(localUrl);
-        let actualBreakpoints: Promise<Breakpoint>[] = [];
-        args.breakpoints.forEach((breakpoint => {
+        let actualBreakpoints: Array<Promise<Breakpoint>> = [];
+        args.breakpoints.forEach(((breakpoint) => {
 
             let setBreakpointCommand = Command.setBreakpoint(remoteSourceUrl, breakpoint.line);
 
             actualBreakpoints.push(
-                conn.sendRequest(setBreakpointCommand, (response: Response): Promise<Breakpoint> => {
+                conn.sendRequest(setBreakpointCommand, (res: Response): Promise<Breakpoint> => {
                     return new Promise<Breakpoint>((resolve, reject) => {
 
-                        if (response.type === 'error') {
-                            reject(new Error(`Target responded with error '${response.content.message}'`));
+                        if (res.type === 'error') {
+                            reject(new Error(`Target responded with error '${res.content.message}'`));
                         } else {
-                            resolve(response.content);
+                            resolve(res.content);
                         }
                     });
                 }));
         }));
 
         Promise.all(actualBreakpoints).then((res: Breakpoint[]) => {
-            let breakpoints: DebugProtocol.Breakpoint[] = res.map(actualBreakpoint => {
+            let breakpoints: DebugProtocol.Breakpoint[] = res.map((actualBreakpoint) => {
                 return {
                     id: actualBreakpoint.bid,
-                    verified: true,
                     line: actualBreakpoint.line,
                     source: {
-                        path: actualBreakpoint.url
-                    }
+                        path: actualBreakpoint.url,
+                    },
+                    verified: true,
                 };
             });
             log.debug(`setBreakPointsRequest succeeded: ${JSON.stringify(breakpoints)}`);
             response.body = {
-                breakpoints: breakpoints
+                breakpoints: breakpoints,
             };
             this.sendResponse(response);
         }).catch((reason) => {
@@ -220,16 +222,19 @@ export class JanusDebugSession extends DebugSession {
         });
     }
 
-    protected setFunctionBreakPointsRequest(response: DebugProtocol.SetFunctionBreakpointsResponse, args: DebugProtocol.SetFunctionBreakpointsArguments): void {
+    protected setFunctionBreakPointsRequest(response: DebugProtocol.SetFunctionBreakpointsResponse,
+                                            args: DebugProtocol.SetFunctionBreakpointsArguments): void {
         log.info("setFunctionBreakPointsRequest");
         this.sendResponse(response);
     }
 
-    /*
-        protected setExceptionBreakPointsRequest(response: DebugProtocol.SetExceptionBreakpointsResponse, args: DebugProtocol.SetExceptionBreakpointsArguments): void;
-    */
+    protected setExceptionBreakPointsRequest(response: DebugProtocol.SetExceptionBreakpointsResponse,
+                                             args: DebugProtocol.SetExceptionBreakpointsArguments): void {
+        log.info("setExceptionBreakPointsRequest");
+    }
 
-    protected configurationDoneRequest(response: DebugProtocol.ConfigurationDoneResponse, args: DebugProtocol.ConfigurationDoneArguments): void {
+    protected configurationDoneRequest(response: DebugProtocol.ConfigurationDoneResponse,
+                                       args: DebugProtocol.ConfigurationDoneArguments): void {
         log.info("configurationDoneRequest");
 
         if (this.connection === undefined) {
@@ -241,7 +246,7 @@ export class JanusDebugSession extends DebugSession {
         // contexts.
 
         let contexts = this.connection.coordinator.getAllAvailableContexts();
-        contexts.forEach(context => {
+        contexts.forEach((context) => {
             if (context.isStopped()) {
                 log.debug(`sending StoppedEvent('pause', ${context.id})`);
                 let stoppedEvent = new StoppedEvent('pause', context.id);
@@ -285,7 +290,6 @@ export class JanusDebugSession extends DebugSession {
         });
     }
 
-
     protected nextRequest(response: DebugProtocol.NextResponse, args: DebugProtocol.NextArguments): void {
         log.info(`nextRequest for threadId: ${args.threadId}`);
 
@@ -309,13 +313,27 @@ export class JanusDebugSession extends DebugSession {
         });
     }
 
-    /*
-        protected stepInRequest(response: DebugProtocol.StepInResponse, args: DebugProtocol.StepInArguments): void;
-        protected stepOutRequest(response: DebugProtocol.StepOutResponse, args: DebugProtocol.StepOutArguments): void;
-        protected stepBackRequest(response: DebugProtocol.StepBackResponse, args: DebugProtocol.StepBackArguments): void;
-        protected restartFrameRequest(response: DebugProtocol.RestartFrameResponse, args: DebugProtocol.RestartFrameArguments): void;
-        protected gotoRequest(response: DebugProtocol.GotoResponse, args: DebugProtocol.GotoArguments): void;
-    */
+    protected stepInRequest(response: DebugProtocol.StepInResponse, args: DebugProtocol.StepInArguments): void {
+        log.info("stepInRequest");
+    }
+
+    protected stepOutRequest(response: DebugProtocol.StepOutResponse, args: DebugProtocol.StepOutArguments): void {
+        log.info("stepOutRequest");
+    }
+
+    protected stepBackRequest(response: DebugProtocol.StepBackResponse,
+                              args: DebugProtocol.StepBackArguments): void {
+        log.info("stepBackRequest");
+    }
+
+    protected restartFrameRequest(response: DebugProtocol.RestartFrameResponse,
+                                  args: DebugProtocol.RestartFrameArguments): void {
+        log.info("restartFrameRequest");
+    }
+
+    protected gotoRequest(response: DebugProtocol.GotoResponse, args: DebugProtocol.GotoArguments): void {
+        log.info("gotoRequest");
+    }
 
     protected pauseRequest(response: DebugProtocol.PauseResponse, args: DebugProtocol.PauseArguments): void {
         log.info(`pauseRequest for threadId: ${args.threadId}`);
@@ -333,7 +351,7 @@ export class JanusDebugSession extends DebugSession {
                 this.sendResponse(response);
                 let stoppedEvent = new StoppedEvent('pause', contextId);
                 this.sendEvent(stoppedEvent);
-            }).catch(reason => {
+            }).catch((reason) => {
                 log.error('pauseRequest failed: ' + reason);
                 response.success = false;
                 response.message = reason.toString();
@@ -360,20 +378,21 @@ export class JanusDebugSession extends DebugSession {
             throw new Error('No connection');
         }
         let contexts = this.connection.coordinator.getAllAvailableContexts();
-        let threads: DebugProtocol.Thread[] = contexts.map(context => {
+        let threads: DebugProtocol.Thread[] = contexts.map((context) => {
             return {
                 id: context.id,
-                name: context.name
+                name: context.name,
             };
         });
         response.body = {
-            threads: threads
+            threads: threads,
         };
         log.debug(`threadsRequest succeeded with ${JSON.stringify(response.body.threads)}`);
         this.sendResponse(response);
     }
 
-    protected stackTraceRequest(response: DebugProtocol.StackTraceResponse, args: DebugProtocol.StackTraceArguments): void {
+    protected stackTraceRequest(response: DebugProtocol.StackTraceResponse,
+                                args: DebugProtocol.StackTraceArguments): void {
         log.info(`stackTraceRequest for threadId ${args.threadId}`);
 
         if (this.connection === undefined) {
@@ -384,20 +403,20 @@ export class JanusDebugSession extends DebugSession {
         let context = this.connection.coordinator.getContext(contextId);
         context.getStacktrace().then((trace: StackFrame[]) => {
             const frames = this.frameMap.addFrames(contextId, trace);
-            let stackFrames: DebugProtocol.StackFrame[] = frames.map(frame => {
+            let stackFrames: DebugProtocol.StackFrame[] = frames.map((frame) => {
                 return {
+                    column: 0,
                     id: frame.frameId,
+                    line: frame.sourceLine,
                     name: '', // TODO
                     source: {
-                        path: frame.sourceUrl
+                        path: frame.sourceUrl,
                     },
-                    line: frame.sourceLine,
-                    column: 0
                 };
             });
             response.body = {
                 stackFrames: stackFrames,
-                totalFrames: trace.length
+                totalFrames: trace.length,
             };
             log.debug(`stackTraceRequest succeeded`);
             this.sendResponse(response);
@@ -410,18 +429,19 @@ export class JanusDebugSession extends DebugSession {
         // The variablesReference is just the frameId because we do not keep track of individual scopes in a frame.
 
         let scopes: DebugProtocol.Scope[] = [{
+            expensive: false,
             name: 'Locals',
             variablesReference: args.frameId,
-            expensive: false
         }];
 
         response.body = {
-            scopes: scopes
+            scopes: scopes,
         };
         this.sendResponse(response);
     }
 
-    protected variablesRequest(response: DebugProtocol.VariablesResponse, args: DebugProtocol.VariablesArguments): void {
+    protected variablesRequest(response: DebugProtocol.VariablesResponse,
+                               args: DebugProtocol.VariablesArguments): void {
         log.info(`variablesRequest with variablesReference ${args.variablesReference}`);
 
         if (this.connection === undefined) {
@@ -431,20 +451,20 @@ export class JanusDebugSession extends DebugSession {
         let frame = this.frameMap.getStackFrame(args.variablesReference);
         let context = this.connection.coordinator.getContext(frame.contextId);
         context.getVariables().then((locals: Variable[]) => {
-            let variables: DebugProtocol.Variable[] = locals.map(variable => {
+            let variables: DebugProtocol.Variable[] = locals.map((variable) => {
                 return {
                     name: variable.name,
                     value: variableValueToString(variable.value),
-                    variablesReference: 0
+                    variablesReference: 0,
                 };
             });
 
             response.body = {
-                variables: variables
+                variables: variables,
             };
             log.debug(`variablesRequest succeeded`);
             this.sendResponse(response);
-        }).catch(reason => {
+        }).catch((reason) => {
             log.error(`variablesRequest failed: ${reason}`);
             response.success = false;
             response.message = `Could not get variable(s): ${reason}`;
@@ -452,13 +472,30 @@ export class JanusDebugSession extends DebugSession {
         });
     }
 
-    /*
-        protected setVariableRequest(response: DebugProtocol.SetVariableResponse, args: DebugProtocol.SetVariableArguments): void;
-        protected evaluateRequest(response: DebugProtocol.EvaluateResponse, args: DebugProtocol.EvaluateArguments): void;
-        protected stepInTargetsRequest(response: DebugProtocol.StepInTargetsResponse, args: DebugProtocol.StepInTargetsArguments): void;
-        protected gotoTargetsRequest(response: DebugProtocol.GotoTargetsResponse, args: DebugProtocol.GotoTargetsArguments): void;
-        protected completionsRequest(response: DebugProtocol.CompletionsResponse, args: DebugProtocol.CompletionsArguments): void;
-    */
+    protected setVariableRequest(response: DebugProtocol.SetVariableResponse,
+                                 args: DebugProtocol.SetVariableArguments): void {
+        log.info(`setVariableRequest`);
+    }
+
+    protected evaluateRequest(response: DebugProtocol.EvaluateResponse,
+                              args: DebugProtocol.EvaluateArguments): void {
+        log.info(`evaluateRequest`);
+    }
+
+    protected stepInTargetsRequest(response: DebugProtocol.StepInTargetsResponse,
+                                   args: DebugProtocol.StepInTargetsArguments): void {
+        log.info(`stepInTargetsRequest`);
+    }
+
+    protected gotoTargetsRequest(response: DebugProtocol.GotoTargetsResponse,
+                                 args: DebugProtocol.GotoTargetsArguments): void {
+        log.info(`gotoTargetsRequest`);
+    }
+
+    protected completionsRequest(response: DebugProtocol.CompletionsResponse,
+                                 args: DebugProtocol.CompletionsArguments): void {
+        log.info(`completionsRequest`);
+    }
 
     private readConfig(args: CommonArguments): void {
         if (args.log) {

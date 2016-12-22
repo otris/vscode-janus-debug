@@ -63,7 +63,7 @@ export interface Response {
 
 export interface Query {
     depth: number;
-    options?: Object
+    options?: Object;
 }
 
 export interface Breakpoint {
@@ -88,12 +88,10 @@ export interface Variable {
 
 export function variableValueToString(value: VariableValue): string {
     if (typeof value === 'string') {
-        switch (value) {
-            case '___jsrdbg_undefined___':
-                return 'undefined';
+        if (value === '___jsrdbg_undefined___') {
+            return 'undefined';
         }
-    }
-    else {
+    } else {
 
         // Functions
 
@@ -125,15 +123,15 @@ export function parseResponse(responseString: string): Response {
     }
     let obj = JSON.parse(responseString.substring(indexStart));
     let response: Response = {
+        content: {},
         type: obj.type,
-        content: {}
     };
     delete obj.type;
     if (contextId !== undefined) {
-        response['contextId'] = contextId;
+        response.contextId = contextId;
     }
     if (obj.subtype) {
-        response['subtype'] = obj.subtype;
+        response.subtype = obj.subtype;
         delete obj.subtype;
     }
     response.content = obj;
@@ -141,6 +139,29 @@ export function parseResponse(responseString: string): Response {
 }
 
 export class Command {
+
+    public static setBreakpoint(url: string, lineNumber: number, pending?: boolean): Command {
+        let cmd = new Command('set_breakpoint');
+        cmd.payload.breakpoint = {
+            line: lineNumber,
+            pending: pending === undefined ? true : pending,
+            url: url,
+        };
+        return cmd;
+    }
+
+    public static getSource(url: string): Command {
+        let cmd = new Command('get_source');
+        cmd.payload.url = url;
+        return cmd;
+    }
+
+    public static getVariables(contextId: number, query: Query): Command {
+        let cmd = new Command('get_variables', contextId);
+        cmd.payload.query = query;
+        return cmd;
+    }
+
     private payload: any;
     private contextId: number | undefined;
 
@@ -163,13 +184,13 @@ export class Command {
             () => { return name === 'get_available_contexts'; },
             () => { return name === 'exit'; },
             () => { return name === 'continue' && contextId === undefined; },
-            () => { return name === 'next'; }
+            () => { return name === 'next'; },
         ];
         for (var i = 0; i < exceptions.length; i++) {
             needsId = !exceptions[i]();
         }
         if (needsId) {
-            this.payload['id'] = uuid.v4();
+            this.payload.id = uuid.v4();
         }
     }
 
@@ -187,27 +208,5 @@ export class Command {
             return `${this.contextId}/${JSON.stringify(this.payload)}\n`;
         }
         return `${JSON.stringify(this.payload)}\n`;
-    }
-
-    public static setBreakpoint(url: string, lineNumber: number, pending?: boolean): Command {
-        let cmd = new Command('set_breakpoint');
-        cmd.payload['breakpoint'] = {
-            url: url,
-            line: lineNumber,
-            pending: pending === undefined ? true : pending,
-        };
-        return cmd;
-    }
-
-    public static getSource(url: string): Command {
-        let cmd = new Command('get_source');
-        cmd.payload['url'] = url;
-        return cmd;
-    }
-
-    public static getVariables(contextId: number, query: Query): Command {
-        let cmd = new Command('get_variables', contextId);
-        cmd.payload['query'] = query;
-        return cmd;
     }
 }

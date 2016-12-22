@@ -1,24 +1,24 @@
 'use strict';
 
 import * as assert from 'assert';
-import { Response, Command, ErrorCode, StackFrame, Variable } from './protocol';
-import { Logger } from './log';
 import { ConnectionLike } from './connection';
+import { Logger } from './log';
+import { Command, ErrorCode, Response, StackFrame, Variable } from './protocol';
 
 export type ContextId = number;
 
 let contextLog = Logger.create('Context');
 
 export class Context {
-    public isStopped(): boolean {
-        return this.stopped ? this.stopped : false;
+    constructor(private connection: ConnectionLike,
+                public readonly id: ContextId,
+                public readonly name: string,
+                private readonly stopped?: boolean) {
+
     }
 
-    constructor(private connection: ConnectionLike,
-        public readonly id: ContextId,
-        public readonly name: string,
-        private readonly stopped?: boolean) {
-
+    public isStopped(): boolean {
+        return this.stopped ? this.stopped : false;
     }
 
     public pause(): Promise<void> {
@@ -77,9 +77,9 @@ export class Context {
         let req = Command.getVariables(this.id, {
             depth: 0,
             options: {
+                "evaluation-depth": 1,
                 "show-hierarchy": true,
-                "evaluation-depth": 1
-            }
+            },
         });
         return this.connection.sendRequest(req, (res: Response) => {
             return new Promise<Variable[]>((resolve, reject) => {
@@ -93,12 +93,12 @@ export class Context {
                     // an array of variables
                     assert.equal(res.content.variables.length, 1);
 
-                    res.content.variables.forEach(element => {
+                    res.content.variables.forEach((element) => {
 
                         // Each element got a stackElement which descripes the frame and a list of
                         // variables.
 
-                        element.variables.forEach(variable => {
+                        element.variables.forEach((variable) => {
                             variables.push(variable);
                         });
                     });
@@ -151,7 +151,9 @@ export class ContextCoordinator {
 
             let contents = Array.from(this.contextById.values());
             coordinatorLog.warn(
-                `unknown context ${id} requested; available: ${contents.map(context => { return context.id; })}`);
+                `unknown context ${id} requested; available: ${contents.map((someContext) => {
+                    return someContext.id;
+                })}`);
 
             // Shitty but maybe helps in cases we're caught by surprise
             // if (id === 0 && contents.length === 1) {
@@ -177,11 +179,12 @@ export class ContextCoordinator {
                     assert.ok(response.content.hasOwnProperty('contexts'));
 
                     // Add new contexts
-                    response.content.contexts.forEach(element => {
+                    response.content.contexts.forEach((element) => {
                         if (!this.contextById.has(element.contextId)) {
                             coordinatorLog.debug(`creating new context with id: ${element.contextId}`);
-                            let newContext: Context = new Context(this.connection, element.contextId, element.contextName,
-                                element.paused);
+                            let newContext: Context =
+                                new Context(this.connection, element.contextId, element.contextName,
+                                    element.paused);
                             this.contextById.set(element.contextId, newContext);
 
                             // Notify the frontend that we have a new context in the target
@@ -191,13 +194,13 @@ export class ContextCoordinator {
 
                     // Purge the ones that no longer exist
                     let dead: ContextId[] = [];
-                    this.contextById.forEach(context => {
-                        if (!response.content.contexts.find(element => element.contextId === context.id)) {
+                    this.contextById.forEach((context) => {
+                        if (!response.content.contexts.find((element) => element.contextId === context.id)) {
                             coordinatorLog.debug(`context ${context.id} no longer exists`);
                             dead.push(context.id);
                         }
                     });
-                    dead.forEach(id => this.contextById.delete(id));
+                    dead.forEach((id) => this.contextById.delete(id));
                 }
             } else {
 

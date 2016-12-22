@@ -1,6 +1,6 @@
 'use strict';
 
-import { ParsedPath, parse, sep } from 'path';
+import { parse, ParsedPath, sep } from 'path';
 import { Logger } from './log';
 
 let log = Logger.create('SourceMap');
@@ -10,7 +10,7 @@ export class SourceMap {
 
     public setAllRemoteUrls(remoteUrls: string[]): void {
         this.baseToRemoteUrl.clear();
-        remoteUrls.forEach(remoteUrl => {
+        remoteUrls.forEach((remoteUrl) => {
             const parsedPath = parse(remoteUrl);
             this.baseToRemoteUrl.set(parsedPath.base, remoteUrl);
         });
