@@ -194,7 +194,7 @@ export class Command {
         cmd.payload['breakpoint'] = {
             url: url,
             line: lineNumber,
-            pending: pending === undefined ? true : pending
+            pending: pending === undefined ? true : pending,
         };
         return cmd;
     }
