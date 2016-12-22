@@ -145,7 +145,7 @@ export class Command {
         cmd.payload.breakpoint = {
             line: lineNumber,
             pending: pending === undefined ? true : pending,
-            url: url,
+            url,
         };
         return cmd;
     }
@@ -171,7 +171,7 @@ export class Command {
 
     constructor(name: CommandName, contextId?: number) {
         this.payload = {
-            name: name,
+            name,
             type: 'command',
         };
         this.contextId = contextId;

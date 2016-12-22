@@ -211,7 +211,7 @@ export class JanusDebugSession extends DebugSession {
             });
             log.debug(`setBreakPointsRequest succeeded: ${JSON.stringify(breakpoints)}`);
             response.body = {
-                breakpoints: breakpoints,
+                breakpoints,
             };
             this.sendResponse(response);
         }).catch((reason) => {
@@ -385,7 +385,7 @@ export class JanusDebugSession extends DebugSession {
             };
         });
         response.body = {
-            threads: threads,
+            threads,
         };
         log.debug(`threadsRequest succeeded with ${JSON.stringify(response.body.threads)}`);
         this.sendResponse(response);
@@ -415,7 +415,7 @@ export class JanusDebugSession extends DebugSession {
                 };
             });
             response.body = {
-                stackFrames: stackFrames,
+                stackFrames,
                 totalFrames: trace.length,
             };
             log.debug(`stackTraceRequest succeeded`);
@@ -435,7 +435,7 @@ export class JanusDebugSession extends DebugSession {
         }];
 
         response.body = {
-            scopes: scopes,
+            scopes,
         };
         this.sendResponse(response);
     }
@@ -460,7 +460,7 @@ export class JanusDebugSession extends DebugSession {
             });
 
             response.body = {
-                variables: variables,
+                variables,
             };
             log.debug(`variablesRequest succeeded`);
             this.sendResponse(response);
