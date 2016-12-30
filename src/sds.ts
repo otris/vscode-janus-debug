@@ -11,7 +11,7 @@ const INITIAL_BUFFER_SIZE = 4 * 1024;
 const FIRST_PARAM_INDEX = 13;
 
 /**
- * Converts a 32-bit quantity (long integer) from host byte order to network byte order (little- to big-endian).
+ * Convert a 32-bit quantity (long integer) from host byte order to network byte order (little- to big-endian).
  *
  * @param {Buffer} b Buffer of octets
  * @param {number} i Zero-based index at which to write into b
@@ -25,7 +25,7 @@ export function htonl(b: Buffer, i: number, val: number): void {
 };
 
 /**
- * Converts a 32-bit quantity (long integer) from network byte order to host byte order (big- to little-endian).
+ * Convert a 32-bit quantity (long integer) from network byte order to host byte order (big- to little-endian).
  *
  * @param {Buffer} b Buffer to read value from
  * @param {number} i Zero-based index at which to read from b
@@ -38,7 +38,7 @@ export function ntohl(b: Buffer, i: number): number {
 };
 
 /**
- * Returns an array of all UTF-16 code units in given string plus a 0-terminus.
+ * Return an array of all UTF-16 code units in given string plus a 0-terminus.
  *
  * Hint: The result looks pretty much like a C-style string.
  * @param {string} str An arbitrary string
@@ -51,7 +51,7 @@ function term(str: string): number[] {
 }
 
 /**
- * Returns a string where bytes in given Buffer object are printed conveniently in hexadecimal notation. Only useful
+ * Return a string where all bytes in given Buffer object are printed conveniently in hexadecimal notation. Only useful
  * when logging or debugging.
  *
  * @param {string} msg A string that is printed as prefix
@@ -191,7 +191,14 @@ enum Type {
     NullFlag = 128, // 0x80
 }
 
-class Message {
+export class Message {
+    public static from(buf: Buffer): Message {
+        let msg = new Message();
+        msg.buffer = buf;
+        msg.bufferedLength = buf.length;
+        return msg;
+    }
+
     private buffer: Buffer;
     private bufferedLength: number;
 
@@ -229,7 +236,7 @@ class Message {
     }
 }
 
-class Response {
+export class Response {
     public readonly length: number;
 
     constructor(private buffer: Buffer) {
@@ -243,6 +250,13 @@ class Response {
         const headType = this.buffer[paramIndex];
         assert.ok((headType & ~Type.NullFlag) === Type.Int32);
         return ntohl(this.buffer, paramIndex + 2);
+    }
+
+    /**
+     * Returns true if this reponse and otherBuffer have exactly the same bytes and length, false otherwise.
+     */
+    public equals(otherBuffer: Buffer): boolean {
+        return this.buffer.equals(otherBuffer);
     }
 
     private getParamIndex(name: ParameterName) {
@@ -303,12 +317,25 @@ let log = Logger.create('SDSProtocolTransport');
 export class SDSProtocolTransport extends EventEmitter {
     constructor(private socket: SocketLike) {
         super();
-
         this.socket.on('data', (chunk: Buffer) => {
             this.scanParseAndEmit(chunk);
         });
     }
 
+    /**
+     * Send given message on TCP socket.
+     */
+    public send(msg: Message): void {
+        let packedMessage = msg.pack();
+        log.debug(printBytes('sending', packedMessage));
+        this.socket.write(packedMessage);
+    }
+
+    /**
+     * Disconnect from the server by ending the TCP connection.
+     *
+     * Actually, this half-closes the socket, so there still might come a response from the other end.
+     */
     public disconnect(): Promise<void> {
         return new Promise<void>((resolve, reject) => {
             this.socket.on('close', () => resolve());
@@ -318,20 +345,120 @@ export class SDSProtocolTransport extends EventEmitter {
 
     private scanParseAndEmit(chunk: Buffer): void {
         log.debug(`received: '${chunk}', length: ${chunk.length}`);
+        let res = new Response(chunk);
+        this.emit('response', res);
+    }
+}
 
-        if (chunk.equals(ACK)) {
+export class SDSConnection {
+    private _clientId: number | undefined;
+    private _timeout: number;
+    private transport: SDSProtocolTransport;
+
+    /**
+     * Create a new connection on given socket.
+     */
+    constructor(socket: SocketLike) {
+        this._timeout = 6000;
+        this.transport = new SDSProtocolTransport(socket);
+        this._clientId = undefined;
+    }
+
+    /**
+     * Connect to server.
+     *
+     * Precondition: TCP connection established.
+     *
+     * A connection is "established" after following sequence of messages got exchanged.
+     *
+     * 1. We send a short "Hello"-like message.
+     * 2. The server acknowledges this message with a short response, possibly negotiating SSL terms.
+     * 3. We introduce ourselves by sending a short string containing our client's name.
+     * 4. The server responds with a client ID that we store.
+     *
+     * The client ID can be used to track this connection in the server's log files later on. I presume this client ID
+     * is solely useful for logging and debugging purposes. A connection is closed simply by ending the TCP connection
+     * (by sending a FIN packet). The server usually notes this as a "client crashed" event in the log files. However,
+     * every existing client seems to do it this way. You can use the disconnect() method for this.
+     */
+    public connect(): Promise<void> {
+        this.transport.send(Message.from(HELLO));
+        return this.waitForResponse().then((response: Response) => {
+            if (!response.equals(ACK)) {
+                throw new Error(`unexpected response`);
+            }
+
             // Hello ack'ed, no SSL, send intro
             let msg = new Message();
             msg.add(Buffer.from([0, 0, 0, 0, 0, 0, 0, 0, 0]));
             msg.add(Buffer.from(`vscode-janus-debug on ${os.platform()}`, 'ascii'));
-            socket.write(msg.pack());
-        } else {
-            let res = new Response(chunk);
-            this.emit('response', res);
-        }
+            this.transport.send(msg);
+            return this.waitForResponse();
+
+        }).then((response: Response) => {
+
+            this._clientId = response.getInt32(ParameterName.GETNEWCLIENTID);
+
+        }).catch((reason) => {
+            let what = `could not establish connection to server: ${reason.toString()}`;
+            log.debug(what);
+            throw new Error(what);
+        });
+    }
+
+    /**
+     * Send given message on the wire and immediately return a promise that is fulfilled whenever the response
+     * comes in or the timeout is reached.
+     */
+    public send(msg: Message): Promise<Response> {
+        let timeout = new Promise<void>((resolve, reject) => {
+            setTimeout(reject, this._timeout || 6000, "Request timed out");
+        });
+        let response: Promise<Response> = this.waitForResponse();
+        this.transport.send(msg);
+        return Promise.race([response, timeout]);
+    }
+
+    /**
+     * Set the time in milliseconds after all future requests will timeout.
+     * @param {timeout} timeout The timeout in milliseconds.
+     */
+    set timeout(timeout: number) {
+        this._timeout = timeout;
+    }
+
+    /**
+     * Returns the timeout in milliseconds.
+     */
+    get timeout(): number {
+        return this._timeout;
+    }
+
+    /**
+     * Disconnect from the server.
+     */
+    public disconnect(): Promise<void> {
+        return this.transport.disconnect();
+    }
+
+    /**
+     * Returns the client ID.
+     */
+    get clientId(): number | undefined {
+        return this._clientId;
+    }
+
+    /**
+     * Make a new promise that is resolved once a 'response' event is triggered.
+     */
+    private waitForResponse = (): Promise<Response> => {
+        return new Promise((resolve) => {
+            this.transport.once('response', resolve);
+        });
     }
 }
 
+/*
 let port: number = 10019;
 let host: string = '192.168.10.32';
 let socket: any;
@@ -351,3 +478,4 @@ socket.on('close', (hadError) => {
 socket.on('error', (err: Error) => {
     log.debug(`failed to connect: ${err}`);
 });
+*/
