@@ -1,3 +1,14 @@
+/**
+ * SDS (or SDS2) is a synchronous binary application-layer protocol on top of TCP that "real" JANUS clients use to
+ * speak to JANUS servers. I could not find any document describing the protocol but there is a C++ library that you
+ * can use to "reverse-engineer" the protocol (You find it under `src/janus/2.9.6/srvclnt`). The protocol is one of
+ * those historic mistakes that never got fixed.
+ *
+ * Layout of a Typical Message
+ *
+ * Saying "Hello" in SDS
+ */
+
 import * as assert from 'assert';
 import { EventEmitter } from 'events';
 import { connect } from 'net';
