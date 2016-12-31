@@ -2,14 +2,8 @@
 
 import * as assert from 'assert';
 import { EventEmitter } from 'events';
+import { SocketLike } from './network';
 import { parseResponse } from './protocol';
-
-export interface SocketLike {
-    on(event: string, handler: Function);
-    write(buffer: Buffer);
-    write(str: string, encoding: string);
-    end();
-}
 
 const INITIAL_BUFFER_SIZE = 4 * 1024;
 const SEPARATOR = 10; // decimal ASCII value for '\n'

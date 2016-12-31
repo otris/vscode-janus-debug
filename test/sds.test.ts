@@ -1,8 +1,8 @@
 import * as assert from 'assert';
 import { EventEmitter } from 'events';
 import * as vscode from 'vscode';
-import { htonl, ntohl, SDSConnection, SDSProtocolTransport } from '../src/sds';
-import { SocketLike } from '../src/transport';
+import { SDSConnection, SDSProtocolTransport } from '../src/sds';
+import { htonl, ntohl, SocketLike } from '../src/network';
 
 suite('SDS protocol tests', () => {
 

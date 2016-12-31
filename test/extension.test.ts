@@ -5,9 +5,10 @@ import { DebugClient } from 'vscode-debugadapter-testsupport';
 import { cantorPairing, reverseCantorPairing } from '../src/cantor';
 import { ConnectionLike } from '../src/connection';
 import { ContextCoordinator } from '../src/context';
+import { SocketLike } from '../src/network';
 import { Command, ErrorCode, parseResponse, Response, variableValueToString } from '../src/protocol';
 import { SourceMap } from '../src/sourceMap';
-import { DebugProtocolTransport, SocketLike } from '../src/transport';
+import { DebugProtocolTransport } from '../src/transport';
 
 suite('source map tests', () => {
 
