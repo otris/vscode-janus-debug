@@ -68,8 +68,6 @@ suite('SDS protocol tests', () => {
 
                 socket.receive([]);
             });
-
-
         });
     });
 });

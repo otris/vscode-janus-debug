@@ -16,6 +16,7 @@
     ],
     "max-classes-per-file": [
       false
-    ]
+    ],
+    "variable-name": [ true, "allow-leading-underscore" ]
   }
 }

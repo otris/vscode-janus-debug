@@ -186,8 +186,8 @@ export class Command {
             () => { return name === 'continue' && contextId === undefined; },
             () => { return name === 'next'; },
         ];
-        for (var i = 0; i < exceptions.length; i++) {
-            needsId = !exceptions[i]();
+        for (let exception of exceptions) {
+            needsId = !exception();
         }
         if (needsId) {
             this.payload.id = uuid.v4();
