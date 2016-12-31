@@ -14,7 +14,7 @@ import { EventEmitter } from 'events';
 import { connect } from 'net';
 import * as os from 'os';
 import { Logger } from './log';
-import { ntohl, htonl, SocketLike } from './network';
+import { htonl, ntohl, SocketLike } from './network';
 
 const HELLO: Buffer = Buffer.from('GGCH$1$$', 'ascii');
 const ACK: Buffer = Buffer.from(term('valid'));

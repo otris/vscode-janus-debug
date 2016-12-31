@@ -129,6 +129,7 @@
         "compile": "tsc -p ./",
         "watch": "tsc -watch -p ./",
         "test": "tsc -p ./ && mocha --timeout 10000 -u tdd out/test/",
+	"lint": "tslint src/*.ts test/*.ts",
         "postinstall": "node ./node_modules/vscode/bin/install"
     },
     "dependencies": {
