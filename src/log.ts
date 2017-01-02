@@ -19,9 +19,11 @@ function toNumericLogLevel(logLevel: LogLevel): NumericLogLevel | undefined {
 
         case 'Error':
             return NumericLogLevel.Error;
-
+/*
         default:
             throw new Error('unknown log level');
+
+*/
     }
 }
 
