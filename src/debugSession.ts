@@ -4,7 +4,7 @@ import * as assert from 'assert';
 import { connect, Socket } from 'net';
 import { ContinuedEvent, DebugSession, InitializedEvent, StoppedEvent, TerminatedEvent } from 'vscode-debugadapter';
 import { DebugProtocol } from 'vscode-debugprotocol';
-import { AttachRequestArguments, CommonArguments } from './config';
+import { AttachRequestArguments, CommonArguments, LaunchRequestArguments } from './config';
 import { DebugConnection } from './connection';
 import { ContextId } from './context';
 import { FrameMap } from './frameMap';
@@ -67,14 +67,14 @@ export class JanusDebugSession extends DebugSession {
         });
     }
 
-    /*
-        Not supported:
-        protected launchRequest(response: DebugProtocol.LaunchResponse, args: LaunchRequestArguments): void;
-    */
+    protected launchRequest(response: DebugProtocol.LaunchResponse, args: LaunchRequestArguments): void {
+        this.readConfig(args);
+        log.info(`launchRequest`);
+    }
 
     protected attachRequest(response: DebugProtocol.AttachResponse, args: AttachRequestArguments): void {
         this.readConfig(args);
-        log.info("attachRequest");
+        log.info(`attachRequest`);
 
         let port: number = args.port || 8089;
         let host: string = args.host || 'localhost';

@@ -6,7 +6,7 @@ export type LogLevel = 'Debug' | 'Info' | 'Warn' | 'Error';
 
 enum NumericLogLevel { Debug, Info, Warn, Error }
 
-function toNumericLogLevel(logLevel: LogLevel): NumericLogLevel | undefined {
+function toNumericLogLevel(logLevel: LogLevel): NumericLogLevel {
     switch (logLevel) {
         case 'Debug':
             return NumericLogLevel.Debug;
@@ -69,8 +69,8 @@ export class Logger {
         if (Logger._config.fileName) {
             try {
                 Logger.fd = fs.openSync(Logger._config.fileName, 'w');
-            } catch (e) {
-                // swallow
+            } catch (err) {
+                // Swallow
             }
         }
 
@@ -99,15 +99,18 @@ export class Logger {
 
     private configure(): void {
         this.logLevel = undefined;
-        if (Logger._config.fileName && Logger._config.logLevel) {
-            this.logLevel = toNumericLogLevel(Logger._config.logLevel[this.name]);
-            if (this.logLevel === undefined) {
-                this.logLevel = toNumericLogLevel(Logger._config.logLevel['default']);
-            }
 
-            if (this.logLevel === undefined) {
-                this.logLevel = NumericLogLevel.Info;
+        if (Logger._config.fileName && Logger._config.logLevel) {
+            try {
+                this.logLevel = toNumericLogLevel(Logger._config.logLevel[this.name]);
+            } catch (err) {
+                this.logLevel = toNumericLogLevel(Logger._config.logLevel['default']);
+                throw err;
             }
+        }
+
+        if (this.logLevel === undefined) {
+            this.logLevel = NumericLogLevel.Debug;
         }
     }
 }

@@ -8,8 +8,6 @@ export interface CommonArguments {
     port: number;
     /** The IP address of the host where the application runs on. */
     host: string;
-    /** Automatically stop target after attaching. If not specified, target does not stop. */
-    stopOnEntry?: boolean;
     /** Lets you configure diagnostic logging of the debug adapter. */
     log: LogConfiguration;
     /** Time in ms until we give up trying to connect. */
@@ -18,3 +16,9 @@ export interface CommonArguments {
 
 export interface AttachRequestArguments extends DebugProtocol.AttachRequestArguments,
     CommonArguments { }
+
+export interface LaunchRequestArguments extends DebugProtocol.LaunchRequestArguments,
+    CommonArguments {
+    /** Automatically stop target after launching. If not specified, target does not stop. */
+    stopOnEntry?: boolean;
+}

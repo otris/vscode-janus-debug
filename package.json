@@ -20,7 +20,8 @@
         "Debuggers"
     ],
     "activationEvents": [
-        "onCommand:extension.getHostName"
+        "onCommand:extension.getHostName",
+        "onCommand:extension.vscode-janus-debug.provideInitialConfigurations"
     ],
     "main": "./out/src/extension",
     "contributes": {
@@ -39,22 +40,35 @@
                     "AskForHostName": "extension.getHostName"
                 },
                 "configurationAttributes": {
-                    "attach": {
-                        "required": [],
+                    "launch": {
+                        "required": [
+                            "script",
+                            "host",
+                            "port"
+                        ],
                         "properties": {
-                            "port": {
-                                "type": "number",
-                                "description": "The debug port to attach to.",
-                                "default": 8089
+                            "script": {
+                                "type": "string",
+                                "description": "The script you want to debug."
                             },
                             "host": {
                                 "type": "string",
-                                "description": "The IP address of the host where the application runs on.",
+                                "description": "IP address or name of the host where you want to run the script.",
                                 "default": "localhost"
+                            },
+                            "port": {
+                                "type": "number",
+                                "description": "The port on which the target server listens.",
+                                "default": 10000
+                            },
+                            "timeout": {
+                                "type": "number",
+                                "description": "Time in ms until we give up trying to connect.",
+                                "default": 6000
                             },
                             "stopOnEntry": {
                                 "type": "boolean",
-                                "description": "Automatically stop target after attaching.",
+                                "description": "Automatically pause script after launch.",
                                 "default": false
                             },
                             "log": {
@@ -95,32 +109,73 @@
                                         }
                                     }
                                 }
+                            }
+                        }
+                    },
+                    "attach": {
+                        "required": [
+                            "host",
+                            "port"
+                        ],
+                        "properties": {
+                            "host": {
+                                "type": "string",
+                                "description": "IP address or name of the host where the application runs on.",
+                                "default": "localhost"
+                            },
+                            "port": {
+                                "type": "number",
+                                "description": "The debug port to attach to.",
+                                "default": 8089
                             },
                             "timeout": {
                                 "type": "number",
                                 "description": "Time in ms until we give up trying to connect.",
                                 "default": 6000
+                            },
+                            "log": {
+                                "type": "object",
+                                "description": "Lets you configure diagnostic logging of the debug adapter.",
+                                "properties": {
+                                    "fileName": {
+                                        "type": "string",
+                                        "description": "The name of the logfile.",
+                                        "default": "${workspaceRoot}/vscode-janus-debug.log"
+                                    },
+                                    "logLevel": {
+                                        "type": "object",
+                                        "description": "The minimum loglevel(s) for messages written to the logfile.",
+                                        "properties": {
+                                            "default": {
+                                                "type": "string",
+                                                "enum": [
+                                                    "Debug",
+                                                    "Info",
+                                                    "Warn",
+                                                    "Error"
+                                                ],
+                                                "description": "The default loglevel."
+                                            }
+                                        },
+                                        "additionalProperties": {
+                                            "type": "string",
+                                            "enum": [
+                                                "Debug",
+                                                "Info",
+                                                "Warn",
+                                                "Error"
+                                            ]
+                                        },
+                                        "default": {
+                                            "default": "Debug"
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
                 },
-                "initialConfigurations": [
-                    {
-                        "name": "Debug JANUS app",
-                        "type": "janus",
-                        "request": "attach",
-                        "port": 8089,
-                        "host": "${workspaceRoot}/${command.AskForHostName}",
-                        "timeout": 6000,
-                        "stopOnEntry": false,
-                        "log": {
-                            "fileName": "${workspaceRoot}/vscode-janus-debug.log",
-                            "logLevel": {
-                                "default": "Debug"
-                            }
-                        }
-                    }
-                ]
+                "initialConfigurations": "extension.vscode-janus-debug.provideInitialConfigurations"
             }
         ]
     },
@@ -129,7 +184,7 @@
         "compile": "tsc -p ./",
         "watch": "tsc -watch -p ./",
         "test": "tsc -p ./ && mocha --timeout 10000 -u tdd out/test/",
-	"lint": "tslint src/*.ts test/*.ts",
+        "lint": "tslint src/*.ts test/*.ts",
         "postinstall": "node ./node_modules/vscode/bin/install"
     },
     "dependencies": {
