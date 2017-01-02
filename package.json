@@ -20,7 +20,6 @@
         "Debuggers"
     ],
     "activationEvents": [
-        "onCommand:extension.getHostName",
         "onCommand:extension.vscode-janus-debug.provideInitialConfigurations"
     ],
     "main": "./out/src/extension",
@@ -36,9 +35,6 @@
                 "label": "JANUS Debugger",
                 "program": "./out/src/debugSession.js",
                 "runtime": "node",
-                "variables": {
-                    "AskForHostName": "extension.getHostName"
-                },
                 "configurationAttributes": {
                     "launch": {
                         "required": [

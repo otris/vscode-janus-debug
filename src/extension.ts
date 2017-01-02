@@ -24,7 +24,7 @@ const initialConfigurations = [
         name: "Attach to server",
         request: "attach",
         type: "janus",
-        host: "${workspaceRoot}/${command.AskForHostName}",
+        host: "localhost",
         port: 8089,
         log: {
             fileName: "${workspaceRoot}/vscode-janus-debug-attach.log",
@@ -36,14 +36,6 @@ const initialConfigurations = [
 ];
 
 export function activate(context: vscode.ExtensionContext) {
-
-    context.subscriptions.push(
-        vscode.commands.registerCommand('extension.getHostName', () => {
-            return vscode.window.showInputBox({
-                placeHolder: "Please enter the IP of the host where the application runs on",
-                value: "localhost",
-            });
-        }));
 
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.provideInitialConfigurations', () => {
