@@ -18,6 +18,7 @@ export class JanusDebugSession extends DebugSession {
     private connection: DebugConnection | undefined;
     private sourceMap: SourceMap;
     private frameMap: FrameMap;
+    private sourceFile: string;
 
     public constructor() {
         super();
@@ -86,6 +87,7 @@ export class JanusDebugSession extends DebugSession {
 
         const connection = new DebugConnection(socket);
         this.connection = connection;
+        this.sourceFile = args.sourceFile;
 
         socket.on('connect', () => {
 
@@ -410,7 +412,7 @@ export class JanusDebugSession extends DebugSession {
                     line: frame.sourceLine,
                     name: '', // TODO
                     source: {
-                        path: frame.sourceUrl,
+                        path: this.sourceFile,
                     },
                 };
             });

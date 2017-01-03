@@ -9,7 +9,7 @@ const initialConfigurations = [
         name: "Launch script on server",
         request: "launch",
         type: "janus",
-        script: "",
+        sourceFile: "${workspaceRoot}/${command.extension.vscode-janus-debug.askForSourceFile}",
         host: "localhost",
         port: 10000,
         stopOnEntry: false,
@@ -36,6 +36,16 @@ const initialConfigurations = [
 ];
 
 export function activate(context: vscode.ExtensionContext) {
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand('extension.vscode-janus-debug.askForSourceFile', () => {
+            return vscode.window.showInputBox({
+                prompt: 'Enter the relative path to the source file you want to debug',
+                value: 'src/jscript/test.js',
+                ignoreFocusOut: true
+            });
+        })
+    );
 
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.provideInitialConfigurations', () => {
