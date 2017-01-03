@@ -106,7 +106,7 @@ export class JanusDebugSession extends DebugSession {
 
             sdsConnection.connect().then(() => {
 
-                log.debug(`SDS connection established`);
+                log.debug(`SDS connection established, got client ID: ${sdsConnection.clientId}`);
 
             }).catch((reason) => {
 

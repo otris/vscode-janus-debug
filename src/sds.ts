@@ -60,107 +60,11 @@ function printBytes(msg: string, buf: Buffer): string {
 }
 
 enum Operation {
-    GETERGNAME = 1,
-    GETLISTERGNAME,
-    GETDESCRIPTION,
-    GETATTRIBUTES,
-    GETCLASSES,
-    GETSUBCLASSES,
-    ISSUBCLASS,
-    GETSUPERCLASSES,
-    ISABSTRACT,
-    GETCLASS,
-    GETID,
-    GETMODELIDS,
-    GETMINMAXCARD,
-    GETASSOCS,
-    GETASSOCCLASS,
-    GETINVERSERELATION,
-    ERRORMESSAGE,
-    GETDATABASESERVER,
-    GETMODEL,
-    GETNUMLANG,
-    GETLANGS,
-    ISMULTIUSER,
-    SUPPORTSPRINCIPALS,
-    GETCURRENCYCLASS,
-    GETUSERCLASS,
-    GETPRINCIPALCLASS,
-    GETENUMCONST,
-    GETLOCALUSERNAMESPACE,
-    SETLANG,
-    GETTIPSOFTHEDAY,
-    GETALLENUMS,
-    HASEXTERNALPASSWORDS,
-    GETLANGCODES = 40,
-    GETEXTRAATTR,
-    RUNSCRIPTONSERVER,
-    DBUTF8 = 71,
+    DisconnectClient = 49,
 }
 
 enum ParameterName {
-    GETNEWCLIENTID = 1,
-    CLASSNAME,
-    OTHEROBJECTID,
-    VALUE,
-    RETURNVALUE,
-    SOMETHING = 8,
-    RELNAME,
-    ITERID,
-    ITEROFFS,
-    LEN,
-    INDEX,
-    LANG,
-    CLASSID = 16,
-    LISTNAME,
-    ISTRANSOBJ,
-    LOCKMODE = 19,
-    LOCKGROUP,
-    USER,
-    PASSWORD,
-    SSLLEVEL,
-    FIRST,
-    LAST,
-    ATTRS = 26,
-    PROPERTIES = 29,
-    SORTEXPR,
-    FILTEREXPR,
-    NEWNAME,
-    GETMODELID1 = 34,
-    GETMODELID2,
-    ENUMNAME,
-    ENUMELEMENTS = 38,
-    ENUMCODES,
-    USERID,
-    ALLGROUPS,
-    SELECTEDGROUPS,
-    SELECT,
-    USEBASE,
-    FULLNAME,
-    PASSEXPIRE,
-    ACCOUNTEXPIRE,
-    PARAMETER = 48,
-    PARAMETER_PDO,
-    INIT = 53,
-    READ,
-    WRITE,
-    FROM = 58,
-    TO,
-    GROUP = 64,
-    JAPSCOPE = 70,
-    JAPPARSEDCONTENT = 74,
-    ENUMACTIVE = 78,
-    PRINCIPALS,
-    PRINCIPAL,
-    PRINCIPALID,
-    USERS,
-    START,
-    CONTENT,
-    SIZE,
-    MESSAGE,
-    FILENAME,
-    OPCODE,
-    FLAG = 119,
+    NewClientId = 1,
 }
 
 enum Type {
@@ -188,6 +92,12 @@ export class Message {
         msg.pack = (): Buffer => {
             return msg.buffer;
         };
+        return msg;
+    }
+
+    public static operation(op: Operation): Message {
+        let msg = new Message();
+        msg.add(Buffer.from([0, 0, 0, 0, 0, 0, 0, 0, op]));
         return msg;
     }
 
@@ -399,7 +309,7 @@ export class SDSConnection {
 
         }).then((response: Response) => {
 
-            this._clientId = response.getInt32(ParameterName.GETNEWCLIENTID);
+            this._clientId = response.getInt32(ParameterName.NewClientId);
 
         });
     }
@@ -436,7 +346,9 @@ export class SDSConnection {
      * Disconnect from the server.
      */
     public disconnect(): Promise<void> {
-        return this.transport.disconnect();
+        return this.send(Message.operation(Operation.DisconnectClient)).then(() => {
+            return this.transport.disconnect();
+        });
     }
 
     /**
