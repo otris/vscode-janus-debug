@@ -183,6 +183,14 @@ export class Message {
         return msg;
     }
 
+    public static hello(): Message {
+        let msg = Message.from(HELLO);
+        msg.pack = (): Buffer => {
+            return msg.buffer;
+        };
+        return msg;
+    }
+
     private buffer: Buffer;
     private bufferedLength: number;
 
@@ -241,6 +249,13 @@ export class Response {
      */
     public equals(otherBuffer: Buffer): boolean {
         return this.buffer.equals(otherBuffer);
+    }
+
+    /**
+     * Returns true if this reponse starts with given characters, false otherwise.
+     */
+    public startsWith(str: string): boolean {
+        return this.buffer.includes(str);
     }
 
     private getParamIndex(name: ParameterName) {
@@ -366,10 +381,14 @@ export class SDSConnection {
      * every existing client seems to do it this way. You can use the disconnect() method for this.
      */
     public connect(): Promise<void> {
-        this.transport.send(Message.from(HELLO));
+        this.transport.send(Message.hello());
         return this.waitForResponse().then((response: Response) => {
             if (!response.equals(ACK)) {
-                throw new Error(`unexpected response`);
+                if (response.startsWith('invalid')) {
+                    throw new Error(`client refused connection`);
+                } else {
+                    throw new Error(`unexpected response`);
+                }
             }
 
             // Hello ack'ed, no SSL, send intro
