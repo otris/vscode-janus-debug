@@ -381,8 +381,8 @@ export class SDSConnection {
      * every existing client seems to do it this way. You can use the disconnect() method for this.
      */
     public connect(): Promise<void> {
-        this.transport.send(Message.hello());
-        return this.waitForResponse().then((response: Response) => {
+        return this.send(Message.hello()).then((response: Response) => {
+
             if (!response.equals(ACK)) {
                 if (response.startsWith('invalid')) {
                     throw new Error(`client refused connection`);
@@ -395,17 +395,12 @@ export class SDSConnection {
             let msg = new Message();
             msg.add(Buffer.from([0, 0, 0, 0, 0, 0, 0, 0, 0]));
             msg.add(Buffer.from(`vscode-janus-debug on ${os.platform()}`, 'ascii'));
-            this.transport.send(msg);
-            return this.waitForResponse();
+            return this.send(msg);
 
         }).then((response: Response) => {
 
             this._clientId = response.getInt32(ParameterName.GETNEWCLIENTID);
 
-        }).catch((reason) => {
-            let what = `could not establish connection to server: ${reason.toString()}`;
-            log.debug(what);
-            throw new Error(what);
         });
     }
 

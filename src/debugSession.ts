@@ -10,6 +10,7 @@ import { ContextId } from './context';
 import { FrameMap } from './frameMap';
 import { Logger } from './log';
 import { Breakpoint, Command, Response, StackFrame, Variable, variableValueToString } from './protocol';
+import { SDSConnection } from './sds';
 import { SourceMap } from './sourceMap';
 
 let log = Logger.create('JanusDebugSession');
@@ -92,6 +93,59 @@ export class JanusDebugSession extends DebugSession {
     protected launchRequest(response: DebugProtocol.LaunchResponse, args: LaunchRequestArguments): void {
         this.readConfig(args);
         log.info(`launchRequest`);
+
+        let port: number = args.port || 10000;
+        let host: string = args.host || 'localhost';
+        let sdsSocket = connect(port, host);
+
+        let sdsConnection = new SDSConnection(sdsSocket);
+
+        sdsSocket.on('connect', () => {
+            log.info(`connected to ${host}:${port}`);
+
+            sdsConnection.connect().then(() => {
+
+                log.debug(`SDS connection established`);
+
+            }).catch((reason) => {
+
+                // Something went wrong starting the script. No reason to proceed with anything here...
+
+                log.error(`launchRequest failed: ${reason}`);
+                response.success = false;
+                response.message = `Could not start script: ${reason}`;
+                this.sendResponse(response);
+
+            });
+        });
+
+        sdsSocket.on('close', (hadError: boolean) => {
+            if (hadError) {
+                log.error(`remote closed SDS connection due to error`);
+            } else {
+                log.info(`remote closed SDS connection`);
+            }
+
+            response.success = false;
+            response.message = `Failed to connect to server`;
+            this.sendResponse(response);
+
+            this.sendEvent(new TerminatedEvent());
+        });
+
+        sdsSocket.on('error', (err: any) => {
+
+            log.error(`failed to connect to ${host}:${port}: ${err.code}`);
+
+            response.success = false;
+            response.message = `Failed to connect to server: ${codeToString(err.code)}`;
+            if (err.code === 'ETIMEDOUT') {
+                response.message += `. Maybe wrong port or host?`;
+            }
+            this.sendResponse(response);
+
+            this.sendEvent(new TerminatedEvent());
+        });
     }
 
     protected attachRequest(response: DebugProtocol.AttachResponse, args: AttachRequestArguments): void {
