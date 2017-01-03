@@ -20,7 +20,8 @@
         "Debuggers"
     ],
     "activationEvents": [
-        "onCommand:extension.vscode-janus-debug.provideInitialConfigurations"
+        "onCommand:extension.vscode-janus-debug.provideInitialConfigurations",
+        "onCommand:extension.vscode-janus-debug.askForSourceFile"
     ],
     "main": "./out/src/extension",
     "contributes": {
