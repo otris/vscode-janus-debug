@@ -14,6 +14,28 @@ import { SourceMap } from './sourceMap';
 
 let log = Logger.create('JanusDebugSession');
 
+function codeToString(code: string): string {
+    switch (code) {
+        case 'ECANCELED':
+            return 'Operation canceled';
+
+        case 'ECONNABORTED':
+            return 'Connection aborted';
+
+        case 'ECONNREFUSED':
+            return 'Connection refused';
+
+        case 'ECONNRESET':
+            return 'Connection reset';
+
+        case 'ETIMEDOUT':
+            return 'Connection timed out';
+
+        default:
+            return 'Unknown error';
+    }
+}
+
 export class JanusDebugSession extends DebugSession {
     private connection: DebugConnection | undefined;
     private sourceMap: SourceMap;
@@ -140,11 +162,16 @@ export class JanusDebugSession extends DebugSession {
             this.sendEvent(new TerminatedEvent());
         });
 
-        socket.on('error', (err: Error) => {
-            log.error(`failed to connect to ${host}:${port}`);
-            if (err.stack) {
-                log.debug(err.stack);
+        socket.on('error', (err: any) => {
+            log.error(`failed to connect to ${host}:${port}: ${err.code}`);
+
+            response.success = false;
+            response.message = `Failed to connect to server: ${codeToString(err.code)}`;
+            if (err.code === 'ETIMEDOUT') {
+                response.message += `. Maybe wrong port or host?`;
             }
+            this.sendResponse(response);
+
             this.connection = undefined;
             this.sendEvent(new TerminatedEvent());
         });
