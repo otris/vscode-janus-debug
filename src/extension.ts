@@ -10,6 +10,8 @@ const initialConfigurations = [
         request: "launch",
         type: "janus",
         script: "",
+        username: "",
+        principal: "",
         host: "localhost",
         port: 10000,
         stopOnEntry: false,
@@ -42,10 +44,9 @@ export function activate(context: vscode.ExtensionContext) {
             return vscode.window.showInputBox({
                 prompt: 'Enter the relative path to the source file you want to debug',
                 value: 'src/jscript/test.js',
-                ignoreFocusOut: true
+                ignoreFocusOut: true,
             });
-        })
-    );
+        }));
 
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.provideInitialConfigurations', () => {

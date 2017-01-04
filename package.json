@@ -48,6 +48,14 @@
                                 "type": "string",
                                 "description": "The script you want to debug."
                             },
+                            "username": {
+                                "type": "string",
+                                "description": "Your username."
+                            },
+                            "principal": {
+                                "type": "string",
+                                "description": "Your user's client affiliation. Leave empty if there is none."
+                            },
                             "host": {
                                 "type": "string",
                                 "description": "IP address or name of the host where you want to run the script.",

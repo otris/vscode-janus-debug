@@ -15,7 +15,7 @@ export interface CommonArguments {
 }
 
 export interface AttachRequestArguments extends DebugProtocol.AttachRequestArguments,
-    CommonArguments { 
+    CommonArguments {
     /** The local source file to debug (specified by the user) */
     sourceFile: string;
 }
