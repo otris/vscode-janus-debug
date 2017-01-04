@@ -1,7 +1,7 @@
 'use strict';
 
 import * as fs from "fs";
-import { join } from 'path';
+import { isAbsolute, join } from 'path';
 import * as vscode from 'vscode';
 
 const initialConfigurations = [
@@ -9,7 +9,7 @@ const initialConfigurations = [
         name: "Launch script on server",
         request: "launch",
         type: "janus",
-        sourceFile: "${workspaceRoot}/${command.extension.vscode-janus-debug.askForSourceFile}",
+        script: "",
         host: "localhost",
         port: 10000,
         stopOnEntry: false,
@@ -50,18 +50,36 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.provideInitialConfigurations', () => {
 
-            /*
+            let entryPoint: string | undefined = undefined;
+
+            // Get 'main' property from package.json iff there is a package.json. This is probably the primary entry
+            // point for the program
+
             const packageJsonPath = join(vscode.workspace.rootPath, 'package.json');
 
             try {
                 const jsonContent = fs.readFileSync(packageJsonPath, 'utf8');
                 const jsonObject = JSON.parse(jsonContent);
+                if (jsonObject.main) {
+                    entryPoint = jsonObject.main;
+                } else if (jsonObject.scripts && typeof jsonObject.scripts.start === 'string') {
+                    entryPoint = jsonObject.scripts.start.split(' ').pop();
+                }
             } catch (err) {
                 // Silently ignore
             }
-            */
 
-            const configurations = JSON.stringify(initialConfigurations, null, '\t');
+            if (entryPoint) {
+                entryPoint = isAbsolute(entryPoint) ? entryPoint : join('${workspaceRoot}', entryPoint);
+                initialConfigurations.forEach((config: any) => {
+                    if (config.hasOwnProperty('script')) {
+                        config.script = entryPoint;
+                    }
+                });
+            }
+
+            const configurations = JSON.stringify(initialConfigurations, null, '\t')
+                .split('\n').map((line) => '\t' + line).join('\n').trim();
             return [
                 '{',
                 '\t// Use IntelliSense to learn about possible configuration attributes.',
