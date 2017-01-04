@@ -2,7 +2,7 @@ import * as assert from 'assert';
 import { EventEmitter } from 'events';
 import * as vscode from 'vscode';
 import { htonl, ntohl, SocketLike } from '../src/network';
-import { SDSConnection, SDSProtocolTransport } from '../src/sds';
+import { Message, SDSConnection, SDSProtocolTransport } from '../src/sds';
 
 suite('SDS protocol tests', () => {
 
@@ -38,15 +38,13 @@ suite('SDS protocol tests', () => {
     suite('connection tests', () => {
 
         class MockSocket extends EventEmitter implements SocketLike {
-            public written: Buffer[] = [];
+            public out: Buffer[] = [];
 
             public write(data: any, encoding?: string) {
-                this.written.push(data);
+                this.out.push(data);
+                this.emit('data', Buffer.from([]));
             }
-            public end() {/* */ }
-            public receive(chunk: number[]): void {
-                this.emit('data', Buffer.from(chunk));
-            }
+            public end() { /* */ }
         }
 
         let socket: MockSocket;
@@ -61,13 +59,22 @@ suite('SDS protocol tests', () => {
             connection.disconnect();
         });
 
-        test('establishing a new connection', () => {
-            connection.connect().then(() => {
-                assert.equal(1, socket.written.length);
-                assert.equal(8, socket.written[0].length, 'a "Hello" is 8 bytes long');
-
-                socket.receive([]);
-            });
+        test('hello message is 8 bytes long', done => {
+            connection.send(Message.hello()).then(() => {
+                assert.equal(1, socket.out.length);
+                assert.equal(8, socket.out[0].length);
+                done();
+            }).catch(err => done(err));
         });
+
+/*
+        test('establishing a new connection', done => {
+            connection.connect().then(() => {
+                assert.equal(2, socket.out.length);
+
+                done();
+            }).catch(err => done(err));
+        });
+*/
     });
 });

@@ -13,6 +13,7 @@ import * as assert from 'assert';
 import { EventEmitter } from 'events';
 import { connect } from 'net';
 import * as os from 'os';
+import * as cryptmd5 from './cryptmd5';
 import { Logger } from './log';
 import { htonl, ntohl, SocketLike } from './network';
 
@@ -60,11 +61,14 @@ function printBytes(msg: string, buf: Buffer): string {
 }
 
 enum Operation {
+    ChangeUser = 27,
     DisconnectClient = 49,
 }
 
-enum ParameterName {
+enum Parameter {
     NewClientId = 1,
+    User = 15,
+    Password = 16,
 }
 
 enum Type {
@@ -80,6 +84,9 @@ enum Type {
 }
 
 export class Message {
+    /**
+     * Create an arbitrary message from the given buffer.
+     */
     public static from(buf: Buffer): Message {
         let msg = new Message();
         msg.buffer = buf;
@@ -87,6 +94,11 @@ export class Message {
         return msg;
     }
 
+    /**
+     * Create a "Hello"" message.
+     *
+     * This is the very first message send to the server.
+     */
     public static hello(): Message {
         let msg = Message.from(HELLO);
         msg.pack = (): Buffer => {
@@ -95,9 +107,30 @@ export class Message {
         return msg;
     }
 
-    public static operation(op: Operation): Message {
+    /**
+     * Create a "DisconnectClient" message.
+     *
+     * This message disconnects the client from the server in an orderly fashion.
+     */
+    public static disconnectClient(): Message {
         let msg = new Message();
-        msg.add(Buffer.from([0, 0, 0, 0, 0, 0, 0, 0, op]));
+        msg.add([0, 0, 0, 0, 0, 0, 0, 0, Operation.DisconnectClient]);
+        return msg;
+    }
+
+    /**
+     * Create a "ChangeUser" message.
+     *
+     * This message logs in the given user.
+     *
+     * @param {string} username The user to login.
+     * @param {Hash} password The user's password hashed with crypt_md5.
+     */
+    public static changeUser(username: string, password: cryptmd5.Hash): Message {
+        let msg = new Message();
+        msg.add([0, 0, 0, 0, 0, 0, 0, 0, Operation.ChangeUser]);
+        msg.addString(Parameter.User, username);
+        msg.addString(Parameter.Password, password.value);
         return msg;
     }
 
@@ -109,10 +142,35 @@ export class Message {
         this.bufferedLength = 0;
     }
 
-    public add(bytes: Buffer): void {
+    /**
+     * Add given bytes to this message.
+     *
+     * @param {Buffer} bytes A buffer or array of 8-bit unsigned integer values.
+     */
+    public add(bytes: Buffer | number[]): void {
+        if (!Buffer.isBuffer(bytes)) {
+            bytes = Buffer.from(bytes);
+        }
         this.appendToBuffer(bytes);
     }
 
+    /**
+     * Add given string to this message.
+     *
+     * @param {Parameter} parameterName The name of the parameter you want to add.
+     * @param {string} value The string you want to add.
+     */
+    public addString(parameterName: Parameter, value: string): void {
+        this.add([Type.String, parameterName]);
+        let stringSize = Buffer.from([0, 0, 0, 0]);
+        htonl(stringSize, 0, value.length + 1);
+        this.add(stringSize);
+        this.add(term(value));
+    }
+
+    /**
+     * Prepare this message to be send.
+     */
     public pack(): Buffer {
 
         // First 4 bytes of the head are the length of the entire message, including the length itself, or'ed with
@@ -147,7 +205,7 @@ export class Response {
 
     public isSimple(): boolean { return this.length === 8; }
 
-    public getInt32(name: ParameterName): number {
+    public getInt32(name: Parameter): number {
         const paramIndex = this.getParamIndex(name);
         const headType = this.buffer[paramIndex];
         assert.ok((headType & ~Type.NullFlag) === Type.Int32);
@@ -168,7 +226,7 @@ export class Response {
         return this.buffer.includes(str);
     }
 
-    private getParamIndex(name: ParameterName) {
+    private getParamIndex(name: Parameter) {
         if (this.isSimple()) {
             throw new Error('a simple response cannot have a parameter');
         }
@@ -303,13 +361,13 @@ export class SDSConnection {
 
             // Hello ack'ed, no SSL, send intro
             let msg = new Message();
-            msg.add(Buffer.from([0, 0, 0, 0, 0, 0, 0, 0, 0]));
+            msg.add([0, 0, 0, 0, 0, 0, 0, 0, 0]);
             msg.add(Buffer.from(`vscode-janus-debug on ${os.platform()}`, 'ascii'));
             return this.send(msg);
 
         }).then((response: Response) => {
 
-            this._clientId = response.getInt32(ParameterName.NewClientId);
+            this._clientId = response.getInt32(Parameter.NewClientId);
 
         });
     }
@@ -346,7 +404,7 @@ export class SDSConnection {
      * Disconnect from the server.
      */
     public disconnect(): Promise<void> {
-        return this.send(Message.operation(Operation.DisconnectClient)).then(() => {
+        return this.send(Message.disconnectClient()).then(() => {
             return this.transport.disconnect();
         });
     }
@@ -362,30 +420,8 @@ export class SDSConnection {
      * Make a new promise that is resolved once a 'response' event is triggered.
      */
     private waitForResponse = (): Promise<Response> => {
-        return new Promise((resolve) => {
+        return new Promise(resolve => {
             this.transport.once('response', resolve);
         });
     }
 }
-
-/*
-let port: number = 10019;
-let host: string = '192.168.10.32';
-let socket: any;
-
-socket = connect(port, host);
-
-socket.on('connect', () => {
-    log.debug(`connected to ${host}:${port}`);
-
-    socket.write(HELLO);
-});
-
-socket.on('close', (hadError) => {
-    log.debug(`remote closed the connection`);
-});
-
-socket.on('error', (err: Error) => {
-    log.debug(`failed to connect: ${err}`);
-});
-*/
