@@ -78,9 +78,9 @@ export class DebugConnection extends EventEmitter implements ConnectionLike {
             // has finished
             if (responseHandler) {
                 this.registerResponseHandler(request.id, (response: Response) => {
-                    responseHandler(response).then((value) => {
+                    responseHandler(response).then(value => {
                         resolve(value);
-                    }).catch((reason) => {
+                    }).catch(reason => {
                         reject(reason);
                     });
                 });

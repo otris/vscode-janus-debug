@@ -108,7 +108,7 @@ export class JanusDebugSession extends DebugSession {
 
                 log.debug(`SDS connection established, got client ID: ${sdsConnection.clientId}`);
 
-            }).catch((reason) => {
+            }).catch(reason => {
 
                 // Something went wrong starting the script. No reason to proceed with anything here...
 
@@ -200,7 +200,7 @@ export class JanusDebugSession extends DebugSession {
 
                 this.sendResponse(response);
 
-            }).catch((reason) => {
+            }).catch(reason => {
                 log.error(`attachRequest: ...failed. ${reason}`);
                 response.success = false;
                 response.message = `Could not attach to remote process: ${reason}`;
@@ -264,7 +264,7 @@ export class JanusDebugSession extends DebugSession {
         const localUrl: string = args.source.path;
         const remoteSourceUrl = this.sourceMap.remoteSourceUrl(localUrl);
         let actualBreakpoints: Array<Promise<Breakpoint>> = [];
-        args.breakpoints.forEach(((breakpoint) => {
+        args.breakpoints.forEach((breakpoint => {
 
             let setBreakpointCommand = Command.setBreakpoint(remoteSourceUrl, breakpoint.line);
 
@@ -297,7 +297,7 @@ export class JanusDebugSession extends DebugSession {
                 breakpoints,
             };
             this.sendResponse(response);
-        }).catch((reason) => {
+        }).catch(reason => {
             log.error(`setBreakPointsRequest failed: ${reason}`);
             response.success = false;
             response.message = `Could not set breakpoint(s): ${reason}`;
@@ -329,7 +329,7 @@ export class JanusDebugSession extends DebugSession {
         // contexts.
 
         let contexts = this.connection.coordinator.getAllAvailableContexts();
-        contexts.forEach((context) => {
+        contexts.forEach(context => {
             if (context.isStopped()) {
                 log.debug(`sending StoppedEvent('pause', ${context.id})`);
                 let stoppedEvent = new StoppedEvent('pause', context.id);
@@ -365,7 +365,7 @@ export class JanusDebugSession extends DebugSession {
             let continuedEvent = new ContinuedEvent(context.id);
             this.sendEvent(continuedEvent);
             this.sendResponse(response);
-        }, (err) => {
+        }, err => {
             log.error('continueRequest failed: ' + err);
             response.success = false;
             response.message = err.toString();
@@ -388,7 +388,7 @@ export class JanusDebugSession extends DebugSession {
             let stoppedEvent = new StoppedEvent('step', contextId);
             this.sendResponse(response);
             this.sendEvent(stoppedEvent);
-        }, (err) => {
+        }, err => {
             log.error('nextRequest failed: ' + err);
             response.success = false;
             response.message = err.toString();
@@ -434,7 +434,7 @@ export class JanusDebugSession extends DebugSession {
                 this.sendResponse(response);
                 let stoppedEvent = new StoppedEvent('pause', contextId);
                 this.sendEvent(stoppedEvent);
-            }).catch((reason) => {
+            }).catch(reason => {
                 log.error('pauseRequest failed: ' + reason);
                 response.success = false;
                 response.message = reason.toString();
@@ -461,7 +461,7 @@ export class JanusDebugSession extends DebugSession {
             throw new Error('No connection');
         }
         let contexts = this.connection.coordinator.getAllAvailableContexts();
-        let threads: DebugProtocol.Thread[] = contexts.map((context) => {
+        let threads: DebugProtocol.Thread[] = contexts.map(context => {
             return {
                 id: context.id,
                 name: context.name,
@@ -486,7 +486,7 @@ export class JanusDebugSession extends DebugSession {
         let context = this.connection.coordinator.getContext(contextId);
         context.getStacktrace().then((trace: StackFrame[]) => {
             const frames = this.frameMap.addFrames(contextId, trace);
-            let stackFrames: DebugProtocol.StackFrame[] = frames.map((frame) => {
+            let stackFrames: DebugProtocol.StackFrame[] = frames.map(frame => {
                 return {
                     column: 0,
                     id: frame.frameId,
@@ -534,7 +534,7 @@ export class JanusDebugSession extends DebugSession {
         let frame = this.frameMap.getStackFrame(args.variablesReference);
         let context = this.connection.coordinator.getContext(frame.contextId);
         context.getVariables().then((locals: Variable[]) => {
-            let variables: DebugProtocol.Variable[] = locals.map((variable) => {
+            let variables: DebugProtocol.Variable[] = locals.map(variable => {
                 return {
                     name: variable.name,
                     value: variableValueToString(variable.value),
@@ -547,7 +547,7 @@ export class JanusDebugSession extends DebugSession {
             };
             log.debug(`variablesRequest succeeded`);
             this.sendResponse(response);
-        }).catch((reason) => {
+        }).catch(reason => {
             log.error(`variablesRequest failed: ${reason}`);
             response.success = false;
             response.message = `Could not get variable(s): ${reason}`;

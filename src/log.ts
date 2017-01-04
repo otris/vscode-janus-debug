@@ -74,7 +74,7 @@ export class Logger {
             }
         }
 
-        Logger.loggers.forEach((logger) => logger.configure());
+        Logger.loggers.forEach(logger => logger.configure());
     }
 
     private log(level: NumericLogLevel, displayLevel: string, msg: string): void {

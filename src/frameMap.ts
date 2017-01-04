@@ -37,7 +37,7 @@ export class FrameMap {
         log.debug(`adding frames ${JSON.stringify(frames)} for context id ${contextId}`);
 
         let added: StackFrame[] = [];
-        frames.forEach((frame) => {
+        frames.forEach(frame => {
             let entry = new StackFrame(contextId, frame);
             if (this.frameIdToFrame.has(entry.frameId)) {
                 log.warn(`already mapped entry: ${entry.frameId} -> (${contextId}, ${entry.rDepth})`);

@@ -30,7 +30,7 @@ const FIRST_PARAM_INDEX = 13;
  * @returns An array containing all code units plus a final '0'.
  */
 function term(str: string): number[] {
-    let units = str.split('').map((char) => { return char.charCodeAt(0); });
+    let units = str.split('').map(char => { return char.charCodeAt(0); });
     units.push(0);
     return units;
 }

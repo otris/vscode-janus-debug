@@ -93,12 +93,12 @@ export class Context {
                     // an array of variables
                     assert.equal(res.content.variables.length, 1);
 
-                    res.content.variables.forEach((element) => {
+                    res.content.variables.forEach(element => {
 
                         // Each element got a stackElement which descripes the frame and a list of
                         // variables.
 
-                        element.variables.forEach((variable) => {
+                        element.variables.forEach(variable => {
                             variables.push(variable);
                         });
                     });
@@ -151,7 +151,7 @@ export class ContextCoordinator {
 
             let contents = Array.from(this.contextById.values());
             coordinatorLog.warn(
-                `unknown context ${id} requested; available: ${contents.map((someContext) => {
+                `unknown context ${id} requested; available: ${contents.map(someContext => {
                     return someContext.id;
                 })}`);
 
@@ -179,7 +179,7 @@ export class ContextCoordinator {
                     assert.ok(response.content.hasOwnProperty('contexts'));
 
                     // Add new contexts
-                    response.content.contexts.forEach((element) => {
+                    response.content.contexts.forEach(element => {
                         if (!this.contextById.has(element.contextId)) {
                             coordinatorLog.debug(`creating new context with id: ${element.contextId}`);
                             let newContext: Context =
@@ -194,13 +194,13 @@ export class ContextCoordinator {
 
                     // Purge the ones that no longer exist
                     let dead: ContextId[] = [];
-                    this.contextById.forEach((context) => {
-                        if (!response.content.contexts.find((element) => element.contextId === context.id)) {
+                    this.contextById.forEach(context => {
+                        if (!response.content.contexts.find(element => element.contextId === context.id)) {
                             coordinatorLog.debug(`context ${context.id} no longer exists`);
                             dead.push(context.id);
                         }
                     });
-                    dead.forEach((id) => this.contextById.delete(id));
+                    dead.forEach(id => this.contextById.delete(id));
                 }
             } else {
 

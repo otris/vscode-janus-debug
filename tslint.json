@@ -18,6 +18,7 @@
       false
     ],
     "variable-name": [ true, "allow-leading-underscore" ],
-    "object-literal-sort-keys": false
+    "object-literal-sort-keys": false,
+    "arrow-parens": false
   }
 }

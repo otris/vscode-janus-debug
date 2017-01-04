@@ -80,7 +80,7 @@ export function activate(context: vscode.ExtensionContext) {
             }
 
             const configurations = JSON.stringify(initialConfigurations, null, '\t')
-                .split('\n').map((line) => '\t' + line).join('\n').trim();
+                .split('\n').map(line => '\t' + line).join('\n').trim();
             return [
                 '{',
                 '\t// Use IntelliSense to learn about possible configuration attributes.',
