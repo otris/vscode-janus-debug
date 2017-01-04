@@ -114,6 +114,11 @@ export class Context {
         return this.connection.sendRequest(new Command('next', this.id));
     }
 
+    public stepIn(): Promise<void> {
+        contextLog.debug(`request 'stepIn' for context ${this.id}`);
+        return this.connection.sendRequest(new Command('step', this.id));
+    }
+
     public handleResponse(response: Response): Promise<void> {
         contextLog.debug(`handleResponse ${JSON.stringify(response)} for context ${this.id}`);
         return Promise.resolve();
