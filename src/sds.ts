@@ -43,8 +43,11 @@ function term(str: string): number[] {
  * @param {Buffer} buf The buffer to print
  * @returns A string with given buffer's contents in hexadecimal notation.
  */
-function printBytes(msg: string, buf: Buffer): string {
-    let str = `${msg} ${buf.length}: [\n`;
+function printBytes(msg: string | undefined, buf: Buffer): string {
+    let str = `${buf.length}: [\n`;
+    if (msg !== undefined) {
+        str = `${msg} ` + str;
+    }
     let column = 0;
     let i = 0;
     for (; i < buf.length; i++) {

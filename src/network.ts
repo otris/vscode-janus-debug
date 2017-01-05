@@ -1,3 +1,6 @@
+/**
+ * Something that behaves like a bloody Node socket.
+ */
 export interface SocketLike {
     on(event: string, handler: Function);
     write(buffer: Buffer);
