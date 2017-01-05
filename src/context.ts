@@ -208,10 +208,13 @@ export class ContextCoordinator {
 
                 let context: Context | undefined = this.contextById.get(response.contextId);
                 if (context === undefined) {
-                    throw new Error(`response for unknown context`);
+                    reject(new Error (`response for unknown context`));
+                    return;
                 }
                 context.handleResponse(response);
             }
+
+            resolve();
         });
     }
 }

@@ -53,12 +53,13 @@ suite('debug adapter tests', () => {
 
     suite('initialize', () => {
 
-        test('should respond with supported features', () => {
+        test('should respond with supported features', done => {
             return debugClient.initializeRequest().then((response) => {
                 let body = response.body || {};
                 assert.equal(body.supportsConfigurationDoneRequest, true);
                 assert.equal(body.supportsConditionalBreakpoints, false);
-            });
+                done();
+            }).catch(err => done(err));
         });
     });
 });
@@ -401,7 +402,7 @@ suite('context coordinator coordinates requests and responses', () => {
             type: 'info',
         };
 
-        test('remember all contexts in the response', () => {
+        test('remember all contexts in the response', done => {
             coordinator.handleResponse(response).then(() => {
                 let contexts = coordinator.getAllAvailableContexts();
 
@@ -417,53 +418,70 @@ suite('context coordinator coordinates requests and responses', () => {
                 assert.equal(context.id, 8);
                 assert.equal(context.name, 'eighth context');
                 assert.equal(context.isStopped(), true);
-            });
+                done();
+            }).catch(err => done(err));
         });
 
-        test('emit a newContext event as soon a new context is found', () => {
+        test('emit a newContext event as soon a new context is found', done => {
             coordinator.handleResponse(response).then(() => {
                 assert.equal(eventsEmitted.length, 2);
-            });
+                done();
+            }).catch(err => done(err));
         });
 
-        test('emit a newContext event only for unknown contexts', () => {
+        test('emit a newContext event only for unknown contexts', done => {
+
             coordinator.handleResponse(response).then(() => {
+
+                // One more context got added
                 let newResponse = response;
                 newResponse.content.contexts.push({
                     contextId: 9,
                     contextName: 'ninth context',
                     paused: false,
                 });
-                eventsEmitted = [];
+
+                eventsEmitted = []; // Reset events
+
                 coordinator.handleResponse(newResponse).then(() => {
                     assert.equal(eventsEmitted.length, 1);
                     assert.equal(eventsEmitted[0].contextId, 9);
                     assert.equal(eventsEmitted[0].contextName, 'ninth context');
-                    assert.equal(eventsEmitted[0].paused, false);
-                });
-            });
+                    assert.equal(eventsEmitted[0].stopped, false);
+                    done();
+                }).catch(err => done(err));
+
+            }).catch(err => done(err));
         });
 
-        test('forget about contexts that no longer exist', () => {
-            eventsEmitted = [];
-            let newResponse: Response = {
-                content: {
-                    contexts: [{
-                        contextId: 8,
-                        contextName: 'eighth context',
-                        paused: true,
-                    }],
-                },
-                subtype: 'contexts_list',
-                type: 'info',
-            };
+        test('forget about contexts that no longer exist', done => {
             coordinator.handleResponse(response).then(() => {
-                assert.equal(eventsEmitted.length, 0);
+                eventsEmitted = []; // Reset events
 
-                let contexts = coordinator.getAllAvailableContexts();
-                assert.equal(contexts.length, 1);
-                assert.throws(() => { coordinator.getContext(7); }, 'No such context');
-            });
+                // Context 7 got removed
+                let newResponse: Response = {
+                    content: {
+                        contexts: [{
+                            contextId: 8,
+                            contextName: 'eighth context',
+                            paused: true,
+                        }],
+                    },
+                    subtype: 'contexts_list',
+                    type: 'info',
+                };
+
+                coordinator.handleResponse(newResponse).then(() => {
+                    assert.equal(eventsEmitted.length, 0);
+
+                    let contexts = coordinator.getAllAvailableContexts();
+                    assert.equal(contexts.length, 1);
+                    assert.throws(() => { coordinator.getContext(7); }, 'No such context'); // 7 got removed
+                    assert.equal(8, coordinator.getContext(8).id); // 8 is still in there
+                    done();
+                }).catch(err => done(err));
+
+            }).catch(err => done(err));
         });
     });
 });
