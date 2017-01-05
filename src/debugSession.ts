@@ -586,7 +586,33 @@ export class JanusDebugSession extends DebugSession {
 
     protected evaluateRequest(response: DebugProtocol.EvaluateResponse,
                               args: DebugProtocol.EvaluateArguments): void {
-        log.info(`evaluateRequest`);
+        log.info(`evaluateRequest for contextId: ${args.context}`);
+
+        if (this.connection === undefined) {
+            throw new Error('No connection');
+        }
+
+        if (args.frameId === undefined) {
+            throw new Error('No frame id passed.');
+        }
+
+        let frame = this.frameMap.getStackFrame(args.frameId);
+        let context = this.connection.coordinator.getContext(frame.contextId);
+        context.evaluate(args.expression).then((variable: Variable) => {
+            response.body = {
+                result: variable.value,
+                type: variable.type,
+                variablesReference: 0,
+            };
+
+            log.debug('evalueteRequest succeeded');
+            this.sendResponse(response);
+        }).catch((reason) => {
+            log.error(`evaluateRequest failed: ${reason}`);
+            response.success = false;
+            response.message = `Could not evaluate expression "${args.expression}": ${reason}`;
+            this.sendResponse(response);
+        });
     }
 
     protected stepInTargetsRequest(response: DebugProtocol.StepInTargetsResponse,

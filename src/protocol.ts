@@ -84,6 +84,12 @@ export type VariableValue = '___jsrdbg_undefined___' | any;
 export interface Variable {
     name: string;
     value: VariableValue;
+    type?: string;
+}
+
+export interface Evaluate {
+    path: string;
+    options?: Object;
 }
 
 export function variableValueToString(value: VariableValue): string {
@@ -159,6 +165,13 @@ export class Command {
     public static getVariables(contextId: number, query: Query): Command {
         let cmd = new Command('get_variables', contextId);
         cmd.payload.query = query;
+        return cmd;
+    }
+
+    public static evaluate(contextId: number, evaluate: Evaluate): Command {
+        let cmd = new Command('evaluate', contextId);
+        cmd.payload.path = evaluate.path;
+        cmd.payload.options = evaluate.options;
         return cmd;
     }
 
