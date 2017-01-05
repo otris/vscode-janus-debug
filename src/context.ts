@@ -119,6 +119,53 @@ export class Context {
         return this.connection.sendRequest(new Command('step', this.id));
     }
 
+    public evaluate(expression: string): Promise<Variable> {
+        contextLog.debug(`request 'evaluate' for context ${this.id}`);
+
+        // For now this solution is okay, in future it would be better if the debugger is smart enough to decide how the
+        // value of the "thing" to evaluate should be represented.
+        let evaluateReplaceFunction = (key, value) => {
+            if (typeof value === "function") {
+                return "function " + value.toString().match(/(\([^\)]*\))/)[1] + "{ ... }";
+            } else {
+                return value;
+            }
+        };
+
+        let req = Command.evaluate(this.id, {
+            path: `JSON.stringify(${expression}, ${evaluateReplaceFunction.toString()})`,
+            options: {
+                "show-hierarchy": true,
+                "evaluation-depth": 1,
+            },
+        });
+
+        return this.connection.sendRequest(req, (res: Response) => {
+            return new Promise<Variable>((resolve, reject) => {
+                if (res.type === 'error') {
+                    reject(new Error(res.content.message));
+                } else {
+                    assert.equal(res.subtype, 'evaluated');
+                    let variableType: string;
+
+                    if (res.content.result.startsWith("function")) {
+                        variableType = "function";
+                    } else {
+                        let _variable = JSON.parse(res.content.result);
+                        variableType = (Array.isArray(_variable)) ? "array" : typeof _variable;
+                    }
+
+                    let variable: Variable = {
+                        name: "",
+                        value: res.content.result,
+                        type: variableType,
+                    };
+                    resolve(variable);
+                }
+            });
+        });
+    }
+
     public handleResponse(response: Response): Promise<void> {
         contextLog.debug(`handleResponse ${JSON.stringify(response)} for context ${this.id}`);
         return Promise.resolve();
