@@ -66,10 +66,17 @@ function printBytes(msg: string | undefined, buf: Buffer): string {
 enum Operation {
     ChangeUser = 27,
     DisconnectClient = 49,
+    COMOperation = 199,
+}
+
+enum COMOperation {
+    ErrorMessage = 17,
 }
 
 enum Parameter {
-    NewClientId = 1,
+    ClientId = 1,
+    Value = 4,
+    Index = 13,
     User = 21,
     Password = 22,
 }
@@ -122,11 +129,25 @@ export class Message {
     }
 
     /**
+     * Create a "ErrorMessage" message.
+     *
+     * This message returns a human-readable string (probably in German) for a given error code.
+     * @param {number} errorCode The error code from a previous SDS call.
+     */
+    public static errorMessage(errorCode: number): Message {
+        let msg = new Message();
+        msg.add([0, 0, 0, 0, 0, 0, 0, 0, Operation.COMOperation]);
+        msg.addInt32(Parameter.Index, COMOperation.ErrorMessage);
+        msg.addInt32(Parameter.Value, errorCode);
+        return msg;
+    }
+
+    /**
      * Create a "ChangeUser" message.
      *
      * This message logs in the given user.
      *
-     * @param {string} username The user to login.
+     * @param {string} username The user to login. Can be with principal name (e.g., 'duckburg.mickey').
      * @param {Hash} password The user's password hashed with crypt_md5.
      */
     public static changeUser(username: string, password: cryptmd5.Hash): Message {
@@ -169,6 +190,13 @@ export class Message {
         htonl(stringSize, 0, value.length + 1);
         this.add(stringSize);
         this.add(term(value));
+    }
+
+    public addInt32(parameterName: Parameter, value: number): void {
+        this.add([Type.Int32, parameterName]);
+        let bytes = Buffer.from([0, 0, 0, 0]);
+        htonl(bytes, 0, value);
+        this.add(bytes);
     }
 
     /**
@@ -370,7 +398,7 @@ export class SDSConnection {
 
         }).then((response: Response) => {
 
-            this._clientId = response.getInt32(Parameter.NewClientId);
+            this._clientId = response.getInt32(Parameter.ClientId);
 
         });
     }

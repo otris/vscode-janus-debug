@@ -3,7 +3,7 @@ import { EventEmitter } from 'events';
 import * as vscode from 'vscode';
 import { Hash } from '../src/cryptmd5';
 import { htonl, ntohl, SocketLike } from '../src/network';
-import { Message, SDSConnection, SDSProtocolTransport } from '../src/sds';
+import { Message, Response, SDSConnection, SDSProtocolTransport } from '../src/sds';
 
 suite('SDS protocol tests', () => {
 
@@ -101,6 +101,25 @@ suite('SDS protocol tests', () => {
                 assert.ok(packet.equals(Buffer.from(bytes)));
 
                 done();
+            }).catch(err => done(err));
+        });
+
+        test('getErrorMessage message', done => {
+            const errorCode = 21;
+
+            connection.send(Message.errorMessage(errorCode)).then(() => {
+                assert.equal(1, socket.out.length);
+                const packet = socket.out[0];
+                assert.equal(25, packet.length);
+                const bytes = [
+                    0x00, 0x00, 0x00, 0x19, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0xc7, 0x03, 0x0d, 0x00,
+                    0x00, 0x00, 0x11, 0x03, 0x04, 0x00, 0x00, 0x00,
+                    0x15,
+                ];
+                assert.ok(packet.equals(Buffer.from(bytes)));
+                done();
+
             }).catch(err => done(err));
         });
 
