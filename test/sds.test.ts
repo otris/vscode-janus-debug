@@ -1,6 +1,7 @@
 import * as assert from 'assert';
 import { EventEmitter } from 'events';
 import * as vscode from 'vscode';
+import { Hash } from '../src/cryptmd5';
 import { htonl, ntohl, SocketLike } from '../src/network';
 import { Message, SDSConnection, SDSProtocolTransport } from '../src/sds';
 
@@ -59,22 +60,66 @@ suite('SDS protocol tests', () => {
             connection.disconnect();
         });
 
-        test('hello message is 8 bytes long', done => {
+        test('hello message', done => {
             connection.send(Message.hello()).then(() => {
                 assert.equal(1, socket.out.length);
-                assert.equal(8, socket.out[0].length);
+                let packet = socket.out[0];
+                assert.equal(8, packet.length);
                 done();
             }).catch(err => done(err));
         });
 
-/*
-        test('establishing a new connection', done => {
-            connection.connect().then(() => {
-                assert.equal(2, socket.out.length);
+        test('disconnectClient message', done => {
+            connection.send(Message.disconnectClient()).then(() => {
+                assert.equal(1, socket.out.length);
+                let packet = socket.out[0];
+                assert.equal(13, packet.length);
+                const bytes = [
+                    0x00, 0x00, 0x00, 0x0d, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x31,
+                ];
+                assert.ok(packet.equals(Buffer.from(bytes)));
+                done();
+            }).catch(err => done(err));
+        });
+
+        test('changeUser message', done => {
+            const username: string = 'admin';
+            const password: Hash = function () { let h = new Hash(''); h.value = 'secret'; return h; } ();
+
+            connection.send(Message.changeUser(username, password)).then(() => {
+                assert.equal(1, socket.out.length);
+                let packet = socket.out[0];
+                assert.equal(38, packet.length);
+                const bytes = [
+                    0x00, 0x00, 0x00, 0x26, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x1b, 0x07, 0x15, 0x00,
+                    0x00, 0x00, 0x06, 0x61, 0x64, 0x6d, 0x69, 0x6e,
+                    0x00, 0x07, 0x16, 0x00, 0x00, 0x00, 0x07, 0x73,
+                    0x65, 0x63, 0x72, 0x65, 0x74, 0x00,
+                ];
+                assert.ok(packet.equals(Buffer.from(bytes)));
 
                 done();
             }).catch(err => done(err));
         });
-*/
+
+        suite('establish a new connection', () => {
+
+            test('server refused connection', done => {
+
+                socket.write = (data: any, encoding?: string) => {
+                    socket.out.push(data);
+                    socket.emit('data', Buffer.from('invalid', 'ascii'));
+                };
+
+                connection.connect().then(() => {
+                    done(new Error('expected exception to be thrown'));
+                }).catch(err => {
+                    assert.equal('Error: server refused connection', err);
+                    done();
+                });
+            });
+        });
     });
 });

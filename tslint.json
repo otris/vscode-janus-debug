@@ -17,8 +17,14 @@
     "max-classes-per-file": [
       false
     ],
-    "variable-name": [ true, "allow-leading-underscore" ],
+    "variable-name": [
+      true,
+      "allow-leading-underscore"
+    ],
     "object-literal-sort-keys": false,
-    "arrow-parens": false
+    "arrow-parens": false,
+    "only-arrow-functions": [
+      false
+    ]
   }
 }

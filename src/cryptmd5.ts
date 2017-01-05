@@ -1,3 +1,3 @@
 export class Hash {
-    public value: string;
+    constructor(public value: string) { }
 }

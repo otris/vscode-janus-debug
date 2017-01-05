@@ -57,7 +57,7 @@ function printBytes(msg: string | undefined, buf: Buffer): string {
         }
         column++;
         let hex: string = buf[i].toString(16);
-        str += (hex.length === 1 ? '0' + hex : hex) + ' ';
+        str += (hex.length === 1 ? '0x0' + hex : '0x' + hex) + ', ';
     }
     str += `\n]`;
     return str;
@@ -70,8 +70,8 @@ enum Operation {
 
 enum Parameter {
     NewClientId = 1,
-    User = 15,
-    Password = 16,
+    User = 21,
+    Password = 22,
 }
 
 enum Type {
@@ -356,7 +356,7 @@ export class SDSConnection {
 
             if (!response.equals(ACK)) {
                 if (response.startsWith('invalid')) {
-                    throw new Error(`client refused connection`);
+                    throw new Error(`server refused connection`);
                 } else {
                     throw new Error(`unexpected response`);
                 }
