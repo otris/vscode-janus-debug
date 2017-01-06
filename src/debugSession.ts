@@ -43,7 +43,7 @@ function codeToString(code: string): string {
  * Construct a user-facing string from given Error instance.
  *
  * Currently: Just capitalize first letter.
- * @param {Error} err The Error instance
+ * @param {Error} err The Error instance.
  * @returns A string suitable for displaying to the user.
  */
 function toUserMessage(err: Error): string {

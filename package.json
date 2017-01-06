@@ -42,7 +42,8 @@
                         "required": [
                             "script",
                             "host",
-                            "port"
+                            "port",
+                            "username"
                         ],
                         "properties": {
                             "script": {
