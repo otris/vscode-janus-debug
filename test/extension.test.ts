@@ -161,6 +161,18 @@ suite('protocol tests', () => {
             assert.equal(cmd.toString(), `{"name":"get_source","type":"command","id":"${cmd.id}","url":"fubar.js"}\n`);
         });
 
+        test('evaluate', () => {
+            let cmd = Command.evaluate(42, {
+                path: "toString",
+                options: {
+                    "show-hierarchy": true,
+                    "evaluation-depth": 1
+                }
+            });
+
+            assert.equal(cmd.toString(), `42/{"name":"evaluate","type":"command","id":"${cmd.id}","path":"toString","options":{"show-hierarchy":true,"evaluation-depth":1}}\n`);
+        });
+
         suite('set_breakpoint', () => {
 
             test('with pending === false', () => {
@@ -288,6 +300,15 @@ suite('protocol tests', () => {
                 assert.equal(result.content.source.length, 2);
                 assert.equal(result.content.source[0], 'debugger;');
                 assert.equal(result.content.source[1], 'var i = 42;');
+            });
+
+            test('evaluate', () => {
+                const response = '{"type":"info","subtype":"evaluated","result":"666","id":"e07bc71f-4169-464a-9adf-f6c75d1643ca"}';
+                const result = parseResponse(response);
+                assert.equal(result.type, 'info');
+                assert.equal(result.subtype, 'evaluated');
+                assert.equal(result.content.result, '666');
+                assert.equal(result.content.id, 'e07bc71f-4169-464a-9adf-f6c75d1643ca');
             });
         });
     });
