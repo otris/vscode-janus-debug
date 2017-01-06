@@ -21,7 +21,8 @@
     ],
     "activationEvents": [
         "onCommand:extension.vscode-janus-debug.provideInitialConfigurations",
-        "onCommand:extension.vscode-janus-debug.askForSourceFile"
+        "onCommand:extension.vscode-janus-debug.askForSourceFile",
+        "onCommand:extension.vscode-janus-debug.askForPassword"
     ],
     "main": "./out/src/extension",
     "contributes": {
@@ -50,7 +51,11 @@
                             },
                             "username": {
                                 "type": "string",
-                                "description": "Your username."
+                                "description": "A username. The script is executed in the context of this user."
+                            },
+                            "password": {
+                                "type": "string",
+                                "description": "The user's password."
                             },
                             "principal": {
                                 "type": "string",

@@ -7,6 +7,7 @@ import { DebugProtocol } from 'vscode-debugprotocol';
 import { AttachRequestArguments, CommonArguments, LaunchRequestArguments } from './config';
 import { DebugConnection } from './connection';
 import { ContextId } from './context';
+import { Hash } from './cryptmd5';
 import { FrameMap } from './frameMap';
 import { Logger } from './log';
 import { Breakpoint, Command, Response, StackFrame, Variable, variableValueToString } from './protocol';
@@ -35,6 +36,18 @@ function codeToString(code: string): string {
         default:
             return 'Unknown error';
     }
+}
+
+/**
+ * Construct a user-facing string from given Error instance.
+ *
+ * Currently: Just capitalize first letter.
+ * @param {Error} err The Error instance
+ * @returns A string suitable for displaying to the user.
+ */
+function toUserMessage(err: Error): string {
+    const str = err.message;
+    return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
 export class JanusDebugSession extends DebugSession {
@@ -95,10 +108,12 @@ export class JanusDebugSession extends DebugSession {
         this.readConfig(args);
         log.info(`launchRequest`);
 
-        let port: number = args.port || 10000;
-        let host: string = args.host || 'localhost';
-        let sdsSocket = connect(port, host);
+        const port: number = args.port || 10000;
+        const host: string = args.host || 'localhost';
+        const username: string = args.username || '';
+        const password = new Hash(args.password) || '';
 
+        let sdsSocket = connect(port, host);
         let sdsConnection = new SDSConnection(sdsSocket);
 
         sdsSocket.on('connect', () => {
@@ -106,16 +121,26 @@ export class JanusDebugSession extends DebugSession {
 
             sdsConnection.connect().then(() => {
 
-                log.debug(`SDS connection established, got client ID: ${sdsConnection.clientId}`);
+                log.info(`SDS connection established, got client ID: ${sdsConnection.clientId}`);
+
+                log.debug(`${username}:${password.value}`);
+                return sdsConnection.changeUser(username, password);
+
+            }).then(userId => {
+
+                log.debug(`successfully changed user; new user id: ${userId}`);
 
             }).catch(reason => {
 
-                // Something went wrong starting the script. No reason to proceed with anything here...
-
                 log.error(`launchRequest failed: ${reason}`);
                 response.success = false;
-                response.message = `Could not start script: ${reason}`;
+                response.message = `Could not launch script: ${toUserMessage(reason)}.`;
                 this.sendResponse(response);
+
+            }).then(() => {
+
+                log.debug(`done; disconnecting SDS connection`);
+                sdsConnection.disconnect();
 
             });
         });
@@ -123,13 +148,12 @@ export class JanusDebugSession extends DebugSession {
         sdsSocket.on('close', (hadError: boolean) => {
             if (hadError) {
                 log.error(`remote closed SDS connection due to error`);
+                response.success = false;
+                response.message = `Failed to connect to server`;
+                this.sendResponse(response);
             } else {
                 log.info(`remote closed SDS connection`);
             }
-
-            response.success = false;
-            response.message = `Failed to connect to server`;
-            this.sendResponse(response);
 
             this.sendEvent(new TerminatedEvent());
         });

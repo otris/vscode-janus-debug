@@ -22,6 +22,10 @@ export interface AttachRequestArguments extends DebugProtocol.AttachRequestArgum
 
 export interface LaunchRequestArguments extends DebugProtocol.LaunchRequestArguments,
     CommonArguments {
+    /** A username. The script is executed in the context of this user. */
+    username: string;
+    /** The user's password. */
+    password: string;
     /** Automatically stop target after launching. If not specified, target does not stop. */
     stopOnEntry?: boolean;
 }

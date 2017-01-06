@@ -6,44 +6,54 @@ import * as vscode from 'vscode';
 
 const initialConfigurations = [
     {
-        name: "Launch script on server",
-        request: "launch",
-        type: "janus",
-        script: "",
-        username: "",
-        principal: "",
-        host: "localhost",
+        name: 'Launch script on server',
+        request: 'launch',
+        type: 'janus',
+        script: '',
+        username: '',
+        password: '${command.extension.vscode-janus-debug.askForPassword}',
+        principal: '',
+        host: 'localhost',
         port: 10000,
         stopOnEntry: false,
         log: {
-            fileName: "${workspaceRoot}/vscode-janus-debug-launch.log",
+            fileName: '${workspaceRoot}/vscode-janus-debug-launch.log',
             logLevel: {
-                default: "Debug",
+                default: 'Debug',
             },
         },
     },
     {
-        name: "Attach to server",
-        request: "attach",
-        type: "janus",
-        host: "localhost",
+        name: 'Attach to server',
+        request: 'attach',
+        type: 'janus',
+        host: 'localhost',
         port: 8089,
         log: {
-            fileName: "${workspaceRoot}/vscode-janus-debug-attach.log",
+            fileName: '${workspaceRoot}/vscode-janus-debug-attach.log',
             logLevel: {
-                default: "Debug",
+                default: 'Debug',
             },
         },
     },
 ];
 
-export function activate(context: vscode.ExtensionContext) {
+export function activate(context: vscode.ExtensionContext): void {
 
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.askForSourceFile', () => {
             return vscode.window.showInputBox({
                 prompt: 'Enter the relative path to the source file you want to debug',
                 value: 'src/jscript/test.js',
+                ignoreFocusOut: true,
+            });
+        }));
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand('extension.vscode-janus-debug.askForPassword', () => {
+            return vscode.window.showInputBox({
+                prompt: 'Please enter the password',
+                password: true,
                 ignoreFocusOut: true,
             });
         }));
@@ -94,6 +104,6 @@ export function activate(context: vscode.ExtensionContext) {
         }));
 }
 
-export function deactivate() {
-    /* */
+export function deactivate(): undefined {
+    return;
 }
