@@ -1,13 +1,77 @@
-/**
- * SDS (or SDS2) is a synchronous binary application-layer protocol on top of TCP that "real" JANUS clients use to
- * speak to JANUS servers. I could not find any document describing the protocol but there is a C++ library that you
- * can use to "reverse-engineer" the protocol (You find it under `src/janus/2.9.6/srvclnt`). The protocol is one of
- * those historic mistakes that never got fixed.
- *
- * Layout of a Typical Message
- *
- * Saying "Hello" in SDS
- */
+/*
+   SDS (or SDS2) is a synchronous binary application-layer protocol on top of TCP that "real" JANUS clients use to speak
+   to JANUS servers. I could not find any document describing the protocol but there is a C++ library that you can use
+   to "reverse-engineer" the protocol (You'll find it under `src/janus/2.9.6/srvclnt`) plus you can always analyze the
+   TCP stream with Wireshark. The protocol is one of those historic mistakes that never got fixed.
+
+
+   Layout of a Typical Message
+
+   The protocol seems to be modeled with RPC in mind. You have operations that are invoked with a single message that is
+   send to the server along with a bunch of parameters. The response usually contains the return value of that
+   operation.
+
+    ╔═════ > Message Head
+    ║ 0
+    ║ 1  First 4-bytes are the length of the entire message in network byte order, including the length itself. It seems
+    ║ 2  that it is possible to bit-wise OR some flags in here, but we do not do this.
+    ║ 3
+    ╠══
+    ║ 0
+    ║ 1
+    ║ 2
+    ║ 3  These 8 bytes are reserved for a 64-bit data structure called OID. An OID is a unique identifier (application
+    ║ 4  wide, I guess) that identifies a single object. Rarely used here. Most of the times these are just 0-bytes.
+    ║ 5
+    ║ 6
+    ║ 7
+    ╠══
+    ║ 0  The last byte of the message head encodes the operation used. See enum below.
+    ╚══
+    ╔══
+    ║ 0  First byte of this block is the type of this parameter. See enum below.
+    ╠══
+    ║ 1  Second byte is the parameter name. See enum below.
+    ╠══
+    ║ 2
+    ║ 3
+    ║ 4  The remainder is the actual data of the parameter. This data block is of variable length, depending on the
+    ║ 5  parameter type.
+    ║ 6
+    ║ 7
+    ║ .
+    ║ .
+    ║ .
+    ╚═════ > Message parameter
+
+   Each message possibly consists of multiple parameters. There must be at least one, I think.
+
+   There are also "simple" messages. Simple messages have no message parameters and consist solely of the message head,
+   actually just the first four bytes of it (thus are 8-bytes in total). Simple messages are also not used here.
+
+
+   Saying "Hello" in SDS
+
+   Precondition: TCP connection established. A SDS connection is "established" after following sequence of messages got
+   exchanged.
+
+   1. We send a short "Hello"-like message.
+   2. The server acknowledges this message with a short response, possibly negotiating SSL terms.
+   3. We introduce ourselves by sending a short string containing our client's name.
+   4. The server responds with a client ID that we store.
+
+   After that it seems that we can do pretty much what we like.
+
+   The "Hello"-like message consists of a 8-byte buffer whereas the first four bytes can be picked at random and the
+   last four bytes are a crypt(3) with MD5 variation encrypted of the first 4 bytes. We don't bother and always send the
+   same 8 bytes.
+
+   The client ID can be used to track this connection in the server's log files later on. I presume this client ID is
+   solely useful for logging and debugging purposes. A connection is closed simply by ending the TCP connection (by
+   sending a FIN packet). The server usually notes this as a "client crashed" event in the log files. However, every
+   existing client seems to do it this way. You can use the disconnect() method for this.
+
+*/
 
 'use strict';
 
@@ -260,14 +324,14 @@ export class Response {
     }
 
     /**
-     * Returns true if this reponse and otherBuffer have exactly the same bytes and length, false otherwise.
+     * Returns true if this response and otherBuffer have exactly the same bytes and length, false otherwise.
      */
     public equals(otherBuffer: Buffer): boolean {
         return this.buffer.equals(otherBuffer);
     }
 
     /**
-     * Returns true if this reponse starts with given characters, false otherwise.
+     * Returns true if this response starts with given characters, false otherwise.
      */
     public startsWith(str: string): boolean {
         return this.buffer.includes(str);
@@ -385,19 +449,6 @@ export class SDSConnection {
     /**
      * Connect to server.
      *
-     * Precondition: TCP connection established.
-     *
-     * A connection is "established" after following sequence of messages got exchanged.
-     *
-     * 1. We send a short "Hello"-like message.
-     * 2. The server acknowledges this message with a short response, possibly negotiating SSL terms.
-     * 3. We introduce ourselves by sending a short string containing our client's name.
-     * 4. The server responds with a client ID that we store.
-     *
-     * The client ID can be used to track this connection in the server's log files later on. I presume this client ID
-     * is solely useful for logging and debugging purposes. A connection is closed simply by ending the TCP connection
-     * (by sending a FIN packet). The server usually notes this as a "client crashed" event in the log files. However,
-     * every existing client seems to do it this way. You can use the disconnect() method for this.
      */
     public connect(): Promise<void> {
         return this.send(Message.hello()).then((response: Response) => {
