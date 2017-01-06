@@ -166,6 +166,22 @@ export class Context {
         });
     }
 
+    public setVariable(variableName: string, variableValue: string): Promise<void> {
+        if (typeof variableValue === "string") {
+            variableValue = `"${variableValue}"`;
+        }
+
+        let cmd = Command.evaluate(this.id, {
+            path: `${variableName}=${variableValue}`,
+            options: {
+                "show-hierarchy": false,
+                "evaluation-depth": 0,
+            },
+        });
+
+        return this.connection.sendRequest(cmd);
+    }
+
     public handleResponse(response: Response): Promise<void> {
         contextLog.debug(`handleResponse ${JSON.stringify(response)} for context ${this.id}`);
         return Promise.resolve();

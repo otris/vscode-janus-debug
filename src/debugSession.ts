@@ -606,7 +606,61 @@ export class JanusDebugSession extends DebugSession {
 
     protected setVariableRequest(response: DebugProtocol.SetVariableResponse,
                                  args: DebugProtocol.SetVariableArguments): void {
-        log.info(`setVariableRequest`);
+        log.info(`setVariableRequest with variablesRequest ${args.variablesReference}`);
+
+        if (this.connection === undefined) {
+            throw new Error('No connetion');
+        }
+
+        // Get the variable which we want to set from the variables map
+        let variablesContainer = this.variablesMap.getVariables(args.variablesReference);
+        let variables = variablesContainer.variables.filter((variable) => {
+            return variable.name === args.name;
+        });
+
+        if (variables.length < 1) {
+            throw new Error(`Internal error: No variable found with variablesReference ${args.variablesReference} and name ${args.name}`);
+        } else if (variables.length > 1) {
+            throw new Error(`Internal error: Multiple variables found with variablesReference ${args.variablesReference} and name ${args.name}`);
+        }
+
+        // VS-Code will always return string-values, even if the variable is not a string. For this reason we have to cast the value to the
+        // correct type. Because we can only change primitive types it's pretty easy
+        let variableValue: any = args.value;
+
+        if (variableValue === 'null') {
+            variableValue = null;
+        } else if (variableValue === 'undefined') {
+            variableValue = undefined;
+        } else if (/[0-9]+/.test(variableValue)) {
+            variableValue = parseInt(variableValue, 10);
+        } else if (variableValue === 'true') {
+            variableValue = true;
+        } else if (variableValue === 'false') {
+            variableValue = false;
+        }
+
+        let variable: DebugProtocol.Variable = variables[0];
+        if (typeof variable.evaluateName === 'undefined' || variable.evaluateName === '') {
+            throw new Error(`Internal error: Variable ${variable.name} has no evaluate name.`);
+        }
+
+        let context = this.connection.coordinator.getContext(variablesContainer.contextId);
+        context.setVariable(variable.evaluateName, variableValue).then(() => {
+            // Everything fine. Replace the variable in the variables map
+            variable.value = args.value;
+            let indexOf = variablesContainer.variables.indexOf(variables[0]);
+            variablesContainer[indexOf] = variable;
+            this.variablesMap.setVariables(args.variablesReference, variablesContainer);
+
+            response.body = variable;
+            this.sendResponse(response);
+        }).catch((reason) => {
+            log.error(`setVariableRequest failed: ${reason}`);
+            response.success = false;
+            response.message = `Could not set variable "${args.name}": ${reason}`;
+            this.sendResponse(response);
+        });
     }
 
     protected evaluateRequest(response: DebugProtocol.EvaluateResponse,
