@@ -9,6 +9,7 @@ import { SocketLike } from '../src/network';
 import { Command, ErrorCode, parseResponse, Response, variableValueToString } from '../src/protocol';
 import { SourceMap } from '../src/sourceMap';
 import { DebugProtocolTransport } from '../src/transport';
+import { VariablesContainer, VariablesMap } from '../src/variablesMap';
 
 suite('source map tests', () => {
 
@@ -35,6 +36,129 @@ suite('source map tests', () => {
             let result = sourceMap.remoteSourceUrl('/Users/bob/fubar/bielefeld.js');
             assert.equal(result, '/Users/bob/fubar/bielefeld.js');
         });
+    });
+});
+
+suite('variables map tests', () => {
+
+    suite('createVariable', () => {
+
+        let variablesMap: VariablesMap;
+
+        setup(() => {
+            variablesMap = new VariablesMap();
+        });
+
+        test('createStringVariable', () => {
+            variablesMap.createVariable('stringVariable', 'myValue', 1, 1);
+            let variablesContainer: VariablesContainer = variablesMap.getVariables(1);
+
+            assert.equal(variablesContainer.length, 1);
+            assert.equal(variablesContainer[0].name, 'stringVariable');
+            assert.equal(variablesContainer[0].value, 'myValue');
+            assert.equal(variablesContainer[0].type, 'string');
+            assert.equal(variablesContainer[0].variablesReference, 0);
+        });
+
+        test('createIntVariable', () => {
+            variablesMap.createVariable('intVariable', 666, 1, 2);
+            let variablesContainer: VariablesContainer = variablesMap.getVariables(2);
+
+            assert.equal(variablesContainer.length, 1);
+            assert.equal(variablesContainer[0].name, 'intVariable');
+            assert.equal(variablesContainer[0].value, 666);
+            assert.equal(variablesContainer[0].type, 'number');
+            assert.equal(variablesContainer[0].variablesReference, 0);
+        });
+
+        test('createBooleanVariable', () => {
+            variablesMap.createVariable('booleanVariable', true, 1, 3);
+            let variablesContainer: VariablesContainer = variablesMap.getVariables(3);
+
+            assert.equal(variablesContainer.length, 1);
+            assert.equal(variablesContainer[0].name, 'booleanVariable');
+            assert.equal(variablesContainer[0].value, 'true');
+            assert.equal(variablesContainer[0].type, 'boolean');
+            assert.equal(variablesContainer[0].variablesReference, 0);
+        });
+
+        test('createUndefinedVariable', () => {
+            variablesMap.createVariable('undefinedVariable', undefined, 1, 4);
+            let variablesContainer: VariablesContainer = variablesMap.getVariables(4);
+
+            assert.equal(variablesContainer.length, 1);
+            assert.equal(variablesContainer[0].name, 'undefinedVariable');
+            assert.equal(variablesContainer[0].value, 'undefined');
+            assert.equal(variablesContainer[0].type, 'undefined');
+            assert.equal(variablesContainer[0].variablesReference, 0);
+        });
+
+        test('createNullVariable', () => {
+            variablesMap.createVariable('nullVariable', null, 1, 5);
+            let variablesContainer: VariablesContainer = variablesMap.getVariables(5);
+
+            assert.equal(variablesContainer.length, 1);
+            assert.equal(variablesContainer[0].name, 'nullVariable');
+            assert.equal(variablesContainer[0].value, 'null');
+            assert.equal(variablesContainer[0].type, 'object');
+            assert.equal(variablesContainer[0].variablesReference, 0);
+        });
+
+        test('createArrayVariable', () => {
+            let array = [1, 2, "test", true];
+            variablesMap.createVariable('arrayVariable', array, 1, 6);
+            let variablesContainer: VariablesContainer = variablesMap.getVariables(6);
+
+            assert.equal(variablesContainer.length, 1);
+            assert.equal(variablesContainer[0].name, 'arrayVariable');
+            assert.equal(variablesContainer[0].value, '[Array]');
+            assert.equal(variablesContainer[0].type, 'array');
+
+            let reference = variablesMap.createReference(1, 6, 'arrayVariable');
+            variablesContainer = variablesMap.getVariables(reference);
+
+            assert.notEqual(typeof variablesContainer, "undefined");
+            assert.equal(variablesContainer.length, array.length);
+
+            let everyArrayEntriesPassed = array.every((element) => {
+                return variablesContainer.filter((variable) => {
+                    return variable.value === element.toString();
+                }).length === 1;
+            });
+            assert.equal(everyArrayEntriesPassed, true);
+        });
+
+        test('createObjectVariable', () => {
+            let obj = {
+                stringProp: "stringValue",
+                boolProp: false,
+                intProp: 666
+            };
+
+            variablesMap.createVariable('objectVariable', obj, 1, 7);
+            let variablesContainer: VariablesContainer = variablesMap.getVariables(7);
+
+            assert.equal(variablesContainer.length, 1);
+            assert.equal(variablesContainer[0].name, 'objectVariable');
+            assert.equal(variablesContainer[0].value, '[Object]');
+            assert.equal(variablesContainer[0].type, 'object');
+
+            let reference = variablesMap.createReference(1, 7, 'objectVariable');
+            variablesContainer = variablesMap.getVariables(reference);
+
+            assert.notEqual(typeof variablesContainer, "undefined");
+            assert.equal(variablesContainer.length, Object.keys(obj).length);
+
+            let everyPropertyEntriesPassed = variablesContainer.every((variable) => {
+                    if (obj.hasOwnProperty(variable.name) && obj[variable.name].toString() === variable.value) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+            });
+            assert.equal(everyPropertyEntriesPassed, true);
+        });
+
     });
 });
 
