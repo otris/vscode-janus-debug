@@ -2,6 +2,7 @@
 
 import * as assert from 'assert';
 import * as uuid from 'uuid';
+import { DebugProtocol } from 'vscode-debugprotocol';
 
 export enum ErrorCode {
     UNKNOWN_COMMAND = 1,

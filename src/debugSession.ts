@@ -12,6 +12,7 @@ import { Logger } from './log';
 import { Breakpoint, Command, Response, StackFrame, Variable, variableValueToString } from './protocol';
 import { SDSConnection } from './sds';
 import { SourceMap } from './sourceMap';
+import { VariablesMap } from './variablesMap';
 
 let log = Logger.create('JanusDebugSession');
 
@@ -42,12 +43,14 @@ export class JanusDebugSession extends DebugSession {
     private sourceMap: SourceMap;
     private frameMap: FrameMap;
     private sourceFile: string;
+    private variablesMap: VariablesMap;
 
     public constructor() {
         super();
         this.connection = undefined;
         this.sourceMap = new SourceMap();
         this.frameMap = new FrameMap();
+        this.variablesMap = new VariablesMap();
     }
 
     protected initializeRequest(response: DebugProtocol.InitializeResponse,
@@ -525,6 +528,25 @@ export class JanusDebugSession extends DebugSession {
                 stackFrames,
                 totalFrames: trace.length,
             };
+
+            // VariablesMap aktualisieren
+            context.getVariables().then((locals: Variable[]) => {
+                log.info('Updating variables map');
+
+                let frame = this.frameMap.getCurrentStackFrame(contextId);
+                if (frame === null) {
+                    log.error('[update variablesMap]: current frame is null.');
+                    throw new Error('Internal error: Current frame not found.');
+                }
+
+                let frameId = frame.frameId;
+                locals.forEach(variable => {
+                    this.variablesMap.createVariable(variable.name, variable.value, contextId, frameId);
+                });
+            }).catch(reason => {
+                log.error(`variablesRequest failed: ${reason}`);
+            });
+
             log.debug(`stackTraceRequest succeeded`);
             this.sendResponse(response);
         });
@@ -551,32 +573,11 @@ export class JanusDebugSession extends DebugSession {
                                args: DebugProtocol.VariablesArguments): void {
         log.info(`variablesRequest with variablesReference ${args.variablesReference}`);
 
-        if (this.connection === undefined) {
-            throw new Error('No connection');
-        }
+        response.body = {
+            variables: this.variablesMap.getVariables(args.variablesReference)
+        };
 
-        let frame = this.frameMap.getStackFrame(args.variablesReference);
-        let context = this.connection.coordinator.getContext(frame.contextId);
-        context.getVariables().then((locals: Variable[]) => {
-            let variables: DebugProtocol.Variable[] = locals.map(variable => {
-                return {
-                    name: variable.name,
-                    value: variableValueToString(variable.value),
-                    variablesReference: 0,
-                };
-            });
-
-            response.body = {
-                variables,
-            };
-            log.debug(`variablesRequest succeeded`);
-            this.sendResponse(response);
-        }).catch(reason => {
-            log.error(`variablesRequest failed: ${reason}`);
-            response.success = false;
-            response.message = `Could not get variable(s): ${reason}`;
-            this.sendResponse(response);
-        });
+        this.sendResponse(response);
     }
 
     protected setVariableRequest(response: DebugProtocol.SetVariableResponse,
