@@ -55,4 +55,40 @@ export class FrameMap {
         }
         return frame;
     }
+
+    /**
+     * Returns the current stackframe from a given context be returning the frame with the lowest depth.
+     * @param {number} contextId - Context id
+     * @returns {StackFrame|null} The current stackframe or null if no stackframe for this context is saved.  
+     */
+    public getCurrentStackFrame(contextId: number) {
+        let stackframes = this.getStackFramesFromContext(contextId).sort((a: StackFrame, b: StackFrame) => {
+            return a.rDepth - b.rDepth;
+        });
+
+        if (stackframes.length > 0) {
+            // The first stackframe is the current one (because it's depth is the lowest one)
+            return stackframes[0];
+        } else {
+            // No stackframe found for this context
+            return null;
+        }
+    }
+
+    /**
+     * Returns all stackframes from a given context.
+     * @param {number} contextId - Context id to match 
+     * @returns {Array.<StackFrame>} An array with every stackframe from a given context.
+     */
+    public getStackFramesFromContext(contextId): StackFrame[] {
+        let stackframes: StackFrame[] = [];
+
+        this.frameIdToFrame.forEach((frame: StackFrame) => {
+            if (reverseCantorPairing(frame.frameId).x === contextId) {
+                stackframes.push(frame);
+            }
+        });
+
+        return stackframes;
+    }
 }
