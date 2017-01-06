@@ -553,13 +553,13 @@ export class JanusDebugSession extends DebugSession {
                 totalFrames: trace.length,
             };
 
-            // VariablesMap aktualisieren
+            // Update variablesMap
             context.getVariables().then((locals: Variable[]) => {
                 log.info('Updating variables map');
 
                 let frame = this.frameMap.getCurrentStackFrame(contextId);
-                if (frame === null) {
-                    log.error('[update variablesMap]: current frame is null.');
+                if (frame === undefined) {
+                    log.error('[update variablesMap]: current frame is undefined.');
                     throw new Error('Internal error: Current frame not found.');
                 }
 
@@ -568,7 +568,7 @@ export class JanusDebugSession extends DebugSession {
                     this.variablesMap.createVariable(variable.name, variable.value, contextId, frameId);
                 });
             }).catch(reason => {
-                log.error(`variablesRequest failed: ${reason}`);
+                log.error(`could not update variablesMap: ${reason}`);
             });
 
             log.debug(`stackTraceRequest succeeded`);

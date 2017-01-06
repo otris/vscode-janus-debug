@@ -58,7 +58,7 @@ export class VariablesMap {
      * @param {string} variablesName - The display name of the variable
      * @param {any} variableValue - The value of the variable
      * @param {number} contextId - The context id
-     * @param {number} frameId - The frame id 
+     * @param {number} frameId - The frame id
      */
     public createVariable(variableName: string, variableValue: any, contextId: number, frameId: number) {
         // The debugger returns every variable which will be declared in the script, also variables which doesn't exists at this time.
@@ -98,7 +98,7 @@ export class VariablesMap {
      * @param {string} variablesName - The display name of the variable
      * @param {any} variableValue - The value of the variable
      * @param {number} contextId - The context id
-     * @param {number} frameId - The frame id 
+     * @param {number} frameId - The frame id
      * @returns {Variable} A full qualified variable object
      */
     private _createVariable(variableName: string, variableValue: any, contextId: number, frameId: number): DebugProtocol.Variable {
