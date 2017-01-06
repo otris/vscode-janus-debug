@@ -25,6 +25,12 @@
     "arrow-parens": false,
     "only-arrow-functions": [
       false
+    ],
+    "trailing-comma": [
+      false // this sucks
+    ],
+    "max-line-length": [
+      180 // I think the screens today are big enough to display more than 120 characters
     ]
   }
 }
