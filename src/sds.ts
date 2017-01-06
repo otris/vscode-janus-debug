@@ -9,6 +9,8 @@
  * Saying "Hello" in SDS
  */
 
+'use strict';
+
 import * as assert from 'assert';
 import { EventEmitter } from 'events';
 import { connect } from 'net';

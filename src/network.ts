@@ -1,3 +1,5 @@
+'use strict';
+
 /**
  * Something that behaves like a bloody Node socket.
  */
