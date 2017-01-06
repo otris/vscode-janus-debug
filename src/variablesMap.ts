@@ -110,25 +110,30 @@ export class VariablesMap {
      * @param {string} variablesName - The display name of the variable
      * @param {any} variableValue - The value of the variable
      * @param {number} contextId - The context id
-     * @param {number} frameId - The frame id
+     * @param {number} frameId - The frame id 
+     * @param {string} [evaluateName=variableName] - This param is need for evaluate variables that are properties of object or elements of arrays. For this variables we need also the name of their parent to access the value.
      * @returns {Variable} A full qualified variable object
      */
-    private _createVariable(variableName: string, variableValue: any, contextId: number, frameId: number): DebugProtocol.Variable {
+    private _createVariable(variableName: string, variableValue: any, contextId: number, frameId: number, evaluateName?: string): DebugProtocol.Variable {
+        if (typeof evaluateName === 'undefined' || evaluateName === '') {
+            evaluateName = variableName;
+        }
+
         // We have do differntiate between primtive types and array, object and function
         switch (typeof variableValue) {
             case 'string':
             case 'number':
             case 'boolean':
             case 'undefined':
-                return this.createPrimitiveVariable(variableName, variableValue);
+                return this.createPrimitiveVariable(variableName, variableValue, evaluateName);
 
             case 'object':
                 if (variableValue === null) {
-                    return this.createPrimitiveVariable(variableName, variableValue);
-                } else if (Array.isArray(variableValue)) {
-                    return this.createArrayVariable(variableName, variableValue, contextId, frameId);
+                    return this.createPrimitiveVariable(variableName, variableValue, evaluateName);
+                } else if (variableValue.hasOwnProperty("length")) {
+                    return this.createArrayVariable(variableName, variableValue, contextId, frameId, evaluateName);
                 } else {
-                    return this.createObjectVariable(variableName, variableValue, contextId, frameId);
+                    return this.createObjectVariable(variableName, variableValue, contextId, frameId, evaluateName);
                 }
 
             default:
@@ -140,9 +145,10 @@ export class VariablesMap {
      * Creates a variable object for primtive types.
      * @param {string} variableName - The display name of the variable
      * @param {any} variableValue - The content of the variable
+     * @param {string} evaluateName - This param is need for evaluate variables that are properties of object or elements of arrays. For this variables we need also the name of their parent to access the value.
      * @returns {Variable} A full qualified variables object
      */
-    private createPrimitiveVariable(variableName: string, variableValue: any): DebugProtocol.Variable {
+    private createPrimitiveVariable(variableName: string, variableValue: any, evaluateName: string): DebugProtocol.Variable {
         if (variableName === '') {
             throw new Error('Variables name cannot be empty.');
         }
@@ -160,6 +166,7 @@ export class VariablesMap {
 
         return {
             name: variableName,
+            evaluateName,
             value: variableValue,
             type: variableType,
             variablesReference: 0,
@@ -170,9 +177,10 @@ export class VariablesMap {
      * Creates a variable object for array types.
      * @param {string} variableName - The display name of the variable
      * @param {Array.<any>} variableValue - The content of the variable
+     * @param {string} evaluateName - This param is need for evaluate variables that are properties of object or elements of arrays. For this variables we need also the name of their parent to access the value.
      * @returns {Variable} A full qualified variables object
      */
-    private createArrayVariable(variableName: string, variableValue: any[], contextId: number, frameId: number): DebugProtocol.Variable {
+    private createArrayVariable(variableName: string, variableValue: any[], contextId: number, frameId: number, evaluateName: string): DebugProtocol.Variable {
         if (variableName === '') {
             throw new Error('Variables name cannot be empty.');
         }
@@ -180,9 +188,21 @@ export class VariablesMap {
         // Variables container for the entries of the array
         let variablesContainer: VariablesContainer = new VariablesContainer(contextId);
 
-        variableValue.forEach((element, index) => {
-            variablesContainer.variables.push(this._createVariable(index.toString(), element, contextId, frameId));
-        });
+        // Arrays are returned as objects because the debugger represents the array elements as object properties.
+        // The debugger also adds a length-property which represents the amount of elements inside the array.
+        let index = 0;
+        for (let key in variableValue) {
+            if (variableValue.hasOwnProperty(key)) {
+                let _variableName = (key === 'length') ? 'length' : index.toString();
+                let _evaluateName = (key === 'length') ? `${evaluateName}.length` : `${evaluateName}[${index.toString()}]`;
+
+                variablesContainer.variables.push(
+                    this._createVariable(_variableName, variableValue[key], contextId, frameId, _evaluateName)
+                );
+
+                index++;
+            }
+        }
 
         // Create a reference for the variables container and insert it into the variables map
         let reference = this.createReference(contextId, frameId, variableName);
@@ -191,6 +211,7 @@ export class VariablesMap {
         // Return a variable which refers to this container
         return {
             name: variableName,
+            evaluateName,
             type: 'array',
             value: '[Array]',
             variablesReference: reference
@@ -201,9 +222,10 @@ export class VariablesMap {
      * Creates a variable object for object types.
      * @param {string} variableName - The display name of the variable
      * @param {any} variableValue - The content of the variable
+     * @param {string} evaluateName - This param is need for evaluate variables that are properties of object or elements of arrays. For this variables we need also the name of their parent to access the value.
      * @returns {Variable} A full qualified variables object
      */
-    private createObjectVariable(variableName: string, variableValue: any, contextId: number, frameId: number): DebugProtocol.Variable {
+    private createObjectVariable(variableName: string, variableValue: any, contextId: number, frameId: number, evaluateName: string): DebugProtocol.Variable {
         if (variableName === '') {
             throw new Error('Variables name cannot be empty.');
         }
@@ -215,12 +237,14 @@ export class VariablesMap {
             let functionParams = variableValue.___jsrdbg_function_desc___.parameterNames;
             functionParams = functionParams.toString().replace(/,/, ', ');
 
-            return this.createPrimitiveVariable(variableName, 'function (' + functionParams + ') { ... }');
+            return this.createPrimitiveVariable(variableName, 'function (' + functionParams + ') { ... }', `${evaluateName}.${variableName}`);
         } else {
             // Create a new variable for each property on this object and chain them together with the reference property
             for (let key in variableValue) {
                 if (variableValue.hasOwnProperty(key)) {
-                    variablesContainer.variables.push(this._createVariable(key, variableValue[key], contextId, frameId));
+                    variablesContainer.variables.push(
+                        this._createVariable(key, variableValue[key], contextId, frameId, `${evaluateName}.${key}`)
+                    );
                 }
             }
         }
@@ -230,6 +254,7 @@ export class VariablesMap {
 
         return {
             name: variableName,
+            evaluateName,
             type: 'object',
             value: '[Object]',
             variablesReference: reference
