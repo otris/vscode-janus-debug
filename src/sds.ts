@@ -76,21 +76,23 @@ enum COMOperation {
 enum Parameter {
     ClientId = 1,
     Value = 4,
+    ReturnValue = 5,
     Index = 13,
     User = 21,
     Password = 22,
+    UserId = 40,
 }
 
 enum Type {
     Boolean = 2,
-    Int32,
-    Date,
+    Int32 = 3,
+    Date = 4,
     String = 7,
     OID = 9,
-    Int32List,
-    StringList,
-    OIDList,
-    NullFlag = 128, // 0x80
+    Int32List = 10,
+    StringList = 11,
+    OIDList = 12,
+    NullFlag = 128,
 }
 
 export class Message {
@@ -243,6 +245,18 @@ export class Response {
         return ntohl(this.buffer, paramIndex + 2);
     }
 
+    public getString(name: Parameter): string {
+        const paramIndex = this.getParamIndex(name);
+        const headType = this.buffer[paramIndex];
+        assert.ok((headType & ~Type.NullFlag) === Type.String);
+        if (headType & Type.NullFlag) {
+            return '';
+        }
+        const strLength = ntohl(this.buffer, paramIndex + 2) - 1;
+        // Note: we expect here that the opposite party is a JANUS server compiled with UTF-8 support.
+        return this.buffer.toString('utf8', paramIndex + 6, paramIndex + 6 + strLength);
+    }
+
     /**
      * Returns true if this reponse and otherBuffer have exactly the same bytes and length, false otherwise.
      */
@@ -342,14 +356,18 @@ export class SDSProtocolTransport extends EventEmitter {
     }
 
     private scanParseAndEmit(chunk: Buffer): void {
-        log.debug(`received: '${chunk}', length: ${chunk.length}`);
+        log.debug(printBytes('received', chunk));
         let res = new Response(chunk);
         this.emit('response', res);
     }
 }
 
+export type ClientId = number;
+
+export type UserId = number;
+
 export class SDSConnection {
-    private _clientId: number | undefined;
+    private _clientId: ClientId | undefined;
     private _timeout: number;
     private transport: SDSProtocolTransport;
 
@@ -400,6 +418,36 @@ export class SDSConnection {
 
             this._clientId = response.getInt32(Parameter.ClientId);
 
+        });
+    }
+
+    public changeUser(username: string, password: cryptmd5.Hash): Promise<UserId> {
+        return new Promise<UserId>((resolve, reject) => {
+            this.send(Message.changeUser(username, password)).then((response: Response) => {
+                const result = response.getInt32(Parameter.ReturnValue);
+                log.debug(`changeUser returned: ${result}`);
+                if (result > 0) {
+                    return this.errorMessage(result).then(localizedReason => {
+                        let reason: string | undefined;
+                        if (localizedReason.startsWith('Login-Name oder Passwort')) {
+                            reason = 'username or password incorrect';
+                        }
+                        reject(reason === undefined ? new Error(`login failed`) : new Error(reason));
+                    });
+                } else {
+                    const userId = response.getInt32(Parameter.UserId);
+                    resolve(userId);
+                }
+            });
+        });
+    }
+
+    public errorMessage(errorCode: number): Promise<string> {
+        return new Promise((resolve) => {
+            this.send(Message.errorMessage(errorCode)).then((response: Response) => {
+                const reason: string = response.getString(Parameter.ReturnValue);
+                resolve(reason);
+            });
         });
     }
 
