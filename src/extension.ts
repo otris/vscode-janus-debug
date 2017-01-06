@@ -6,7 +6,7 @@ import * as vscode from 'vscode';
 
 const initialConfigurations = [
     {
-        name: 'Launch script on server',
+        name: 'Launch Script on Server',
         request: 'launch',
         type: 'janus',
         script: '',
@@ -24,7 +24,7 @@ const initialConfigurations = [
         },
     },
     {
-        name: 'Attach to server',
+        name: 'Attach to Server',
         request: 'attach',
         type: 'janus',
         host: 'localhost',
