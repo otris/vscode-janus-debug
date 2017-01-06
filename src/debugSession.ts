@@ -598,7 +598,7 @@ export class JanusDebugSession extends DebugSession {
         log.info(`variablesRequest with variablesReference ${args.variablesReference}`);
 
         response.body = {
-            variables: this.variablesMap.getVariables(args.variablesReference)
+            variables: this.variablesMap.getVariables(args.variablesReference).variables
         };
 
         this.sendResponse(response);

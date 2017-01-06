@@ -7,7 +7,15 @@ import { Logger } from './log';
 let log = Logger.create('VariablesMap');
 
 export type VariablesReference = number;
-export type VariablesContainer = DebugProtocol.Variable[];
+export class VariablesContainer {
+    public contextId: number;
+    public variables: DebugProtocol.Variable[];
+
+    constructor(contextId: number) {
+        this.contextId = contextId;
+        this.variables = [];
+    }
+}
 
 export class VariablesMap {
     private variablesMap: Map<VariablesReference, VariablesContainer> = new Map();
@@ -19,7 +27,7 @@ export class VariablesMap {
      * @param {string} variableName - The name of the variable
      * @returns {VariablesReference} A unique variables reference
      */
-    public createReference(contextId: number, frameId: number, variableName: string): VariablesReference{
+    public createReference(contextId: number, frameId: number, variableName: string): VariablesReference {
         if (variableName === '') {
             throw new Error('Variables name cannot be empty.');
         }
@@ -52,6 +60,10 @@ export class VariablesMap {
         }
     }
 
+    public setVariables(reference: VariablesReference, container: VariablesContainer) {
+        this.variablesMap.set(reference, container);
+    }
+
     /**
      * Creates a variable based on the variableValue passed from the debugger.
      * The created variable(s) will be saved in an variables container in the variables map.
@@ -68,25 +80,25 @@ export class VariablesMap {
         }
 
         log.info(`Creating variable ${variableName} with value ${variableValue}`);
-        let variablesContainer: VariablesContainer = this.variablesMap.get(frameId) || [];
+        let variablesContainer: VariablesContainer = this.variablesMap.get(frameId) || new VariablesContainer(contextId);
 
         // If the container already contains a variable with this name => update
         let variable = this._createVariable(variableName, variableValue, contextId, frameId);
 
-        if (variablesContainer.length > 0) {
-            let filterResult = variablesContainer.filter((element) => {
+        if (variablesContainer.variables.length > 0) {
+            let filterResult = variablesContainer.variables.filter((element) => {
                 return element.name === variable.name;
             });
 
             if (filterResult.length > 0) {
                 // Update the entry
-                let indexOf = variablesContainer.indexOf(filterResult[0]);
+                let indexOf = variablesContainer.variables.indexOf(filterResult[0]);
                 variablesContainer[indexOf] = variable;
             } else {
-                variablesContainer.push(variable);
+                variablesContainer.variables.push(variable);
             }
         } else {
-            variablesContainer.push(variable);
+            variablesContainer.variables.push(variable);
         }
 
         this.variablesMap.set(frameId, variablesContainer);
@@ -166,10 +178,10 @@ export class VariablesMap {
         }
 
         // Variables container for the entries of the array
-        let variablesContainer: VariablesContainer = [];
+        let variablesContainer: VariablesContainer = new VariablesContainer(contextId);
 
         variableValue.forEach((element, index) => {
-            variablesContainer.push(this._createVariable(index.toString(), element, contextId, frameId));
+            variablesContainer.variables.push(this._createVariable(index.toString(), element, contextId, frameId));
         });
 
         // Create a reference for the variables container and insert it into the variables map
@@ -196,7 +208,7 @@ export class VariablesMap {
             throw new Error('Variables name cannot be empty.');
         }
 
-        let variablesContainer: VariablesContainer = [];
+        let variablesContainer: VariablesContainer = new VariablesContainer(contextId);
 
         if (variableValue.hasOwnProperty('___jsrdbg_function_desc___')) {
             // Functions will be recognised as objects because of the way the debugger evaluate functions
@@ -208,7 +220,7 @@ export class VariablesMap {
             // Create a new variable for each property on this object and chain them together with the reference property
             for (let key in variableValue) {
                 if (variableValue.hasOwnProperty(key)) {
-                    variablesContainer = variablesContainer.concat(this._createVariable(key, variableValue[key], contextId, frameId));
+                    variablesContainer.variables.push(this._createVariable(key, variableValue[key], contextId, frameId));
                 }
             }
         }
