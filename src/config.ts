@@ -28,6 +28,8 @@ export interface LaunchRequestArguments extends DebugProtocol.LaunchRequestArgum
     principal?: string;
     /** The user's password. */
     password: string;
+    /** The script that is executed on the server. */
+    script: string;
     /** Automatically stop target after launching. If not specified, target does not stop. */
     stopOnEntry?: boolean;
 }

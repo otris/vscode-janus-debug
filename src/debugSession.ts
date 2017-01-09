@@ -1,6 +1,7 @@
 'use strict';
 
 import * as assert from 'assert';
+import * as fs from 'fs';
 import { connect, Socket } from 'net';
 import { ContinuedEvent, DebugSession, InitializedEvent, StoppedEvent, TerminatedEvent } from 'vscode-debugadapter';
 import { DebugProtocol } from 'vscode-debugprotocol';
@@ -111,17 +112,44 @@ export class JanusDebugSession extends DebugSession {
         this.readConfig(args);
         log.info(`launchRequest`);
 
-        const port: number = args.port || 10000;
+        const sdsPort: number = args.port || 10000;
+        const debuggerPort = 8089;
         const host: string = args.host || 'localhost';
         const username: string = args.username || '';
         const principal: string = args.principal || '';
         const password = new Hash(args.password) || '';
+        const stopOnEntry = args.stopOnEntry || false;
 
-        let sdsSocket = connect(port, host);
+        if (!args.script || typeof args.script !== 'string' || args.script.length === 0) {
+            log.error(`launchRequest failed: no script specified by user`);
+            response.success = false;
+            response.message = `No script to launch.`;
+            this.sendResponse(response);
+            return;
+        }
+
+        const scriptPath = args.script;
+        log.debug(`entry point: ${scriptPath}`);
+
+        // FIXME: this following line is a hack!
+        this.sourceFile = scriptPath;
+
+        let scriptSource = '';
+        try {
+            scriptSource = fs.readFileSync(scriptPath, 'utf8');
+        } catch (err) {
+            log.error(`launchRequest failed: loading source from script failed: ${err}`);
+            response.success = false;
+            response.message = `Could not load source from '${scriptPath}': ${toUserMessage(err)}`;
+            this.sendResponse(response);
+            return;
+        }
+
+        let sdsSocket = connect(sdsPort, host);
         let sdsConnection = new SDSConnection(sdsSocket);
 
         sdsSocket.on('connect', () => {
-            log.info(`connected to ${host}:${port}`);
+            log.info(`connected to ${host}:${sdsPort}`);
 
             sdsConnection.connect().then(() => {
 
@@ -137,6 +165,98 @@ export class JanusDebugSession extends DebugSession {
                 if (principal.length > 0) {
                     return sdsConnection.changePrincipal(principal);
                 }
+
+            }).then(() => {
+
+                // Quick & dirty pause immediately feature
+                if (stopOnEntry) {
+                    scriptSource = 'debugger;' + scriptSource;
+                }
+                sdsConnection.runScriptOnServer(scriptSource).then(returnedString => {
+
+                    // Important: this block is reached after the script returned and the debug session has ended. So
+                    // the entire environment of this block might not even exist anymore!
+
+                    log.debug(`script returned '${returnedString}'`);
+
+                    // TODO: would be nice though, if the user could see the result of his script
+                    // let outputChannel = vscode.window.createOutputChannel('JANUS Debugger');
+                    // outputChannel.appendLine('Hello, there!');
+                });
+
+            }).then(() => {
+
+                // Attach to debugger port and tell the frontend that we are ready to set breakpoints.
+                let debuggerSocket = connect(debuggerPort, host);
+
+                if (this.connection) {
+                    console.warn("launchRequest: already made a connection to remote debugger");
+                }
+
+                const connection = new DebugConnection(debuggerSocket);
+                this.connection = connection;
+
+                debuggerSocket.on('connect', () => {
+
+                    log.info(`launchRequest: connection to ${host}:${debuggerPort} established. Testing...`);
+
+                    let timeout = new Promise<void>((resolve, reject) => {
+                        setTimeout(reject, args.timeout || 6000, "Operation timed out");
+                    });
+                    let request = connection.sendRequest(new Command('get_all_source_urls'), (res: Response): Promise<void> => {
+
+                        return new Promise<void>((resolve, reject) => {
+
+                            assert.notEqual(res, undefined);
+
+                            if (res.subtype === 'all_source_urls') {
+                                log.info('launchRequest: ...looks good');
+                                this.sourceMap.setAllRemoteUrls(res.content.urls);
+                                resolve();
+                            } else {
+                                log.error(`launchRequest: error while connecting to ${host}:${debuggerPort}`);
+                                reject(`Error while connecting to ${host}:${debuggerPort}`);
+                            }
+                        });
+                    });
+                    Promise.race([request, timeout]).then(() => {
+
+                        log.debug(`sending InitializedEvent`);
+                        this.sendEvent(new InitializedEvent());
+
+                        this.sendResponse(response);
+
+                    }).catch(reason => {
+                        log.error(`launchRequest: ...failed. ${reason}`);
+                        response.success = false;
+                        response.message = `Could not attach to remote process: ${reason}`;
+                        this.sendResponse(response);
+                    });
+                });
+
+                debuggerSocket.on('close', (hadError: boolean) => {
+                    if (hadError) {
+                        log.error(`remote closed the connection due to error`);
+                    } else {
+                        log.info(`remote closed the connection`);
+                    }
+                    this.connection = undefined;
+                    this.sendEvent(new TerminatedEvent());
+                });
+
+                debuggerSocket.on('error', (err: any) => {
+                    log.error(`failed to connect to ${host}:${debuggerPort}: ${err.code}`);
+
+                    response.success = false;
+                    response.message = `Failed to connect to server: ${codeToString(err.code)}`;
+                    if (err.code === 'ETIMEDOUT') {
+                        response.message += `. Maybe wrong port or host?`;
+                    }
+                    this.sendResponse(response);
+
+                    this.connection = undefined;
+                    this.sendEvent(new TerminatedEvent());
+                });
 
             }).catch(reason => {
 
@@ -168,7 +288,7 @@ export class JanusDebugSession extends DebugSession {
 
         sdsSocket.on('error', (err: any) => {
 
-            log.error(`failed to connect to ${host}:${port}: ${err.code}`);
+            log.error(`failed to connect to ${host}:${sdsPort}: ${err.code}`);
 
             response.success = false;
             response.message = `Failed to connect to server: ${codeToString(err.code)}`;

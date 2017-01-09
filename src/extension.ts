@@ -1,6 +1,6 @@
 'use strict';
 
-import * as fs from "fs";
+import * as fs from 'fs';
 import { isAbsolute, join } from 'path';
 import * as vscode from 'vscode';
 
