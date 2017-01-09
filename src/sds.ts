@@ -127,18 +127,19 @@ function printBytes(msg: string | undefined, buf: Buffer): string {
     return str;
 }
 
-enum Operation {
+export enum Operation {
     ChangeUser = 27,
     DisconnectClient = 49,
     COMOperation = 199,
     ChangePrincipal = 203,
 }
 
-enum COMOperation {
+export enum COMOperation {
     ErrorMessage = 17,
+    RunScriptOnServer = 42,
 }
 
-enum Parameter {
+export enum ParameterName {
     ClientId = 1,
     Value = 4,
     ReturnValue = 5,
@@ -146,10 +147,11 @@ enum Parameter {
     User = 21,
     Password = 22,
     UserId = 40,
+    Parameter = 48,
     Principal = 80,
 }
 
-enum Type {
+export enum Type {
     Boolean = 2,
     Int32 = 3,
     Date = 4,
@@ -173,7 +175,7 @@ export class Message {
     }
 
     /**
-     * Create a "Hello"" message.
+     * Create a "Hello" message.
      *
      * This is the very first message send to the server.
      */
@@ -205,8 +207,8 @@ export class Message {
     public static errorMessage(errorCode: number): Message {
         let msg = new Message();
         msg.add([0, 0, 0, 0, 0, 0, 0, 0, Operation.COMOperation]);
-        msg.addInt32(Parameter.Index, COMOperation.ErrorMessage);
-        msg.addInt32(Parameter.Value, errorCode);
+        msg.addInt32(ParameterName.Index, COMOperation.ErrorMessage);
+        msg.addInt32(ParameterName.Value, errorCode);
         return msg;
     }
 
@@ -221,8 +223,8 @@ export class Message {
     public static changeUser(username: string, password: cryptmd5.Hash): Message {
         let msg = new Message();
         msg.add([0, 0, 0, 0, 0, 0, 0, 0, Operation.ChangeUser]);
-        msg.addString(Parameter.User, username);
-        msg.addString(Parameter.Password, password.value);
+        msg.addString(ParameterName.User, username);
+        msg.addString(ParameterName.Password, password.value);
         return msg;
     }
 
@@ -234,7 +236,20 @@ export class Message {
     public static changePrincipal(principalName: string): Message {
         let msg = new Message();
         msg.add([0, 0, 0, 0, 0, 0, 0, 0, Operation.ChangePrincipal]);
-        msg.addString(Parameter.Principal, principalName);
+        msg.addString(ParameterName.Principal, principalName);
+        return msg;
+    }
+
+    /**
+     * Create a "RunScriptOnServer" message.
+     *
+     * @param {string} sourceCode The complete script that is to be executed on the server.
+     */
+    public static runScriptOnServer(sourceCode: string): Message {
+        let msg = new Message();
+        msg.add([0, 0, 0, 0, 0, 0, 0, 0, Operation.COMOperation]);
+        msg.addInt32(ParameterName.Index, COMOperation.RunScriptOnServer);
+        msg.addString(ParameterName.Parameter, sourceCode);
         return msg;
     }
 
@@ -264,7 +279,7 @@ export class Message {
      * @param {Parameter} parameterName The name of the parameter you want to add.
      * @param {string} value The string you want to add.
      */
-    public addString(parameterName: Parameter, value: string): void {
+    public addString(parameterName: ParameterName, value: string): void {
         this.add([Type.String, parameterName]);
         let stringSize = Buffer.from([0, 0, 0, 0]);
         htonl(stringSize, 0, value.length + 1);
@@ -272,7 +287,7 @@ export class Message {
         this.add(term(value));
     }
 
-    public addInt32(parameterName: Parameter, value: number): void {
+    public addInt32(parameterName: ParameterName, value: number): void {
         this.add([Type.Int32, parameterName]);
         let bytes = Buffer.from([0, 0, 0, 0]);
         htonl(bytes, 0, value);
@@ -307,23 +322,32 @@ export class Message {
     }
 }
 
+let responseLog = Logger.create('Response');
+
 export class Response {
     public readonly length: number;
 
     constructor(private buffer: Buffer) {
         this.length = ntohl(buffer, 0);
+        if (this.length !== this.buffer.length) {
+            responseLog.warn(`response length is ${this.length} but received chunk with length ${this.buffer.length}`);
+        }
     }
 
-    public isSimple(): boolean { return this.length === 8; }
+    public isSimple(): boolean {
+        return this.length === 8;
+    }
 
-    public getInt32(name: Parameter): number {
+    public getInt32(name: ParameterName): number {
+        responseLog.debug(`getInt32(${ParameterName[name]})`);
         const paramIndex = this.getParamIndex(name);
         const headType = this.buffer[paramIndex];
         assert.ok((headType & ~Type.NullFlag) === Type.Int32);
         return ntohl(this.buffer, paramIndex + 2);
     }
 
-    public getString(name: Parameter): string {
+    public getString(name: ParameterName): string {
+        responseLog.debug(`getString(${ParameterName[name]})`);
         const paramIndex = this.getParamIndex(name);
         const headType = this.buffer[paramIndex];
         assert.ok((headType & ~Type.NullFlag) === Type.String);
@@ -333,6 +357,18 @@ export class Response {
         const strLength = ntohl(this.buffer, paramIndex + 2) - 1;
         // Note: we expect here that the opposite party is a JANUS server compiled with UTF-8 support.
         return this.buffer.toString('utf8', paramIndex + 6, paramIndex + 6 + strLength);
+    }
+
+    public getBool(name: ParameterName): boolean {
+        responseLog.debug(`getBool(${ParameterName[name]})`);
+        const paramIndex = this.getParamIndex(name);
+        const headType = this.buffer[paramIndex];
+        assert.ok((headType & ~Type.NullFlag) === Type.Boolean);
+        if (headType & Type.NullFlag) {
+            return false;
+        } else {
+            return true;
+        }
     }
 
     /**
@@ -349,9 +385,9 @@ export class Response {
         return this.buffer.includes(str);
     }
 
-    private getParamIndex(name: Parameter) {
+    private getParamIndex(name: ParameterName) {
         if (this.isSimple()) {
-            throw new Error('a simple response cannot have a parameter');
+            throw new Error('simple response cannot have a parameter');
         }
 
         for (let i = FIRST_PARAM_INDEX; i < this.buffer.length; i = i + this.paramLength(i)) {
@@ -363,7 +399,7 @@ export class Response {
         }
 
         // No parameter in this response with that name
-        throw new Error(`no such parameter in response: ${name}`);
+        throw new Error(`no such parameter in response: ${ParameterName[name]}`);
     }
 
     private paramLength(paramIndex: number): number {
@@ -379,7 +415,7 @@ export class Response {
 
         assert.ok(paramIndex >= FIRST_PARAM_INDEX && paramIndex < this.buffer.length);
 
-        const headType = this.buffer[FIRST_PARAM_INDEX];
+        const headType = this.buffer[paramIndex];
 
         if (headType & Type.NullFlag) {
             // No data, just the head
@@ -444,6 +480,8 @@ export type ClientId = number;
 
 export type UserId = number;
 
+let connectionLog = Logger.create('SDSConnection');
+
 export class SDSConnection {
     private _clientId: ClientId | undefined;
     private _timeout: number;
@@ -463,6 +501,7 @@ export class SDSConnection {
      *
      */
     public connect(): Promise<void> {
+        connectionLog.debug(`connect`);
         return this.send(Message.hello()).then((response: Response) => {
 
             if (!response.equals(ACK)) {
@@ -481,15 +520,16 @@ export class SDSConnection {
 
         }).then((response: Response) => {
 
-            this._clientId = response.getInt32(Parameter.ClientId);
+            this._clientId = response.getInt32(ParameterName.ClientId);
 
         });
     }
 
     public changeUser(username: string, password: cryptmd5.Hash): Promise<UserId> {
+        connectionLog.debug(`changeUser`);
         return new Promise<UserId>((resolve, reject) => {
             this.send(Message.changeUser(username, password)).then((response: Response) => {
-                const result = response.getInt32(Parameter.ReturnValue);
+                const result = response.getInt32(ParameterName.ReturnValue);
                 log.debug(`changeUser returned: ${result}`);
                 if (result > 0) {
                     return this.errorMessage(result).then(localizedReason => {
@@ -500,7 +540,9 @@ export class SDSConnection {
                         reject(reason === undefined ? new Error(`login failed`) : new Error(reason));
                     });
                 } else {
-                    const userId = response.getInt32(Parameter.UserId);
+                    log.debug(`getting user ID from response`);
+                    const userId = response.getInt32(ParameterName.UserId);
+                    log.debug(`response contained user ID: ${userId}`);
                     resolve(userId);
                 }
             });
@@ -508,9 +550,10 @@ export class SDSConnection {
     }
 
     public changePrincipal(principalName: string): Promise<void> {
+        connectionLog.debug(`changePrincipal`);
         return new Promise<void>((resolve, reject) => {
             this.send(Message.changePrincipal(principalName)).then((response: Response) => {
-                const result = response.getInt32(Parameter.ReturnValue);
+                const result = response.getInt32(ParameterName.ReturnValue);
                 if (result === 0) {
                     reject(new Error(`unable to change principle to ${principalName}`));
                 } else {
@@ -520,10 +563,26 @@ export class SDSConnection {
         });
     }
 
+    public runScriptOnServer(sourceCode: string): Promise<string> {
+        connectionLog.debug(`runScriptOnServer`);
+        return new Promise<string>((resolve, reject) => {
+            this.send(Message.runScriptOnServer(sourceCode)).then((response: Response) => {
+                const success = response.getBool(ParameterName.ReturnValue);
+                if (success) {
+                    const returnedString = response.getString(ParameterName.Parameter);
+                    resolve(returnedString);
+                } else {
+                    reject(new Error(`unable to execute script`));
+                }
+            });
+        });
+    }
+
     public errorMessage(errorCode: number): Promise<string> {
+        connectionLog.debug(`errorMessage`);
         return new Promise((resolve) => {
             this.send(Message.errorMessage(errorCode)).then((response: Response) => {
-                const reason: string = response.getString(Parameter.ReturnValue);
+                const reason: string = response.getString(ParameterName.ReturnValue);
                 resolve(reason);
             });
         });
@@ -561,6 +620,7 @@ export class SDSConnection {
      * Disconnect from the server.
      */
     public disconnect(): Promise<void> {
+        connectionLog.debug(`disconnect`);
         return this.send(Message.disconnectClient()).then(() => {
             return this.transport.disconnect();
         });
