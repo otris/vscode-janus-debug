@@ -55,6 +55,7 @@ suite('variables map tests', () => {
 
             assert.equal(variablesContainer.variables.length, 1);
             assert.equal(variablesContainer.variables[0].name, 'stringVariable');
+            assert.equal(variablesContainer.variables[0].evaluateName, 'stringVariable');
             assert.equal(variablesContainer.variables[0].value, 'myValue');
             assert.equal(variablesContainer.variables[0].type, 'string');
             assert.equal(variablesContainer.variables[0].variablesReference, 0);
@@ -66,6 +67,7 @@ suite('variables map tests', () => {
 
             assert.equal(variablesContainer.variables.length, 1);
             assert.equal(variablesContainer.variables[0].name, 'intVariable');
+            assert.equal(variablesContainer.variables[0].evaluateName, 'intVariable');
             assert.equal(variablesContainer.variables[0].value, 666);
             assert.equal(variablesContainer.variables[0].type, 'number');
             assert.equal(variablesContainer.variables[0].variablesReference, 0);
@@ -77,6 +79,7 @@ suite('variables map tests', () => {
 
             assert.equal(variablesContainer.variables.length, 1);
             assert.equal(variablesContainer.variables[0].name, 'booleanVariable');
+            assert.equal(variablesContainer.variables[0].evaluateName, 'booleanVariable');
             assert.equal(variablesContainer.variables[0].value, 'true');
             assert.equal(variablesContainer.variables[0].type, 'boolean');
             assert.equal(variablesContainer.variables[0].variablesReference, 0);
@@ -88,6 +91,7 @@ suite('variables map tests', () => {
 
             assert.equal(variablesContainer.variables.length, 1);
             assert.equal(variablesContainer.variables[0].name, 'undefinedVariable');
+            assert.equal(variablesContainer.variables[0].evaluateName, 'undefinedVariable');
             assert.equal(variablesContainer.variables[0].value, 'undefined');
             assert.equal(variablesContainer.variables[0].type, 'undefined');
             assert.equal(variablesContainer.variables[0].variablesReference, 0);
@@ -99,6 +103,7 @@ suite('variables map tests', () => {
 
             assert.equal(variablesContainer.variables.length, 1);
             assert.equal(variablesContainer.variables[0].name, 'nullVariable');
+            assert.equal(variablesContainer.variables[0].evaluateName, 'nullVariable');
             assert.equal(variablesContainer.variables[0].value, 'null');
             assert.equal(variablesContainer.variables[0].type, 'object');
             assert.equal(variablesContainer.variables[0].variablesReference, 0);
@@ -111,6 +116,7 @@ suite('variables map tests', () => {
 
             assert.equal(variablesContainer.variables.length, 1);
             assert.equal(variablesContainer.variables[0].name, 'arrayVariable');
+            assert.equal(variablesContainer.variables[0].evaluateName, 'arrayVariable');
             assert.equal(variablesContainer.variables[0].value, '[Array]');
             assert.equal(variablesContainer.variables[0].type, 'array');
 
@@ -126,6 +132,17 @@ suite('variables map tests', () => {
                 }).length === 1;
             });
             assert.equal(everyArrayEntriesPassed, true);
+
+            let testEvaluateName = array.every((element, index) => {
+                return variablesContainer.variables.filter((variable) => {
+                    if (typeof variable.evaluateName !== 'undefined') {
+                        return variable.evaluateName === `arrayVariable[${index}]`;
+                    } else {
+                        return false;
+                    }
+                }).length === 1;
+            });
+            assert.equal(testEvaluateName, true, 'Not every evaluate names are correct.');
         });
 
         test('createObjectVariable', () => {
@@ -140,6 +157,7 @@ suite('variables map tests', () => {
 
             assert.equal(variablesContainer.variables.length, 1);
             assert.equal(variablesContainer.variables[0].name, 'objectVariable');
+            assert.equal(variablesContainer.variables[0].evaluateName, 'objectVariable');
             assert.equal(variablesContainer.variables[0].value, '[Object]');
             assert.equal(variablesContainer.variables[0].type, 'object');
 
@@ -157,6 +175,14 @@ suite('variables map tests', () => {
                     }
             });
             assert.equal(everyPropertyEntriesPassed, true);
+
+            let testEvaluateName = variablesContainer.variables.forEach(variable => {
+                assert.equal(
+                    variable.evaluateName,
+                    `objectVariable.${variable.name}`,
+                    `Incorrect evaluate name. Expected "objectVariable.${variable.name}", got "${variable.evaluateName}"`
+                );
+            });
         });
 
     });
