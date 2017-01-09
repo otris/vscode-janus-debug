@@ -4,7 +4,6 @@
    to "reverse-engineer" the protocol (You'll find it under `src/janus/2.9.6/srvclnt`) plus you can always analyze the
    TCP stream with Wireshark. The protocol is one of those historic mistakes that never got fixed.
 
-
    Layout of a Typical Message
 
    The protocol seems to be modeled with RPC in mind. You have operations that are invoked with a single message that is
@@ -48,7 +47,6 @@
 
    There are also "simple" messages. Simple messages have no message parameters and consist solely of the message head,
    actually just the first four bytes of it (thus are 8-bytes in total). Simple messages are also not used here.
-
 
    Saying "Hello" in SDS
 
@@ -133,6 +131,7 @@ enum Operation {
     ChangeUser = 27,
     DisconnectClient = 49,
     COMOperation = 199,
+    ChangePrincipal = 203,
 }
 
 enum COMOperation {
@@ -147,6 +146,7 @@ enum Parameter {
     User = 21,
     Password = 22,
     UserId = 40,
+    Principal = 80,
 }
 
 enum Type {
@@ -223,6 +223,18 @@ export class Message {
         msg.add([0, 0, 0, 0, 0, 0, 0, 0, Operation.ChangeUser]);
         msg.addString(Parameter.User, username);
         msg.addString(Parameter.Password, password.value);
+        return msg;
+    }
+
+    /**
+     * Create a "ChangePrincipal" message.
+     *
+     * @param {string} principalName: The client affiliation of the logged-in user.
+     */
+    public static changePrincipal(principalName: string): Message {
+        let msg = new Message();
+        msg.add([0, 0, 0, 0, 0, 0, 0, 0, Operation.ChangePrincipal]);
+        msg.addString(Parameter.Principal, principalName);
         return msg;
     }
 
@@ -490,6 +502,19 @@ export class SDSConnection {
                 } else {
                     const userId = response.getInt32(Parameter.UserId);
                     resolve(userId);
+                }
+            });
+        });
+    }
+
+    public changePrincipal(principalName: string): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            this.send(Message.changePrincipal(principalName)).then((response: Response) => {
+                const result = response.getInt32(Parameter.ReturnValue);
+                if (result === 0) {
+                    reject(new Error(`unable to change principle to ${principalName}`));
+                } else {
+                    resolve();
                 }
             });
         });

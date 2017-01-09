@@ -114,6 +114,7 @@ export class JanusDebugSession extends DebugSession {
         const port: number = args.port || 10000;
         const host: string = args.host || 'localhost';
         const username: string = args.username || '';
+        const principal: string = args.principal || '';
         const password = new Hash(args.password) || '';
 
         let sdsSocket = connect(port, host);
@@ -132,6 +133,10 @@ export class JanusDebugSession extends DebugSession {
             }).then(userId => {
 
                 log.debug(`successfully changed user; new user id: ${userId}`);
+
+                if (principal.length > 0) {
+                    return sdsConnection.changePrincipal(principal);
+                }
 
             }).catch(reason => {
 
