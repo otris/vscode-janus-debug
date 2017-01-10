@@ -3,7 +3,7 @@
 import * as assert from 'assert';
 import * as fs from 'fs';
 import { connect, Socket } from 'net';
-import { ContinuedEvent, DebugSession, InitializedEvent, StoppedEvent, TerminatedEvent } from 'vscode-debugadapter';
+import { ContinuedEvent, DebugSession, InitializedEvent, OutputEvent, StoppedEvent, TerminatedEvent } from 'vscode-debugadapter';
 import { DebugProtocol } from 'vscode-debugprotocol';
 import { AttachRequestArguments, CommonArguments, LaunchRequestArguments } from './config';
 import { DebugConnection } from './connection';
@@ -176,10 +176,8 @@ export class JanusDebugSession extends DebugSession {
                     // the entire environment of this block might not even exist anymore!
 
                     log.debug(`script returned '${returnedString}'`);
+                    this.debugConsole(returnedString);
 
-                    // TODO: would be nice though, if the user could see the result of his script
-                    // let outputChannel = vscode.window.createOutputChannel('JANUS Debugger');
-                    // outputChannel.appendLine('Hello, there!');
                 });
 
             }).then(() => {
@@ -888,6 +886,10 @@ export class JanusDebugSession extends DebugSession {
             Logger.config = args.log;
         }
         log.info(`readConfig: ${JSON.stringify(args)}`);
+    }
+
+    private debugConsole(message: string): void {
+        this.sendEvent(new OutputEvent(message + '\n', 'console'));
     }
 }
 
