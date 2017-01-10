@@ -154,8 +154,6 @@ export class JanusDebugSession extends DebugSession {
             sdsConnection.connect().then(() => {
 
                 log.info(`SDS connection established, got client ID: ${sdsConnection.clientId}`);
-
-                log.debug(`${username}:${password.value}`);
                 return sdsConnection.changeUser(username, password);
 
             }).then(userId => {
