@@ -41,15 +41,6 @@ const initialConfigurations = [
 export function activate(context: vscode.ExtensionContext): void {
 
     context.subscriptions.push(
-        vscode.commands.registerCommand('extension.vscode-janus-debug.askForSourceFile', () => {
-            return vscode.window.showInputBox({
-                prompt: 'Enter the relative path to the source file you want to debug',
-                value: 'src/jscript/test.js',
-                ignoreFocusOut: true,
-            });
-        }));
-
-    context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.askForPassword', () => {
             return vscode.window.showInputBox({
                 prompt: 'Please enter the password',

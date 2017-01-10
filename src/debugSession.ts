@@ -56,7 +56,6 @@ export class JanusDebugSession extends DebugSession {
     private connection: DebugConnection | undefined;
     private sourceMap: SourceMap;
     private frameMap: FrameMap;
-    private sourceFile: string;
     private variablesMap: VariablesMap;
 
     public constructor() {
@@ -130,9 +129,6 @@ export class JanusDebugSession extends DebugSession {
 
         const scriptPath = args.script;
         log.debug(`entry point: ${scriptPath}`);
-
-        // FIXME: this following line is a hack!
-        this.sourceFile = scriptPath;
 
         let scriptSource = '';
         try {
@@ -311,7 +307,6 @@ export class JanusDebugSession extends DebugSession {
 
         const connection = new DebugConnection(socket);
         this.connection = connection;
-        this.sourceFile = args.sourceFile;
 
         socket.on('connect', () => {
 
@@ -665,7 +660,7 @@ export class JanusDebugSession extends DebugSession {
                     line: frame.sourceLine,
                     name: '', // TODO
                     source: {
-                        path: this.sourceFile,
+                        path: frame.sourceUrl
                     },
                 };
             });

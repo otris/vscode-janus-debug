@@ -21,7 +21,6 @@
     ],
     "activationEvents": [
         "onCommand:extension.vscode-janus-debug.provideInitialConfigurations",
-        "onCommand:extension.vscode-janus-debug.askForSourceFile",
         "onCommand:extension.vscode-janus-debug.askForPassword"
     ],
     "main": "./out/src/extension",
