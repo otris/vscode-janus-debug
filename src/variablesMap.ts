@@ -205,7 +205,7 @@ export class VariablesMap {
         }
 
         // Create a reference for the variables container and insert it into the variables map
-        let reference = this.createReference(contextId, frameId, variableName);
+        let reference = this.createReference(contextId, frameId, evaluateName);
         this.variablesMap.set(reference, variablesContainer);
 
         // Return a variable which refers to this container
@@ -249,7 +249,7 @@ export class VariablesMap {
             }
         }
 
-        let reference = this.createReference(contextId, frameId, variableName);
+        let reference = this.createReference(contextId, frameId, evaluateName);
         this.variablesMap.set(reference, variablesContainer);
 
         return {
