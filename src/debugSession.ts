@@ -219,7 +219,7 @@ export class JanusDebugSession extends DebugSession {
 
                         log.debug(`sending InitializedEvent`);
                         this.sendEvent(new InitializedEvent());
-
+                        this.debugConsole(`Debugger listening on ${host}:${debuggerPort}`);
                         this.sendResponse(response);
 
                     }).catch(reason => {
@@ -345,7 +345,7 @@ export class JanusDebugSession extends DebugSession {
                 // configuration sequence by calling 'configurationDone' request
                 log.debug(`sending InitializedEvent`);
                 this.sendEvent(new InitializedEvent());
-
+                this.debugConsole(`Debugger listening on ${host}:${port}`);
                 this.sendResponse(response);
 
             }).catch(reason => {
