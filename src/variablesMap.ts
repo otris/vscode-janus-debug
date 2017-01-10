@@ -40,7 +40,7 @@ export class VariablesMap {
         }
 
         return cantorPairing(
-            cantorPairing(contextId, frameId),
+            frameId,
             hash,
         );
     }
