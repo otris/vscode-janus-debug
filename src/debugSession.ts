@@ -718,15 +718,66 @@ export class JanusDebugSession extends DebugSession {
         this.sendResponse(response);
     }
 
-    protected variablesRequest(response: DebugProtocol.VariablesResponse,
-                               args: DebugProtocol.VariablesArguments): void {
+    protected async variablesRequest(response: DebugProtocol.VariablesResponse, args: DebugProtocol.VariablesArguments): Promise<void> {
         log.info(`variablesRequest with variablesReference ${args.variablesReference}`);
 
-        response.body = {
-            variables: this.variablesMap.getVariables(args.variablesReference).variables
-        };
+        try {
+            // Get variables from the variables map
+            let variablesContainer = this.variablesMap.getVariables(args.variablesReference);
 
-        this.sendResponse(response);
+            // Check if the returned variables container contains a object variable that is collapsed.
+            // If so, we have to request the debugger to evaluate this variable.
+            let collapsedVariables = variablesContainer.variables.filter((variable) => {
+                return variable.name === '___jsrdbg_collapsed___';
+            });
+
+            if (collapsedVariables.length > 0) {
+                // We have some collapsed variables => send a evaluation request to the debugger
+                if (this.connection === undefined) {
+                    throw new Error('Internal error: No connection');
+                }
+
+                let context = this.connection.coordinator.getContext(variablesContainer.contextId);
+                for (let collapsedVariable of collapsedVariables) {
+                    if (typeof collapsedVariable.evaluateName === 'undefined' || collapsedVariable.evaluateName === '') {
+                        throw new Error(`Internal error: The variable "${collapsedVariable.name}" has no evaluate name.`);
+                    }
+
+                    // Request the variable and insert it to the variables map
+                    let evaluateName = collapsedVariable.evaluateName.replace(".___jsrdbg_collapsed___", "");
+                    let variable = await context.evaluate(evaluateName);
+                    this.variablesMap.createVariable(
+                        evaluateName.substr(evaluateName.lastIndexOf('.')),
+                        JSON.parse(variable.value),
+                        variablesContainer.contextId,
+                        args.variablesReference,
+                        evaluateName
+                    );
+
+                    // In the variables container we fetched before is now the collapsed variable and the new variable, so we have to
+                    // refetch the variables container
+                    variablesContainer = this.variablesMap.getVariables(args.variablesReference);
+
+                    // Inside our variables container are not the variables we received from the debugger when we called the
+                    // evaluate command, but a single variable (and of course the collapsed one) that refers to the variables container  
+                    // we want. This is because of the "variablesMap.createVariable()"-command. This command recreated the variable 
+                    // we requested for, but with a new variables container. We have to replace our existing variables container with that one.
+                    variablesContainer = this.variablesMap.getVariables(variablesContainer.variables[1].variablesReference);
+                    this.variablesMap.setVariables(args.variablesReference, variablesContainer);
+                }
+            }
+
+            response.body = {
+                variables: variablesContainer.variables
+            };
+        } catch (error) {
+            response.success = false;
+            response.message = error.message;
+            log.error(`VariablesRequest failed: ${error.message}`);
+        } finally {
+            log.debug("send response");
+            this.sendResponse(response);
+        }
     }
 
     protected setVariableRequest(response: DebugProtocol.SetVariableResponse,
