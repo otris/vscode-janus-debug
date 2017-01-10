@@ -71,19 +71,24 @@ export class VariablesMap {
      * @param {any} variableValue - The value of the variable
      * @param {number} contextId - The context id
      * @param {number} frameId - The frame id
+     * @param {string} [evaluateName] - This param is need for evaluate variables that are properties of object or elements of arrays. For this variables we need also the name of their parent to access the value.
      */
-    public createVariable(variableName: string, variableValue: any, contextId: number, frameId: number) {
+    public createVariable(variableName: string, variableValue: any, contextId: number, frameId: number, evaluateName?: string) {
         // The debugger returns every variable which will be declared in the script, also variables which doesn't exists at this time.
         // The value for these variables is '___jsrdbg_undefined___', so we just can skip these ones to display only the relevant variables
         if (variableValue === "___jsrdbg_undefined___") {
             return;
         }
 
+        if (typeof evaluateName === 'undefined') {
+            evaluateName = '';
+        }
+
         log.info(`Creating variable ${variableName} with value ${variableValue}`);
         let variablesContainer: VariablesContainer = this.variablesMap.get(frameId) || new VariablesContainer(contextId);
 
         // If the container already contains a variable with this name => update
-        let variable = this._createVariable(variableName, variableValue, contextId, frameId);
+        let variable = this._createVariable(variableName, variableValue, contextId, frameId, evaluateName);
 
         if (variablesContainer.variables.length > 0) {
             let filterResult = variablesContainer.variables.filter((element) => {
