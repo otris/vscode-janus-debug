@@ -393,6 +393,9 @@ export class JanusDebugSession extends DebugSession {
         }
         const conn = this.connection;
 
+        const localUrl: string = args.source.path;
+        const requestedBreakpoints = args.breakpoints;
+
         let deleteAllBreakpointsCommand = new Command('delete_all_breakpoints');
         conn.sendRequest(deleteAllBreakpointsCommand, (res: Response) => {
             return new Promise<void>((resolve, reject) => {
@@ -402,49 +405,49 @@ export class JanusDebugSession extends DebugSession {
                     resolve();
                 }
             });
-        });
+        }).then(() => {
 
-        const localUrl: string = args.source.path;
-        const remoteSourceUrl = this.sourceMap.remoteSourceUrl(localUrl);
-        let actualBreakpoints: Array<Promise<Breakpoint>> = [];
-        args.breakpoints.forEach((breakpoint => {
+            const remoteSourceUrl = this.sourceMap.remoteSourceUrl(localUrl);
+            let actualBreakpoints: Array<Promise<Breakpoint>> = [];
+            requestedBreakpoints.forEach((breakpoint => {
 
-            let setBreakpointCommand = Command.setBreakpoint(remoteSourceUrl, breakpoint.line);
+                let setBreakpointCommand = Command.setBreakpoint(remoteSourceUrl, breakpoint.line);
 
-            actualBreakpoints.push(
-                conn.sendRequest(setBreakpointCommand, (res: Response): Promise<Breakpoint> => {
-                    return new Promise<Breakpoint>((resolve, reject) => {
+                actualBreakpoints.push(
+                    conn.sendRequest(setBreakpointCommand, (res: Response): Promise<Breakpoint> => {
+                        return new Promise<Breakpoint>((resolve, reject) => {
 
-                        if (res.type === 'error') {
-                            reject(new Error(`Target responded with error '${res.content.message}'`));
-                        } else {
-                            resolve(res.content);
-                        }
-                    });
-                }));
-        }));
+                            if (res.type === 'error') {
+                                reject(new Error(`Target responded with error '${res.content.message}'`));
+                            } else {
+                                resolve(res.content);
+                            }
+                        });
+                    }));
+            }));
 
-        Promise.all(actualBreakpoints).then((res: Breakpoint[]) => {
-            let breakpoints: DebugProtocol.Breakpoint[] = res.map((actualBreakpoint) => {
-                return {
-                    id: actualBreakpoint.bid,
-                    line: actualBreakpoint.line,
-                    source: {
-                        path: actualBreakpoint.url,
-                    },
-                    verified: true,
+            Promise.all(actualBreakpoints).then((res: Breakpoint[]) => {
+                let breakpoints: DebugProtocol.Breakpoint[] = res.map((actualBreakpoint) => {
+                    return {
+                        id: actualBreakpoint.bid,
+                        line: actualBreakpoint.line,
+                        source: {
+                            path: actualBreakpoint.url,
+                        },
+                        verified: true, // TODO: this is not always verified
+                    };
+                });
+                log.debug(`setBreakPointsRequest succeeded: ${JSON.stringify(breakpoints)}`);
+                response.body = {
+                    breakpoints,
                 };
+                this.sendResponse(response);
+            }).catch(reason => {
+                log.error(`setBreakPointsRequest failed: ${reason}`);
+                response.success = false;
+                response.message = `Could not set breakpoint(s): ${reason}`;
+                this.sendResponse(response);
             });
-            log.debug(`setBreakPointsRequest succeeded: ${JSON.stringify(breakpoints)}`);
-            response.body = {
-                breakpoints,
-            };
-            this.sendResponse(response);
-        }).catch(reason => {
-            log.error(`setBreakPointsRequest failed: ${reason}`);
-            response.success = false;
-            response.message = `Could not set breakpoint(s): ${reason}`;
-            this.sendResponse(response);
         });
     }
 
