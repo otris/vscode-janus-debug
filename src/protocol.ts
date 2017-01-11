@@ -147,8 +147,8 @@ export function parseResponse(responseString: string): Response {
 
 export class Command {
 
-    public static setBreakpoint(url: string, lineNumber: number, pending?: boolean): Command {
-        let cmd = new Command('set_breakpoint');
+    public static setBreakpoint(url: string, lineNumber: number, pending?: boolean, contextId?: number): Command {
+        let cmd = new Command('set_breakpoint', contextId);
         cmd.payload.breakpoint = {
             line: lineNumber,
             pending: pending === undefined ? true : pending,

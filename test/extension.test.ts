@@ -340,6 +340,13 @@ suite('protocol tests', () => {
                     `{"name":"set_breakpoint","type":"command","id":"${cmd.id}",\
 "breakpoint":{"line":1,"pending":true,"url":"script.js"}}\n`);
             });
+
+            test('with optional context id', () => {
+                let cmd = Command.setBreakpoint('script.js', 42, true, 11);
+                assert.equal(cmd.toString(),
+                    `11/{"name":"set_breakpoint","type":"command","id":"${cmd.id}",\
+"breakpoint":{"line":42,"pending":true,"url":"script.js"}}\n`);
+            });
         });
 
         test('get_available_contexts', () => {
