@@ -434,7 +434,7 @@ export class JanusDebugSession extends DebugSession {
                         source: {
                             path: actualBreakpoint.url,
                         },
-                        verified: true, // TODO: this is not always verified
+                        verified: !actualBreakpoint.pending,
                     };
                 });
                 log.debug(`setBreakPointsRequest succeeded: ${JSON.stringify(breakpoints)}`);
