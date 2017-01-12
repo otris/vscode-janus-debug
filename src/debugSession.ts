@@ -13,7 +13,7 @@ import { FrameMap } from './frameMap';
 import { Logger } from './log';
 import { Breakpoint, Command, Response, StackFrame, Variable, variableValueToString } from './protocol';
 import { SDSConnection } from './sds';
-import { SourceMap } from './sourceMap';
+import { LocalSource, SourceMap } from './sourceMap';
 import { VariablesMap } from './variablesMap';
 
 let log = Logger.create('JanusDebugSession');
@@ -203,7 +203,12 @@ export class JanusDebugSession extends DebugSession {
 
                             if (res.subtype === 'all_source_urls') {
                                 log.info('launchRequest: ...looks good');
-                                this.sourceMap.setAllRemoteUrls(res.content.urls);
+
+                                // The remote script's name should be 'JANUS'.
+                                assert.ok(Array.isArray(res.content.urls));
+                                assert.notEqual(res.content.urls.indexOf('JANUS'), -1);
+
+                                this.sourceMap.addMapping(new LocalSource(scriptPath), 'JANUS');
                                 resolve();
                             } else {
                                 log.error(`launchRequest: error while connecting to ${host}:${debuggerPort}`);
@@ -407,7 +412,7 @@ export class JanusDebugSession extends DebugSession {
             });
         }).then(() => {
 
-            const remoteSourceUrl = this.sourceMap.remoteSourceUrl(localUrl);
+            const remoteSourceUrl = this.sourceMap.getRemoteUrl(localUrl);
             let actualBreakpoints: Array<Promise<Breakpoint>> = [];
             requestedBreakpoints.forEach((breakpoint => {
 
@@ -663,7 +668,7 @@ export class JanusDebugSession extends DebugSession {
                     line: frame.sourceLine,
                     name: '', // TODO
                     source: {
-                        path: frame.sourceUrl
+                        path: this.sourceMap.getLocalSource(frame.sourceUrl).path,
                     },
                 };
             });
@@ -753,8 +758,8 @@ export class JanusDebugSession extends DebugSession {
                     variablesContainer = this.variablesMap.getVariables(args.variablesReference);
 
                     // Inside our variables container are not the variables we received from the debugger when we called the
-                    // evaluate command, but a single variable (and of course the collapsed one) that refers to the variables container  
-                    // we want. This is because of the "variablesMap.createVariable()"-command. This command recreated the variable 
+                    // evaluate command, but a single variable (and of course the collapsed one) that refers to the variables container
+                    // we want. This is because of the "variablesMap.createVariable()"-command. This command recreated the variable
                     // we requested for, but with a new variables container. We have to replace our existing variables container with that one.
                     variablesContainer = this.variablesMap.getVariables(variablesContainer.variables[1].variablesReference);
                     this.variablesMap.setVariables(args.variablesReference, variablesContainer);
