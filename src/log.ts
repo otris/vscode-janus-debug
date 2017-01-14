@@ -7,6 +7,7 @@ export type LogLevel = 'Debug' | 'Info' | 'Warn' | 'Error';
 enum NumericLogLevel { Debug, Info, Warn, Error }
 
 function toNumericLogLevel(logLevel: LogLevel): NumericLogLevel {
+    // tslint:disable-next-line:switch-default
     switch (logLevel) {
         case 'Debug':
             return NumericLogLevel.Debug;
@@ -19,11 +20,6 @@ function toNumericLogLevel(logLevel: LogLevel): NumericLogLevel {
 
         case 'Error':
             return NumericLogLevel.Error;
-/*
-        default:
-            throw new Error('unknown log level');
-
-*/
     }
 }
 
