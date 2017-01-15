@@ -1,8 +1,62 @@
 'use strict';
 
 import * as assert from 'assert';
+import * as fs from 'fs';
+import * as os from 'os';
 import * as path from 'path';
 import { LocalSource, SourceMap } from '../src/sourceMap';
+
+suite('local source tests', () => {
+
+    suite('w/o a file on disk', () => {
+
+        const somePath = '/foo/bar/baz.js';
+
+        test('initialization', () => {
+            const source = new LocalSource(somePath);
+            assert.equal(source.sourceReference, 0);
+            assert.equal(source.aliasNames.length, 0);
+            assert.equal(source.name, 'baz.js');
+        });
+
+        test('loadFromDisk should fail', done => {
+            const source = new LocalSource(somePath);
+            source.loadFromDisk().then(code => {
+                done(new Error('expected an error'));
+            }).catch(err => {
+                done();
+            });
+        });
+    });
+
+    suite('with a real file', () => {
+
+        let tempDir: string;
+        let somePath: string;
+        const sourceCode = 'return "Hello, world!";\n';
+
+        setup(() => {
+            tempDir = fs.mkdtempSync(os.tmpdir() + path.sep);
+            somePath = tempDir + path.sep + 'baz.js';
+            let fd = fs.openSync(somePath, 'w');
+            fs.writeFileSync(somePath, sourceCode);
+        });
+
+        teardown(() => {
+            fs.unlinkSync(somePath);
+            // Timeout because otherwise we get a ENOTEMPTY in fs.rmdir; bug in node?
+            setTimeout(() => { fs.rmdirSync(tempDir); }, 1000);
+        });
+
+        test('load code from disk', done => {
+            const source = new LocalSource(somePath);
+            source.loadFromDisk().then(code => {
+                assert.equal(code, sourceCode);
+                done();
+            }).catch(err => done(err));
+        });
+    });
+});
 
 suite('source map tests', () => {
 
@@ -32,6 +86,11 @@ suite('source map tests', () => {
         assert.equal(sourceMap.size, 1);
     });
 
+    test('get source by reference returns undefined for references ≤ 0', () => {
+        assert.equal(sourceMap.getSourceByReference(0), undefined);
+        assert.equal(sourceMap.getSourceByReference(-1), undefined);
+    });
+
     suite('local → remote', () => {
 
         test('different path but base name is equal', () => {
@@ -57,8 +116,9 @@ suite('source map tests', () => {
 
         test('map single local file to remote name', () => {
             sourceMap.addMapping(new LocalSource('someScript.js'), 'remoteName');
-            const result = sourceMap.getLocalSource('remoteName');
-            assert.equal(result.path, 'someScript.js');
+            const result = sourceMap.getSource('remoteName');
+            const path = result ? result.path : '';
+            assert.equal(path, 'someScript.js');
         });
     });
 });

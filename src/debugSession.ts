@@ -1,7 +1,6 @@
 'use strict';
 
 import * as assert from 'assert';
-import * as fs from 'fs';
 import { connect, Socket } from 'net';
 import { ContinuedEvent, DebugSession, InitializedEvent, OutputEvent, StoppedEvent, TerminatedEvent } from 'vscode-debugadapter';
 import { DebugProtocol } from 'vscode-debugprotocol';
@@ -107,7 +106,7 @@ export class JanusDebugSession extends DebugSession {
         });
     }
 
-    protected launchRequest(response: DebugProtocol.LaunchResponse, args: LaunchRequestArguments): void {
+    protected async launchRequest(response: DebugProtocol.LaunchResponse, args: LaunchRequestArguments): Promise<void> {
         this.readConfig(args);
         log.info(`launchRequest`);
 
@@ -127,16 +126,14 @@ export class JanusDebugSession extends DebugSession {
             return;
         }
 
-        const scriptPath = args.script;
-        log.debug(`entry point: ${scriptPath}`);
-
-        let scriptSource = '';
+        const source = new LocalSource(args.script);
+        let scriptSource: string;
         try {
-            scriptSource = fs.readFileSync(scriptPath, 'utf8');
+            scriptSource = await source.loadFromDisk();
         } catch (err) {
             log.error(`launchRequest failed: loading source from script failed: ${err}`);
             response.success = false;
-            response.message = `Could not load source from '${scriptPath}': ${toUserMessage(err)}`;
+            response.message = `Could not load source from '${source.path}': ${toUserMessage(err)}`;
             this.sendResponse(response);
             return;
         }
@@ -208,7 +205,7 @@ export class JanusDebugSession extends DebugSession {
                                 assert.ok(Array.isArray(res.content.urls));
                                 assert.notEqual(res.content.urls.indexOf('JANUS'), -1);
 
-                                this.sourceMap.addMapping(new LocalSource(scriptPath), 'JANUS');
+                                this.sourceMap.addMapping(source, 'JANUS');
                                 resolve();
                             } else {
                                 log.error(`launchRequest: error while connecting to ${host}:${debuggerPort}`);
@@ -432,7 +429,7 @@ export class JanusDebugSession extends DebugSession {
             }));
 
             Promise.all(actualBreakpoints).then((res: Breakpoint[]) => {
-                let breakpoints: DebugProtocol.Breakpoint[] = res.map((actualBreakpoint) => {
+                let breakpoints: DebugProtocol.Breakpoint[] = res.map(actualBreakpoint => {
                     return {
                         id: actualBreakpoint.bid,
                         line: actualBreakpoint.line,
@@ -625,7 +622,18 @@ export class JanusDebugSession extends DebugSession {
     }
 
     protected sourceRequest(response: DebugProtocol.SourceResponse, args: DebugProtocol.SourceArguments): void {
-        log.info(`sourceRequest`);
+        if (args.sourceReference === undefined) {
+            log.info('sourceRequest');
+            log.warn('args.sourceReference is undefined');
+            this.sendResponse(response);
+            return;
+        }
+
+        log.info(`sourceRequest for sourceReference ${args.sourceReference}`);
+        response.body = {
+            content: '',
+            mimeType: 'text/javascript'
+        };
         this.sendResponse(response);
     }
 
@@ -662,14 +670,16 @@ export class JanusDebugSession extends DebugSession {
         context.getStacktrace().then((trace: StackFrame[]) => {
             const frames = this.frameMap.addFrames(contextId, trace);
             let stackFrames: DebugProtocol.StackFrame[] = frames.map(frame => {
+                const localSource = this.sourceMap.getSource(frame.sourceUrl);
                 return {
                     column: 0,
                     id: frame.frameId,
                     line: frame.sourceLine,
-                    name: '', // TODO
-                    source: {
-                        path: this.sourceMap.getLocalSource(frame.sourceUrl).path,
-                    },
+                    name: localSource ? localSource.name : '',
+                    source: localSource ? {
+                        path: localSource.path,
+                        sourceReference: localSource.sourceReference,
+                    } : undefined,
                 };
             });
             response.body = {

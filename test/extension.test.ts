@@ -534,7 +534,7 @@ suite('context coordinator coordinates requests and responses', () => {
         assert.throws(() => { coordinator.getContext(23); }, 'No such context');
     });
 
-    suite('a contexts_list response should...', () => {
+    suite('a contexts_list response should…', () => {
 
         let response: Response = {
             content: {
