@@ -107,7 +107,7 @@ export class JanusDebugSession extends DebugSession {
     }
 
     protected async launchRequest(response: DebugProtocol.LaunchResponse, args: LaunchRequestArguments): Promise<void> {
-        this.readConfig(args);
+        this.applyConfig(args);
         log.info(`launchRequest`);
 
         const sdsPort: number = args.port || 10000;
@@ -296,7 +296,7 @@ export class JanusDebugSession extends DebugSession {
     }
 
     protected attachRequest(response: DebugProtocol.AttachResponse, args: AttachRequestArguments): void {
-        this.readConfig(args);
+        this.applyConfig(args);
         log.info(`attachRequest`);
 
         let port: number = args.port || 8089;
@@ -894,13 +894,21 @@ export class JanusDebugSession extends DebugSession {
         log.info(`completionsRequest`);
     }
 
-    private readConfig(args: CommonArguments): void {
+    /**
+     * Apply given config.
+     *
+     * Currently, only configures the file logger.
+     */
+    private applyConfig(args: CommonArguments): void {
         if (args.log) {
             Logger.config = args.log;
         }
         log.info(`readConfig: ${JSON.stringify(args)}`);
     }
 
+    /**
+     * Print a message in the Debug Console window.
+     */
     private debugConsole(message: string): void {
         this.sendEvent(new OutputEvent(message + '\n', 'console'));
     }
