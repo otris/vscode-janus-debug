@@ -515,7 +515,7 @@ export class SDSConnection {
             // Hello ack'ed, no SSL, send intro
             let msg = new Message();
             msg.add([0, 0, 0, 0, 0, 0, 0, 0, 0]);
-            msg.add(Buffer.from(`vscode-janus-debug on ${os.platform()}`, 'ascii'));
+            msg.add(Buffer.from(term(`vscode-janus-debug on ${os.platform()}`)));
             return this.send(msg);
 
         }).then((response: Response) => {
@@ -554,7 +554,7 @@ export class SDSConnection {
         return new Promise<void>((resolve, reject) => {
             this.send(Message.changePrincipal(principalName)).then((response: Response) => {
                 const result = response.getInt32(ParameterName.ReturnValue);
-                if (result === 0) {
+                if (result !== 0) {
                     reject(new Error(`unable to change principle to ${principalName}`));
                 } else {
                     resolve();
