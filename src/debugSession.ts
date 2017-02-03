@@ -56,6 +56,7 @@ export class JanusDebugSession extends DebugSession {
     private sourceMap: SourceMap;
     private frameMap: FrameMap;
     private variablesMap: VariablesMap;
+    private config: 'launch' | 'attach' | undefined;
 
     public constructor() {
         super();
@@ -88,9 +89,11 @@ export class JanusDebugSession extends DebugSession {
         this.sendResponse(response);
     }
 
-    protected disconnectRequest(response: DebugProtocol.DisconnectResponse,
-                                args: DebugProtocol.DisconnectArguments): void {
-        log.info("disconnectRequest");
+    protected async disconnectRequest(response: DebugProtocol.DisconnectResponse,
+                                      args: DebugProtocol.DisconnectArguments): Promise<void> {
+        log.info(`disconnectRequest; debug adapter running in ${this.config} config`);
+
+        this.config = undefined;
 
         const connection = this.connection;
         if (!connection) {
@@ -98,17 +101,21 @@ export class JanusDebugSession extends DebugSession {
             return;
         }
 
-        connection.sendRequest(new Command('exit')).then(() => {
-            return connection.disconnect();
-        }).then(() => {
-            this.connection = undefined;
-            this.sendResponse(response);
-        });
+        if (this.config === 'launch') {
+            await connection.sendRequest(new Command('stop'));
+        }
+
+        await connection.sendRequest(new Command('exit'));
+        await connection.disconnect();
+        this.connection = undefined;
+        this.sendResponse(response);
     }
 
     protected async launchRequest(response: DebugProtocol.LaunchResponse, args: LaunchRequestArguments): Promise<void> {
         this.applyConfig(args);
         log.info(`launchRequest`);
+
+        this.config = 'launch';
 
         const sdsPort: number = args.port || 10000;
         const debuggerPort = 8089;
@@ -298,6 +305,8 @@ export class JanusDebugSession extends DebugSession {
     protected attachRequest(response: DebugProtocol.AttachResponse, args: AttachRequestArguments): void {
         this.applyConfig(args);
         log.info(`attachRequest`);
+
+        this.config = 'attach';
 
         let port: number = args.port || 8089;
         let host: string = args.host || 'localhost';
