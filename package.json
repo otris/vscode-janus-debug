@@ -200,16 +200,16 @@
     "dependencies": {
         "@types/uuid": "^2.0.29",
         "uuid": "^3.0.1",
-        "vscode-debugprotocol": "^1.15.0",
-        "vscode-debugadapter": "^1.15.0"
+        "vscode-debugprotocol": "^1.16.0",
+        "vscode-debugadapter": "^1.16.0"
     },
     "devDependencies": {
-        "typescript": "^2.1.4",
-        "tslint": "^4.3.1",
+        "typescript": "^2.1.5",
+        "tslint": "^4.4.2",
         "vscode": "^1.0.3",
         "mocha": "^2.4.5",
-        "vscode-debugadapter-testsupport": "^1.15.0",
-        "@types/node": "^6.0.56",
-        "@types/mocha": "^2.2.37"
+        "vscode-debugadapter-testsupport": "^1.16.0",
+        "@types/node": "^7.0.4",
+        "@types/mocha": "^2.2.38"
     }
 }
