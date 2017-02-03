@@ -141,11 +141,11 @@ suite('variables map tests', () => {
             assert.equal(variablesContainer.variables.length, Object.keys(obj).length);
 
             let everyPropertyEntriesPassed = variablesContainer.variables.every((variable) => {
-                    if (obj.hasOwnProperty(variable.name) && obj[variable.name].toString() === variable.value) {
-                        return true;
-                    } else {
-                        return false;
-                    }
+                if (obj.hasOwnProperty(variable.name) && obj[variable.name].toString() === variable.value) {
+                    return true;
+                } else {
+                    return false;
+                }
             });
             assert.equal(everyPropertyEntriesPassed, true);
 

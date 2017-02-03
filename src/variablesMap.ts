@@ -22,10 +22,10 @@ export class VariablesMap {
 
     /**
      * Generates a unique reference for a variable based on his contextId, frameId and the hashValue of the variables name.
-     * @param {number} contextId - The context id
-     * @param {number} frameId - The frame id
-     * @param {string} variableName - The name of the variable
-     * @returns {VariablesReference} A unique variables reference
+     * @param {number} contextId The context id.
+     * @param {number} frameId The frame id.
+     * @param {string} variableName The name of the variable.
+     * @returns {VariablesReference} A unique variables reference.
      */
     public createReference(contextId: number, frameId: number, variableName: string): VariablesReference {
         if (variableName === '') {
@@ -47,7 +47,7 @@ export class VariablesMap {
 
     /**
      * Returns all variables with the passed references.
-     * @param {VariablesReference} reference - Variables reference.
+     * @param {VariablesReference} reference Variables reference.
      * @returns {VariablesContainer} The variables container for the given reference.
      */
     public getVariables(reference: VariablesReference): VariablesContainer {
@@ -67,11 +67,11 @@ export class VariablesMap {
     /**
      * Creates a variable based on the variableValue passed from the debugger.
      * The created variable(s) will be saved in an variables container in the variables map.
-     * @param {string} variablesName - The display name of the variable
-     * @param {any} variableValue - The value of the variable
-     * @param {number} contextId - The context id
-     * @param {number} frameId - The frame id
-     * @param {string} [evaluateName] - This param is need for evaluate variables that are properties of object or elements of arrays. For this variables we need also the name of their parent to access the value.
+     * @param {string} variablesName The display name of the variable.
+     * @param {any} variableValue The value of the variable.
+     * @param {number} contextId The context id.
+     * @param {number} frameId The frame id.
+     * @param {string} [evaluateName] This param is need for evaluate variables that are properties of object or elements of arrays. For this variables we need also the name of their parent to access the value.
      */
     public createVariable(variableName: string, variableValue: any, contextId: number, frameId: number, evaluateName?: string) {
         // The debugger returns every variable which will be declared in the script, also variables which doesn't exists at this time.
@@ -112,11 +112,11 @@ export class VariablesMap {
     /**
      * The main logic for variables creation.
      * This function creates based on the variables type one or more variables and chains them together with the variablesReference-property.
-     * @param {string} variablesName - The display name of the variable
-     * @param {any} variableValue - The value of the variable
-     * @param {number} contextId - The context id
-     * @param {number} frameId - The frame id 
-     * @param {string} [evaluateName=variableName] - This param is need for evaluate variables that are properties of object or elements of arrays. For this variables we need also the name of their parent to access the value.
+     * @param {string} variablesName The display name of the variable.
+     * @param {any} variableValue The value of the variable
+     * @param {number} contextId The context id.
+     * @param {number} frameId The frame id.
+     * @param {string} [evaluateName=variableName] This param is need for evaluate variables that are properties of object or elements of arrays. For this variables we need also the name of their parent to access the value.
      * @returns {Variable} A full qualified variable object
      */
     private _createVariable(variableName: string, variableValue: any, contextId: number, frameId: number, evaluateName?: string): DebugProtocol.Variable {
@@ -148,10 +148,10 @@ export class VariablesMap {
 
     /**
      * Creates a variable object for primtive types.
-     * @param {string} variableName - The display name of the variable
-     * @param {any} variableValue - The content of the variable
-     * @param {string} evaluateName - This param is need for evaluate variables that are properties of object or elements of arrays. For this variables we need also the name of their parent to access the value.
-     * @returns {Variable} A full qualified variables object
+     * @param {string} variableName The display name of the variable.
+     * @param {any} variableValue The content of the variable.
+     * @param {string} evaluateName This param is need for evaluate variables that are properties of object or elements of arrays. For this variables we need also the name of their parent to access the value.
+     * @returns {Variable} A full qualified variables object.
      */
     private createPrimitiveVariable(variableName: string, variableValue: any, evaluateName: string): DebugProtocol.Variable {
         if (variableName === '') {
@@ -180,10 +180,10 @@ export class VariablesMap {
 
     /**
      * Creates a variable object for array types.
-     * @param {string} variableName - The display name of the variable
-     * @param {Array.<any>} variableValue - The content of the variable
-     * @param {string} evaluateName - This param is need for evaluate variables that are properties of object or elements of arrays. For this variables we need also the name of their parent to access the value.
-     * @returns {Variable} A full qualified variables object
+     * @param {string} variableName The display name of the variable.
+     * @param {Array.<any>} variableValue The content of the variable.
+     * @param {string} evaluateName This param is need for evaluate variables that are properties of object or elements of arrays. For this variables we need also the name of their parent to access the value.
+     * @returns {Variable} A full qualified variables object.
      */
     private createArrayVariable(variableName: string, variableValue: any[], contextId: number, frameId: number, evaluateName: string): DebugProtocol.Variable {
         if (variableName === '') {
@@ -225,10 +225,10 @@ export class VariablesMap {
 
     /**
      * Creates a variable object for object types.
-     * @param {string} variableName - The display name of the variable
-     * @param {any} variableValue - The content of the variable
-     * @param {string} evaluateName - This param is need for evaluate variables that are properties of object or elements of arrays. For this variables we need also the name of their parent to access the value.
-     * @returns {Variable} A full qualified variables object
+     * @param {string} variableName The display name of the variable.
+     * @param {any} variableValue The content of the variable.
+     * @param {string} evaluateName This param is need for evaluate variables that are properties of object or elements of arrays. For this variables we need also the name of their parent to access the value.
+     * @returns {Variable} A full qualified variables object.
      */
     private createObjectVariable(variableName: string, variableValue: any, contextId: number, frameId: number, evaluateName: string): DebugProtocol.Variable {
         if (variableName === '') {

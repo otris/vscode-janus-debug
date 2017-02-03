@@ -115,7 +115,7 @@ export class SourceMap {
             remoteName = localPath;
             log.warn(`no remote name found for '${localPath}'`);
         }
-        log.debug(`getRemoteUrl: '${localPath}' -> '${remoteName}'`);
+        log.debug(`getRemoteUrl: '${localPath}' → '${remoteName}'`);
         return remoteName;
     }
 
