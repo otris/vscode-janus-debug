@@ -28,6 +28,7 @@ export type CommandName =
     'delete_all_breakpoints' |
     'pause' |
     'set_breakpoint' |
+    'stop' |
     'get_stacktrace' |
     'get_variables' |
     'evaluate' |
@@ -199,9 +200,13 @@ export class Command {
             () => { return name === 'exit'; },
             () => { return name === 'continue' && contextId === undefined; },
             () => { return name === 'next'; },
+            () => { return name === 'stop'; },
         ];
         for (let exception of exceptions) {
-            needsId = !exception();
+            if (exception()) {
+                needsId = false;
+                break;
+            }
         }
         if (needsId) {
             this.payload.id = uuid.v4();

@@ -269,9 +269,14 @@ suite('protocol tests', () => {
             assert.equal(cmd.toString(), `42/{"name":"pause","type":"command","id":"${cmd.id}"}\n`);
         });
 
+        test('stop', () => {
+            let cmd = new Command('stop', 24);
+            assert.equal(cmd.toString(), `24/{"name":"stop","type":"command"}\n`);
+        });
+
         test('next', () => {
-            let cmd = new Command('next', 1);
-            assert.equal(cmd.toString(), `1/{"name":"next","type":"command"}\n`);
+            let cmd = new Command('next', 11);
+            assert.equal(cmd.toString(), `11/{"name":"next","type":"command"}\n`);
         });
 
         test('get_all_source_urls', () => {
