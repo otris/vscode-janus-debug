@@ -40,7 +40,7 @@ export class Logger {
     private static fd: number | undefined;
     private static startTime = Date.now();
 
-    private logLevel: NumericLogLevel | undefined;
+    private logLevel: NumericLogLevel;
 
     constructor(private name: string) {
         this.configure();
@@ -94,8 +94,6 @@ export class Logger {
     }
 
     private configure(): void {
-        this.logLevel = undefined;
-
         if (Logger._config.fileName && Logger._config.logLevel) {
             try {
                 this.logLevel = toNumericLogLevel(Logger._config.logLevel[this.name]);
@@ -103,9 +101,7 @@ export class Logger {
                 this.logLevel = toNumericLogLevel(Logger._config.logLevel['default']);
                 throw err;
             }
-        }
-
-        if (this.logLevel === undefined) {
+        } else {
             this.logLevel = NumericLogLevel.Debug;
         }
     }
