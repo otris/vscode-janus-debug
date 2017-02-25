@@ -2,7 +2,7 @@
 
 import * as assert from 'assert';
 import { EventEmitter } from 'events';
-import { SocketLike } from './network';
+import { SocketLike } from 'node-sds';
 import { parseResponse } from './protocol';
 
 const INITIAL_BUFFER_SIZE = 4 * 1024;

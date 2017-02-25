@@ -2,16 +2,15 @@
 
 import * as assert from 'assert';
 import { connect, Socket } from 'net';
+import { Hash, SDSConnection } from 'node-sds';
 import { ContinuedEvent, DebugSession, InitializedEvent, OutputEvent, StoppedEvent, TerminatedEvent } from 'vscode-debugadapter';
 import { DebugProtocol } from 'vscode-debugprotocol';
 import { AttachRequestArguments, CommonArguments, LaunchRequestArguments } from './config';
 import { DebugConnection } from './connection';
 import { ContextId } from './context';
-import { Hash } from './cryptmd5';
 import { FrameMap } from './frameMap';
 import { Logger } from './log';
 import { Breakpoint, Command, Response, StackFrame, Variable, variableValueToString } from './protocol';
-import { SDSConnection } from './sds';
 import { LocalSource, SourceMap } from './sourceMap';
 import { VariablesMap } from './variablesMap';
 
@@ -151,7 +150,7 @@ export class JanusDebugSession extends DebugSession {
         sdsSocket.on('connect', () => {
             log.info(`connected to ${host}:${sdsPort}`);
 
-            sdsConnection.connect().then(() => {
+            sdsConnection.connect('vscode-janus-debug').then(() => {
 
                 log.info(`SDS connection established, got client ID: ${sdsConnection.clientId}`);
                 return sdsConnection.changeUser(username, password);

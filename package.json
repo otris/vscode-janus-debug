@@ -201,7 +201,8 @@
         "@types/uuid": "^2.0.29",
         "uuid": "^3.0.1",
         "vscode-debugprotocol": "^1.16.0",
-        "vscode-debugadapter": "^1.16.0"
+        "vscode-debugadapter": "^1.16.0",
+	"node-sds": "git+https://git@github.com/otris/node-sds.git"
     },
     "devDependencies": {
         "typescript": "^2.1.5",

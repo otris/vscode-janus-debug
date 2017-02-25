@@ -2,12 +2,12 @@
 
 import * as assert from 'assert';
 import { EventEmitter } from 'events';
+import { SocketLike } from 'node-sds';
 import * as vscode from 'vscode';
 import { DebugClient } from 'vscode-debugadapter-testsupport';
 import { cantorPairing, reverseCantorPairing } from '../src/cantor';
 import { ConnectionLike } from '../src/connection';
 import { ContextCoordinator } from '../src/context';
-import { SocketLike } from '../src/network';
 import { Command, ErrorCode, parseResponse, Response, variableValueToString } from '../src/protocol';
 import { DebugProtocolTransport } from '../src/transport';
 import { VariablesContainer, VariablesMap } from '../src/variablesMap';
