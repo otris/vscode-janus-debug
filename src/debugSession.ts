@@ -638,8 +638,10 @@ export class JanusDebugSession extends DebugSession {
         }
 
         log.info(`sourceRequest for sourceReference ${args.sourceReference}`);
+        const localSource = this.sourceMap.getSourceByReference(args.sourceReference);
+        const sourceCode = 'return 42;';
         response.body = {
-            content: '',
+            content: sourceCode,
             mimeType: 'text/javascript'
         };
         this.sendResponse(response);

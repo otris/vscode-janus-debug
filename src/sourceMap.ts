@@ -1,8 +1,42 @@
 'use strict';
 
+import * as crypto from 'crypto';
 import * as fs from 'fs';
 import { parse, ParsedPath, sep } from 'path';
 import { Logger } from './log';
+
+class ValueMap<K, V> extends Map<K, V> {
+
+    public findKeyIf(predicate: (value: V) => boolean): K | undefined {
+        for (let entry of this) {
+            if (predicate(entry[1])) {
+                return entry[0];
+            }
+        }
+        return undefined;
+    }
+
+    public findValueIf(predicate: (value: V) => boolean): V | undefined {
+        for (let value of this.values()) {
+            if (predicate(value)) {
+                return value;
+            }
+        }
+        return undefined;
+    }
+}
+
+function randU32(): Promise<number> {
+    return new Promise<number>((resolve, reject) => {
+        crypto.randomBytes(4, (err, buf) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(buf.readUInt32BE(0, true));
+            }
+        });
+    });
+}
 
 /**
  * A local source file.
@@ -36,27 +70,6 @@ export class LocalSource {
                 }
             });
         });
-    }
-}
-
-class ValueMap<K, V> extends Map<K, V> {
-
-    public findKeyIf(predicate: (value: V) => boolean): K | undefined {
-        for (let entry of this) {
-            if (predicate(entry[1])) {
-                return entry[0];
-            }
-        }
-        return undefined;
-    }
-
-    public findValueIf(predicate: (value: V) => boolean): V | undefined {
-        for (let value of this.values()) {
-            if (predicate(value)) {
-                return value;
-            }
-        }
-        return undefined;
     }
 }
 
