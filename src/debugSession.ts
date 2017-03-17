@@ -2,7 +2,7 @@
 
 import * as assert from 'assert';
 import { connect, Socket } from 'net';
-import { Hash, SDSConnection } from 'node-sds';
+import { crypt_md5, SDSConnection } from 'node-sds';
 import { ContinuedEvent, DebugSession, InitializedEvent, OutputEvent, StoppedEvent, TerminatedEvent } from 'vscode-debugadapter';
 import { DebugProtocol } from 'vscode-debugprotocol';
 import { AttachRequestArguments, CommonArguments, LaunchRequestArguments } from './config';
@@ -121,7 +121,7 @@ export class JanusDebugSession extends DebugSession {
         const host: string = args.host || 'localhost';
         const username: string = args.username || '';
         const principal: string = args.principal || '';
-        const password = new Hash(args.password) || '';
+        const password = args.password.length > 0 ? crypt_md5(args.password, 'o3') : '';
         const stopOnEntry = args.stopOnEntry || false;
 
         if (!args.script || typeof args.script !== 'string' || args.script.length === 0) {
