@@ -56,7 +56,7 @@ export function activate(context: vscode.ExtensionContext): void {
             let entryPoint: string | undefined = undefined;
 
             // Get 'main' property from package.json iff there is a package.json. This is probably the primary entry
-            // point for the program
+            // point for the program and we use it to set the "script" property in our initial configurations.
 
             const packageJsonPath = join(vscode.workspace.rootPath, 'package.json');
 
@@ -68,17 +68,18 @@ export function activate(context: vscode.ExtensionContext): void {
                 } else if (jsonObject.scripts && typeof jsonObject.scripts.start === 'string') {
                     entryPoint = jsonObject.scripts.start.split(' ').pop();
                 }
-            } catch (err) {
-                // Silently ignore
-            }
 
-            if (entryPoint) {
-                entryPoint = isAbsolute(entryPoint) ? entryPoint : join('${workspaceRoot}', entryPoint);
-                initialConfigurations.forEach((config: any) => {
-                    if (config.hasOwnProperty('script')) {
-                        config.script = entryPoint;
-                    }
-                });
+                if (entryPoint) {
+                    entryPoint = isAbsolute(entryPoint) ? entryPoint : join('${workspaceRoot}', entryPoint);
+                    initialConfigurations.forEach((config: any) => {
+                        if (config.hasOwnProperty('script')) {
+                            config.script = entryPoint;
+                        }
+                    });
+                }
+            } catch (err) {
+                // Silently ignore every error. We need to provide an initial configuration whether we have found the
+                // main entry point or not.
             }
 
             const configurations = JSON.stringify(initialConfigurations, null, '\t')
