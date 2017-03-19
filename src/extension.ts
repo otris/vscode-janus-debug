@@ -1,8 +1,8 @@
 'use strict';
 
-import * as fs from 'fs';
-import { isAbsolute, join } from 'path';
+import { join } from 'path';
 import * as vscode from 'vscode';
+import { parseEntryPoint } from './config';
 
 const initialConfigurations = [
     {
@@ -53,33 +53,20 @@ export function activate(context: vscode.ExtensionContext): void {
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.provideInitialConfigurations', () => {
 
-            let entryPoint: string | undefined = undefined;
-
             // Get 'main' property from package.json iff there is a package.json. This is probably the primary entry
             // point for the program and we use it to set the "script" property in our initial configurations.
 
-            const packageJsonPath = join(vscode.workspace.rootPath, 'package.json');
-
-            try {
-                const jsonContent = fs.readFileSync(packageJsonPath, 'utf8');
-                const jsonObject = JSON.parse(jsonContent);
-                if (jsonObject.main) {
-                    entryPoint = jsonObject.main;
-                } else if (jsonObject.scripts && typeof jsonObject.scripts.start === 'string') {
-                    entryPoint = jsonObject.scripts.start.split(' ').pop();
-                }
-
+            if (vscode.workspace.rootPath) {
+                // A folder is open in VS Code
+                const packageJsonPath = join(vscode.workspace.rootPath, 'package.json');
+                const entryPoint = parseEntryPoint(packageJsonPath);
                 if (entryPoint) {
-                    entryPoint = isAbsolute(entryPoint) ? entryPoint : join('${workspaceRoot}', entryPoint);
                     initialConfigurations.forEach((config: any) => {
                         if (config.hasOwnProperty('script')) {
                             config.script = entryPoint;
                         }
                     });
                 }
-            } catch (err) {
-                // Silently ignore every error. We need to provide an initial configuration whether we have found the
-                // main entry point or not.
             }
 
             const configurations = JSON.stringify(initialConfigurations, null, '\t')
