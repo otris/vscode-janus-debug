@@ -209,17 +209,17 @@
     "dependencies": {
         "@types/uuid": "^2.0.29",
         "uuid": "^3.0.1",
-        "vscode-debugprotocol": "^1.16.0",
-        "vscode-debugadapter": "^1.16.0",
+        "vscode-debugprotocol": "^1.17.0",
+        "vscode-debugadapter": "^1.17.0",
 	"node-sds": "git+https://git@github.com/otris/node-sds.git"
     },
     "devDependencies": {
         "typescript": "^2.2.1",
-        "tslint": "^4.4.2",
-        "vscode": "^1.0.3",
+        "tslint": "^4.5.1",
+        "vscode": "^1.1.0",
         "mocha": "^2.4.5",
-        "vscode-debugadapter-testsupport": "^1.16.0",
-        "@types/node": "^7.0.4",
-        "@types/mocha": "^2.2.38"
+        "vscode-debugadapter-testsupport": "^1.17.0",
+        "@types/node": "^7.0.8",
+        "@types/mocha": "^2.2.40"
     }
 }
