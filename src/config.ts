@@ -4,8 +4,8 @@ import { DebugProtocol } from 'vscode-debugprotocol';
 import { LogConfiguration } from './log';
 
 export interface CommonArguments {
-    /** The debug port to attach to. */
-    port: number;
+    /** The debugger port to attach to. */
+    debuggerPort: number;
     /** The IP address of the host where the application runs on. */
     host: string;
     /** Lets you configure diagnostic logging of the debug adapter. */
@@ -18,8 +18,15 @@ export interface AttachRequestArguments extends DebugProtocol.AttachRequestArgum
     CommonArguments {
 }
 
+/**
+ * Arguments needed for a launch request.
+ *
+ * These are the arguments needed when we want to launch a script on the server.
+ */
 export interface LaunchRequestArguments extends DebugProtocol.LaunchRequestArguments,
     CommonArguments {
+    /** The application port to attach to. */
+    applicationPort: number;
     /** A username. The script is executed in the context of this user. */
     username: string;
     /** Your user's client affiliation if there is one. */

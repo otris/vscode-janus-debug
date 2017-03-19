@@ -14,7 +14,8 @@ const initialConfigurations = [
         password: '${command.extension.vscode-janus-debug.askForPassword}',
         principal: '',
         host: 'localhost',
-        port: 10000,
+        applicationPort: 10000,
+        debuggerPort: 8089,
         stopOnEntry: false,
         log: {
             fileName: '${workspaceRoot}/vscode-janus-debug-launch.log',
@@ -28,7 +29,7 @@ const initialConfigurations = [
         request: 'attach',
         type: 'janus',
         host: 'localhost',
-        port: 8089,
+        debuggerPort: 8089,
         log: {
             fileName: '${workspaceRoot}/vscode-janus-debug-attach.log',
             logLevel: {
@@ -86,7 +87,8 @@ export function activate(context: vscode.ExtensionContext): void {
                 '{',
                 '\t// Use IntelliSense to learn about possible configuration attributes.',
                 '\t// Hover to view descriptions of existing attributes.',
-                '\t// For more information, visit: https://lalala',
+                '\t// For more information, visit',
+                '\t// https://github.com/otris/vscode-janus-debug/wiki/Launching-the-Debugger',
                 '\t"version": "0.2.0",',
                 '\t"configurations": ' + configurations,
                 '}',

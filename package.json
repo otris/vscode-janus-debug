@@ -44,7 +44,8 @@
                         "required": [
                             "script",
                             "host",
-                            "port",
+                            "applicationPort",
+                            "debuggerPort",
                             "username"
                         ],
                         "properties": {
@@ -69,10 +70,15 @@
                                 "description": "IP address or name of the host where you want to run the script.",
                                 "default": "localhost"
                             },
-                            "port": {
+                            "applicationPort": {
                                 "type": "number",
                                 "description": "The port on which the target server listens.",
                                 "default": 10000
+                            },
+                            "debuggerPort": {
+                                "type": "number",
+                                "description": "The debug port to attach to.",
+                                "default": 8089
                             },
                             "timeout": {
                                 "type": "number",
@@ -128,7 +134,7 @@
                     "attach": {
                         "required": [
                             "host",
-                            "port"
+                            "debuggerPort"
                         ],
                         "properties": {
                             "host": {
@@ -136,7 +142,7 @@
                                 "description": "IP address or name of the host where the application runs on.",
                                 "default": "localhost"
                             },
-                            "port": {
+                            "debuggerPort": {
                                 "type": "number",
                                 "description": "The debug port to attach to.",
                                 "default": 8089
