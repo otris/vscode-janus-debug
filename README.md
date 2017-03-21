@@ -4,6 +4,10 @@
 
 Visual Studio Code plugin for debugging JANUS-based applications.
 
+## About otris software AG
+As a software-based data and document management specialist, otris software AG supports company decision-makers in realising management responsibilities. The solutions from otris software are available for this purpose. They can be used track, control and document all administrative processes completely and with full transparency. otris software is based in Dortmund, Germany. 
+
+
 ## Features
 
 Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
