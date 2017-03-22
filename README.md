@@ -4,68 +4,68 @@
 
 Visual Studio Code plugin for debugging JANUS-based applications.
 
-## About otris software AG
-As a software-based data and document management specialist, otris software AG supports company decision-makers in realising management responsibilities. The solutions from otris software are available for this purpose. They can be used track, control and document all administrative processes completely and with full transparency. otris software is based in Dortmund, Germany. 
-
-
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+This extension allows you to debug your JavaScript code directly on a JANUS-based server. This includes launching a script from within VS Code and executing it remotely on the server, setting breakpoints, stepping through the code, and evaluate expressions.
 
-For example if there is an image subfolder under your extension project workspace:
-
-\!\[feature X\]\(images/feature-x.png\)
-
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+It uses the [jsrdbg](https://github.com/swojtasiak/jsrdbg) Debug Protocol to attach to a remote server and debug the JavaScript code executed by SpiderMonkey.
 
 ## Requirements
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+You need a relatively recent DOCUMENTS 5 or privacy 6.1 server up and running. Add following line to your server's .ini file:
 
-## Extension Settings
+```
+JSDebugger yes
+```
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
-
-For example:
-
-This extension contributes the following settings:
-
-* `myExtension.enable`: enable/disable this extension
-* `myExtension.thing`: set to `blah` to do something
-
-## Known Issues
-
-Calling out known issues can help limit users opening duplicate issues against your extension.
+Then restart your server and make sure that your firewall rules allow access to port 8089.
 
 ## Release Notes
 
-Users appreciate release notes as you update your extension.
+You'll find a complete list of changes at our project site on [GitHub](https://github.com/otris/vscode-janus-debug).
 
-### 1.0.0
+### 0.0.2
 
-Initial release of ...
+Initial release of the extension. Running and debugging simple scripts directly from within VS Code on a JANUS-based server works! 🎉
 
-### 1.0.1
+## Known Issues
 
-Fixed issue #.
+We still see a lot of issues in this early stage.
 
-### 1.1.0
+* Attach configuration is not working reliably.
+* Breakpoint appears always unverified if previous is. See [#12](https://github.com/otris/vscode-janus-debug/issues/12).
 
-Added features X, Y, and Z.
+Please have a look at our [issue tracker](https://github.com/otris/vscode-janus-debug/issues) for a complete list of issues.
 
------------------------------------------------------------------------------------------------------------
+## Troubleshooting
 
-## Working with Markdown
+If something doesn't work, please try to reproduce the issue and file a bug [here](https://github.com/otris/vscode-janus-debug/issues) if it is not already known. Please remember to
 
-**Note:** You can author your README using Visual Studio Code.  Here are some useful editor keyboard shortcuts:
+- Include the version you are using in the report.
+- Tell us which server application you are debugging against and on what OS that server is running.
+- Include any logs, if possible.
 
-* Split the editor (`Cmd+\` on OSX or `Ctrl+\` on Windows and Linux)
-* Toggle preview (`Shift+CMD+V` on OSX or `Shift+Ctrl+V` on Windows and Linux)
-* Press `Ctrl+Space` (Windows, Linux) or `Cmd+Space` (OSX) to see a list of Markdown snippets
+You'll find the log files in your `${workspaceRoot}` which is usually the folder you opened in VS Code. The log files are plain-text files so that you can inspect them yourself. We do not log password hashes but the log files might contain source code or other data that you may consider sensitive. Please make sure that you are fine with the data contained in the log file before submitting.
 
-### For more information
+You can alter log behavior in the `.vscode/launch.json` file.
 
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
+```json
+"log": {
+    "fileName": "${workspaceRoot}/vscode-janus-debug-launch.log",
+    "logLevel": {
+        "default": "Debug",
+    }
+}
+```
+
+The default log level can be any of `Debug`, `Info`, `Warn`, or `Error`.
+
+## Legal Notice
+This Visual Studio Code extension is developed by otris software AG and was initially released in March 2017. It is licensed under the MIT License, (see [LICENSE file](LICENSE)).
+
+## About otris software AG
+As a software-based data and document management specialist, otris software AG supports company decision-makers in realising management responsibilities. The solutions from otris software are available for this purpose. They can be used track, control and document all administrative processes completely and with full transparency. otris software is based in Dortmund, Germany.
+
+For more information about otris software AG visit our website [otris.de](https://www.otris.de/) or our Open Source repositories at [github.com/otris](https://github.com/otris).
 
 **Enjoy!**
