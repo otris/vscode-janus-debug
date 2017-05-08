@@ -11,7 +11,7 @@ const initialConfigurations = [
         type: 'janus',
         script: '',
         username: '',
-        password: '${command.extension.vscode-janus-debug.askForPassword}',
+        password: '${command:extension.vscode-janus-debug.askForPassword}',
         principal: '',
         host: 'localhost',
         applicationPort: 10000,
