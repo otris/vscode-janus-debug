@@ -24,6 +24,10 @@ Then restart your server and make sure that your firewall rules allow access to 
 
 You'll find a complete list of changes at our project site on [GitHub](https://github.com/otris/vscode-janus-debug).
 
+### 0.0.3
+
+No big changes. Timeouts are configurable via launch.json now.
+
 ### 0.0.2
 
 Initial release of the extension. Running and debugging simple scripts directly from within VS Code on a JANUS-based server works! 🎉
