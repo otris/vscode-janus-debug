@@ -73,10 +73,6 @@ export function activate(context: vscode.ExtensionContext): void {
                 .split('\n').map(line => '\t' + line).join('\n').trim();
             return [
                 '{',
-                '\t// Use IntelliSense to learn about possible configuration attributes.',
-                '\t// Hover to view descriptions of existing attributes.',
-                '\t// For more information, visit',
-                '\t// https://github.com/otris/vscode-janus-debug/wiki/Launching-the-Debugger',
                 '\t"version": "0.2.0",',
                 '\t"configurations": ' + configurations,
                 '}',
