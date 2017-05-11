@@ -1,7 +1,5 @@
 'use strict';
 
-import * as fs from 'fs';
-import { isAbsolute, join } from 'path';
 import { DebugProtocol } from 'vscode-debugprotocol';
 import { LogConfiguration } from './log';
 
@@ -39,32 +37,4 @@ export interface LaunchRequestArguments extends DebugProtocol.LaunchRequestArgum
     script: string;
     /** Automatically stop target after launching. If not specified, target does not stop. */
     stopOnEntry?: boolean;
-}
-
-/**
- * Get 'main' property from given package.json if there is a such a property in that file.
- *
- * @param packageJsonPath {string} The absolut path to the package.json file
- */
-export function parseEntryPoint(packageJsonPath: string): string | undefined {
-    let entryPoint: string | undefined = undefined;
-
-    try {
-        const jsonContent = fs.readFileSync(packageJsonPath, 'utf8');
-        const jsonObject = JSON.parse(jsonContent);
-        if (jsonObject.main) {
-            entryPoint = jsonObject.main;
-        } else if (jsonObject.scripts && typeof jsonObject.scripts.start === 'string') {
-            entryPoint = jsonObject.scripts.start.split(' ').pop();
-        }
-
-        if (entryPoint !== undefined) {
-            entryPoint = isAbsolute(entryPoint) ? entryPoint : join('${workspaceRoot}', entryPoint);
-        }
-    } catch (err) {
-        // Silently ignore any error. We need to provide an initial configuration whether we have found the
-        // main entry point or not.
-    }
-
-    return entryPoint;
 }
