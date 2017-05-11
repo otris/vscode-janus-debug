@@ -12,7 +12,10 @@
             ],
             "stopOnEntry": false,
             "sourceMaps": true,
-            "outDir": "${workspaceRoot}/out/src",
+            "outFiles": [
+                "${workspaceRoot}/out/src/*.js",
+                "${workspaceRoot}/out/test/*.js"
+            ],
             "preLaunchTask": "npm"
         },
         {
@@ -33,7 +36,10 @@
                 "./out/test"
             ],
             "sourceMaps": true,
-            "outDir": "${workspaceRoot}/out/src",
+            "outFiles": [
+                "${workspaceRoot}/out/src/*.js",
+                "${workspaceRoot}/out/test/*.js"
+            ],
             "internalConsoleOptions": "openOnSessionStart",
             "preLaunchTask": "npm"
         }
