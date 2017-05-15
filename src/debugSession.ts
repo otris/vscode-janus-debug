@@ -180,6 +180,15 @@ export class JanusDebugSession extends DebugSession {
                 });
 
             }).then(() => {
+                log.info(`begin wait a little`);
+                let wait = new Promise<void>((resolve, reject) => {
+                    setTimeout(() => {
+                        log.info(`done waiting`);
+                        resolve();
+                    }, 3000);
+                });
+                return wait;
+            }).then(() => {
 
                 // Attach to debugger port and tell the frontend that we are ready to set breakpoints.
                 let debuggerSocket = connect(debuggerPort, host);
