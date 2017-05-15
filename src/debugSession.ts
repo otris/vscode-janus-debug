@@ -194,7 +194,7 @@ export class JanusDebugSession extends DebugSession {
                 let debuggerSocket = connect(debuggerPort, host);
 
                 if (this.connection) {
-                    console.warn("launchRequest: already made a connection to remote debugger");
+                    log.warn("launchRequest: already made a connection to remote debugger");
                 }
 
                 const connection = new DebugConnection(debuggerSocket);
@@ -321,7 +321,7 @@ export class JanusDebugSession extends DebugSession {
         let socket = connect(port, host);
 
         if (this.connection) {
-            console.warn("attachRequest: already made a connection");
+            log.warn("attachRequest: already made a connection");
         }
 
         const connection = new DebugConnection(socket);
