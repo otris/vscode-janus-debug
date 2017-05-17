@@ -24,6 +24,10 @@ Then restart your server and make sure that your firewall rules allow access to 
 
 You'll find a complete list of changes at our project site on [GitHub](https://github.com/otris/vscode-janus-debug).
 
+### 0.0.4
+
+This release includes two important bug fixes that make creating a launch.json file and connecting to a remote server much more reliable.
+
 ### 0.0.3
 
 No big changes. Timeouts are configurable via launch.json now.
