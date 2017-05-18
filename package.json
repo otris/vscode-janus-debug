@@ -221,8 +221,7 @@
         "uuid": "^3.0.1",
         "vscode-debugprotocol": "^1.18.0",
         "vscode-debugadapter": "^1.18.0",
-        "node-sds": "git+https://git@github.com/otris/node-sds.git",
-        "vscode-janus-config": "git+https://git@github.com/otris/vscode-janus-config.git"
+        "node-sds": "git+https://git@github.com/otris/node-sds.git"
     },
     "devDependencies": {
         "typescript": "^2.2.2",

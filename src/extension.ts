@@ -1,7 +1,7 @@
 'use strict';
 
 import * as vscode from 'vscode';
-import { provideInitialConfigurations } from 'vscode-janus-config';
+import { provideInitialConfigurations } from './config';
 
 export function activate(context: vscode.ExtensionContext): void {
 
