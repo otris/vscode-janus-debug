@@ -2,6 +2,7 @@
 
 import * as assert from 'assert';
 import { connect, Socket } from 'net';
+import { IPC } from 'node-ipc';
 import { crypt_md5, SDSConnection } from 'node-sds';
 import { ContinuedEvent, DebugSession, InitializedEvent, OutputEvent, StoppedEvent, TerminatedEvent } from 'vscode-debugadapter';
 import { DebugProtocol } from 'vscode-debugprotocol';
@@ -115,6 +116,24 @@ export class JanusDebugSession extends DebugSession {
         log.info(`launchRequest`);
 
         this.config = 'launch';
+
+        let ipc = new IPC();
+        ipc.config.appspace = 'vscode-janus-debug.';
+        ipc.config.id = 'debug_adapter';
+        ipc.config.retry = 1500;
+        ipc.connectTo('sock', () => {
+            ipc.of.sock.on('connect', () => {
+                log.debug(`IPC: connected to extension`);
+
+                ipc.of.sock.emit('message', 'something');
+            });
+            ipc.of.sock.on('disconnect', () => {
+                log.debug(`IPC: disconnected`);
+            });
+            ipc.of.sock.on('message', (data) => {
+                log.debug(`got message from extension: ${data}`);
+            });
+        });
 
         const sdsPort: number = args.applicationPort || 10000;
         const debuggerPort = 8089;

@@ -4,6 +4,8 @@ import * as fs from 'fs';
 import * as nodeDoc from 'node-documents-scripting';
 import * as os from 'os';
 import * as path from 'path';
+import * as fs from 'fs';
+import { IPC } from 'node-ipc';
 import * as vscode from 'vscode';
 import * as commands from './commands';
 import { provideInitialConfigurations } from './config';
@@ -128,6 +130,31 @@ function disconnectServerConsole(console: ServerConsole): void {
     console.outputChannel.appendLine(`Disconnected from server`);
 }
 
+// We use a UNIX Domain or Windows socket, respectively, for having a
+// communication channel from the debug adapter process back to the extension.
+// Socket file path is usually /tmp/vscode-janus-debug.sock or so on Linux or
+// macOS. This communication channel is outside of VS Code's debug protocol and
+// allows us to show input boxes or use other parts of the VS Code extension
+// API that would otherwise be  unavailable to us in the debug adapter.
+
+let ipc = new IPC();
+ipc.config.appspace = 'vscode-janus-debug.';
+ipc.config.id = 'sock';
+ipc.config.retry = 1500;
+ipc.config.silent = true;
+
+function removeStaleSocket() {
+    ipc.disconnect('sock');
+    const staleSocket = `${ipc.config.socketRoot}${ipc.config.appspace}${ipc.config.id}`;
+    if (fs.existsSync(staleSocket)) {
+        try {
+            fs.unlinkSync(staleSocket);
+        } catch (err) {
+            // Swallow
+        }
+    }
+}
+
 export function activate(context: vscode.ExtensionContext): void {
 
     // set up file logging
@@ -202,6 +229,17 @@ export function activate(context: vscode.ExtensionContext): void {
             });
         });
     }
+
+    ipc.serve(() => {
+        ipc.server.on('message', () => {
+            vscode.window.showInformationMessage('Served!');
+        });
+    });
+
+    ipc.server.start();
+
+    process.on('exit', removeStaleSocket);
+    process.on('uncaughtException', removeStaleSocket);
 
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.askForPassword', () => {
