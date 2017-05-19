@@ -214,14 +214,23 @@ export class JanusDebugSession extends DebugSession {
                             assert.notEqual(res, undefined);
 
                             if (res.subtype === 'all_source_urls') {
-                                log.info('launchRequest: ...looks good');
-
-                                // The remote script's name should be 'JANUS'.
+                                log.info(`launchRequest: ...looks good. ${JSON.stringify(res.content.urls)}`);
                                 assert.ok(Array.isArray(res.content.urls));
-                                assert.notEqual(res.content.urls.indexOf('JANUS'), -1);
 
-                                this.sourceMap.addMapping(source, 'JANUS');
-                                resolve();
+                                // FIXME: this is a hack. Either the remote script's url is 'JANUS (otris privacy)
+                                // or the only remote script that is currently executed. We need a reliable way
+                                // to identify the remote script we start with runScriptOnServer
+
+                                if (res.content.urls.length === 1) {
+                                    this.sourceMap.addMapping(source, res.content.urls[0]);
+                                    resolve();
+                                } else if (res.content.urls.indexOf('JANUS') !== -1) {
+                                    this.sourceMap.addMapping(source, 'JANUS');
+                                    resolve();
+                                } else {
+                                    log.error(`launchRequest: could not find remote script that was just launched`);
+                                    reject(`Oops. Could not attach to script`);
+                                }
                             } else {
                                 log.error(`launchRequest: error while connecting to ${host}:${debuggerPort}`);
                                 reject(`Error while connecting to ${host}:${debuggerPort}`);
