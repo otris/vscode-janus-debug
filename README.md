@@ -24,6 +24,12 @@ Then restart your server and make sure that your firewall rules allow access to 
 
 You'll find a complete list of changes at our project site on [GitHub](https://github.com/otris/vscode-janus-debug).
 
+### 0.0.5
+
+Some bug fixes:
+
+  - Fixed an issue that prevented connecting to a DOCUMENTS 5 server. Sorry!
+
 ### 0.0.4
 
 This release includes two important bug fixes that make creating a launch.json file and connecting to a remote server much more reliable.
