@@ -35,7 +35,8 @@
     "onCommand:extension.uploadScriptsFromFolder",
     "onCommand:extension.downloadScriptsToFolder",
     "onCommand:extension.getScriptNames",
-    "onCommand:extension.getScriptParameters"
+    "onCommand:extension.getScriptParameters",
+    "onDebug:janus"
   ],
   "main": "./out/src/extension",
   "contributes": {
