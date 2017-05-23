@@ -190,8 +190,8 @@ suite('debug adapter tests', () => {
 suite('transport tests', () => {
 
     class MockSocket extends EventEmitter implements SocketLike {
-        public write(data: Buffer | string, encoding?: string) { /* */ }
-        public end() { /* */ }
+        public write(data: Buffer | string, encoding?: string): boolean { return true; }
+        public end(): void { /* */ }
         public receive(chunk: string): void {
             this.emit('data', new Buffer(chunk));
         }
