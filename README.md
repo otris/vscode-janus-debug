@@ -28,7 +28,8 @@ You'll find a complete list of changes at our project site on [GitHub](https://g
 
 Some bug fixes:
 
-  - Fixed an issue that prevented connecting to a DOCUMENTS 5 server. Sorry!
+  - Fixed an issue that prevented connecting to a DOCUMENTS 5 server ([#23](https://github.com/otris/vscode-janus-debug/issues/23)). Sorry!
+  - Setting breakpoints is more reliable now ([#12](https://github.com/otris/vscode-janus-debug/issues/12)). Thanks to [ChDxterWard](https://github.com/ChDxterWard).
 
 ### 0.0.4
 
