@@ -444,10 +444,26 @@ export class JanusDebugSession extends DebugSession {
                 actualBreakpoints.push(
                     conn.sendRequest(setBreakpointCommand, (res: Response): Promise<Breakpoint> => {
                         return new Promise<Breakpoint>((resolve, reject) => {
-
-                            if (res.type === 'error') {
+                            // When the debugger give a error back but send a message that a breakpoint
+                            // cant set, we do no reject but make the specific breakpoint unverified.
+                            // We do this by passing a new breakpoint to the resolve function with the
+                            // pending attribute set to false.
+                            if (res.type === 'error' && res.content.message && res.content.message === 'Cannot set breakpoint at given line.') {
+                                resolve( <Breakpoint> {
+                                        line: breakpoint.line,
+                                        pending: false,
+                                    });
+                            }
+                            // When the debugger give a error back and the message
+                            // dont tell us that a breakpoint cant set we reject this one, cause a 'unknown'
+                            // error occur.
+                            // That results in a complete reject of every breakpoint.
+                            if (res.type === 'error' && res.content.message && res.content.message !== 'Cannot set breakpoint at given line.') {
                                 reject(new Error(`Target responded with error '${res.content.message}'`));
                             } else {
+                                // The debugengine tells us that the current breakpoint can set, so
+                                // the breakpoint will verified in vscode.
+                                res.content.pending = true;
                                 resolve(res.content);
                             }
                         });
@@ -462,7 +478,13 @@ export class JanusDebugSession extends DebugSession {
                         source: {
                             path: actualBreakpoint.url,
                         },
-                        verified: !actualBreakpoint.pending,
+
+                        // According to the pre calculated value of pending the
+                        // breakpoint is set to verified or to unverified.
+                        verified: actualBreakpoint.pending,
+                        // If the current breakpoint is unverified, we like to give a little hint.
+                        message: actualBreakpoint.pending ? '' : 'Cannot set breakpoint at this line'
+
                     };
                 });
                 log.debug(`setBreakPointsRequest succeeded: ${JSON.stringify(breakpoints)}`);
