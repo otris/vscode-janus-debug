@@ -93,12 +93,12 @@ export class Context {
                     // an array of variables
                     assert.equal(res.content.variables.length, 1);
 
-                    res.content.variables.forEach(element => {
+                    res.content.variables.forEach((element: any) => {
 
                         // Each element got a stackElement which descripes the frame and a list of
                         // variables.
 
-                        element.variables.forEach(variable => {
+                        element.variables.forEach((variable: any) => {
                             variables.push(variable);
                         });
                     });
@@ -124,7 +124,7 @@ export class Context {
 
         // For now this solution is okay, in future it would be better if the debugger is smart enough to decide how the
         // value of the "thing" to evaluate should be represented.
-        let evaluateReplaceFunction = (key, value) => {
+        const evaluateReplaceFunction = (key: any, value: any) => {
             if (typeof value === "function") {
                 return "function " + value.toString().match(/(\([^\)]*\))/)[1] + "{ ... }";
             } else {
@@ -247,7 +247,7 @@ export class ContextCoordinator {
                     assert.ok(response.content.hasOwnProperty('contexts'));
 
                     // Add new contexts
-                    response.content.contexts.forEach(element => {
+                    response.content.contexts.forEach((element: any) => {
                         if (!this.contextById.has(element.contextId)) {
                             coordinatorLog.debug(`creating new context with id: ${element.contextId}`);
                             const newContext: Context =
@@ -263,7 +263,7 @@ export class ContextCoordinator {
                     // Purge the ones that no longer exist
                     const dead: ContextId[] = [];
                     this.contextById.forEach(context => {
-                        if (!response.content.contexts.find(element => element.contextId === context.id)) {
+                        if (!response.content.contexts.find((element: any) => element.contextId === context.id)) {
                             coordinatorLog.debug(`context ${context.id} no longer exists`);
                             dead.push(context.id);
                         }

@@ -10,7 +10,7 @@ import { DebugProtocolTransport } from './transport';
 const log = Logger.create('DebugConnection');
 
 export interface ConnectionLike {
-    emit(event: string, ...args: any[]);
+    emit(event: string, ...args: any[]): boolean;
     sendRequest(request: Command, responseHandler?: (response: Response) => Promise<any>): Promise<any>;
     handleResponse(response: Response): void;
     disconnect(): Promise<void>;

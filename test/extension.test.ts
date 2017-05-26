@@ -525,7 +525,7 @@ suite('context coordinator coordinates requests and responses', () => {
     setup(() => {
         mockConnection = new MockConnection();
         coordinator = new ContextCoordinator(mockConnection);
-        mockConnection.on('newContext', (contextId, contextName, stopped) => {
+        mockConnection.on('newContext', (contextId: number, contextName: string, stopped: boolean) => {
             eventsEmitted.push({ contextId, contextName, stopped });
         });
     });

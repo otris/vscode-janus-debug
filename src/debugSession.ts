@@ -533,7 +533,7 @@ export class JanusDebugSession extends DebugSession {
             }
         });
 
-        this.connection.on('newContext', (contextId, contextName, stopped) => {
+        this.connection.on('newContext', (contextId: number, contextName: string, stopped: boolean) => {
             log.info(`new context on target: ${contextId}, context name: "${contextName}", stopped: ${stopped}`);
             if (stopped) {
                 const stoppedEvent = new StoppedEvent('pause', contextId);
@@ -849,7 +849,7 @@ export class JanusDebugSession extends DebugSession {
 
         // Get the variable which we want to set from the variables map
         let variablesContainer = this.variablesMap.getVariables(args.variablesReference);
-        let variables = variablesContainer.variables.filter((variable) => {
+        const variables = variablesContainer.variables.filter((variable) => {
             return variable.name === args.name;
         });
 
@@ -875,12 +875,12 @@ export class JanusDebugSession extends DebugSession {
             variableValue = false;
         }
 
-        let variable: DebugProtocol.Variable = variables[0];
+        const variable: DebugProtocol.Variable = variables[0];
         if (typeof variable.evaluateName === 'undefined' || variable.evaluateName === '') {
             throw new Error(`Internal error: Variable ${variable.name} has no evaluate name.`);
         }
 
-        let context = this.connection.coordinator.getContext(variablesContainer.contextId);
+        const context = this.connection.coordinator.getContext(variablesContainer.contextId);
         context.setVariable(variable.evaluateName, variableValue).then(() => {
             // Everything fine. Replace the variable in the variables map
             variable.value = args.value;
