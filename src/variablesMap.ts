@@ -40,10 +40,7 @@ export class VariablesMap {
             hash |= 0; // Convert to 32-bit integer
         }
 
-        return cantorPairing(
-            frameId,
-            hash,
-        );
+        return cantorPairing(frameId, hash);
     }
 
     /**
