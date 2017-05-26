@@ -224,8 +224,7 @@
         "node-sds": "git+https://git@github.com/otris/node-sds.git"
     },
     "devDependencies": {
-        "typescript": "^2.2.2",
-        "tslint": "^4.5.1",
+        "typescript": "^2.3.3",
         "vscode": "^1.1.0",
         "mocha": "^2.4.5",
         "vscode-debugadapter-testsupport": "^1.18.1",

@@ -32,11 +32,11 @@ export class VariablesMap {
             throw new Error('Variables name cannot be empty.');
         }
 
-        let hash;
+        let hash = 0;
         for (let i = 0; i < variableName.length; i++) {
-            let chr = variableName.charCodeAt(i);
-            hash = ((hash << 5) - hash) + chr;
-            hash |= 0; // Convert to 32bit integer
+            const charCode = variableName.charCodeAt(i);
+            hash = ((hash << 5) - hash) + charCode;
+            hash |= 0; // Convert to 32-bit integer
         }
 
         return cantorPairing(
