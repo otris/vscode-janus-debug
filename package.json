@@ -219,8 +219,8 @@
     "dependencies": {
         "@types/uuid": "^2.0.29",
         "uuid": "^3.0.1",
-        "vscode-debugprotocol": "^1.18.0",
-        "vscode-debugadapter": "^1.18.0",
+        "vscode-debugprotocol": "^1.19.0",
+        "vscode-debugadapter": "^1.19.0",
         "node-sds": "git+https://git@github.com/otris/node-sds.git"
     },
     "devDependencies": {
@@ -228,8 +228,8 @@
         "tslint": "^5.3.2",
         "vscode": "^1.1.0",
         "mocha": "^2.4.5",
-        "vscode-debugadapter-testsupport": "^1.18.1",
-        "@types/node": "^7.0.13",
+        "vscode-debugadapter-testsupport": "^1.19.0",
+        "@types/node": "^7.0.22",
         "@types/mocha": "^2.2.41"
     }
 }
