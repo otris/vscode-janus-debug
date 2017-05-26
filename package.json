@@ -20,11 +20,21 @@
         "vscode": "^1.6.0"
     },
     "categories": [
-        "Debuggers"
+        "Debuggers",
+        "Other"
     ],
     "activationEvents": [
         "onCommand:extension.vscode-janus-debug.provideInitialConfigurations",
-        "onCommand:extension.vscode-janus-debug.askForPassword"
+        "onCommand:extension.vscode-janus-debug.askForPassword",
+        "onCommand:extension.saveConfiguration",
+        "onCommand:extension.uploadScript",
+        "onCommand:extension.downloadScript",
+        "onCommand:extension.runScript",
+        "onCommand:extension.compareScript",
+        "onCommand:extension.uploadScriptsFromFolder",
+        "onCommand:extension.downloadScriptsToFolder",
+        "onCommand:extension.getScriptNames",
+        "onCommand:extension.getScriptParameters"
     ],
     "main": "./out/src/extension",
     "contributes": {
@@ -206,7 +216,200 @@
                 },
                 "initialConfigurations": "extension.vscode-janus-debug.provideInitialConfigurations"
             }
-        ]
+        ],
+    "configuration": {
+      "properties": {
+        "vscode-documents-scripting.encrypted": {
+          "type": "array",
+          "default": []
+        },
+        "vscode-documents-scripting.decrypted": {
+          "type": "array",
+          "default": []
+        },
+        "vscode-documents-scripting.uploadOnSave": {
+          "type": "array",
+          "default": [],
+          "description": "Always upload scripts in this list after save automatically."
+        },
+        "vscode-documents-scripting.uploadManually": {
+          "type": "array",
+          "default": [],
+          "description": "Never automatically upload scripts in this list and never ask to."
+        },
+        "vscode-documents-scripting.conflictMode": {
+          "type": "array",
+          "default": [],
+          "description": "Always overwrite server script, ignore changes."
+        },
+        "vscode-documents-scripting.readOnly": {
+          "type": "array",
+          "default": []
+        },
+        "vscode-documents-scripting.downloadScripts": {
+          "type": "array",
+          "default": [],
+          "description": "Scripts to download on command Download Scripts To Folder. If this list is empty all scripts from server are downloaded."
+        },
+        "vscode-documents-scripting.serverScripts": {
+          "type": "array",
+          "default": [],
+          "description": "Names of all scripts on server."
+        }
+      }
+    },
+    "commands": [
+      {
+        "command": "extension.saveConfiguration",
+        "title": "Create launch.json",
+        "category": "DOCUMENTS"
+      },
+      {
+        "command": "extension.uploadScript",
+        "title": "Upload Script",
+        "category": "DOCUMENTS"
+      },
+      {
+        "command": "extension.downloadScript",
+        "title": "Download Script",
+        "category": "DOCUMENTS"
+      },
+      {
+        "command": "extension.runScript",
+        "title": "Run Script",
+        "category": "DOCUMENTS"
+      },
+      {
+        "command": "extension.uploadRunScript",
+        "title": "Upload and Run Script",
+        "category": "DOCUMENTS"
+      },
+      {
+        "command": "extension.compareScript",
+        "title": "Compare Script",
+        "category": "DOCUMENTS"
+      },
+      {
+        "command": "extension.uploadScriptsFromFolder",
+        "title": "Upload Scripts From Folder",
+        "category": "DOCUMENTS"
+      },
+      {
+        "command": "extension.downloadScriptsToFolder",
+        "title": "Download Scripts To Folder",
+        "category": "DOCUMENTS"
+      },
+      {
+        "command": "extension.getScriptNames",
+        "title": "Get Scriptnames",
+        "category": "DOCUMENTS"
+      },
+      {
+        "command": "extension.getScriptParameters",
+        "title": "Get Script Parameters",
+        "category": "DOCUMENTS"
+      },
+      {
+        "command": "extension.viewDocumentation",
+        "title": "View Documentation",
+        "category": "DOCUMENTS"
+      }
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "extension.uploadScript",
+          "when": "resourceLangId == javascript",
+          "group": "DOCUMENTS@1"
+        },
+        {
+          "command": "extension.downloadScript",
+          "when": "resourceLangId == javascript",
+          "group": "DOCUMENTS@2"
+        },
+        {
+          "command": "extension.runScript",
+          "when": "resourceLangId == javascript",
+          "group": "DOCUMENTS@3"
+        },
+        {
+          "command": "extension.uploadRunScript",
+          "when": "resourceLangId == javascript",
+          "group": "DOCUMENTS@4"
+        },
+        {
+          "command": "extension.compareScript",
+          "when": "resourceLangId == javascript",
+          "group": "DOCUMENTS@5"
+        },
+        {
+          "command": "extension.uploadScriptsFromFolder",
+          "when": "resourceLangId == javascript",
+          "group": "DOCUMENTS@6"
+        },
+        {
+          "command": "extension.uploadScriptsFromFolder",
+          "when": "explorerResourceIsFolder",
+          "group": "DOCUMENTS@7"
+        },
+        {
+          "command": "extension.downloadScriptsToFolder",
+          "when": "resourceLangId == javascript",
+          "group": "DOCUMENTS@8"
+        },
+        {
+          "command": "extension.downloadScriptsToFolder",
+          "when": "explorerResourceIsFolder",
+          "group": "DOCUMENTS@9"
+        },
+        {
+          "command": "extension.getScriptNames",
+          "when": "resourceFilename == settings.json",
+          "group": "DOCUMENTS@10"
+        },
+        {
+          "command": "extension.getScriptParameters",
+          "group": "DOCUMENTS@11"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "extension.uploadScript",
+          "when": "resourceLangId == javascript",
+          "group": "DOCUMENTS@1"
+        },
+        {
+          "command": "extension.downloadScript",
+          "when": "resourceLangId == javascript",
+          "group": "DOCUMENTS@2"
+        },
+        {
+          "command": "extension.runScript",
+          "when": "resourceLangId == javascript",
+          "group": "DOCUMENTS@3"
+        },
+        {
+          "command": "extension.uploadRunScript",
+          "when": "resourceLangId == javascript",
+          "group": "DOCUMENTS@4"
+        },
+        {
+          "command": "extension.compareScript",
+          "when": "resourceLangId == javascript",
+          "group": "DOCUMENTS@5"
+        },
+        {
+          "command": "extension.getScriptNames",
+          "when": "resourceFilename == settings.json",
+          "group": "DOCUMENTS@6"
+        },
+        {
+          "command": "extension.viewDocumentation",
+          "when": "resourceLangId == typescript",
+          "group": "DOCUMENTS@7"
+        }
+      ]
+    }
     },
     "scripts": {
         "vscode:prepublish": "tsc -p ./",
@@ -221,7 +424,18 @@
         "uuid": "^3.0.1",
         "vscode-debugprotocol": "^1.18.0",
         "vscode-debugadapter": "^1.18.0",
-        "node-sds": "git+https://git@github.com/otris/node-sds.git"
+        "node-sds": "git+https://git@github.com/otris/node-sds.git",
+        "fs": "0.0.1-security",
+        "net": "^1.0.2",
+        "node-documents-scripting": "git+https://github.com/otris/node-documents-scripting.git",
+        "open": "0.0.5",
+        "path": "^0.12.7",
+        "reduce-for-promises": "^1.2.1",
+        "strip-json-comments": "^2.0.1",
+        "typescript-compiler": "^1.4.1-2",
+        "url-exists": "^1.0.3",
+        "vsce": "^1.18.0",
+        "winattr": "^2.0.0"
     },
     "devDependencies": {
         "typescript": "^2.2.2",
