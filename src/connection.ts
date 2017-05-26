@@ -7,7 +7,7 @@ import { Logger } from './log';
 import { Command, Response } from './protocol';
 import { DebugProtocolTransport } from './transport';
 
-let log = Logger.create('DebugConnection');
+const log = Logger.create('DebugConnection');
 
 export interface ConnectionLike {
     emit(event: string, ...args: any[]);
@@ -23,7 +23,7 @@ export interface ConnectionLike {
 export class DebugConnection extends EventEmitter implements ConnectionLike {
     public readonly coordinator: ContextCoordinator;
     private transport: DebugProtocolTransport;
-    private responseHandlers: Map<string, Function>;
+    private responseHandlers: Map<string, (response: Response) => void>;
 
     constructor(socket: Socket) {
         super();
@@ -44,7 +44,7 @@ export class DebugConnection extends EventEmitter implements ConnectionLike {
 
                 // Meant to be handled by a particular response handler function that was given when sending the
                 // request
-                let handler = this.responseHandlers.get(uuid);
+                const handler = this.responseHandlers.get(uuid);
                 if (handler === undefined) {
                     throw new Error(`No response handler for ${uuid}`);
                 }
@@ -97,7 +97,7 @@ export class DebugConnection extends EventEmitter implements ConnectionLike {
         });
     }
 
-    private registerResponseHandler(commandId: string, handler: Function): void {
+    private registerResponseHandler(commandId: string, handler: (response: Response) => void): void {
         log.debug(`registerResponseHandler: adding handler function for command id: "${commandId}"`);
         this.responseHandlers.set(commandId, handler);
     }

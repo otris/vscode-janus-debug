@@ -24,7 +24,7 @@ suite('config tests', () => {
             setup(() => {
                 tempDir = fs.mkdtempSync(os.tmpdir() + path.sep);
                 packageJsonPath = tempDir + path.sep + 'package.json';
-                let fd = fs.openSync(packageJsonPath, 'w');
+                const fd = fs.openSync(packageJsonPath, 'w');
                 fs.writeFileSync(packageJsonPath, minimalPackageJson);
             });
 
@@ -47,7 +47,7 @@ suite('config tests', () => {
             setup(() => {
                 tempDir = fs.mkdtempSync(os.tmpdir() + path.sep);
                 packageJsonPath = tempDir + path.sep + 'package.json';
-                let fd = fs.openSync(packageJsonPath, 'w');
+                const fd = fs.openSync(packageJsonPath, 'w');
                 absPath = path.join(tempDir, 'someModule.js');
                 const minimalPackageJson = [
                     '{',
@@ -83,7 +83,7 @@ suite('config tests', () => {
             setup(() => {
                 tempDir = fs.mkdtempSync(os.tmpdir() + path.sep);
                 packageJsonPath = tempDir + path.sep + 'package.json';
-                let fd = fs.openSync(packageJsonPath, 'w');
+                const fd = fs.openSync(packageJsonPath, 'w');
                 fs.writeFileSync(packageJsonPath, minimalPackageJson);
             });
 

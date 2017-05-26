@@ -24,7 +24,7 @@ suite('variables map tests', () => {
 
         test('createStringVariable', () => {
             variablesMap.createVariable('stringVariable', 'myValue', 1, 1);
-            let variablesContainer: VariablesContainer = variablesMap.getVariables(1);
+            const variablesContainer: VariablesContainer = variablesMap.getVariables(1);
 
             assert.equal(variablesContainer.variables.length, 1);
             assert.equal(variablesContainer.variables[0].name, 'stringVariable');
@@ -36,7 +36,7 @@ suite('variables map tests', () => {
 
         test('createIntVariable', () => {
             variablesMap.createVariable('intVariable', 666, 1, 2);
-            let variablesContainer: VariablesContainer = variablesMap.getVariables(2);
+            const variablesContainer: VariablesContainer = variablesMap.getVariables(2);
 
             assert.equal(variablesContainer.variables.length, 1);
             assert.equal(variablesContainer.variables[0].name, 'intVariable');
@@ -48,7 +48,7 @@ suite('variables map tests', () => {
 
         test('createBooleanVariable', () => {
             variablesMap.createVariable('booleanVariable', true, 1, 3);
-            let variablesContainer: VariablesContainer = variablesMap.getVariables(3);
+            const variablesContainer: VariablesContainer = variablesMap.getVariables(3);
 
             assert.equal(variablesContainer.variables.length, 1);
             assert.equal(variablesContainer.variables[0].name, 'booleanVariable');
@@ -60,7 +60,7 @@ suite('variables map tests', () => {
 
         test('createUndefinedVariable', () => {
             variablesMap.createVariable('undefinedVariable', undefined, 1, 4);
-            let variablesContainer: VariablesContainer = variablesMap.getVariables(4);
+            const variablesContainer: VariablesContainer = variablesMap.getVariables(4);
 
             assert.equal(variablesContainer.variables.length, 1);
             assert.equal(variablesContainer.variables[0].name, 'undefinedVariable');
@@ -72,7 +72,7 @@ suite('variables map tests', () => {
 
         test('createNullVariable', () => {
             variablesMap.createVariable('nullVariable', null, 1, 5);
-            let variablesContainer: VariablesContainer = variablesMap.getVariables(5);
+            const variablesContainer: VariablesContainer = variablesMap.getVariables(5);
 
             assert.equal(variablesContainer.variables.length, 1);
             assert.equal(variablesContainer.variables[0].name, 'nullVariable');
@@ -83,7 +83,7 @@ suite('variables map tests', () => {
         });
 
         test('createArrayVariable', () => {
-            let array = [1, 2, "test", true];
+            const array = [1, 2, "test", true];
             variablesMap.createVariable('arrayVariable', array, 1, 6);
             let variablesContainer: VariablesContainer = variablesMap.getVariables(6);
 
@@ -93,20 +93,20 @@ suite('variables map tests', () => {
             assert.equal(variablesContainer.variables[0].value, '[Array]');
             assert.equal(variablesContainer.variables[0].type, 'array');
 
-            let reference = variablesMap.createReference(1, 6, 'arrayVariable');
+            const reference = variablesMap.createReference(1, 6, 'arrayVariable');
             variablesContainer = variablesMap.getVariables(reference);
 
             assert.notEqual(typeof variablesContainer, "undefined");
             assert.equal(variablesContainer.variables.length, array.length);
 
-            let everyArrayEntriesPassed = array.every((element) => {
+            const everyArrayEntriesPassed = array.every((element) => {
                 return variablesContainer.variables.filter((variable) => {
                     return variable.value === element.toString();
                 }).length === 1;
             });
             assert.equal(everyArrayEntriesPassed, true);
 
-            let testEvaluateName = array.every((element, index) => {
+            const testEvaluateName = array.every((element, index) => {
                 return variablesContainer.variables.filter((variable) => {
                     if (typeof variable.evaluateName !== 'undefined') {
                         return variable.evaluateName === `arrayVariable[${index}]`;
@@ -119,7 +119,7 @@ suite('variables map tests', () => {
         });
 
         test('createObjectVariable', () => {
-            let obj = {
+            const obj: any = {
                 stringProp: "stringValue",
                 boolProp: false,
                 intProp: 666
@@ -134,13 +134,13 @@ suite('variables map tests', () => {
             assert.equal(variablesContainer.variables[0].value, '[Object]');
             assert.equal(variablesContainer.variables[0].type, 'object');
 
-            let reference = variablesMap.createReference(1, 7, 'objectVariable');
+            const reference = variablesMap.createReference(1, 7, 'objectVariable');
             variablesContainer = variablesMap.getVariables(reference);
 
-            assert.notEqual(typeof variablesContainer, "undefined");
+            assert.notEqual(typeof variablesContainer, 'undefined');
             assert.equal(variablesContainer.variables.length, Object.keys(obj).length);
 
-            let everyPropertyEntriesPassed = variablesContainer.variables.every((variable) => {
+            const everyPropertyEntriesPassed = variablesContainer.variables.every((variable) => {
                 if (obj.hasOwnProperty(variable.name) && obj[variable.name].toString() === variable.value) {
                     return true;
                 } else {
@@ -149,7 +149,7 @@ suite('variables map tests', () => {
             });
             assert.equal(everyPropertyEntriesPassed, true);
 
-            let testEvaluateName = variablesContainer.variables.forEach(variable => {
+            const testEvaluateName = variablesContainer.variables.forEach(variable => {
                 assert.equal(
                     variable.evaluateName,
                     `objectVariable.${variable.name}`,
@@ -178,7 +178,7 @@ suite('debug adapter tests', () => {
 
         test('should respond with supported features', done => {
             return debugClient.initializeRequest().then((response) => {
-                let body = response.body || {};
+                const body = response.body || {};
                 assert.equal(body.supportsConfigurationDoneRequest, true);
                 assert.equal(body.supportsConditionalBreakpoints, false);
                 done();
@@ -229,7 +229,7 @@ suite('transport tests', () => {
     suite('receive two responses', () => {
 
         test('in one chunk', () => {
-            let responses: Response[] = [];
+            const responses: Response[] = [];
 
             transport.on('response', (response: Response) => {
                 responses.push(response);
@@ -243,7 +243,7 @@ suite('transport tests', () => {
         });
 
         test('in multiple chunks', () => {
-            let responses: Response[] = [];
+            const responses: Response[] = [];
 
             transport.on('response', (response: Response) => {
                 responses.push(response);
@@ -265,32 +265,32 @@ suite('protocol tests', () => {
 
     suite('serialize command', () => {
         test('pause', () => {
-            let cmd = new Command('pause', 42);
+            const cmd = new Command('pause', 42);
             assert.equal(cmd.toString(), `42/{"name":"pause","type":"command","id":"${cmd.id}"}\n`);
         });
 
         test('stop', () => {
-            let cmd = new Command('stop', 24);
+            const cmd = new Command('stop', 24);
             assert.equal(cmd.toString(), `24/{"name":"stop","type":"command"}\n`);
         });
 
         test('next', () => {
-            let cmd = new Command('next', 11);
+            const cmd = new Command('next', 11);
             assert.equal(cmd.toString(), `11/{"name":"next","type":"command"}\n`);
         });
 
         test('get_all_source_urls', () => {
-            let cmd = new Command('get_all_source_urls');
+            const cmd = new Command('get_all_source_urls');
             assert.equal(cmd.toString(), `{"name":"get_all_source_urls","type":"command","id":"${cmd.id}"}\n`);
         });
 
         test('get_source', () => {
-            let cmd = Command.getSource('fubar.js');
+            const cmd = Command.getSource('fubar.js');
             assert.equal(cmd.toString(), `{"name":"get_source","type":"command","id":"${cmd.id}","url":"fubar.js"}\n`);
         });
 
         test('evaluate', () => {
-            let cmd = Command.evaluate(42, {
+            const cmd = Command.evaluate(42, {
                 path: "toString",
                 options: {
                     "show-hierarchy": true,
@@ -304,21 +304,21 @@ suite('protocol tests', () => {
         suite('set_breakpoint', () => {
 
             test('with pending === false', () => {
-                let cmd = Command.setBreakpoint('fubar.js', 17, false);
+                const cmd = Command.setBreakpoint('fubar.js', 17, false);
                 assert.equal(cmd.toString(),
                     `{"name":"set_breakpoint","type":"command","id":"${cmd.id}",\
 "breakpoint":{"line":17,"pending":false,"url":"fubar.js"}}\n`);
             });
 
             test('with pending === true', () => {
-                let cmd = Command.setBreakpoint('script.js', 1);
+                const cmd = Command.setBreakpoint('script.js', 1);
                 assert.equal(cmd.toString(),
                     `{"name":"set_breakpoint","type":"command","id":"${cmd.id}",\
 "breakpoint":{"line":1,"pending":true,"url":"script.js"}}\n`);
             });
 
             test('with optional context id', () => {
-                let cmd = Command.setBreakpoint('script.js', 42, true, 11);
+                const cmd = Command.setBreakpoint('script.js', 42, true, 11);
                 assert.equal(cmd.toString(),
                     `11/{"name":"set_breakpoint","type":"command","id":"${cmd.id}",\
 "breakpoint":{"line":42,"pending":true,"url":"script.js"}}\n`);
@@ -326,22 +326,22 @@ suite('protocol tests', () => {
         });
 
         test('get_available_contexts', () => {
-            let cmd = new Command('get_available_contexts');
+            const cmd = new Command('get_available_contexts');
             assert.equal(`get_available_contexts\n`, cmd.toString());
         });
 
         test('delete_all_breakpoints', () => {
-            let cmd = new Command('delete_all_breakpoints');
+            const cmd = new Command('delete_all_breakpoints');
             assert.equal(cmd.toString(), `{"name":"delete_all_breakpoints","type":"command","id":"${cmd.id}"}\n`);
         });
 
         test('exit', () => {
-            let cmd = new Command('exit');
+            const cmd = new Command('exit');
             assert.equal(cmd.toString(), `exit\n`);
         });
 
         test('get_variables', () => {
-            let cmd = Command.getVariables(16, {
+            const cmd = Command.getVariables(16, {
                 depth: 0,
                 options: {
                     'evaluation-depth': 1,
@@ -357,12 +357,12 @@ suite('protocol tests', () => {
 
             test('all contexts', () => {
 
-                let cmd = new Command('continue');
+                const cmd = new Command('continue');
                 assert.equal(cmd.toString(), `{"type":"command","name":"continue"}\n`);
             });
 
             test('a single context', () => {
-                let cmd = new Command('continue', 5);
+                const cmd = new Command('continue', 5);
                 assert.equal(cmd.toString(), `5/{"name":"continue","type":"command","id":"${cmd.id}"}\n`);
             });
         });
@@ -496,7 +496,7 @@ suite('cantor algorithm tests', () => {
     });
 
     test('reverse pairing', () => {
-        let result = reverseCantorPairing(1432);
+        const result = reverseCantorPairing(1432);
         assert.equal(result.x, 52);
         assert.equal(result.y, 1);
     });
@@ -541,7 +541,7 @@ suite('context coordinator coordinates requests and responses', () => {
 
     suite('a contexts_list response should…', () => {
 
-        let response: Response = {
+        const response: Response = {
             content: {
                 contexts: [{
                     contextId: 7,
@@ -560,7 +560,7 @@ suite('context coordinator coordinates requests and responses', () => {
 
         test('remember all contexts in the response', done => {
             coordinator.handleResponse(response).then(() => {
-                let contexts = coordinator.getAllAvailableContexts();
+                const contexts = coordinator.getAllAvailableContexts();
 
                 assert.equal(contexts.length, 2);
                 assert.throws(() => { coordinator.getContext(23); }, 'No such context');
@@ -590,7 +590,7 @@ suite('context coordinator coordinates requests and responses', () => {
             coordinator.handleResponse(response).then(() => {
 
                 // One more context got added
-                let newResponse = response;
+                const newResponse = response;
                 newResponse.content.contexts.push({
                     contextId: 9,
                     contextName: 'ninth context',
@@ -615,7 +615,7 @@ suite('context coordinator coordinates requests and responses', () => {
                 eventsEmitted = []; // Reset events
 
                 // Context 7 got removed
-                let newResponse: Response = {
+                const newResponse: Response = {
                     content: {
                         contexts: [{
                             contextId: 8,
@@ -630,7 +630,7 @@ suite('context coordinator coordinates requests and responses', () => {
                 coordinator.handleResponse(newResponse).then(() => {
                     assert.equal(eventsEmitted.length, 0);
 
-                    let contexts = coordinator.getAllAvailableContexts();
+                    const contexts = coordinator.getAllAvailableContexts();
                     assert.equal(contexts.length, 1);
                     assert.throws(() => { coordinator.getContext(7); }, 'No such context'); // 7 got removed
                     assert.equal(8, coordinator.getContext(8).id); // 8 is still in there

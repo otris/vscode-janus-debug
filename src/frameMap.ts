@@ -28,7 +28,7 @@ class StackFrame {
     }
 }
 
-let log = Logger.create('FrameMap');
+const log = Logger.create('FrameMap');
 
 export class FrameMap {
     private frameIdToFrame: Map<FrameId, StackFrame> = new Map();
@@ -36,9 +36,9 @@ export class FrameMap {
     public addFrames(contextId: ContextId, frames: protocol.StackFrame[]): StackFrame[] {
         log.debug(`adding frames ${JSON.stringify(frames)} for context id ${contextId}`);
 
-        let added: StackFrame[] = [];
+        const added: StackFrame[] = [];
         frames.forEach(frame => {
-            let entry = new StackFrame(contextId, frame);
+            const entry = new StackFrame(contextId, frame);
             if (this.frameIdToFrame.has(entry.frameId)) {
                 log.warn(`already mapped entry: ${entry.frameId} -> (${contextId}, ${entry.rDepth})`);
             }
@@ -49,7 +49,7 @@ export class FrameMap {
     }
 
     public getStackFrame(frameId: FrameId): StackFrame {
-        let frame = this.frameIdToFrame.get(frameId);
+        const frame = this.frameIdToFrame.get(frameId);
         if (frame === undefined) {
             throw new Error(`No such frame ${frameId}`);
         }
@@ -62,7 +62,7 @@ export class FrameMap {
      * @returns {StackFrame|undefined} The current stackframe or undefined if no stackframe for this context is saved.
      */
     public getCurrentStackFrame(contextId: number): StackFrame | undefined {
-        let stackframes = this.getStackFramesFromContext(contextId).sort((a: StackFrame, b: StackFrame) => {
+        const stackframes = this.getStackFramesFromContext(contextId).sort((a: StackFrame, b: StackFrame) => {
             return a.rDepth - b.rDepth;
         });
 
@@ -80,15 +80,15 @@ export class FrameMap {
      * @param {number} contextId - Context id to match
      * @returns {Array.<StackFrame>} An array with every stackframe from a given context.
      */
-    public getStackFramesFromContext(contextId): StackFrame[] {
-        let stackframes: StackFrame[] = [];
+    public getStackFramesFromContext(contextId: number): StackFrame[] {
+        const stackFrames: StackFrame[] = [];
 
         this.frameIdToFrame.forEach((frame: StackFrame) => {
             if (reverseCantorPairing(frame.frameId).x === contextId) {
-                stackframes.push(frame);
+                stackFrames.push(frame);
             }
         });
 
-        return stackframes;
+        return stackFrames;
     }
 }

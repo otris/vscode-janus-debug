@@ -65,7 +65,7 @@ export interface Response {
 
 export interface Query {
     depth: number;
-    options?: Object;
+    options?: object;
 }
 
 export interface Breakpoint {
@@ -91,7 +91,7 @@ export interface Variable {
 
 export interface Evaluate {
     path: string;
-    options?: Object;
+    options?: object;
 }
 
 export function variableValueToString(value: VariableValue): string {
@@ -121,7 +121,7 @@ export function variableValueToString(value: VariableValue): string {
 }
 
 export function parseResponse(responseString: string): Response {
-    let contextId: number | undefined = undefined;
+    let contextId: number | undefined;
     let indexStart = 0;
     const match = responseString.match(/^([0-9]+)\/{/);
     if (match) {
@@ -129,8 +129,8 @@ export function parseResponse(responseString: string): Response {
         assert.ok(!Number.isNaN(contextId), 'could not parse context id');
         indexStart = match[0].length - 1;
     }
-    let obj = JSON.parse(responseString.substring(indexStart));
-    let response: Response = {
+    const obj = JSON.parse(responseString.substring(indexStart));
+    const response: Response = {
         content: {},
         type: obj.type,
     };
@@ -149,7 +149,7 @@ export function parseResponse(responseString: string): Response {
 export class Command {
 
     public static setBreakpoint(url: string, lineNumber: number, pending?: boolean, contextId?: number): Command {
-        let cmd = new Command('set_breakpoint', contextId);
+        const cmd = new Command('set_breakpoint', contextId);
         cmd.payload.breakpoint = {
             line: lineNumber,
             pending: pending === undefined ? true : pending,
@@ -159,19 +159,19 @@ export class Command {
     }
 
     public static getSource(url: string): Command {
-        let cmd = new Command('get_source');
+        const cmd = new Command('get_source');
         cmd.payload.url = url;
         return cmd;
     }
 
     public static getVariables(contextId: number, query: Query): Command {
-        let cmd = new Command('get_variables', contextId);
+        const cmd = new Command('get_variables', contextId);
         cmd.payload.query = query;
         return cmd;
     }
 
     public static evaluate(contextId: number, evaluate: Evaluate): Command {
-        let cmd = new Command('evaluate', contextId);
+        const cmd = new Command('evaluate', contextId);
         cmd.payload.path = evaluate.path;
         cmd.payload.options = evaluate.options;
         return cmd;
@@ -196,13 +196,13 @@ export class Command {
 
         let needsId = true;
         const exceptions = [
-            () => { return name === 'get_available_contexts'; },
-            () => { return name === 'exit'; },
-            () => { return name === 'continue' && contextId === undefined; },
-            () => { return name === 'next'; },
-            () => { return name === 'stop'; },
+            () => name === 'get_available_contexts',
+            () => name === 'exit',
+            () => name === 'continue' && contextId === undefined,
+            () => name === 'next',
+            () => name === 'stop',
         ];
-        for (let exception of exceptions) {
+        for (const exception of exceptions) {
             if (exception()) {
                 needsId = false;
                 break;

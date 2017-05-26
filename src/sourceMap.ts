@@ -8,7 +8,7 @@ import { Logger } from './log';
 class ValueMap<K, V> extends Map<K, V> {
 
     public findKeyIf(predicate: (value: V) => boolean): K | undefined {
-        for (let entry of this) {
+        for (const entry of this) {
             if (predicate(entry[1])) {
                 return entry[0];
             }
@@ -17,7 +17,7 @@ class ValueMap<K, V> extends Map<K, V> {
     }
 
     public findValueIf(predicate: (value: V) => boolean): V | undefined {
-        for (let value of this.values()) {
+        for (const value of this.values()) {
             if (predicate(value)) {
                 return value;
             }
@@ -73,7 +73,7 @@ export class LocalSource {
     }
 }
 
-let log = Logger.create('SourceMap');
+const log = Logger.create('SourceMap');
 
 /**
  * Provides bi-directional mapping from local to remote source names.
@@ -101,7 +101,7 @@ export class SourceMap {
         this.map.clear();
         remoteNames.forEach(remoteName => {
             const parsedPath = parse(remoteName);
-            let localSource = new LocalSource('');
+            const localSource = new LocalSource('');
             if (parsedPath.base.length > 0) {
                 localSource.aliasNames.push(parsedPath.base);
             }
@@ -117,7 +117,7 @@ export class SourceMap {
         const parsedPath = parse(localPath);
         let remoteName: string | undefined;
 
-        remoteName = this.map.findKeyIf(value => { return value.path === localPath; });
+        remoteName = this.map.findKeyIf(value => value.path === localPath);
 
         if (!remoteName) {
             remoteName = this.map.findKeyIf(value => value.aliasNames.indexOf(parsedPath.base) !== -1);
@@ -138,6 +138,6 @@ export class SourceMap {
 
     public getSourceByReference(sourceReference: number): LocalSource | undefined {
         return sourceReference > 0 ?
-            this.map.findValueIf(value => { return value.sourceReference === sourceReference; }) : undefined;
+            this.map.findValueIf(value => value.sourceReference === sourceReference) : undefined;
     }
 }

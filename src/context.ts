@@ -7,7 +7,7 @@ import { Command, ErrorCode, Response, StackFrame, Variable } from './protocol';
 
 export type ContextId = number;
 
-let contextLog = Logger.create('Context');
+const contextLog = Logger.create('Context');
 
 export class Context {
     constructor(private connection: ConnectionLike,
@@ -24,7 +24,7 @@ export class Context {
     public pause(): Promise<void> {
         contextLog.debug(`request 'pause' for context ${this.id}`);
 
-        let req = new Command('pause', this.id);
+        const req = new Command('pause', this.id);
         return this.connection.sendRequest(req, (res: Response) => {
 
             return new Promise<void>((resolve, reject) => {
@@ -47,20 +47,20 @@ export class Context {
     public continue(): Promise<void> {
         contextLog.debug(`request 'continue' for context ${this.id}`);
 
-        let cmd = new Command('continue', this.id);
+        const cmd = new Command('continue', this.id);
         return this.connection.sendRequest(cmd);
     }
 
     public getStacktrace(): Promise<StackFrame[]> {
         contextLog.debug(`request 'get_stacktrace' for context ${this.id}`);
 
-        let req = new Command('get_stacktrace', this.id);
+        const req = new Command('get_stacktrace', this.id);
         return this.connection.sendRequest(req, (res: Response) => {
             return new Promise<StackFrame[]>((resolve, reject) => {
                 if (res.type === 'error') {
                     reject(new Error(res.content.message));
                 } else {
-                    let stacktrace: StackFrame[] = [];
+                    const stacktrace: StackFrame[] = [];
                     assert.ok(res.content.stacktrace);
                     resolve(res.content.stacktrace);
                 }
@@ -74,7 +74,7 @@ export class Context {
     public getVariables(): Promise<Variable[]> {
         contextLog.debug(`request 'get_variables' for context ${this.id}`);
 
-        let req = Command.getVariables(this.id, {
+        const req = Command.getVariables(this.id, {
             depth: 0,
             options: {
                 "evaluation-depth": 1,
@@ -87,7 +87,7 @@ export class Context {
                     reject(new Error(res.content.message));
                 } else {
 
-                    let variables: Variable[] = [];
+                    const variables: Variable[] = [];
 
                     // This should be named 'frames' because it really holds all frames and for each frame
                     // an array of variables
@@ -132,7 +132,7 @@ export class Context {
             }
         };
 
-        let req = Command.evaluate(this.id, {
+        const req = Command.evaluate(this.id, {
             path: `JSON.stringify(${expression}, ${evaluateReplaceFunction.toString()})`,
             options: {
                 "show-hierarchy": true,
@@ -151,11 +151,11 @@ export class Context {
                     if (res.content.result.startsWith("function")) {
                         variableType = "function";
                     } else {
-                        let _variable = JSON.parse(res.content.result);
+                        const _variable = JSON.parse(res.content.result);
                         variableType = (Array.isArray(_variable)) ? "array" : typeof _variable;
                     }
 
-                    let variable: Variable = {
+                    const variable: Variable = {
                         name: "",
                         value: res.content.result,
                         type: variableType,
@@ -171,7 +171,7 @@ export class Context {
             variableValue = `"${variableValue}"`;
         }
 
-        let cmd = Command.evaluate(this.id, {
+        const cmd = Command.evaluate(this.id, {
             path: `${variableName}=${variableValue}`,
             options: {
                 "show-hierarchy": false,
@@ -188,7 +188,7 @@ export class Context {
     }
 }
 
-let coordinatorLog = Logger.create('ContextCoordinator');
+const coordinatorLog = Logger.create('ContextCoordinator');
 
 /**
  * Coordinates requests and responses for all available contexts.
@@ -212,12 +212,12 @@ export class ContextCoordinator {
     }
 
     public getContext(id: ContextId): Context {
-        let context = this.contextById.get(id);
+        const context = this.contextById.get(id);
         if (context === undefined) {
 
             // Well, somebody requests a context that does not exist. What could we possibly do?
 
-            let contents = Array.from(this.contextById.values());
+            const contents = Array.from(this.contextById.values());
             coordinatorLog.warn(
                 `unknown context ${id} requested; available: ${contents.map(someContext => {
                     return someContext.id;
@@ -250,7 +250,7 @@ export class ContextCoordinator {
                     response.content.contexts.forEach(element => {
                         if (!this.contextById.has(element.contextId)) {
                             coordinatorLog.debug(`creating new context with id: ${element.contextId}`);
-                            let newContext: Context =
+                            const newContext: Context =
                                 new Context(this.connection, element.contextId, element.contextName,
                                     element.paused);
                             this.contextById.set(element.contextId, newContext);
@@ -261,7 +261,7 @@ export class ContextCoordinator {
                     });
 
                     // Purge the ones that no longer exist
-                    let dead: ContextId[] = [];
+                    const dead: ContextId[] = [];
                     this.contextById.forEach(context => {
                         if (!response.content.contexts.find(element => element.contextId === context.id)) {
                             coordinatorLog.debug(`context ${context.id} no longer exists`);
@@ -274,7 +274,7 @@ export class ContextCoordinator {
 
                 // Dispatch to the corresponding context
 
-                let context: Context | undefined = this.contextById.get(response.contextId);
+                const context: Context | undefined = this.contextById.get(response.contextId);
                 if (context === undefined) {
                     reject(new Error (`response for unknown context`));
                     return;

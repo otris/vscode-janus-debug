@@ -25,7 +25,7 @@ export class DebugProtocolTransport extends EventEmitter {
     }
 
     public sendMessage(msg: string): void {
-        let buf = Buffer.from(msg, 'utf-8');
+        const buf = Buffer.from(msg, 'utf-8');
         this.socket.write(buf);
     }
 
@@ -70,7 +70,7 @@ export class DebugProtocolTransport extends EventEmitter {
         const spaceLeft = this.buffer.length - this.bufferedLength;
         if (spaceLeft < chunk.length) {
             const newCapacity = Math.max(this.bufferedLength + chunk.length, 1.5 * this.buffer.length);
-            let newBuffer = Buffer.alloc(newCapacity);
+            const newBuffer = Buffer.alloc(newCapacity);
             this.buffer.copy(newBuffer);
             this.buffer = newBuffer;
         }

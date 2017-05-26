@@ -98,6 +98,7 @@ export class Logger {
             try {
                 this.logLevel = toNumericLogLevel(Logger._config.logLevel[this.name]);
             } catch (err) {
+                // tslint:disable
                 this.logLevel = toNumericLogLevel(Logger._config.logLevel['default']);
                 throw err;
             }

@@ -82,7 +82,7 @@ const initialConfigurations = [
  * @param packageJsonPath {string} The absolut path to the package.json file
  */
 export /* meh */ function parseEntryPoint(packageJsonPath: string): string | undefined {
-    let entryPoint: string | undefined = undefined;
+    let entryPoint: string | undefined;
 
     try {
         const jsonContent = fs.readFileSync(packageJsonPath, 'utf8');

@@ -14,7 +14,7 @@ import { Breakpoint, Command, Response, StackFrame, Variable, variableValueToStr
 import { LocalSource, SourceMap } from './sourceMap';
 import { VariablesMap } from './variablesMap';
 
-let log = Logger.create('JanusDebugSession');
+const log = Logger.create('JanusDebugSession');
 
 function codeToString(code: string): string {
     switch (code) {
@@ -69,7 +69,7 @@ export class JanusDebugSession extends DebugSession {
                                 args: DebugProtocol.InitializeRequestArguments): void {
         log.info("initializeRequest");
 
-        let body = {
+        const body = {
             exceptionBreakpointFilters: [],
             supportsCompletionsRequest: false,
             supportsConditionalBreakpoints: false,
@@ -144,8 +144,8 @@ export class JanusDebugSession extends DebugSession {
             return;
         }
 
-        let sdsSocket = connect(sdsPort, host);
-        let sdsConnection = new SDSConnection(sdsSocket);
+        const sdsSocket = connect(sdsPort, host);
+        const sdsConnection = new SDSConnection(sdsSocket);
 
         sdsSocket.on('connect', () => {
             log.info(`connected to ${host}:${sdsPort}`);
@@ -181,7 +181,7 @@ export class JanusDebugSession extends DebugSession {
 
             }).then(() => {
                 log.info(`begin wait a little`);
-                let wait = new Promise<void>((resolve, reject) => {
+                const wait = new Promise<void>((resolve, reject) => {
                     setTimeout(() => {
                         log.info(`done waiting`);
                         resolve();
@@ -191,7 +191,7 @@ export class JanusDebugSession extends DebugSession {
             }).then(() => {
 
                 // Attach to debugger port and tell the frontend that we are ready to set breakpoints.
-                let debuggerSocket = connect(debuggerPort, host);
+                const debuggerSocket = connect(debuggerPort, host);
 
                 if (this.connection) {
                     log.warn("launchRequest: already made a connection to remote debugger");
@@ -204,10 +204,10 @@ export class JanusDebugSession extends DebugSession {
 
                     log.info(`launchRequest: connection to ${host}:${debuggerPort} established. Testing...`);
 
-                    let timeout = new Promise<void>((resolve, reject) => {
+                    const timeout = new Promise<void>((resolve, reject) => {
                         setTimeout(reject, args.timeout || 6000, "Operation timed out");
                     });
-                    let request = connection.sendRequest(new Command('get_all_source_urls'), (res: Response): Promise<void> => {
+                    const request = connection.sendRequest(new Command('get_all_source_urls'), (res: Response): Promise<void> => {
 
                         return new Promise<void>((resolve, reject) => {
 
@@ -325,9 +325,9 @@ export class JanusDebugSession extends DebugSession {
 
         this.config = 'attach';
 
-        let port: number = args.debuggerPort || 8089;
-        let host: string = args.host || 'localhost';
-        let socket = connect(port, host);
+        const port: number = args.debuggerPort || 8089;
+        const host: string = args.host || 'localhost';
+        const socket = connect(port, host);
 
         if (this.connection) {
             log.warn("attachRequest: already made a connection");
@@ -343,10 +343,10 @@ export class JanusDebugSession extends DebugSession {
 
             log.info(`attachRequest: connection to ${host}:${port} established. Testing...`);
 
-            let timeout = new Promise<void>((resolve, reject) => {
+            const timeout = new Promise<void>((resolve, reject) => {
                 setTimeout(reject, args.timeout || 6000, "Operation timed out");
             });
-            let request = connection.sendRequest(new Command('get_all_source_urls'), (res: Response): Promise<void> => {
+            const request = connection.sendRequest(new Command('get_all_source_urls'), (res: Response): Promise<void> => {
 
                 return new Promise<void>((resolve, reject) => {
 
@@ -424,7 +424,7 @@ export class JanusDebugSession extends DebugSession {
         const localUrl: string = args.source.path;
         const requestedBreakpoints = args.breakpoints;
 
-        let deleteAllBreakpointsCommand = new Command('delete_all_breakpoints');
+        const deleteAllBreakpointsCommand = new Command('delete_all_breakpoints');
         conn.sendRequest(deleteAllBreakpointsCommand, (res: Response) => {
             return new Promise<void>((resolve, reject) => {
                 if (res.type === 'error') {
@@ -436,10 +436,10 @@ export class JanusDebugSession extends DebugSession {
         }).then(() => {
 
             const remoteSourceUrl = this.sourceMap.getRemoteUrl(localUrl);
-            let actualBreakpoints: Array<Promise<Breakpoint>> = [];
+            const actualBreakpoints: Array<Promise<Breakpoint>> = [];
             requestedBreakpoints.forEach((breakpoint => {
 
-                let setBreakpointCommand = Command.setBreakpoint(remoteSourceUrl, breakpoint.line);
+                const setBreakpointCommand = Command.setBreakpoint(remoteSourceUrl, breakpoint.line);
 
                 actualBreakpoints.push(
                     conn.sendRequest(setBreakpointCommand, (res: Response): Promise<Breakpoint> => {
@@ -449,10 +449,10 @@ export class JanusDebugSession extends DebugSession {
                             // We do this by passing a new breakpoint to the resolve function with the
                             // pending attribute set to false.
                             if (res.type === 'error' && res.content.message && res.content.message === 'Cannot set breakpoint at given line.') {
-                                resolve( <Breakpoint> {
+                                resolve({
                                         line: breakpoint.line,
                                         pending: false,
-                                    });
+                                    } as Breakpoint);
                             }
                             // When the debugger give a error back and the message
                             // dont tell us that a breakpoint cant set we reject this one, cause a 'unknown'
@@ -471,7 +471,7 @@ export class JanusDebugSession extends DebugSession {
             }));
 
             Promise.all(actualBreakpoints).then((res: Breakpoint[]) => {
-                let breakpoints: DebugProtocol.Breakpoint[] = res.map(actualBreakpoint => {
+                const breakpoints: DebugProtocol.Breakpoint[] = res.map(actualBreakpoint => {
                     return {
                         id: actualBreakpoint.bid,
                         line: actualBreakpoint.line,
@@ -524,11 +524,11 @@ export class JanusDebugSession extends DebugSession {
         // this once initially for all already discovered contexts and then let an event handler do this for future
         // contexts.
 
-        let contexts = this.connection.coordinator.getAllAvailableContexts();
+        const contexts = this.connection.coordinator.getAllAvailableContexts();
         contexts.forEach(context => {
             if (context.isStopped()) {
                 log.debug(`sending StoppedEvent('pause', ${context.id})`);
-                let stoppedEvent = new StoppedEvent('pause', context.id);
+                const stoppedEvent = new StoppedEvent('pause', context.id);
                 this.sendEvent(stoppedEvent);
             }
         });
@@ -536,7 +536,7 @@ export class JanusDebugSession extends DebugSession {
         this.connection.on('newContext', (contextId, contextName, stopped) => {
             log.info(`new context on target: ${contextId}, context name: "${contextName}", stopped: ${stopped}`);
             if (stopped) {
-                let stoppedEvent = new StoppedEvent('pause', contextId);
+                const stoppedEvent = new StoppedEvent('pause', contextId);
                 log.debug(`sending StoppedEvent('pause', ${contextId})`);
                 this.sendEvent(stoppedEvent);
             }
@@ -552,13 +552,13 @@ export class JanusDebugSession extends DebugSession {
             throw new Error('No connection');
         }
 
-        let contextId: ContextId = args.threadId || 0;
-        let context = this.connection.coordinator.getContext(contextId);
+        const contextId: ContextId = args.threadId || 0;
+        const context = this.connection.coordinator.getContext(contextId);
 
         context.continue().then(() => {
             log.debug('continueRequest succeeded');
 
-            let continuedEvent = new ContinuedEvent(context.id);
+            const continuedEvent = new ContinuedEvent(context.id);
             this.sendEvent(continuedEvent);
             this.sendResponse(response);
         }, err => {
@@ -576,12 +576,12 @@ export class JanusDebugSession extends DebugSession {
             throw new Error('No connection');
         }
 
-        let contextId: ContextId = args.threadId || 0;
-        let context = this.connection.coordinator.getContext(contextId);
+        const contextId: ContextId = args.threadId || 0;
+        const context = this.connection.coordinator.getContext(contextId);
 
         context.next().then(() => {
             log.debug('nextRequest succeeded');
-            let stoppedEvent = new StoppedEvent('step', contextId);
+            const stoppedEvent = new StoppedEvent('step', contextId);
             this.sendResponse(response);
             this.sendEvent(stoppedEvent);
         }, err => {
@@ -599,8 +599,8 @@ export class JanusDebugSession extends DebugSession {
             throw new Error('No connection');
         }
 
-        let contextId: ContextId = args.threadId || 0;
-        let context = this.connection.coordinator.getContext(contextId);
+        const contextId: ContextId = args.threadId || 0;
+        const context = this.connection.coordinator.getContext(contextId);
 
         context.stepIn().then(() => {
             log.debug('first stepInRequest succeeded');
@@ -608,7 +608,7 @@ export class JanusDebugSession extends DebugSession {
             // We have to step in twice to get the correct stack frame
             context.stepIn().then(() => {
                 log.debug('second stepInRequest succeeded');
-                let stoppedEvent = new StoppedEvent('step', contextId);
+                const stoppedEvent = new StoppedEvent('step', contextId);
                 this.sendResponse(response);
                 this.sendEvent(stoppedEvent);
             });
@@ -648,11 +648,11 @@ export class JanusDebugSession extends DebugSession {
         try {
             const contextId: ContextId = args.threadId || 0;
 
-            let context = this.connection.coordinator.getContext(contextId);
+            const context = this.connection.coordinator.getContext(contextId);
             context.pause().then(() => {
                 log.debug('pauseRequest succeeded');
                 this.sendResponse(response);
-                let stoppedEvent = new StoppedEvent('pause', contextId);
+                const stoppedEvent = new StoppedEvent('pause', contextId);
                 this.sendEvent(stoppedEvent);
             }).catch(reason => {
                 log.error('pauseRequest failed: ' + reason);
@@ -693,8 +693,8 @@ export class JanusDebugSession extends DebugSession {
         if (this.connection === undefined) {
             throw new Error('No connection');
         }
-        let contexts = this.connection.coordinator.getAllAvailableContexts();
-        let threads: DebugProtocol.Thread[] = contexts.map(context => {
+        const contexts = this.connection.coordinator.getAllAvailableContexts();
+        const threads: DebugProtocol.Thread[] = contexts.map(context => {
             return {
                 id: context.id,
                 name: context.name,
@@ -716,10 +716,10 @@ export class JanusDebugSession extends DebugSession {
         }
 
         const contextId: ContextId = args.threadId || 0;
-        let context = this.connection.coordinator.getContext(contextId);
+        const context = this.connection.coordinator.getContext(contextId);
         context.getStacktrace().then((trace: StackFrame[]) => {
             const frames = this.frameMap.addFrames(contextId, trace);
-            let stackFrames: DebugProtocol.StackFrame[] = frames.map(frame => {
+            const stackFrames: DebugProtocol.StackFrame[] = frames.map(frame => {
                 const localSource = this.sourceMap.getSource(frame.sourceUrl);
                 return {
                     column: 0,
@@ -741,13 +741,13 @@ export class JanusDebugSession extends DebugSession {
             context.getVariables().then((locals: Variable[]) => {
                 log.info('Updating variables map');
 
-                let frame = this.frameMap.getCurrentStackFrame(contextId);
+                const frame = this.frameMap.getCurrentStackFrame(contextId);
                 if (frame === undefined) {
                     log.error('[update variablesMap]: current frame is undefined.');
                     throw new Error('Internal error: Current frame not found.');
                 }
 
-                let frameId = frame.frameId;
+                const frameId = frame.frameId;
                 locals.forEach(variable => {
                     this.variablesMap.createVariable(variable.name, variable.value, contextId, frameId);
                 });
@@ -765,7 +765,7 @@ export class JanusDebugSession extends DebugSession {
 
         // The variablesReference is just the frameId because we do not keep track of individual scopes in a frame.
 
-        let scopes: DebugProtocol.Scope[] = [{
+        const scopes: DebugProtocol.Scope[] = [{
             expensive: false,
             name: 'Locals',
             variablesReference: args.frameId,
@@ -786,7 +786,7 @@ export class JanusDebugSession extends DebugSession {
 
             // Check if the returned variables container contains a object variable that is collapsed.
             // If so, we have to request the debugger to evaluate this variable.
-            let collapsedVariables = variablesContainer.variables.filter((variable) => {
+            const collapsedVariables = variablesContainer.variables.filter((variable) => {
                 return variable.name === '___jsrdbg_collapsed___';
             });
 
@@ -796,15 +796,15 @@ export class JanusDebugSession extends DebugSession {
                     throw new Error('Internal error: No connection');
                 }
 
-                let context = this.connection.coordinator.getContext(variablesContainer.contextId);
-                for (let collapsedVariable of collapsedVariables) {
+                const context = this.connection.coordinator.getContext(variablesContainer.contextId);
+                for (const collapsedVariable of collapsedVariables) {
                     if (typeof collapsedVariable.evaluateName === 'undefined' || collapsedVariable.evaluateName === '') {
                         throw new Error(`Internal error: The variable "${collapsedVariable.name}" has no evaluate name.`);
                     }
 
                     // Request the variable and insert it to the variables map
-                    let evaluateName = collapsedVariable.evaluateName.replace(".___jsrdbg_collapsed___", "");
-                    let variable = await context.evaluate(evaluateName);
+                    const evaluateName = collapsedVariable.evaluateName.replace(".___jsrdbg_collapsed___", "");
+                    const variable = await context.evaluate(evaluateName);
                     this.variablesMap.createVariable(
                         evaluateName.substr(evaluateName.lastIndexOf('.')),
                         JSON.parse(variable.value),
@@ -910,8 +910,8 @@ export class JanusDebugSession extends DebugSession {
             throw new Error('No frame id passed.');
         }
 
-        let frame = this.frameMap.getStackFrame(args.frameId);
-        let context = this.connection.coordinator.getContext(frame.contextId);
+        const frame = this.frameMap.getStackFrame(args.frameId);
+        const context = this.connection.coordinator.getContext(frame.contextId);
         context.evaluate(args.expression).then((variable: Variable) => {
             response.body = {
                 result: variable.value,

@@ -4,9 +4,10 @@ import { DebugProtocol } from 'vscode-debugprotocol';
 import { cantorPairing, reverseCantorPairing } from './cantor';
 import { Logger } from './log';
 
-let log = Logger.create('VariablesMap');
+const log = Logger.create('VariablesMap');
 
 export type VariablesReference = number;
+
 export class VariablesContainer {
     public contextId: number;
     public variables: DebugProtocol.Variable[];
@@ -51,7 +52,7 @@ export class VariablesMap {
      * @returns {VariablesContainer} The variables container for the given reference.
      */
     public getVariables(reference: VariablesReference): VariablesContainer {
-        let variables = this.variablesMap.get(reference);
+        const variables = this.variablesMap.get(reference);
 
         if (variables === undefined) {
             throw new Error(`Unable to get variables: No variable with reference ${reference}`);
@@ -85,20 +86,20 @@ export class VariablesMap {
         }
 
         log.info(`Creating variable ${variableName} with value ${variableValue}`);
-        let variablesContainer: VariablesContainer = this.variablesMap.get(frameId) || new VariablesContainer(contextId);
+        const variablesContainer: VariablesContainer = this.variablesMap.get(frameId) || new VariablesContainer(contextId);
 
         // If the container already contains a variable with this name => update
-        let variable = this._createVariable(variableName, variableValue, contextId, frameId, evaluateName);
+        const variable = this._createVariable(variableName, variableValue, contextId, frameId, evaluateName);
 
         if (variablesContainer.variables.length > 0) {
-            let filterResult = variablesContainer.variables.filter((element) => {
+            const filterResult = variablesContainer.variables.filter((element) => {
                 return element.name === variable.name;
             });
 
             if (filterResult.length > 0) {
                 // Update the entry
-                let indexOf = variablesContainer.variables.indexOf(filterResult[0]);
-                variablesContainer[indexOf] = variable;
+                const index = variablesContainer.variables.indexOf(filterResult[0]);
+                variablesContainer[index] = variable;
             } else {
                 variablesContainer.variables.push(variable);
             }
@@ -191,15 +192,15 @@ export class VariablesMap {
         }
 
         // Variables container for the entries of the array
-        let variablesContainer: VariablesContainer = new VariablesContainer(contextId);
+        const variablesContainer: VariablesContainer = new VariablesContainer(contextId);
 
         // Arrays are returned as objects because the debugger represents the array elements as object properties.
         // The debugger also adds a length-property which represents the amount of elements inside the array.
         let index = 0;
-        for (let key in variableValue) {
+        for (const key in variableValue) {
             if (variableValue.hasOwnProperty(key)) {
-                let _variableName = (key === 'length') ? 'length' : index.toString();
-                let _evaluateName = (key === 'length') ? `${evaluateName}.length` : `${evaluateName}[${index.toString()}]`;
+                const _variableName = (key === 'length') ? 'length' : index.toString();
+                const _evaluateName = (key === 'length') ? `${evaluateName}.length` : `${evaluateName}[${index.toString()}]`;
 
                 variablesContainer.variables.push(
                     this._createVariable(_variableName, variableValue[key], contextId, frameId, _evaluateName)
@@ -210,7 +211,7 @@ export class VariablesMap {
         }
 
         // Create a reference for the variables container and insert it into the variables map
-        let reference = this.createReference(contextId, frameId, evaluateName);
+        const reference = this.createReference(contextId, frameId, evaluateName);
         this.variablesMap.set(reference, variablesContainer);
 
         // Return a variable which refers to this container
@@ -235,7 +236,7 @@ export class VariablesMap {
             throw new Error('Variables name cannot be empty.');
         }
 
-        let variablesContainer: VariablesContainer = new VariablesContainer(contextId);
+        const variablesContainer: VariablesContainer = new VariablesContainer(contextId);
 
         if (variableValue.hasOwnProperty('___jsrdbg_function_desc___')) {
             // Functions will be recognised as objects because of the way the debugger evaluate functions
@@ -245,7 +246,7 @@ export class VariablesMap {
             return this.createPrimitiveVariable(variableName, 'function (' + functionParams + ') { ... }', `${evaluateName}.${variableName}`);
         } else {
             // Create a new variable for each property on this object and chain them together with the reference property
-            for (let key in variableValue) {
+            for (const key in variableValue) {
                 if (variableValue.hasOwnProperty(key)) {
                     variablesContainer.variables.push(
                         this._createVariable(key, variableValue[key], contextId, frameId, `${evaluateName}.${key}`)
@@ -254,7 +255,7 @@ export class VariablesMap {
             }
         }
 
-        let reference = this.createReference(contextId, frameId, evaluateName);
+        const reference = this.createReference(contextId, frameId, evaluateName);
         this.variablesMap.set(reference, variablesContainer);
 
         return {

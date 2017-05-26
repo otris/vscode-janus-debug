@@ -38,7 +38,7 @@ suite('local source tests', () => {
         setup(() => {
             tempDir = fs.mkdtempSync(os.tmpdir() + path.sep);
             somePath = tempDir + path.sep + 'baz.js';
-            let fd = fs.openSync(somePath, 'w');
+            const fd = fs.openSync(somePath, 'w');
             fs.writeFileSync(somePath, sourceCode);
         });
 
@@ -99,7 +99,7 @@ suite('source map tests', () => {
         });
 
         test('if no remote name can be found, fallback to local path', () => {
-            let result = sourceMap.getRemoteUrl('/Users/bob/fubar/bielefeld.js');
+            const result = sourceMap.getRemoteUrl('/Users/bob/fubar/bielefeld.js');
             assert.equal(result, '/Users/bob/fubar/bielefeld.js');
         });
 
