@@ -96,7 +96,7 @@ export class VariablesMap {
             if (filterResult.length > 0) {
                 // Update the entry
                 const index = variablesContainer.variables.indexOf(filterResult[0]);
-                variablesContainer[index] = variable;
+                variablesContainer.variables[index] = variable;
             } else {
                 variablesContainer.variables.push(variable);
             }

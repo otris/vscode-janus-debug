@@ -12,7 +12,7 @@ import { FrameMap } from './frameMap';
 import { Logger } from './log';
 import { Breakpoint, Command, Response, StackFrame, Variable, variableValueToString } from './protocol';
 import { LocalSource, SourceMap } from './sourceMap';
-import { VariablesMap } from './variablesMap';
+import { VariablesContainer, VariablesMap } from './variablesMap';
 
 const log = Logger.create('JanusDebugSession');
 
@@ -848,7 +848,7 @@ export class JanusDebugSession extends DebugSession {
         }
 
         // Get the variable which we want to set from the variables map
-        let variablesContainer = this.variablesMap.getVariables(args.variablesReference);
+        const variablesContainer: VariablesContainer = this.variablesMap.getVariables(args.variablesReference);
         const variables = variablesContainer.variables.filter((variable) => {
             return variable.name === args.name;
         });
@@ -884,8 +884,8 @@ export class JanusDebugSession extends DebugSession {
         context.setVariable(variable.evaluateName, variableValue).then(() => {
             // Everything fine. Replace the variable in the variables map
             variable.value = args.value;
-            let indexOf = variablesContainer.variables.indexOf(variables[0]);
-            variablesContainer[indexOf] = variable;
+            const index = variablesContainer.variables.indexOf(variables[0]);
+            variablesContainer.variables[index] = variable;
             this.variablesMap.setVariables(args.variablesReference, variablesContainer);
 
             response.body = variable;
