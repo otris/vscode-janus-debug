@@ -1,14 +1,11 @@
 'use strict';
 
+import * as nodeDoc from 'node-documents-scripting';
 import * as path from 'path';
 import * as vscode from 'vscode';
-import { provideInitialConfigurations } from './config';
-import * as nodeDoc from 'node-documents-scripting';
-import * as login from './login';
 import * as commands from './commands';
-
-
-
+import { provideInitialConfigurations } from './config';
+import * as login from './login';
 
 export function activate(context: vscode.ExtensionContext): void {
 
@@ -25,23 +22,20 @@ export function activate(context: vscode.ExtensionContext): void {
         vscode.commands.registerCommand('extension.vscode-janus-debug.provideInitialConfigurations', () => {
             return provideInitialConfigurations(vscode.workspace.rootPath);
         }));
-	
+
     // login data
     // needed for all features
-    let loginData: nodeDoc.LoginData = new nodeDoc.LoginData();
+    const loginData: nodeDoc.LoginData = new nodeDoc.LoginData();
     context.subscriptions.push(loginData);
     // set launch.jsaon for saving login data
-    if(vscode.workspace) {
+    if (vscode.workspace) {
         loginData.launchjson = path.join(vscode.workspace.rootPath, '.vscode', 'launch.json');
     }
     // set additional function for getting and saving login data
     loginData.getLoginData = login.createLoginData;
 
-    
     // output channel for run script...
-    let runScriptChannel: vscode.OutputChannel = vscode.window.createOutputChannel('run-script-channel');
-
-
+    const runScriptChannel: vscode.OutputChannel = vscode.window.createOutputChannel('run-script-channel');
 
     // register commands...
     // this commands can activate the extension
@@ -61,7 +55,7 @@ export function activate(context: vscode.ExtensionContext): void {
             if (param) {
                 _param = param._fsPath;
             }
-            if(!_param && vscode.window.activeTextEditor) {
+            if (!_param && vscode.window.activeTextEditor) {
                 _param = vscode.window.activeTextEditor.document.fileName;
             }
             commands.uploadScript(loginData, _param);
@@ -72,7 +66,7 @@ export function activate(context: vscode.ExtensionContext): void {
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.uploadScriptsFromFolder', (param) => {
             let _param;
-            if(param) {
+            if (param) {
                 _param = param._fsPath;
             }
             commands.uploadAll(loginData, _param);
@@ -86,7 +80,7 @@ export function activate(context: vscode.ExtensionContext): void {
             if (param) {
                 _param = param._fsPath;
             }
-            if(!_param && vscode.window.activeTextEditor) {
+            if (!_param && vscode.window.activeTextEditor) {
                 _param = vscode.window.activeTextEditor.document.fileName;
             }
             commands.downloadScript(loginData, _param);
@@ -97,7 +91,7 @@ export function activate(context: vscode.ExtensionContext): void {
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.downloadScriptsToFolder', (param) => {
             let _param;
-            if(param) {
+            if (param) {
                 _param = param._fsPath;
             }
             commands.downloadAll(loginData, _param);
@@ -111,7 +105,7 @@ export function activate(context: vscode.ExtensionContext): void {
             if (param) {
                 _param = param._fsPath;
             }
-            if(!_param && vscode.window.activeTextEditor) {
+            if (!_param && vscode.window.activeTextEditor) {
                 _param = vscode.window.activeTextEditor.document.fileName;
             }
             commands.runScript(loginData, _param, runScriptChannel);
@@ -125,7 +119,7 @@ export function activate(context: vscode.ExtensionContext): void {
             if (param) {
                 _param = param._fsPath;
             }
-            if(!_param && vscode.window.activeTextEditor) {
+            if (!_param && vscode.window.activeTextEditor) {
                 _param = vscode.window.activeTextEditor.document.fileName;
             }
             commands.uploadRunScript(loginData, _param, runScriptChannel);
@@ -136,10 +130,10 @@ export function activate(context: vscode.ExtensionContext): void {
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.compareScript', (param) => {
             let _param;
-            if(param) {
+            if (param) {
                 _param = param._fsPath;
             }
-            if(!_param && vscode.window.activeTextEditor) {
+            if (!_param && vscode.window.activeTextEditor) {
                 _param = vscode.window.activeTextEditor.document.fileName;
             }
             commands.compareScript(loginData, _param);
@@ -169,31 +163,28 @@ export function activate(context: vscode.ExtensionContext): void {
         })
     );
 
-
     // add additional features...
     // this features can not activate the extension
     // but they are needed immediately
 
-
     // output channel for server log
-    let myOutputChannel2: vscode.OutputChannel = vscode.window.createOutputChannel('documents-server-channel');
+    const myOutputChannel2: vscode.OutputChannel = vscode.window.createOutputChannel('documents-server-channel');
     myOutputChannel2.append('DOCUMENTSServer.log' + '\n');
     myOutputChannel2.show();
 
     // Upload script on save
-    if(vscode.workspace) {
+    if (vscode.workspace) {
         let disposableOnSave: vscode.Disposable;
         disposableOnSave = vscode.workspace.onDidSaveTextDocument((textDocument) => {
-            if('.js' === path.extname(textDocument.fileName)) {
+            if ('.js' === path.extname(textDocument.fileName)) {
                 commands.uploadScriptOnSave(loginData, textDocument.fileName);
             }
-        }, this);
+        });
         context.subscriptions.push(disposableOnSave);
     }
 
     vscode.window.setStatusBarMessage('vscode-janus-debug is active');
 }
-
 
 export function deactivate(): undefined {
     return;

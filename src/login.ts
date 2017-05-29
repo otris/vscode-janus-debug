@@ -1,11 +1,9 @@
 ﻿'use strict';
 
 import * as fs from 'fs';
+import * as nodeDoc from 'node-documents-scripting';
 import * as path from 'path';
 import * as vscode from 'vscode';
-import * as nodeDoc from 'node-documents-scripting';
-
-
 
 // todo debugger
 const initialConfigurations = [
@@ -62,9 +60,9 @@ export async function createLoginData(_loginData: nodeDoc.LoginData): Promise<vo
     });
 }
 
-async function askForLoginData(_loginData:nodeDoc.LoginData): Promise<void> {
+async function askForLoginData(_loginData: nodeDoc.LoginData): Promise<void> {
     console.log('askForLoginData');
-    
+
     const SERVER: string = 'localhost';
     const PORT: number = 11000;
     const PRINCIPAL: string = 'dopaag';
@@ -81,28 +79,28 @@ async function askForLoginData(_loginData:nodeDoc.LoginData): Promise<void> {
             value: SERVER,
             ignoreFocusOut: true,
         }).then((server) => {
-            if(server) {
+            if (server) {
                 _loginData.server = server;
                 vscode.window.showInputBox({
                     prompt: 'Please enter the port',
-                    value: _loginData.port? _loginData.port.toString(): PORT.toString(),
+                    value: _loginData.port ? _loginData.port.toString() : PORT.toString(),
                     ignoreFocusOut: true,
                 }).then((port) => {
-                    if(port) {
+                    if (port) {
                         _loginData.port = Number(port);
                         vscode.window.showInputBox({
                             prompt: 'Please enter the principal',
-                            value: _loginData.principal? _loginData.principal: PRINCIPAL,
+                            value: _loginData.principal ? _loginData.principal : PRINCIPAL,
                             ignoreFocusOut: true,
                         }).then((principal) => {
-                            if(principal) {
+                            if (principal) {
                                 _loginData.principal = principal;
                                 vscode.window.showInputBox({
                                     prompt: 'Please enter the username',
-                                    value: _loginData.username? _loginData.username: USERNAME,
+                                    value: _loginData.username ? _loginData.username : USERNAME,
                                     ignoreFocusOut: true,
                                 }).then((username) => {
-                                    if(username) {
+                                    if (username) {
                                         _loginData.username = username;
                                         vscode.window.showInputBox({
                                             prompt: 'Please enter the password',
@@ -110,7 +108,7 @@ async function askForLoginData(_loginData:nodeDoc.LoginData): Promise<void> {
                                             password: true,
                                             ignoreFocusOut: true,
                                         }).then((password) => {
-                                            if(password) {
+                                            if (password) {
                                                 _loginData.password = password;
                                                 resolve();
                                             } else {
@@ -132,28 +130,28 @@ async function askForLoginData(_loginData:nodeDoc.LoginData): Promise<void> {
 
 
 
-async function createLaunchJson(_loginData:nodeDoc.LoginData): Promise<void> {
+async function createLaunchJson(_loginData: nodeDoc.LoginData): Promise<void> {
     console.log('createLaunchJson');
 
     return new Promise<void>((resolve, reject) => {
         let rootPath;
 
-        if(!vscode.workspace) {
+        if (!vscode.workspace) {
             reject('no workspace');
         } else {
             rootPath = vscode.workspace.rootPath;
         }
 
-        if(rootPath) {
-            let filename = path.join(rootPath, '.vscode', 'launch.json');
-            fs.stat(filename, function (err, stats) {
-                if(err) {
-                    if('ENOENT' === err.code) {
+        if (rootPath) {
+            const filename = path.join(rootPath, '.vscode', 'launch.json');
+            fs.stat(filename, function(err, stats) {
+                if (err) {
+                    if ('ENOENT' === err.code) {
                         // launch.json doesn't exist, create the default
                         // launch.json for janus-debugger
 
                         initialConfigurations.forEach((config: any) => {
-                            if (config.request == 'launch') {
+                            if (config.request === 'launch') {
                                 config.host = _loginData.server;
                                 config.applicationPort = _loginData.port;
                                 config.principal = _loginData.principal;
@@ -188,7 +186,7 @@ async function createLaunchJson(_loginData:nodeDoc.LoginData): Promise<void> {
                     // I don't dare to change it
                     reject('cannot overwrite existing launch.json');
                 }
-            });            
+            });
 
         } else {
             reject('folder must be open to save login data');
