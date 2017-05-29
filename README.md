@@ -45,7 +45,7 @@ Initial release of the extension. Running and debugging simple scripts directly 
 
 ## Known Issues
 
-We still see a lot of issues in this early stage.
+We still see a lot of issues at this early stage.
 
 * Attach configuration is not working reliably.
 * Breakpoint appears always unverified if previous is. See [#12](https://github.com/otris/vscode-janus-debug/issues/12).
