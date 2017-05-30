@@ -1,7 +1,7 @@
 'use strict';
 
 import * as assert from 'assert';
-import { connect } from 'net';
+import { createConnection, Socket } from 'net';
 import { crypt_md5, SDSConnection } from 'node-sds';
 import { Logger } from './log';
 
@@ -56,71 +56,81 @@ export class ServerConsole {
 
             this.out.show();
             log.debug(`connecting to ${this.config.port}:${this.config.hostname}`);
-            const sock = connect(this.config.port, this.config.hostname);
-            this.conn = new SDSConnection(sock);
 
-            sock.on('connect', () => {
-                this.conn.connect('server-console').then(() => {
+            let sock: Socket;
+            try {
+                sock = createConnection(this.config.port, this.config.hostname, () => {
+                    this.conn = new SDSConnection(sock);
 
-                    /*
+                    this.conn.connect('server-console').then(() => {
 
-                    Providing credentials is not necessary but this is a bug:
-                    https://redmine.otris.de/issues/20065
+                        /*
 
-                        return conn.changeUser('', '');
-                    }).then(userId => {
-                        return conn.changePrincipal('');
+                        Providing credentials is not necessary but this is a bug:
+                        https://redmine.otris.de/issues/20065
+
+                            return conn.changeUser('', '');
+                        }).then(userId => {
+                            return conn.changePrincipal('');
+                        }).then(() => {
+
+                        */
+
+                        return this.conn.getLogMessages(-1);
+                    }).then((messages) => {
+
+                        for (const line of messages.lines) {
+                            this.print(line);
+                        }
+
+                        this.lastSeen = messages.lastSeen;
+
                     }).then(() => {
 
-                    */
+                        const pollingInterval = this.config.refreshRate || 3000;
+                        let taskIsRunning = false;
+                        setInterval(async () => {
+                            if (!taskIsRunning) {
+                                taskIsRunning = true;
+                                await this.conn.getLogMessages(this.lastSeen).then(messages => {
+                                    for (const line of messages.lines) {
+                                        this.print(line);
+                                    }
+                                }).then(() => {
+                                    taskIsRunning = false;
+                                });
+                            }
+                        }, pollingInterval);
 
-                    return this.conn.getLogMessages(-1);
-                }).then((messages) => {
+                    }).catch(((reason: Error | string) => {
+                        log.error(`error in 'connect' event handler: ${reason.toString()}`);
+                        reject(reason.toString());
+                    }));
 
-                    for (const line of messages.lines) {
-                        this.print(line);
-                    }
-
-                    this.lastSeen = messages.lastSeen;
-
-                }).then(() => {
-
-                    const pollingInterval = this.config.refreshRate || 3000;
-                    let taskIsRunning = false;
-                    setInterval(async () => {
-                        if (!taskIsRunning) {
-                            taskIsRunning = true;
-                            await this.conn.getLogMessages(this.lastSeen).then(messages => {
-                                for (const line of messages.lines) {
-                                    this.print(line);
-                                }
-                            }).then(() => {
-                                taskIsRunning = false;
-                            });
-                        }
-                    }, pollingInterval);
-
-                }).catch(((reason: Error | string) => {
-                    log.error(`error in 'connect' event handler: ${reason.toString()}`);
-                    reject(reason.toString());
-                }));
-
-                sock.on('error', (err: Error) => {
-                    log.error(err.toString());
-                    reject(err.toString());
                 });
+            } catch (connectError) {
+                // Cannot connect; disregard and immediately resolve
+                log.info(`cannot connect to ${this.config.port}:${this.config.hostname}: ` +
+                    `${connectError.toString()}`);
+                resolve();
+                return;
+            }
 
-                sock.on('close', (hadError: boolean) => {
-                    let msg = 'remote closed the connection';
-                    if (hadError) {
-                        msg += ' because of an error';
-                        log.error(msg);
-                        reject(msg);
-                    } else {
-                        log.debug(msg);
-                        resolve();
-                    }
-                });
+            sock.on('error', (err: Error) => {
+                log.error(err.toString());
+                reject(err.toString());
+            });
+
+            sock.on('close', (hadError: boolean) => {
+                let msg = 'remote closed the connection';
+                if (hadError) {
+                    msg += ' because of an error';
+                    log.error(msg);
+                    reject(msg);
+                } else {
+                    log.debug(msg);
+                    resolve();
+                }
             });
         });
     }
