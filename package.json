@@ -65,7 +65,7 @@
                             },
                             "username": {
                                 "type": "string",
-                                "description": "A username. The script is executed in the context of this user."
+                                "description": "A username (username.principal). The script is executed in the context of this user."
                             },
                             "password": {
                                 "type": "string",
