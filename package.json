@@ -1,235 +1,449 @@
 {
-    "name": "vscode-janus-debug",
-    "displayName": "JavaScript Remote Debugger for JANUS Apps",
-    "description": "Debug your JANUS-based applications in Visual Studio Code",
-    "version": "0.0.5",
-    "publisher": "otris-software",
-    "author": {
-        "name": "otris software",
-        "email": "kircher@otris.de"
-    },
-    "license": "MIT",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/otris/vscode-janus-debug"
-    },
-    "bugs": {
-        "url": "https://github.com/otris/vscode-janus-debug/issues"
-    },
-    "engines": {
-        "vscode": "^1.6.0"
-    },
-    "categories": [
-        "Debuggers"
+  "name": "vscode-janus-debug",
+  "displayName": "JavaScript Remote Debugger for JANUS Apps",
+  "description": "Debug your JANUS-based applications in Visual Studio Code",
+  "version": "0.0.5",
+  "publisher": "otris-software",
+  "author": {
+    "name": "otris software",
+    "email": "kircher@otris.de"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/otris/vscode-janus-debug"
+  },
+  "bugs": {
+    "url": "https://github.com/otris/vscode-janus-debug/issues"
+  },
+  "engines": {
+    "vscode": "^1.6.0"
+  },
+  "categories": [
+    "Debuggers",
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:extension.vscode-janus-debug.provideInitialConfigurations",
+    "onCommand:extension.vscode-janus-debug.askForPassword",
+    "onCommand:extension.saveConfiguration",
+    "onCommand:extension.uploadScript",
+    "onCommand:extension.downloadScript",
+    "onCommand:extension.runScript",
+    "onCommand:extension.compareScript",
+    "onCommand:extension.uploadScriptsFromFolder",
+    "onCommand:extension.downloadScriptsToFolder",
+    "onCommand:extension.getScriptNames",
+    "onCommand:extension.getScriptParameters"
+  ],
+  "main": "./out/src/extension",
+  "contributes": {
+    "breakpoints": [
+      {
+        "language": "javascript"
+      }
     ],
-    "activationEvents": [
-        "onCommand:extension.vscode-janus-debug.provideInitialConfigurations",
-        "onCommand:extension.vscode-janus-debug.askForPassword"
-    ],
-    "main": "./out/src/extension",
-    "contributes": {
-        "breakpoints": [
-            {
-                "language": "javascript"
-            }
-        ],
-        "debuggers": [
-            {
-                "type": "janus",
-                "label": "JANUS Debugger",
-                "program": "./out/src/debugSession.js",
-                "runtime": "node",
-                "configurationAttributes": {
-                    "launch": {
-                        "required": [
-                            "script",
-                            "host",
-                            "applicationPort",
-                            "debuggerPort",
-                            "username"
+    "debuggers": [
+      {
+        "type": "janus",
+        "label": "JANUS Debugger",
+        "program": "./out/src/debugSession.js",
+        "runtime": "node",
+        "configurationAttributes": {
+          "launch": {
+            "required": [
+              "script",
+              "host",
+              "applicationPort",
+              "debuggerPort",
+              "username"
+            ],
+            "properties": {
+              "script": {
+                "type": "string",
+                "description": "The script you want to debug."
+              },
+              "username": {
+                "type": "string",
+                "description": "A username (username.principal). The script is executed in the context of this user."
+              },
+              "password": {
+                "type": "string",
+                "description": "The user's password."
+              },
+              "principal": {
+                "type": "string",
+                "description": "Your user's client affiliation. Leave empty if there is none."
+              },
+              "host": {
+                "type": "string",
+                "description": "IP address or name of the host where you want to run the script.",
+                "default": "localhost"
+              },
+              "applicationPort": {
+                "type": "number",
+                "description": "The port on which the target server listens.",
+                "default": 10000
+              },
+              "debuggerPort": {
+                "type": "number",
+                "description": "The debug port to attach to.",
+                "default": 8089
+              },
+              "timeout": {
+                "type": "number",
+                "description": "Time in ms until we give up trying to connect.",
+                "default": 6000
+              },
+              "sdsTimeout": {
+                "type": "number",
+                "description": "Time in ms until we give up waiting for a response.",
+                "default": 60000
+              },
+              "stopOnEntry": {
+                "type": "boolean",
+                "description": "Automatically pause script after launch.",
+                "default": false
+              },
+              "log": {
+                "type": "object",
+                "description": "Lets you configure diagnostic logging of the debug adapter.",
+                "properties": {
+                  "fileName": {
+                    "type": "string",
+                    "description": "The name of the logfile.",
+                    "default": "${workspaceRoot}/vscode-janus-debug.log"
+                  },
+                  "logLevel": {
+                    "type": "object",
+                    "description": "The minimum loglevel(s) for messages written to the logfile.",
+                    "properties": {
+                      "default": {
+                        "type": "string",
+                        "enum": [
+                          "Debug",
+                          "Info",
+                          "Warn",
+                          "Error"
                         ],
-                        "properties": {
-                            "script": {
-                                "type": "string",
-                                "description": "The script you want to debug."
-                            },
-                            "username": {
-                                "type": "string",
-                                "description": "A username. The script is executed in the context of this user."
-                            },
-                            "password": {
-                                "type": "string",
-                                "description": "The user's password."
-                            },
-                            "principal": {
-                                "type": "string",
-                                "description": "Your user's client affiliation. Leave empty if there is none."
-                            },
-                            "host": {
-                                "type": "string",
-                                "description": "IP address or name of the host where you want to run the script.",
-                                "default": "localhost"
-                            },
-                            "applicationPort": {
-                                "type": "number",
-                                "description": "The port on which the target server listens.",
-                                "default": 10000
-                            },
-                            "debuggerPort": {
-                                "type": "number",
-                                "description": "The debug port to attach to.",
-                                "default": 8089
-                            },
-                            "timeout": {
-                                "type": "number",
-                                "description": "Time in ms until we give up trying to connect.",
-                                "default": 6000
-                            },
-                            "sdsTimeout": {
-                                "type": "number",
-                                "description": "Time in ms until we give up waiting for a response.",
-                                "default": 60000
-                            },
-                            "stopOnEntry": {
-                                "type": "boolean",
-                                "description": "Automatically pause script after launch.",
-                                "default": false
-                            },
-                            "log": {
-                                "type": "object",
-                                "description": "Lets you configure diagnostic logging of the debug adapter.",
-                                "properties": {
-                                    "fileName": {
-                                        "type": "string",
-                                        "description": "The name of the logfile.",
-                                        "default": "${workspaceRoot}/vscode-janus-debug.log"
-                                    },
-                                    "logLevel": {
-                                        "type": "object",
-                                        "description": "The minimum loglevel(s) for messages written to the logfile.",
-                                        "properties": {
-                                            "default": {
-                                                "type": "string",
-                                                "enum": [
-                                                    "Debug",
-                                                    "Info",
-                                                    "Warn",
-                                                    "Error"
-                                                ],
-                                                "description": "The default loglevel."
-                                            }
-                                        },
-                                        "additionalProperties": {
-                                            "type": "string",
-                                            "enum": [
-                                                "Debug",
-                                                "Info",
-                                                "Warn",
-                                                "Error"
-                                            ]
-                                        },
-                                        "default": {
-                                            "default": "Debug"
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                        "description": "The default loglevel."
+                      }
                     },
-                    "attach": {
-                        "required": [
-                            "host",
-                            "debuggerPort"
-                        ],
-                        "properties": {
-                            "host": {
-                                "type": "string",
-                                "description": "IP address or name of the host where the application runs on.",
-                                "default": "localhost"
-                            },
-                            "debuggerPort": {
-                                "type": "number",
-                                "description": "The debug port to attach to.",
-                                "default": 8089
-                            },
-                            "timeout": {
-                                "type": "number",
-                                "description": "Time in ms until we give up trying to connect.",
-                                "default": 6000
-                            },
-                            "sdsTimeout": {
-                                "type": "number",
-                                "description": "Time in ms until we give up waiting for a response.",
-                                "default": 60000
-                            },
-                            "log": {
-                                "type": "object",
-                                "description": "Lets you configure diagnostic logging of the debug adapter.",
-                                "properties": {
-                                    "fileName": {
-                                        "type": "string",
-                                        "description": "The name of the logfile.",
-                                        "default": "${workspaceRoot}/vscode-janus-debug.log"
-                                    },
-                                    "logLevel": {
-                                        "type": "object",
-                                        "description": "The minimum loglevel(s) for messages written to the logfile.",
-                                        "properties": {
-                                            "default": {
-                                                "type": "string",
-                                                "enum": [
-                                                    "Debug",
-                                                    "Info",
-                                                    "Warn",
-                                                    "Error"
-                                                ],
-                                                "description": "The default loglevel."
-                                            }
-                                        },
-                                        "additionalProperties": {
-                                            "type": "string",
-                                            "enum": [
-                                                "Debug",
-                                                "Info",
-                                                "Warn",
-                                                "Error"
-                                            ]
-                                        },
-                                        "default": {
-                                            "default": "Debug"
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                    "additionalProperties": {
+                      "type": "string",
+                      "enum": [
+                        "Debug",
+                        "Info",
+                        "Warn",
+                        "Error"
+                      ]
+                    },
+                    "default": {
+                      "default": "Debug"
                     }
-                },
-                "initialConfigurations": "extension.vscode-janus-debug.provideInitialConfigurations"
+                  }
+                }
+              }
             }
-        ]
+          },
+          "attach": {
+            "required": [
+              "host",
+              "debuggerPort"
+            ],
+            "properties": {
+              "host": {
+                "type": "string",
+                "description": "IP address or name of the host where the application runs on.",
+                "default": "localhost"
+              },
+              "debuggerPort": {
+                "type": "number",
+                "description": "The debug port to attach to.",
+                "default": 8089
+              },
+              "timeout": {
+                "type": "number",
+                "description": "Time in ms until we give up trying to connect.",
+                "default": 6000
+              },
+              "sdsTimeout": {
+                "type": "number",
+                "description": "Time in ms until we give up waiting for a response.",
+                "default": 60000
+              },
+              "log": {
+                "type": "object",
+                "description": "Lets you configure diagnostic logging of the debug adapter.",
+                "properties": {
+                  "fileName": {
+                    "type": "string",
+                    "description": "The name of the logfile.",
+                    "default": "${workspaceRoot}/vscode-janus-debug.log"
+                  },
+                  "logLevel": {
+                    "type": "object",
+                    "description": "The minimum loglevel(s) for messages written to the logfile.",
+                    "properties": {
+                      "default": {
+                        "type": "string",
+                        "enum": [
+                          "Debug",
+                          "Info",
+                          "Warn",
+                          "Error"
+                        ],
+                        "description": "The default loglevel."
+                      }
+                    },
+                    "additionalProperties": {
+                      "type": "string",
+                      "enum": [
+                        "Debug",
+                        "Info",
+                        "Warn",
+                        "Error"
+                      ]
+                    },
+                    "default": {
+                      "default": "Debug"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "initialConfigurations": "extension.vscode-janus-debug.provideInitialConfigurations"
+      }
+    ],
+    "configuration": {
+      "properties": {
+        "vscode-documents-scripting.encrypted": {
+          "type": "array",
+          "default": []
+        },
+        "vscode-documents-scripting.decrypted": {
+          "type": "array",
+          "default": []
+        },
+        "vscode-documents-scripting.uploadOnSave": {
+          "type": "array",
+          "default": [],
+          "description": "Always upload scripts in this list after save automatically."
+        },
+        "vscode-documents-scripting.uploadManually": {
+          "type": "array",
+          "default": [],
+          "description": "Never automatically upload scripts in this list and never ask to."
+        },
+        "vscode-documents-scripting.conflictMode": {
+          "type": "array",
+          "default": [],
+          "description": "Always overwrite server script, ignore changes."
+        },
+        "vscode-documents-scripting.readOnly": {
+          "type": "array",
+          "default": []
+        },
+        "vscode-documents-scripting.downloadScripts": {
+          "type": "array",
+          "default": [],
+          "description": "Scripts to download on command Download Scripts To Folder. If this list is empty all scripts from server are downloaded."
+        },
+        "vscode-documents-scripting.serverScripts": {
+          "type": "array",
+          "default": [],
+          "description": "Names of all scripts on server."
+        }
+      }
     },
-    "scripts": {
-        "vscode:prepublish": "tsc -p ./",
-        "compile": "tsc -p ./",
-        "watch": "tsc -watch -p ./",
-        "test": "tsc -p ./ && mocha --timeout 10000 -u tdd out/test/",
-        "lint": "tslint src/*.ts test/*.ts",
-        "postinstall": "node ./node_modules/vscode/bin/install"
-    },
-    "dependencies": {
-        "@types/uuid": "^2.0.29",
-        "uuid": "^3.0.1",
-        "vscode-debugprotocol": "^1.19.0",
-        "vscode-debugadapter": "^1.19.0",
-        "node-sds": "git+https://git@github.com/otris/node-sds.git#1.0.0"
-    },
-    "devDependencies": {
-        "typescript": "^2.3.3",
-        "tslint": "^5.3.2",
-        "vscode": "^1.1.0",
-        "mocha": "^2.4.5",
-        "vscode-debugadapter-testsupport": "^1.19.0",
-        "@types/node": "^7.0.22",
-        "@types/mocha": "^2.2.41"
+    "commands": [
+      {
+        "command": "extension.saveConfiguration",
+        "title": "Create launch.json",
+        "category": "DOCUMENTS"
+      },
+      {
+        "command": "extension.uploadScript",
+        "title": "Upload Script",
+        "category": "DOCUMENTS"
+      },
+      {
+        "command": "extension.downloadScript",
+        "title": "Download Script",
+        "category": "DOCUMENTS"
+      },
+      {
+        "command": "extension.runScript",
+        "title": "Run Script",
+        "category": "DOCUMENTS"
+      },
+      {
+        "command": "extension.uploadRunScript",
+        "title": "Upload and Run Script",
+        "category": "DOCUMENTS"
+      },
+      {
+        "command": "extension.compareScript",
+        "title": "Compare Script",
+        "category": "DOCUMENTS"
+      },
+      {
+        "command": "extension.uploadScriptsFromFolder",
+        "title": "Upload Scripts From Folder",
+        "category": "DOCUMENTS"
+      },
+      {
+        "command": "extension.downloadScriptsToFolder",
+        "title": "Download Scripts To Folder",
+        "category": "DOCUMENTS"
+      },
+      {
+        "command": "extension.getScriptNames",
+        "title": "Get Scriptnames",
+        "category": "DOCUMENTS"
+      },
+      {
+        "command": "extension.getScriptParameters",
+        "title": "Get Script Parameters",
+        "category": "DOCUMENTS"
+      },
+      {
+        "command": "extension.viewDocumentation",
+        "title": "View Documentation",
+        "category": "DOCUMENTS"
+      }
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "extension.uploadScript",
+          "when": "resourceLangId == javascript",
+          "group": "DOCUMENTS@1"
+        },
+        {
+          "command": "extension.downloadScript",
+          "when": "resourceLangId == javascript",
+          "group": "DOCUMENTS@2"
+        },
+        {
+          "command": "extension.runScript",
+          "when": "resourceLangId == javascript",
+          "group": "DOCUMENTS@3"
+        },
+        {
+          "command": "extension.uploadRunScript",
+          "when": "resourceLangId == javascript",
+          "group": "DOCUMENTS@4"
+        },
+        {
+          "command": "extension.compareScript",
+          "when": "resourceLangId == javascript",
+          "group": "DOCUMENTS@5"
+        },
+        {
+          "command": "extension.uploadScriptsFromFolder",
+          "when": "resourceLangId == javascript",
+          "group": "DOCUMENTS@6"
+        },
+        {
+          "command": "extension.uploadScriptsFromFolder",
+          "when": "explorerResourceIsFolder",
+          "group": "DOCUMENTS@7"
+        },
+        {
+          "command": "extension.downloadScriptsToFolder",
+          "when": "resourceLangId == javascript",
+          "group": "DOCUMENTS@8"
+        },
+        {
+          "command": "extension.downloadScriptsToFolder",
+          "when": "explorerResourceIsFolder",
+          "group": "DOCUMENTS@9"
+        },
+        {
+          "command": "extension.getScriptNames",
+          "when": "resourceFilename == settings.json",
+          "group": "DOCUMENTS@10"
+        },
+        {
+          "command": "extension.getScriptParameters",
+          "group": "DOCUMENTS@11"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "extension.uploadScript",
+          "when": "resourceLangId == javascript",
+          "group": "DOCUMENTS@1"
+        },
+        {
+          "command": "extension.downloadScript",
+          "when": "resourceLangId == javascript",
+          "group": "DOCUMENTS@2"
+        },
+        {
+          "command": "extension.runScript",
+          "when": "resourceLangId == javascript",
+          "group": "DOCUMENTS@3"
+        },
+        {
+          "command": "extension.uploadRunScript",
+          "when": "resourceLangId == javascript",
+          "group": "DOCUMENTS@4"
+        },
+        {
+          "command": "extension.compareScript",
+          "when": "resourceLangId == javascript",
+          "group": "DOCUMENTS@5"
+        },
+        {
+          "command": "extension.getScriptNames",
+          "when": "resourceFilename == settings.json",
+          "group": "DOCUMENTS@6"
+        },
+        {
+          "command": "extension.viewDocumentation",
+          "when": "resourceLangId == typescript",
+          "group": "DOCUMENTS@7"
+        }
+      ]
     }
+  },
+  "scripts": {
+    "vscode:prepublish": "tsc -p ./",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "test": "tsc -p ./ && mocha --timeout 10000 -u tdd out/test/",
+    "lint": "tslint src/*.ts test/*.ts",
+    "postinstall": "node ./node_modules/vscode/bin/install"
+  },
+  "dependencies": {
+    "@types/uuid": "^2.0.29",
+    "fs": "0.0.1-security",
+    "net": "^1.0.2",
+    "node-documents-scripting": "git+https://github.com/otris/node-documents-scripting.git",
+    "node-sds": "git+https://git@github.com/otris/node-sds.git#1.0.0",
+    "open": "0.0.5",
+    "path": "^0.12.7",
+    "reduce-for-promises": "^1.2.1",
+    "strip-json-comments": "^2.0.1",
+    "typescript-compiler": "^1.4.1-2",
+    "url-exists": "^1.0.3",
+    "uuid": "^3.0.1",
+    "vsce": "^1.19.0",
+    "vscode-debugadapter": "^1.19.0",
+    "vscode-debugprotocol": "^1.19.0",
+    "winattr": "^2.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^2.3.3",
+    "tslint": "^5.3.2",
+    "vscode": "^1.1.0",
+    "mocha": "^2.4.5",
+    "vscode-debugadapter-testsupport": "^1.19.0",
+    "@types/node": "^7.0.22",
+    "@types/mocha": "^2.2.41"
+  }
 }

@@ -29,8 +29,7 @@
     "trailing-comma": [
       false // this sucks
     ],
-    "max-line-length": [
-      120
-    ]
+    "max-line-length": [false],
+    "no-consecutive-blank-lines": [false]
   }
 }
