@@ -2,7 +2,6 @@
 
 import * as assert from 'assert';
 import { connect, Socket } from 'net';
-import { IPC } from 'node-ipc';
 import { crypt_md5, SDSConnection } from 'node-sds';
 import { ContinuedEvent, DebugSession, InitializedEvent, OutputEvent, StoppedEvent, TerminatedEvent } from 'vscode-debugadapter';
 import { DebugProtocol } from 'vscode-debugprotocol';
@@ -10,6 +9,7 @@ import { AttachRequestArguments, CommonArguments, LaunchRequestArguments } from 
 import { DebugConnection } from './connection';
 import { ContextId } from './context';
 import { FrameMap } from './frameMap';
+import { DebugAdapterIPC } from './ipcClient';
 import { Logger } from './log';
 import { Breakpoint, Command, Response, StackFrame, Variable, variableValueToString } from './protocol';
 import { LocalSource, SourceMap } from './sourceMap';
@@ -117,24 +117,6 @@ export class JanusDebugSession extends DebugSession {
 
         this.config = 'launch';
 
-        let ipc = new IPC();
-        ipc.config.appspace = 'vscode-janus-debug.';
-        ipc.config.id = 'debug_adapter';
-        ipc.config.retry = 1500;
-        ipc.connectTo('sock', () => {
-            ipc.of.sock.on('connect', () => {
-                log.debug(`IPC: connected to extension`);
-
-                ipc.of.sock.emit('message', 'something');
-            });
-            ipc.of.sock.on('disconnect', () => {
-                log.debug(`IPC: disconnected`);
-            });
-            ipc.of.sock.on('message', (data) => {
-                log.debug(`got message from extension: ${data}`);
-            });
-        });
-
         const sdsPort: number = args.applicationPort || 10000;
         const debuggerPort = 8089;
         const host: string = args.host || 'localhost';
@@ -162,6 +144,9 @@ export class JanusDebugSession extends DebugSession {
             this.sendResponse(response);
             return;
         }
+
+        const ipcClient = new DebugAdapterIPC();
+        await ipcClient.connect();
 
         const sdsSocket = connect(sdsPort, host);
         const sdsConnection = new SDSConnection(sdsSocket);
@@ -341,11 +326,14 @@ export class JanusDebugSession extends DebugSession {
         });
     }
 
-    protected attachRequest(response: DebugProtocol.AttachResponse, args: AttachRequestArguments): void {
+    protected async attachRequest(response: DebugProtocol.AttachResponse, args: AttachRequestArguments): Promise<void> {
         this.applyConfig(args);
         log.info(`attachRequest`);
 
         this.config = 'attach';
+
+        const ipcClient = new DebugAdapterIPC();
+        await ipcClient.connect();
 
         const port: number = args.debuggerPort || 8089;
         const host: string = args.host || 'localhost';
@@ -358,51 +346,50 @@ export class JanusDebugSession extends DebugSession {
         const connection = new DebugConnection(socket);
         this.connection = connection;
 
-        socket.on('connect', () => {
+        socket.on('connect', async () => {
 
             // TCP connection established. It is important for this client that we first send a 'get_all_source_urls'
             // request to the server. This way we have a list of all currently active contexts.
 
             log.info(`attachRequest: connection to ${host}:${port} established. Testing...`);
 
-            const timeout = new Promise<void>((resolve, reject) => {
-                setTimeout(reject, args.timeout || 6000, "Operation timed out");
-            });
-            const request = connection.sendRequest(new Command('get_all_source_urls'), (res: Response): Promise<void> => {
+            try {
 
-                return new Promise<void>((resolve, reject) => {
+                await connection.sendRequest(new Command('get_all_source_urls'), (res: Response): Promise<void> => {
 
-                    assert.notEqual(res, undefined);
+                    return new Promise<void>(async (resolve, reject) => {
 
-                    if (res.subtype === 'all_source_urls') {
-                        log.info('attachRequest: ...looks good');
-                        this.sourceMap.setAllRemoteUrls(res.content.urls);
-                        resolve();
-                    } else {
-                        log.error(`attachRequest: error while connecting to ${host}:${port}`);
-                        reject(`Error while connecting to ${host}:${port}`);
-                    }
+                        assert.notEqual(res, undefined);
+
+                        if (res.subtype === 'all_source_urls') {
+                            log.info('attachRequest: ...looks good');
+                            this.sourceMap.setAllRemoteUrls(res.content.urls);
+
+                            // Here we'd show the user the available contexts with something like
+                            // await ipcClient.showContextQuickPick(res.content.urls);
+
+                            resolve();
+                        } else {
+                            log.error(`attachRequest: error while connecting to ${host}:${port}`);
+                            reject(`Error while connecting to ${host}:${port}`);
+                        }
+                    });
                 });
-            });
 
-            // TODO: the timeout needs to be cancelled when the request is resolved, right? Anyway, use
-            // promised-timeout library for that
 
-            Promise.race([request, timeout]).then(() => {
-
-                // Tell the frontend that we are ready to set breakpoints and so on. The frontend will end the
-                // configuration sequence by calling 'configurationDone' request
-                log.debug(`sending InitializedEvent`);
-                this.sendEvent(new InitializedEvent());
-                this.debugConsole(`Debugger listening on ${host}:${port}`);
-                this.sendResponse(response);
-
-            }).catch(reason => {
-                log.error(`attachRequest: ...failed. ${reason}`);
+            } catch (err) {
+                log.error(`attachRequest: ...failed. ${err}`);
                 response.success = false;
-                response.message = `Could not attach to remote process: ${reason}`;
-                this.sendResponse(response);
-            });
+                response.message = `Could not attach to remote process: ${err}`;
+                return this.sendResponse(response);
+            }
+
+            // Tell the frontend that we are ready to set breakpoints and so on. The frontend will end the
+            // configuration sequence by calling 'configurationDone' request
+            log.debug(`sending InitializedEvent`);
+            this.sendEvent(new InitializedEvent());
+            this.debugConsole(`Debugger listening on ${host}:${port}`);
+            this.sendResponse(response);
         });
 
         socket.on('close', (hadError: boolean) => {
@@ -428,6 +415,8 @@ export class JanusDebugSession extends DebugSession {
             this.connection = undefined;
             this.sendEvent(new TerminatedEvent());
         });
+
+        await ipcClient.disconnect();
     }
 
     protected setBreakPointsRequest(response: DebugProtocol.SetBreakpointsResponse,
