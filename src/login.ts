@@ -75,52 +75,56 @@ async function askForLoginData(_loginData: nodeDoc.LoginData): Promise<void> {
         // that is, these objects always have a then(value) function,
         // value can't be empty iff it's predefined in options
         vscode.window.showInputBox({
-            prompt: 'Please enter the server',
+            prompt: 'Please enter the hostname',
             value: SERVER,
             ignoreFocusOut: true,
-        }).then((server) => {
-            if (server) {
+        }).then((server): Thenable<string> => {
+            if (server.length > 0) {
                 _loginData.server = server;
-                vscode.window.showInputBox({
+                return vscode.window.showInputBox({
                     prompt: 'Please enter the port',
                     value: _loginData.port ? _loginData.port.toString() : PORT.toString(),
                     ignoreFocusOut: true,
-                }).then((port) => {
-                    if (port) {
-                        _loginData.port = Number(port);
-                        vscode.window.showInputBox({
-                            prompt: 'Please enter the principal',
-                            value: _loginData.principal ? _loginData.principal : PRINCIPAL,
-                            ignoreFocusOut: true,
-                        }).then((principal) => {
-                            if (principal) {
-                                _loginData.principal = principal;
-                                vscode.window.showInputBox({
-                                    prompt: 'Please enter the username',
-                                    value: _loginData.username ? _loginData.username : USERNAME,
-                                    ignoreFocusOut: true,
-                                }).then((username) => {
-                                    if (username) {
-                                        _loginData.username = username;
-                                        vscode.window.showInputBox({
-                                            prompt: 'Please enter the password',
-                                            value: PASSWORD,
-                                            password: true,
-                                            ignoreFocusOut: true,
-                                        }).then((password) => {
-                                            if (password) {
-                                                _loginData.password = password;
-                                                resolve();
-                                            } else {
-                                                reject('input login data cancelled');
-                                            }
-                                        });
-                                    }
-                                });
-                            }
-                        });
-                    }
                 });
+            }
+            throw new Error('input login data cancelled');
+        }).then((port): Thenable<string> => {
+            if (port.length > 0) {
+                _loginData.port = Number(port);
+                return vscode.window.showInputBox({
+                    prompt: 'Please enter the principal',
+                    value: _loginData.principal ? _loginData.principal : PRINCIPAL,
+                    ignoreFocusOut: true,
+                });
+            }
+            throw new Error('input login data cancelled');
+        }).then((principal): Thenable<string> => {
+            if (principal.length > 0) {
+                _loginData.principal = principal;
+                return vscode.window.showInputBox({
+                    prompt: 'Please enter the username (username.principal)',
+                    value: _loginData.username ? _loginData.username : USERNAME,
+                    ignoreFocusOut: true,
+                });
+            }
+            throw new Error('input login data cancelled');
+        }).then((username): Thenable<string> => {
+            if (username.length > 0) {
+                _loginData.username = username;
+                return vscode.window.showInputBox({
+                    prompt: 'Please enter the password',
+                    value: PASSWORD,
+                    password: true,
+                    ignoreFocusOut: true,
+                });
+            }
+            throw new Error('input login data cancelled');
+        }).then((password): void => {
+            if (password !== undefined) {
+                _loginData.password = password;
+                resolve();
+            } else {
+                throw new Error('input login data cancelled');
             }
         });
     });
