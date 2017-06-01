@@ -70,6 +70,10 @@ async function askForLoginData(_loginData: nodeDoc.LoginData): Promise<void> {
     const PASSWORD = '';
 
     return new Promise<void>((resolve, reject) => {
+        let tmpserver: string;
+        let tmpport: string;
+        let tmpprincipal: string;
+        let tmpusername: string;
 
         // showInputBox() returns a thenable(value) object,
         // that is, these objects always have a then(value) function,
@@ -79,8 +83,8 @@ async function askForLoginData(_loginData: nodeDoc.LoginData): Promise<void> {
             value: SERVER,
             ignoreFocusOut: true,
         }).then((server): Thenable<string> => {
+            tmpserver = server;
             if (server.length > 0) {
-                _loginData.server = server;
                 return vscode.window.showInputBox({
                     prompt: 'Please enter the port',
                     value: _loginData.port ? _loginData.port.toString() : PORT.toString(),
@@ -90,7 +94,7 @@ async function askForLoginData(_loginData: nodeDoc.LoginData): Promise<void> {
             throw new Error('input login data cancelled');
         }).then((port): Thenable<string> => {
             if (port.length > 0) {
-                _loginData.port = Number(port);
+                tmpport = port;
                 return vscode.window.showInputBox({
                     prompt: 'Please enter the principal',
                     value: _loginData.principal ? _loginData.principal : PRINCIPAL,
@@ -100,7 +104,7 @@ async function askForLoginData(_loginData: nodeDoc.LoginData): Promise<void> {
             throw new Error('input login data cancelled');
         }).then((principal): Thenable<string> => {
             if (principal.length > 0) {
-                _loginData.principal = principal;
+                tmpprincipal = principal;
                 return vscode.window.showInputBox({
                     prompt: 'Please enter the username (username.principal)',
                     value: _loginData.username ? _loginData.username : USERNAME,
@@ -110,7 +114,7 @@ async function askForLoginData(_loginData: nodeDoc.LoginData): Promise<void> {
             throw new Error('input login data cancelled');
         }).then((username): Thenable<string> => {
             if (username.length > 0) {
-                _loginData.username = username;
+                tmpusername = username;
                 return vscode.window.showInputBox({
                     prompt: 'Please enter the password',
                     value: PASSWORD,
@@ -122,6 +126,10 @@ async function askForLoginData(_loginData: nodeDoc.LoginData): Promise<void> {
         }).then((password): void => {
             if (password !== undefined) {
                 _loginData.password = password;
+                _loginData.server = tmpserver;
+                _loginData.port = Number(tmpport);
+                _loginData.principal = tmpprincipal;
+                _loginData.username = tmpusername;
                 resolve();
             } else {
                 throw new Error('input login data cancelled');
