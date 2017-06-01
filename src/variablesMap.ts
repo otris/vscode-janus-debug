@@ -1,9 +1,9 @@
 'use strict';
 
+import { decode } from 'utf8';
 import { DebugProtocol } from 'vscode-debugprotocol';
 import { cantorPairing, reverseCantorPairing } from './cantor';
 import { Logger } from './log';
-
 const log = Logger.create('VariablesMap');
 
 export type VariablesReference = number;
@@ -54,7 +54,7 @@ export class VariablesMap {
         if (variables === undefined) {
             throw new Error(`Unable to get variables: No variable with reference ${reference}`);
         } else {
-            return variables;
+           return variables;
         }
     }
 
@@ -121,10 +121,9 @@ export class VariablesMap {
         if (typeof evaluateName === 'undefined' || evaluateName === '') {
             evaluateName = variableName;
         }
-
         // We have do differntiate between primtive types and array, object and function
         switch (typeof variableValue) {
-            case 'string':
+            case 'string': variableValue = decode(variableValue);
             case 'number':
             case 'boolean':
             case 'undefined':
