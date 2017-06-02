@@ -11,8 +11,10 @@ export function activate(context: vscode.ExtensionContext): void {
 
     // only temporary to remove my hacks in settings.json
     const conf = vscode.workspace.getConfiguration('vscode-documents-scripting');
-    conf.update('encrypted', undefined);
-    conf.update('decrypted', undefined);
+    if (conf) {
+        conf.update('encrypted', undefined);
+        conf.update('decrypted', undefined);
+    }
 
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.askForPassword', () => {
