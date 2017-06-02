@@ -24,6 +24,7 @@
     "Other"
   ],
   "activationEvents": [
+    "workspaceContains:documents-scripting-settings.json",
     "onCommand:extension.vscode-janus-debug.provideInitialConfigurations",
     "onCommand:extension.vscode-janus-debug.askForPassword",
     "onCommand:extension.saveConfiguration",

@@ -1,11 +1,15 @@
 'use strict';
 
+import * as fs from 'fs';
 import * as nodeDoc from 'node-documents-scripting';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import * as commands from './commands';
 import { provideInitialConfigurations } from './config';
 import * as login from './login';
+
+
+const DOCUMENTS_SETTINGS = 'documents-scripting-settings.json';
 
 export function activate(context: vscode.ExtensionContext): void {
 
@@ -15,6 +19,7 @@ export function activate(context: vscode.ExtensionContext): void {
         conf.update('encrypted', undefined);
         conf.update('decrypted', undefined);
     }
+
 
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.askForPassword', () => {
@@ -179,8 +184,22 @@ export function activate(context: vscode.ExtensionContext): void {
     myOutputChannel2.append('DOCUMENTSServer.log' + '\n');
     myOutputChannel2.show();
 
-    // Upload script on save
+
+
+    // Some features only available in workspace
     if (vscode.workspace) {
+
+        const activationfile = path.join(vscode.workspace.rootPath, DOCUMENTS_SETTINGS);
+        try {
+            fs.readFileSync(activationfile);
+        } catch (err) {
+            if (err.code === 'ENOENT') {
+                fs.writeFileSync(activationfile, '');
+            }
+        }
+
+
+        // Upload script on save
         let disposableOnSave: vscode.Disposable;
         disposableOnSave = vscode.workspace.onDidSaveTextDocument((textDocument) => {
             if ('.js' === path.extname(textDocument.fileName)) {
