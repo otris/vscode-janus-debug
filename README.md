@@ -45,6 +45,10 @@ Then restart your server and make sure that your firewall rules allow access to 
 
 You'll find a complete list of changes at our project site on [GitHub](https://github.com/otris/vscode-janus-debug).
 
+### 0.0.6
+
+TODO
+
 ### 0.0.5
 
 Most notable in this release: We have merged _vscode-documents-scripting_ and _vscode-janus-debug_ extensions into one single extension. Users do not need to install multiple extensions anymore to get the full experience. We hope that this makes development much easier and faster.
