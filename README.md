@@ -4,6 +4,8 @@
 
 Visual Studio Code plugin for debugging JANUS-based applications.
 
+![Screenshot](https://github.com/otris/vscode-janus-debug/raw/master/img/extension-screenshot-1.png "Screenshot")
+
 ## Features
 
 This extension allows you to debug your JavaScript code directly on a JANUS-based server. This includes launching a script from within VS Code and executing it remotely on the server, setting breakpoints, stepping through the code, and evaluate expressions.
@@ -26,10 +28,14 @@ You'll find a complete list of changes at our project site on [GitHub](https://g
 
 ### 0.0.5
 
-Some bug fixes:
+Most notable in this release: We have merged _vscode-documents-scripting_ and _vscode-janus-debug_ extensions into one single extension. Users do not need to install multiple extensions anymore to get the full experience. We hope that this makes development much easier and faster.
 
-  - Fixed an issue that prevented connecting to a DOCUMENTS 5 server ([#23](https://github.com/otris/vscode-janus-debug/issues/23)). Sorry!
+Lots of bugs have been fixed in this release:
+
   - Setting breakpoints is more reliable now ([#12](https://github.com/otris/vscode-janus-debug/issues/12)). Thanks to [ChDxterWard](https://github.com/ChDxterWard).
+  - Fixed a problem with encrypted and decrypted scripts and the encryption states are now read from DOCUMENTS server prior to every upload.
+  - `#crypt` entry in a script should work now as expected.
+  - Fixed an issue that prevented connecting the debugger to a DOCUMENTS 5 server ([#23](https://github.com/otris/vscode-janus-debug/issues/23)). Sorry!
 
 ### 0.0.4
 
