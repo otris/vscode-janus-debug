@@ -34,7 +34,7 @@ Lots of bugs have been fixed in this release:
 
   - Setting breakpoints is more reliable now ([#12](https://github.com/otris/vscode-janus-debug/issues/12)). Thanks to [ChDxterWard](https://github.com/ChDxterWard).
   - Fixed a problem with encrypted and decrypted scripts and the encryption states are now read from DOCUMENTS server prior to every upload.
-  - `#crypt` entry in a script should work now as expected.
+  - A `// #crypt` entry in a script should work now as expected.
   - Fixed an issue that prevented connecting the debugger to a DOCUMENTS 5 server ([#23](https://github.com/otris/vscode-janus-debug/issues/23)). Sorry!
 
 ### 0.0.4
