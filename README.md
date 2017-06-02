@@ -33,7 +33,7 @@ Additional features
 
 ## Requirements
 
-You need a relatively recent DOCUMENTS 5 or privacy 6.1 server up and running. Add following line to your server's .ini file:
+You need a relatively recent DOCUMENTS 5 (starting with 5.0c) or privacy 6.1 server up and running. Add following line to your server's .ini file:
 
 ```
 JSDebugger yes
