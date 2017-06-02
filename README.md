@@ -3,6 +3,11 @@
 [![Build Status](https://travis-ci.org/otris/vscode-janus-debug.svg?branch=master)](https://travis-ci.org/otris/vscode-janus-debug)
 
 Visual Studio Code plugin for debugging JANUS-based applications.
+Additional, in order to create, edit and execute JavaScript files on a Documents-Server with Visual Studio Code this extension provides the following features:
+* Up- and downloading JavaScript files to and from a DOCUMENTS-Server.
+* Running JavaScript files on a DOCUMENTS-Server.
+
+Please note: This extension is still a prototype. Additional features like comparison of local scripts with scripts on the server or IntelliSense will soon be integrated. Please refer to https://github.com/otris/vscode-documents-scripting/issues for submitting suggestions, wishes or bugs. 
 
 ![Screenshot](https://github.com/otris/vscode-janus-debug/raw/master/img/extension-screenshot-1.png "Screenshot")
 
@@ -11,6 +16,20 @@ Visual Studio Code plugin for debugging JANUS-based applications.
 This extension allows you to debug your JavaScript code directly on a JANUS-based server. This includes launching a script from within VS Code and executing it remotely on the server, setting breakpoints, stepping through the code, and evaluate expressions.
 
 It uses the [jsrdbg](https://github.com/swojtasiak/jsrdbg) Debug Protocol to attach to a remote server and debug the JavaScript code executed by SpiderMonkey.
+
+Additional features
+
+* Download single script.
+* Upload single script.
+    * Optionally set script to conflict mode, meaning the script will not be uploaded if it has been changed on server.
+    * Optionally upload script automatically every time it is saved.
+* Upload all scripts from a folder.
+* Download all scripts from server to a folder.
+    * Optionally define a download list containing the scripts to download at download all.
+* Run single script.
+* Compare local script with server script.
+* Script settings can be set in .vscode/settings.json.
+
 
 ## Requirements
 
@@ -33,8 +52,7 @@ Most notable in this release: We have merged _vscode-documents-scripting_ and _v
 Lots of bugs have been fixed in this release:
 
   - Setting breakpoints is more reliable now ([#12](https://github.com/otris/vscode-janus-debug/issues/12)). Thanks to [ChDxterWard](https://github.com/ChDxterWard).
-  - Fixed a problem with encrypted and decrypted scripts and the encryption states are now read from DOCUMENTS server prior to every upload.
-  - A `// #crypt` entry in a script should work now as expected.
+  - Fixed problems with encrypted and decrypted scripts. The encryption states are now read from DOCUMENTS server prior to every upload. The `// #crypt` entry in a script should work now as expected.
   - Fixed an issue that prevented connecting the debugger to a DOCUMENTS 5 server ([#23](https://github.com/otris/vscode-janus-debug/issues/23)). Sorry!
 
 ### 0.0.4
