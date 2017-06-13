@@ -179,12 +179,6 @@ export function activate(context: vscode.ExtensionContext): void {
     // this features can not activate the extension
     // but they are needed immediately
 
-    // output channel for server log
-    const myOutputChannel2: vscode.OutputChannel = vscode.window.createOutputChannel('documents-server-channel');
-    myOutputChannel2.append('DOCUMENTSServer.log' + '\n');
-    myOutputChannel2.show();
-
-
 
     // Some features only available in workspace
     if (vscode.workspace) {
