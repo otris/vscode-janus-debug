@@ -15,7 +15,7 @@ export interface Output {
     show(column?: any, preserveFocus?: boolean): void;
 }
 
-export interface ServerConsoleConfig {
+export interface Config {
     /**
      * Hostname or IP address of target server.
      */
@@ -37,30 +37,45 @@ const log = Logger.create(`ServerConsole`);
 
 export class ServerConsole {
 
-    private conn: SDSConnection;
+    private config: Config | undefined;
+    private conn: SDSConnection | undefined;
     private lastSeen: number;
 
-    constructor(private config: ServerConsoleConfig, private out: Output) {
-        assert.ok(config.hostname.length !== 0);
-        assert.ok(config.port > 0);
-
+    constructor(private out: Output) {
+        this.config = undefined;
+        this.conn = undefined;
         this.lastSeen = 0;
     }
 
-    public async start() {
+    public get currentConfiguration(): Config | undefined { return this.config; }
+
+    public get outputChannel(): Output { return this.out; }
+
+    public dispose(): void { this.out.dispose(); }
+
+    public hide(): void { this.out.hide(); }
+
+    public isConnected(): boolean { return this.conn !== undefined; }
+
+    public async connect(config: Config): Promise<void> {
+        this.config = config;
+        assert.ok(this.config.hostname.length !== 0);
+        assert.ok(this.config.port > 0);
+
         return new Promise<void>((resolve, reject) => {
-            if (this.conn) {
+            if (this.conn !== undefined) {
                 resolve();
                 return;
             }
 
             this.out.show();
-            log.debug(`connecting to ${this.config.port}:${this.config.hostname}`);
+            log.debug(`connecting to ${config.port}:${config.hostname}`);
 
             let sock: Socket;
             try {
-                sock = createConnection(this.config.port, this.config.hostname, () => {
+                sock = createConnection(config.port, config.hostname, () => {
                     this.conn = new SDSConnection(sock);
+                    const conn = this.conn;
 
                     this.conn.connect('server-console').then(() => {
 
@@ -76,25 +91,25 @@ export class ServerConsole {
 
                         */
 
-                        return this.conn.getLogMessages(-1);
+                        return conn.getLogMessages(-1);
                     }).then((messages) => {
 
                         for (const line of messages.lines) {
-                            this.print(line);
+                            this.printLogLine(line);
                         }
 
                         this.lastSeen = messages.lastSeen;
 
                     }).then(() => {
 
-                        const pollingInterval = this.config.refreshRate || 3000;
+                        const pollingInterval = config.refreshRate || 3000;
                         let taskIsRunning = false;
                         setInterval(async () => {
                             if (!taskIsRunning) {
                                 taskIsRunning = true;
-                                await this.conn.getLogMessages(this.lastSeen).then(messages => {
+                                await conn.getLogMessages(this.lastSeen).then(messages => {
                                     for (const line of messages.lines) {
-                                        this.print(line);
+                                        this.printLogLine(line);
                                     }
                                 }).then(() => {
                                     taskIsRunning = false;
@@ -110,7 +125,7 @@ export class ServerConsole {
                 });
             } catch (connectError) {
                 // Cannot connect; disregard and immediately resolve
-                log.info(`cannot connect to ${this.config.port}:${this.config.hostname}: ` +
+                log.info(`cannot connect to ${config.port}:${config.hostname}: ` +
                     `${connectError.toString()}`);
                 resolve();
                 return;
@@ -122,6 +137,7 @@ export class ServerConsole {
             });
 
             sock.on('close', (hadError: boolean) => {
+                this.out.appendLine('Remote closed the connection');
                 let msg = 'remote closed the connection';
                 if (hadError) {
                     msg += ' because of an error';
@@ -135,7 +151,19 @@ export class ServerConsole {
         });
     }
 
-    private print(line: string) {
+    public async disconnect(): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            if (!this.conn) {
+                resolve();
+            } else {
+                const conn = this.conn;
+                this.conn = undefined;
+                return conn.disconnect();
+            }
+        });
+    }
+
+    private printLogLine(line: string) {
         this.out.appendLine(`→ ${line}`);
     }
 }

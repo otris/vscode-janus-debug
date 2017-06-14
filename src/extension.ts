@@ -7,9 +7,50 @@ import * as vscode from 'vscode';
 import * as commands from './commands';
 import { provideInitialConfigurations } from './config';
 import * as login from './login';
-
+import { ServerConsole } from './serverConsole';
 
 const DOCUMENTS_SETTINGS = 'documents-scripting-settings.json';
+
+let launchJsonWatcher: vscode.FileSystemWatcher;
+let serverConsole: ServerConsole;
+
+
+/**
+ * Connect or re-connect server console.
+ *
+ * Get launch.json configuration and see if we can connect to a remote
+ * server already. Watch for changes in launch.json file.
+ */
+function reconnectServerConsole(console: ServerConsole): void {
+
+    let hostname: string | undefined;
+    let port: number | undefined;
+
+    try {
+        console.disconnect();
+
+        const launchJson = vscode.workspace.getConfiguration('launch');
+        const configs: any[] = launchJson.get('configurations', []);
+
+        for (const config of configs) {
+            if (config.hasOwnProperty('type') && config.type === 'janus') {
+                hostname = config.host;
+                port = config.applicationPort;
+                break;
+            }
+        }
+    } catch (error) {
+        // Swallow
+    }
+
+    if (hostname && port) {
+        console.connect({ hostname, port });
+    }
+}
+
+function disconnectServerConsole(console: ServerConsole): void {
+    console.outputChannel.appendLine(`Disconnected from server`);
+}
 
 export function activate(context: vscode.ExtensionContext): void {
 
@@ -20,6 +61,23 @@ export function activate(context: vscode.ExtensionContext): void {
         conf.update('decrypted', undefined);
     }
 
+    const outputChannel = vscode.window.createOutputChannel('Server Console');
+    outputChannel.appendLine('Extension activated');
+    outputChannel.show();
+    serverConsole = new ServerConsole(outputChannel);
+    reconnectServerConsole(serverConsole);
+
+    launchJsonWatcher = vscode.workspace.createFileSystemWatcher('**/launch.json',
+        false, false, false);
+    launchJsonWatcher.onDidCreate(() => {
+        outputChannel.appendLine('launch.json created; trying to connect...');
+        reconnectServerConsole(serverConsole);
+    });
+    launchJsonWatcher.onDidChange(() => {
+        outputChannel.appendLine('launch.json changed; trying to (re)connect...');
+        reconnectServerConsole(serverConsole);
+    });
+    launchJsonWatcher.onDidDelete(() => disconnectServerConsole(serverConsole));
 
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.askForPassword', () => {
@@ -207,5 +265,8 @@ export function activate(context: vscode.ExtensionContext): void {
 }
 
 export function deactivate(): undefined {
+    launchJsonWatcher.dispose();
+    serverConsole.hide();
+    serverConsole.dispose();
     return;
 }
