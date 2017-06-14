@@ -8,12 +8,80 @@ import * as commands from './commands';
 import { provideInitialConfigurations } from './config';
 import * as login from './login';
 import { ServerConsole } from './serverConsole';
+import stripJsonComments = require('strip-json-comments');
 
 const DOCUMENTS_SETTINGS = 'documents-scripting-settings.json';
 
 let launchJsonWatcher: vscode.FileSystemWatcher;
 let serverConsole: ServerConsole;
 
+/**
+ * Extends an object with another object's properties.
+ *
+ * Merges the properties of two objects together into the first object.
+ *
+ * @param target The object that will receive source's properties.
+ * @param source An object carrying additional properties.
+ */
+function extend<T, U>(target: T, source: U): T & U {
+    const s: any = source;
+    const t: any = target;
+    Object.keys(s).forEach(key => t[key] = s[key]);
+    return t;
+}
+
+/**
+ * Reads and returns the launch.json file's configurations.
+ *
+ * This function does essentially the same as
+ *
+ *     let configs = vscode.workspace.getConfiguration('launch');
+ *
+ * but is guaranteed to read the configuration from disk the moment it is called.
+ * vscode.workspace.getConfiguration function seems instead to return the
+ * currently loaded or active configuration which is not necessarily the most
+ * current one.
+ */
+async function getLaunchConfigFromDisk(): Promise<vscode.WorkspaceConfiguration> {
+
+    class Config implements vscode.WorkspaceConfiguration {
+
+        [key: string]: any
+
+        public get<T>(section: string, defaultValue?: T): T {
+            // tslint:disable-next-line:no-string-literal
+            return this.has(section) ? this[section] : defaultValue;
+        }
+
+        public has(section: string): boolean {
+            return this.hasOwnProperty(section);
+        }
+
+        public async update(section: string, value: any): Promise<void> {
+            // Not implemented... and makes no sense to implement
+            return Promise.reject(new Error('Not implemented'));
+        }
+    }
+
+    return new Promise<vscode.WorkspaceConfiguration>((resolve, reject) => {
+        if (!vscode.workspace.rootPath) {
+            // No folder open; resolve with an empty configuration
+            return resolve(new Config());
+        }
+
+        const filePath = path.resolve(vscode.workspace.rootPath, '.vscode/launch.json');
+        fs.readFile(filePath, { encoding: 'utf-8', flag: 'r' }, (err, data) => {
+            if (err) {
+                // Silently ignore error and resolve with an empty configuration
+                return resolve(new Config());
+            }
+
+            const obj = JSON.parse(stripJsonComments(data));
+            const config = extend(new Config(), obj);
+            resolve(config);
+        });
+    });
+}
 
 /**
  * Connect or re-connect server console.
@@ -21,7 +89,7 @@ let serverConsole: ServerConsole;
  * Get launch.json configuration and see if we can connect to a remote
  * server already. Watch for changes in launch.json file.
  */
-function reconnectServerConsole(console: ServerConsole): void {
+async function reconnectServerConsole(console: ServerConsole): Promise<void> {
 
     let hostname: string | undefined;
     let port: number | undefined;
@@ -29,7 +97,7 @@ function reconnectServerConsole(console: ServerConsole): void {
     try {
         console.disconnect();
 
-        const launchJson = vscode.workspace.getConfiguration('launch');
+        const launchJson = await getLaunchConfigFromDisk();  // vscode.workspace.getConfiguration('launch');
         const configs: any[] = launchJson.get('configurations', []);
 
         for (const config of configs) {
