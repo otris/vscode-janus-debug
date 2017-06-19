@@ -133,19 +133,24 @@ export function activate(context: vscode.ExtensionContext): void {
     outputChannel.appendLine('Extension activated');
     outputChannel.show();
     serverConsole = new ServerConsole(outputChannel);
-    reconnectServerConsole(serverConsole);
 
-    launchJsonWatcher = vscode.workspace.createFileSystemWatcher('**/launch.json',
-        false, false, false);
-    launchJsonWatcher.onDidCreate(() => {
-        outputChannel.appendLine('launch.json created; trying to connect...');
+    const extensionSettings = vscode.workspace.getConfiguration('vscode-janus-debug');
+    const autoConnectEnabled = extensionSettings.get('serverConsole.autoConnect', true);
+    if (autoConnectEnabled) {
         reconnectServerConsole(serverConsole);
-    });
-    launchJsonWatcher.onDidChange(() => {
-        outputChannel.appendLine('launch.json changed; trying to (re)connect...');
-        reconnectServerConsole(serverConsole);
-    });
-    launchJsonWatcher.onDidDelete(() => disconnectServerConsole(serverConsole));
+
+        launchJsonWatcher = vscode.workspace.createFileSystemWatcher('**/launch.json',
+            false, false, false);
+        launchJsonWatcher.onDidCreate(() => {
+            outputChannel.appendLine('launch.json created; trying to connect...');
+            reconnectServerConsole(serverConsole);
+        });
+        launchJsonWatcher.onDidChange(() => {
+            outputChannel.appendLine('launch.json changed; trying to (re)connect...');
+            reconnectServerConsole(serverConsole);
+        });
+        launchJsonWatcher.onDidDelete(() => disconnectServerConsole(serverConsole));
+    }
 
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.askForPassword', () => {

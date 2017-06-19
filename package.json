@@ -257,6 +257,17 @@
           "type": "array",
           "default": [],
           "description": "Names of all scripts on server."
+        },
+        "vscode-janus-debug.serverConsole": {
+          "type": "object",
+          "title": "Server Console",
+          "properties": {
+            "autoConnect": {
+              "type": "boolean",
+              "default": true,
+              "description": "Try to auto connect Server Console every time the launch.json is changed"
+            }
+          }
         }
       }
     },
