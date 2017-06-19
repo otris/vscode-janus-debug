@@ -111,6 +111,8 @@ export class ServerConsole {
                                     for (const line of messages.lines) {
                                         this.printLogLine(line);
                                     }
+                                    this.lastSeen = messages.lastSeen;
+
                                 }).then(() => {
                                     taskIsRunning = false;
                                 });
