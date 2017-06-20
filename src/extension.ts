@@ -108,6 +108,8 @@ function disconnectServerConsole(console: ServerConsole): void {
 
 export function activate(context: vscode.ExtensionContext): void {
 
+    const isFolderOpen: boolean = vscode.workspace !== undefined;
+
     // only temporary to remove my hacks in settings.json
     const conf = vscode.workspace.getConfiguration('vscode-documents-scripting');
     if (conf) {
@@ -115,27 +117,29 @@ export function activate(context: vscode.ExtensionContext): void {
         conf.update('decrypted', undefined);
     }
 
-    const outputChannel = vscode.window.createOutputChannel('Server Console');
-    outputChannel.appendLine('Extension activated');
-    outputChannel.show();
-    serverConsole = new ServerConsole(outputChannel);
+    if (isFolderOpen) {
+        const outputChannel = vscode.window.createOutputChannel('Server Console');
+        outputChannel.appendLine('Extension activated');
+        outputChannel.show();
+        serverConsole = new ServerConsole(outputChannel);
 
-    const extensionSettings = vscode.workspace.getConfiguration('vscode-janus-debug');
-    const autoConnectEnabled = extensionSettings.get('serverConsole.autoConnect', true);
-    if (autoConnectEnabled) {
-        reconnectServerConsole(serverConsole);
+        const extensionSettings = vscode.workspace.getConfiguration('vscode-janus-debug');
+        const autoConnectEnabled = extensionSettings.get('serverConsole.autoConnect', true);
+        if (autoConnectEnabled) {
+            reconnectServerConsole(serverConsole);
 
-        launchJsonWatcher = vscode.workspace.createFileSystemWatcher('**/launch.json',
-            false, false, false);
-        launchJsonWatcher.onDidCreate(() => {
-            outputChannel.appendLine('launch.json created; trying to connect...');
-            reconnectServerConsole(serverConsole);
-        });
-        launchJsonWatcher.onDidChange(() => {
-            outputChannel.appendLine('launch.json changed; trying to (re)connect...');
-            reconnectServerConsole(serverConsole);
-        });
-        launchJsonWatcher.onDidDelete(() => disconnectServerConsole(serverConsole));
+            launchJsonWatcher = vscode.workspace.createFileSystemWatcher('**/launch.json',
+                false, false, false);
+            launchJsonWatcher.onDidCreate(() => {
+                outputChannel.appendLine('launch.json created; trying to connect...');
+                reconnectServerConsole(serverConsole);
+            });
+            launchJsonWatcher.onDidChange(() => {
+                outputChannel.appendLine('launch.json changed; trying to (re)connect...');
+                reconnectServerConsole(serverConsole);
+            });
+            launchJsonWatcher.onDidDelete(() => disconnectServerConsole(serverConsole));
+        }
     }
 
     context.subscriptions.push(
@@ -157,7 +161,7 @@ export function activate(context: vscode.ExtensionContext): void {
     const loginData: nodeDoc.LoginData = new nodeDoc.LoginData();
     context.subscriptions.push(loginData);
     // set launch.jsaon for saving login data
-    if (vscode.workspace) {
+    if (isFolderOpen) {
         loginData.launchjson = path.join(vscode.workspace.rootPath, '.vscode', 'launch.json');
     }
     // set additional function for getting and saving login data
@@ -298,8 +302,7 @@ export function activate(context: vscode.ExtensionContext): void {
 
 
     // Some features only available in workspace
-    if (vscode.workspace) {
-
+    if (isFolderOpen) {
         const activationfile = path.join(vscode.workspace.rootPath, DOCUMENTS_SETTINGS);
         try {
             fs.readFileSync(activationfile);
