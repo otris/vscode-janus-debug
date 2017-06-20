@@ -283,7 +283,7 @@ export function readHashValues(pscripts: nodeDoc.scriptT[]) {
     } catch (err) {
         if (err.code === 'ENOENT') {
             hashValues = [];
-            nodeDoc.writeFile('', _documents);
+            fs.writeFileSync(_documents, '');
         } else {
             return;
         }
