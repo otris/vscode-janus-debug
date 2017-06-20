@@ -169,14 +169,14 @@ export function activate(context: vscode.ExtensionContext): void {
 
     // Save login data
     context.subscriptions.push(
-        vscode.commands.registerCommand('extension.saveConfiguration', (param) => {
+        vscode.commands.registerCommand('extension.vscode-janus-debug.saveConfiguration', (param) => {
             commands.saveLoginData(loginData, param);
         })
     );
 
     // Upload script
     context.subscriptions.push(
-        vscode.commands.registerCommand('extension.uploadScript', (param) => {
+        vscode.commands.registerCommand('extension.vscode-janus-debug.uploadScript', (param) => {
             let _param;
             if (param) {
                 _param = param._fsPath;
@@ -190,7 +190,7 @@ export function activate(context: vscode.ExtensionContext): void {
 
     // Upload all
     context.subscriptions.push(
-        vscode.commands.registerCommand('extension.uploadScriptsFromFolder', (param) => {
+        vscode.commands.registerCommand('extension.vscode-janus-debug.uploadScriptsFromFolder', (param) => {
             let _param;
             if (param) {
                 _param = param._fsPath;
@@ -201,7 +201,7 @@ export function activate(context: vscode.ExtensionContext): void {
 
     // Download script
     context.subscriptions.push(
-        vscode.commands.registerCommand('extension.downloadScript', (param) => {
+        vscode.commands.registerCommand('extension.vscode-janus-debug.downloadScript', (param) => {
             let _param;
             if (param) {
                 _param = param._fsPath;
@@ -215,7 +215,7 @@ export function activate(context: vscode.ExtensionContext): void {
 
     // Download all
     context.subscriptions.push(
-        vscode.commands.registerCommand('extension.downloadScriptsToFolder', (param) => {
+        vscode.commands.registerCommand('extension.vscode-janus-debug.downloadScriptsToFolder', (param) => {
             let _param;
             if (param) {
                 _param = param._fsPath;
@@ -226,7 +226,7 @@ export function activate(context: vscode.ExtensionContext): void {
 
     // Run script
     context.subscriptions.push(
-        vscode.commands.registerCommand('extension.runScript', (param) => {
+        vscode.commands.registerCommand('extension.vscode-janus-debug.runScript', (param) => {
             let _param;
             if (param) {
                 _param = param._fsPath;
@@ -240,7 +240,7 @@ export function activate(context: vscode.ExtensionContext): void {
 
     // Upload and Run script
     context.subscriptions.push(
-        vscode.commands.registerCommand('extension.uploadRunScript', (param) => {
+        vscode.commands.registerCommand('extension.vscode-janus-debug.uploadRunScript', (param) => {
             let _param;
             if (param) {
                 _param = param._fsPath;
@@ -254,7 +254,7 @@ export function activate(context: vscode.ExtensionContext): void {
 
     // Compare script
     context.subscriptions.push(
-        vscode.commands.registerCommand('extension.compareScript', (param) => {
+        vscode.commands.registerCommand('extension.vscode-janus-debug.compareScript', (param) => {
             let _param;
             if (param) {
                 _param = param._fsPath;
@@ -268,14 +268,14 @@ export function activate(context: vscode.ExtensionContext): void {
 
     // Get scriptnames
     context.subscriptions.push(
-        vscode.commands.registerCommand('extension.getScriptNames', (param) => {
+        vscode.commands.registerCommand('extension.vscode-janus-debug.getScriptNames', (param) => {
             commands.getScriptnames(loginData, param);
-        })
+         })
     );
 
     // Get script parameters
     context.subscriptions.push(
-        vscode.commands.registerCommand('extension.getScriptParameters', (param) => {
+        vscode.commands.registerCommand('extension.vscode-janus-debug.getScriptParameters', (param) => {
             commands.getScriptParameters(loginData, param);
         })
     );
@@ -283,7 +283,7 @@ export function activate(context: vscode.ExtensionContext): void {
     // todo...
     // View documentation
     context.subscriptions.push(
-        vscode.commands.registerCommand('extension.viewDocumentation', (file) => {
+        vscode.commands.registerCommand('extension.vscode-janus-debug.viewDocumentation', (file) => {
             // file is not used, use active editor...
             commands.viewDocumentation();
         })
