@@ -35,7 +35,8 @@
     "onCommand:extension.uploadScriptsFromFolder",
     "onCommand:extension.downloadScriptsToFolder",
     "onCommand:extension.getScriptNames",
-    "onCommand:extension.getScriptParameters"
+    "onCommand:extension.getScriptParameters",
+    "onDebug:janus"
   ],
   "main": "./out/src/extension",
   "contributes": {
@@ -256,6 +257,17 @@
           "type": "array",
           "default": [],
           "description": "Names of all scripts on server."
+        },
+        "vscode-janus-debug.serverConsole": {
+          "type": "object",
+          "title": "Server Console",
+          "properties": {
+            "autoConnect": {
+              "type": "boolean",
+              "default": true,
+              "description": "Try to auto connect Server Console every time the launch.json is changed"
+            }
+          }
         }
       }
     },
@@ -442,6 +454,7 @@
   "devDependencies": {
     "@types/mocha": "^2.2.41",
     "@types/node": "^7.0.22",
+    "@types/strip-json-comments": "0.0.28",
     "@types/utf8": "^2.1.5",
     "mocha": "^2.4.5",
     "tslint": "^5.3.2",

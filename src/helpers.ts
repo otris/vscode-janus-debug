@@ -23,6 +23,21 @@ const NO_CONFLICT = 'No conflict';
 const CACHE_FILE = '.documents-scripting-cache';
 
 /**
+ * Extends an object with another object's properties.
+ *
+ * Merges the properties of two objects together into the first object.
+ *
+ * @param target The object that will receive source's properties.
+ * @param source An object carrying additional properties.
+ */
+export function extend<T, U>(target: T, source: U): T & U {
+    const s: any = source;
+    const t: any = target;
+    Object.keys(s).forEach(key => t[key] = s[key]);
+    return t;
+}
+
+/**
  * Subfunction of ensureUploadScripts.
  *
  * @param script
