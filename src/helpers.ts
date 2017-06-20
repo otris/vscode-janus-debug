@@ -331,8 +331,21 @@ export function updateHashValues(pscripts: nodeDoc.scriptT[]) {
     // filename of cache file CACHE_FILE
     const _documents = path.join(vscode.workspace.rootPath, '.vscode', CACHE_FILE);
 
-    // get hash values from file as array
-    const hashValues = fs.readFileSync(_documents, 'utf8').trim().split('\n');
+    let hashValues: string[];
+    try {
+        // get hash values from file as array
+        hashValues = fs.readFileSync(_documents, 'utf8').trim().split('\n');
+    } catch (err) {
+        // todo
+        // if (err.code === 'ENOENT') {
+        //     hashValues = [];
+        //     fs.writeFileSync(_documents, '');
+        // } else {
+        //     return;
+        // }
+
+        return;
+    }
 
     // get extension-part of settings.json
     const conf = vscode.workspace.getConfiguration('vscode-documents-scripting');
