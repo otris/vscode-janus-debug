@@ -161,7 +161,7 @@ export function activate(context: vscode.ExtensionContext): void {
     loginData.getLoginData = login.createLoginData;
 
     // output channel for run script...
-    const runScriptChannel: vscode.OutputChannel = vscode.window.createOutputChannel('run-script-channel');
+    const runScriptChannel: vscode.OutputChannel = vscode.window.createOutputChannel('Script Console');
 
     // register commands...
     // this commands can activate the extension
