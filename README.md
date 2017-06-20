@@ -2,38 +2,28 @@
 
 [![Build Status](https://travis-ci.org/otris/vscode-janus-debug.svg?branch=master)](https://travis-ci.org/otris/vscode-janus-debug)
 
-Visual Studio Code plugin for debugging JANUS-based applications.
-Additional, in order to create, edit and execute JavaScript files on a Documents-Server with Visual Studio Code this extension provides the following features:
-* Up- and downloading JavaScript files to and from a DOCUMENTS-Server.
-* Running JavaScript files on a DOCUMENTS-Server.
-
-Please note: This extension is still a prototype. Additional features like comparison of local scripts with scripts on the server or IntelliSense will soon be integrated. Please refer to https://github.com/otris/vscode-documents-scripting/issues for submitting suggestions, wishes or bugs. 
+Visual Studio Code plugin for developing and debugging JavaScript on DOCUMENTS 5 and and other JANUS-based applications.
 
 ![Screenshot](https://github.com/otris/vscode-janus-debug/raw/master/img/extension-screenshot-1.png "Screenshot")
 
 ## Features
 
-This extension allows you to debug your JavaScript code directly on a JANUS-based server. This includes launching a script from within VS Code and executing it remotely on the server, setting breakpoints, stepping through the code, and evaluate expressions.
+This extension allows you to debug your JavaScript code directly on a JANUS-based server like DOCUMENTS, otris contract, and otris privacy. This includes launching a script from within VS Code and executing it remotely on the server, setting breakpoints, stepping through the code, and evaluating expressions<sup>1</sup>.
 
-It uses the [jsrdbg](https://github.com/swojtasiak/jsrdbg) Debug Protocol to attach to a remote server and debug the JavaScript code executed by SpiderMonkey.
+This extensions includes lots of additional features that ease the development, especially on DOCUMENTS 5:
 
-Additional features
-
-* Download single script.
-* Upload single script.
-    * Optionally set script to conflict mode, meaning the script will not be uploaded if it has been changed on server.
-    * Optionally upload script automatically every time it is saved.
-* Upload all scripts from a folder.
-* Download all scripts from server to a folder.
-    * Optionally define a download list containing the scripts to download at download all.
-* Run single script.
-* Compare local script with server script.
-* Script settings can be set in .vscode/settings.json.
-
+* Download a single script, edit it with full IntelliSense, and upload it again
+* Upload all scripts from a local folder to a remote server
+* Download all scripts from a server to a local folder
+* Automatically upload a script every time it is saved
+* Set a script to conflict mode, meaning the script will not be uploaded if it has been changed on server
+* Compare a local script with the version that is stored on the remote server
 
 ## Requirements
 
-You need a relatively recent DOCUMENTS 5 (starting with 5.0c) or privacy 6.1 server up and running. Add following line to your server's .ini file:
+You need a relatively recent DOCUMENTS 5 (starting with 5.0b, but our focus is on 5.0c and later) or privacy 6.1 server up and running.
+
+Add following line to your server's .ini file to enable the debugging engine:
 
 ```
 JSDebugger yes
@@ -82,3 +72,5 @@ As a software-based data and document management specialist, otris software AG s
 For more information about otris software AG visit our website [otris.de](https://www.otris.de/) or our Open Source repositories at [github.com/otris](https://github.com/otris).
 
 **Enjoy!**
+
+<sup>1</sup> It uses the [jsrdbg](https://github.com/swojtasiak/jsrdbg) Debug Protocol to attach to a remote server and debug the JavaScript code executed by SpiderMonkey. Check it out if you want to know more.
