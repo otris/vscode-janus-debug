@@ -53,7 +53,7 @@ export type ResponseSubType =
     'contexts_list';
 
 export interface Response {
-    /** Tyep of the response: 'info' for normal responses, 'error' for errors. */
+    /** Type of the response: 'info' for normal responses, 'error' for errors. */
     type: ResponseType;
     /** Actual content of a response. */
     content: any;

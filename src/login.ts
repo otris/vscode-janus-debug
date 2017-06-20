@@ -194,7 +194,7 @@ async function createLaunchJson(_loginData: nodeDoc.LoginData): Promise<void> {
                         reject(err);
                     }
                 } else {
-                    // launch.jsaon exists
+                    // launch.json exists
                     // I don't dare to change it
                     reject('cannot overwrite existing launch.json');
                 }

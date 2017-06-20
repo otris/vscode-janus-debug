@@ -123,7 +123,7 @@ export class VariablesMap {
             evaluateName = variableName;
         }
 
-        // We have to differentiate between primtive types, arrays, objects, and functions.
+        // We have to differentiate between primitive types, arrays, objects, and functions.
         switch (typeof variableValue) {
             case 'string':
                 const decodedValue = decode(variableValue);
@@ -149,7 +149,7 @@ export class VariablesMap {
     }
 
     /**
-     * Creates a variable object for primtive types.
+     * Creates a variable object for primitive types.
      * @param {string} variableName The display name of the variable.
      * @param {any} variableValue The content of the variable.
      * @param {string} evaluateName This param is need for evaluate variables that are properties of object or elements of arrays. For this variables we need also the name of their parent to access the value.
@@ -240,7 +240,7 @@ export class VariablesMap {
         const variablesContainer: VariablesContainer = new VariablesContainer(contextId);
 
         if (variableValue.hasOwnProperty('___jsrdbg_function_desc___')) {
-            // Functions will be recognised as objects because of the way the debugger evaluate functions
+            // Functions will be recognized as objects because of the way the debugger evaluate functions
             let functionParams = variableValue.___jsrdbg_function_desc___.parameterNames;
             functionParams = functionParams.toString().replace(/,/, ', ');
 

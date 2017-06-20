@@ -153,7 +153,7 @@ export function activate(context: vscode.ExtensionContext): void {
     // needed for all features
     const loginData: nodeDoc.LoginData = new nodeDoc.LoginData();
     context.subscriptions.push(loginData);
-    // set launch.jsaon for saving login data
+    // set launch.json for saving login data
     if (isFolderOpen) {
         loginData.launchjson = path.join(vscode.workspace.rootPath, '.vscode', 'launch.json');
     }
@@ -266,7 +266,7 @@ export function activate(context: vscode.ExtensionContext): void {
         })
     );
 
-    // Get scriptnames
+    // Get script names
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.getScriptNames', (param) => {
             commands.getScriptnames(loginData, param);
@@ -296,12 +296,12 @@ export function activate(context: vscode.ExtensionContext): void {
 
     // Some features only available in workspace
     if (isFolderOpen) {
-        const activationfile = path.join(vscode.workspace.rootPath, DOCUMENTS_SETTINGS);
+        const activationFile = path.join(vscode.workspace.rootPath, DOCUMENTS_SETTINGS);
         try {
-            fs.readFileSync(activationfile);
+            fs.readFileSync(activationFile);
         } catch (err) {
             if (err.code === 'ENOENT') {
-                fs.writeFileSync(activationfile, '');
+                fs.writeFileSync(activationFile, '');
             }
         }
 

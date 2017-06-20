@@ -95,7 +95,7 @@ export class Context {
 
                     res.content.variables.forEach((element: any) => {
 
-                        // Each element got a stackElement which descripes the frame and a list of
+                        // Each element got a stackElement which describes the frame and a list of
                         // variables.
 
                         element.variables.forEach((variable: any) => {
@@ -193,7 +193,7 @@ const coordinatorLog = Logger.create('ContextCoordinator');
 /**
  * Coordinates requests and responses for all available contexts.
  *
- * Resposibilities:
+ * Responsibilities:
  * - Keep track of all available contexts of the target.
  * - Dispatch incoming responses to their corresponding context.
  */

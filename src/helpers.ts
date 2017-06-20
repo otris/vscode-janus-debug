@@ -18,7 +18,7 @@ export const COMPARE_FILE_PREFIX = 'compare_';
 const FORCE_UPLOAD_YES = 'Yes';
 const FORCE_UPLOAD_NO = 'No';
 const FORCE_UPLOAD_ALL = 'Yes (remember my answer for this operation)';
-const FORCE_UPLOAD_NONE = 'No (remeber my answer for this operation)';
+const FORCE_UPLOAD_NONE = 'No (remember my answer for this operation)';
 const NO_CONFLICT = 'No conflict';
 
 const CACHE_FILE = '.documents-scripting-cache';

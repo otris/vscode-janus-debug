@@ -79,7 +79,7 @@ const initialConfigurations = [
 /**
  * Get 'main' property from given package.json if there is a such a property in that file.
  *
- * @param packageJsonPath {string} The absolut path to the package.json file
+ * @param packageJsonPath {string} The absolute path to the package.json file
  */
 export /* meh */ function parseEntryPoint(packageJsonPath: string): string | undefined {
     let entryPoint: string | undefined;

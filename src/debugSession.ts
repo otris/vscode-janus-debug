@@ -461,7 +461,7 @@ export class JanusDebugSession extends DebugSession {
                             if (res.type === 'error' && res.content.message && res.content.message !== 'Cannot set breakpoint at given line.') {
                                 reject(new Error(`Target responded with error '${res.content.message}'`));
                             } else {
-                                // The debugengine tells us that the current breakpoint can set, so
+                                // The debug engine tells us that the current breakpoint can set, so
                                 // the breakpoint will verified in vscode.
                                 res.content.pending = true;
                                 resolve(res.content);
@@ -814,7 +814,7 @@ export class JanusDebugSession extends DebugSession {
                     );
 
                     // In the variables container we fetched before is now the collapsed variable and the new variable, so we have to
-                    // refetch the variables container
+                    // re-fetch the variables container
                     variablesContainer = this.variablesMap.getVariables(args.variablesReference);
 
                     // Inside our variables container are not the variables we received from the debugger when we called the
@@ -844,7 +844,7 @@ export class JanusDebugSession extends DebugSession {
         log.info(`setVariableRequest with variablesRequest ${args.variablesReference}`);
 
         if (this.connection === undefined) {
-            throw new Error('No connetion');
+            throw new Error('No connection');
         }
 
         // Get the variable which we want to set from the variables map
@@ -919,7 +919,7 @@ export class JanusDebugSession extends DebugSession {
                 variablesReference: 0,
             };
 
-            log.debug('evalueteRequest succeeded');
+            log.debug('evaluateRequest succeeded');
             this.sendResponse(response);
         }).catch((reason) => {
             log.error(`evaluateRequest failed: ${reason}`);
