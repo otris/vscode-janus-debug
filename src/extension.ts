@@ -95,7 +95,7 @@ async function reconnectServerConsole(console: ServerConsole): Promise<void> {
     let port: number | undefined;
 
     try {
-        console.disconnect();
+        await console.disconnect();
 
         const launchJson = await getLaunchConfigFromDisk();  // vscode.workspace.getConfiguration('launch');
         const configs: any[] = launchJson.get('configurations', []);

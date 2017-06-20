@@ -154,13 +154,13 @@ export class ServerConsole {
     }
 
     public async disconnect(): Promise<void> {
-        return new Promise<void>((resolve, reject) => {
+        return new Promise<void>(async (resolve, reject) => {
             if (!this.conn) {
                 resolve();
             } else {
-                const conn = this.conn;
+                await this.conn.disconnect();
                 this.conn = undefined;
-                return conn.disconnect();
+                resolve();
             }
         });
     }
