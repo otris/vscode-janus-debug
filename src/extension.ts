@@ -110,13 +110,6 @@ export function activate(context: vscode.ExtensionContext): void {
 
     const isFolderOpen: boolean = vscode.workspace !== undefined;
 
-    // only temporary to remove my hacks in settings.json
-    const conf = vscode.workspace.getConfiguration('vscode-documents-scripting');
-    if (conf) {
-        conf.update('encrypted', undefined);
-        conf.update('decrypted', undefined);
-    }
-
     if (isFolderOpen) {
         const outputChannel = vscode.window.createOutputChannel('Server Console');
         outputChannel.appendLine('Extension activated');

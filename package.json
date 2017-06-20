@@ -221,14 +221,6 @@
     ],
     "configuration": {
       "properties": {
-        "vscode-documents-scripting.encrypted": {
-          "type": "array",
-          "default": []
-        },
-        "vscode-documents-scripting.decrypted": {
-          "type": "array",
-          "default": []
-        },
         "vscode-documents-scripting.uploadOnSave": {
           "type": "array",
           "default": [],
@@ -244,19 +236,10 @@
           "default": [],
           "description": "Always overwrite server script, ignore changes."
         },
-        "vscode-documents-scripting.readOnly": {
-          "type": "array",
-          "default": []
-        },
         "vscode-documents-scripting.downloadScripts": {
           "type": "array",
           "default": [],
           "description": "Scripts to download on command Download Scripts To Folder. If this list is empty all scripts from server are downloaded."
-        },
-        "vscode-documents-scripting.serverScripts": {
-          "type": "array",
-          "default": [],
-          "description": "Names of all scripts on server."
         },
         "vscode-janus-debug.serverConsole": {
           "type": "object",
