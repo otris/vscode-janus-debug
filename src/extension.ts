@@ -6,6 +6,7 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import * as commands from './commands';
 import { provideInitialConfigurations } from './config';
+import { extend } from './helpers';
 import * as login from './login';
 import { ServerConsole } from './serverConsole';
 import stripJsonComments = require('strip-json-comments');
@@ -14,21 +15,6 @@ const DOCUMENTS_SETTINGS = 'documents-scripting-settings.json';
 
 let launchJsonWatcher: vscode.FileSystemWatcher;
 let serverConsole: ServerConsole;
-
-/**
- * Extends an object with another object's properties.
- *
- * Merges the properties of two objects together into the first object.
- *
- * @param target The object that will receive source's properties.
- * @param source An object carrying additional properties.
- */
-function extend<T, U>(target: T, source: U): T & U {
-    const s: any = source;
-    const t: any = target;
-    Object.keys(s).forEach(key => t[key] = s[key]);
-    return t;
-}
 
 /**
  * Reads and returns the launch.json file's configurations.
