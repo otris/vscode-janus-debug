@@ -253,8 +253,8 @@ export function compareScript(loginData: nodeDoc.LoginData, _param: any) {
  */
 export function getScriptnames(loginData: nodeDoc.LoginData, param: any) {
     nodeDoc.sdsSession(loginData, [], nodeDoc.getScriptNamesFromServer).then((_scripts) => {
-        helpers.setServerScripts(_scripts);
-        vscode.window.setStatusBarMessage('wrote ' + _scripts.length + ' scriptnames to settings.json');
+        helpers.writeScriptNamesToFile(_scripts);
+        console.log('Wrote scripts to file and opened the file');
     }).catch((reason) => {
         vscode.window.showErrorMessage('get scriptnames failed: ' + reason);
     });

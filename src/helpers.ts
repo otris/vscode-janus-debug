@@ -2,6 +2,7 @@
 
 import * as fs from 'fs';
 import * as nodeDoc from 'node-documents-scripting';
+import * as os from 'os';
 import * as path from 'path';
 import * as vscode from 'vscode';
 
@@ -21,6 +22,7 @@ const FORCE_UPLOAD_NONE = 'No (remeber my answer for this operation)';
 const NO_CONFLICT = 'No conflict';
 
 const CACHE_FILE = '.documents-scripting-cache';
+const SCRIPT_NAMES_FILE = '.documents-script-names';
 
 /**
  * Extends an object with another object's properties.
@@ -215,7 +217,7 @@ export function readDownloadScripts(): nodeDoc.scriptT[] {
     return scripts;
 }
 
-export function setServerScripts(scripts: nodeDoc.scriptT[]) {
+export function writeScriptNamesToFile(scripts: nodeDoc.scriptT[]) {
     if (!vscode.workspace) {
         return;
     }
@@ -223,17 +225,19 @@ export function setServerScripts(scripts: nodeDoc.scriptT[]) {
         return;
     }
 
-    // get extension-part of settings.json
-    const conf = vscode.workspace.getConfiguration('vscode-documents-scripting');
-
     // get scriptnames
     const scriptnames: string[] = [];
     scripts.forEach((script) => {
         scriptnames.push(script.name);
     });
 
-    // update list in settings.json
-    conf.update('serverScripts', scriptnames);
+    const scriptnamesstr = scriptnames.join(os.EOL) + os.EOL;
+    const file = path.join(vscode.workspace.rootPath, SCRIPT_NAMES_FILE);
+    fs.writeFileSync(file, scriptnamesstr);
+
+    vscode.workspace.openTextDocument(vscode.Uri.file(file)).then((doc) => {
+        vscode.window.showTextDocument(doc);
+    });
 }
 
 
