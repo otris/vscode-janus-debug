@@ -270,7 +270,7 @@ export function activate(context: vscode.ExtensionContext): void {
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.getScriptNames', (param) => {
             commands.getScriptnames(loginData, param);
-         })
+        })
     );
 
     // Get script parameters

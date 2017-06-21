@@ -7,13 +7,12 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import * as helpers from './helpers';
 import * as login from './login';
+import stripJsonComments = require('strip-json-comments');
 
 // tslint:disable-next-line:no-var-requires
 const urlExists = require('url-exists');
 // tslint:disable-next-line:no-var-requires
 const open = require('open');
-// tslint:disable-next-line:no-var-requires
-const stripJsonComments = require('strip-json-comments');
 
 const VERSION_SCRIPT_PARAMS = '8035';
 
@@ -78,8 +77,8 @@ async function _uploadScript(loginData: nodeDoc.LoginData, param: any): Promise<
  * Upload script
  */
 export function uploadScript(loginData: nodeDoc.LoginData, param: any) {
-    _uploadScript(loginData, param).then((scriptname) => {
-        vscode.window.setStatusBarMessage('uploaded: ' + scriptname);
+    _uploadScript(loginData, param).then((scriptName) => {
+        vscode.window.setStatusBarMessage('uploaded: ' + scriptName);
     }).catch((reason) => {
         vscode.window.showErrorMessage(reason);
     });
@@ -92,8 +91,8 @@ export function uploadScriptOnSave(loginData: nodeDoc.LoginData, fileName: strin
     helpers.ensureUploadOnSave(fileName).then((value) => {
         if (value) {
 
-            _uploadScript(loginData, fileName).then((scriptname) => {
-                vscode.window.setStatusBarMessage('uploaded: ' + scriptname);
+            _uploadScript(loginData, fileName).then((scriptName) => {
+                vscode.window.setStatusBarMessage('uploaded: ' + scriptName);
             }).catch((reason) => {
                 vscode.window.showErrorMessage(reason);
             });
@@ -108,9 +107,9 @@ export function uploadScriptOnSave(loginData: nodeDoc.LoginData, fileName: strin
  * Upload and run script
  */
 export function uploadRunScript(loginData: nodeDoc.LoginData, param: any, myOutputChannel: vscode.OutputChannel) {
-    _uploadScript(loginData, param).then((scriptname) => {
+    _uploadScript(loginData, param).then((scriptName) => {
 
-        let script: nodeDoc.scriptT = { name: scriptname };
+        let script: nodeDoc.scriptT = { name: scriptName };
         return nodeDoc.sdsSession(loginData, [script], nodeDoc.runScript).then((value) => {
             script = value[0];
             myOutputChannel.append(script.output + os.EOL);
@@ -127,21 +126,21 @@ export function uploadRunScript(loginData: nodeDoc.LoginData, param: any, myOutp
  */
 export function uploadAll(loginData: nodeDoc.LoginData, _param: any) {
     helpers.ensurePath(_param).then((folder) => {
-        return nodeDoc.getScriptsFromFolder(folder[0]).then((folderscripts) => {
+        return nodeDoc.getScriptsFromFolder(folder[0]).then((folderScripts) => {
 
-            helpers.readHashValues(folderscripts);
-            return nodeDoc.sdsSession(loginData, folderscripts, nodeDoc.uploadAll).then((value1) => {
-                const retscripts: nodeDoc.scriptT[] = value1;
+            helpers.readHashValues(folderScripts);
+            return nodeDoc.sdsSession(loginData, folderScripts, nodeDoc.uploadAll).then((value1) => {
+                const retScripts: nodeDoc.scriptT[] = value1;
 
                 // ask user about how to handle conflict scripts
-                helpers.ensureForceUpload(retscripts).then(([noConflict, forceUpload]) => {
+                helpers.ensureForceUpload(retScripts).then(([noConflict, forceUpload]) => {
 
                     // forceUpload might be empty, function resolves anyway
                     nodeDoc.sdsSession(loginData, forceUpload, nodeDoc.uploadAll).then((value2) => {
-                        const retscripts2: nodeDoc.scriptT[] = value2;
+                        const retScripts2: nodeDoc.scriptT[] = value2;
 
                         // retscripts2 might be empty
-                        const uploaded = noConflict.concat(retscripts2);
+                        const uploaded = noConflict.concat(retScripts2);
 
                         helpers.updateHashValues(uploaded);
 
@@ -161,9 +160,9 @@ export function uploadAll(loginData: nodeDoc.LoginData, _param: any) {
  * Download script
  */
 export function downloadScript(loginData: nodeDoc.LoginData, param: any) {
-    helpers.ensureScriptName(param).then((scriptname) => {
+    helpers.ensureScriptName(param).then((scriptName) => {
         return helpers.ensurePath(param, true).then((_path) => {
-            let script: nodeDoc.scriptT = { name: scriptname, path: _path[0] };
+            let script: nodeDoc.scriptT = { name: scriptName, path: _path[0] };
 
             helpers.readConflictModes([script]);
             return nodeDoc.sdsSession(loginData, [script], nodeDoc.downloadScript).then((value) => {
@@ -195,9 +194,9 @@ export function downloadAll(loginData: nodeDoc.LoginData, _param: any) {
 
             // download scripts
             return nodeDoc.sdsSession(loginData, _scripts, nodeDoc.dwonloadAll).then((scripts) => {
-                const numscripts = scripts.length;
+                const numScripts = scripts.length;
                 helpers.updateHashValues(scripts);
-                vscode.window.setStatusBarMessage('downloaded ' + numscripts + ' scripts');
+                vscode.window.setStatusBarMessage('downloaded ' + numScripts + ' scripts');
             });
         });
     }).catch((reason) => {
@@ -226,20 +225,20 @@ export function runScript(loginData: nodeDoc.LoginData, param: any, myOutputChan
  */
 export function compareScript(loginData: nodeDoc.LoginData, _param: any) {
     helpers.ensurePath(_param, false, true).then((_path) => {
-        const scriptfolder = _path[0];
+        const scriptFolder = _path[0];
         const _scriptname = _path[1];
         return helpers.ensureScriptName(_scriptname).then((scriptname) => {
-            let comparepath: string;
+            let comparePath: string;
             if (vscode.workspace) {
-                comparepath = path.join(vscode.workspace.rootPath, helpers.COMPARE_FOLDER);
+                comparePath = path.join(vscode.workspace.rootPath, helpers.COMPARE_FOLDER);
             } else {
-                comparepath = path.join(scriptfolder, helpers.COMPARE_FOLDER);
+                comparePath = path.join(scriptFolder, helpers.COMPARE_FOLDER);
             }
-            return helpers.createFolder(comparepath, true).then(() => {
-                let script: nodeDoc.scriptT = { name: scriptname, path: comparepath, rename: helpers.COMPARE_FILE_PREFIX + scriptname };
+            return helpers.createFolder(comparePath, true).then(() => {
+                let script: nodeDoc.scriptT = { name: scriptname, path: comparePath, rename: helpers.COMPARE_FILE_PREFIX + scriptname };
                 return nodeDoc.sdsSession(loginData, [script], nodeDoc.downloadScript).then((value) => {
                     script = value[0];
-                    helpers.compareScript(scriptfolder, scriptname);
+                    helpers.compareScript(scriptFolder, scriptname);
                 });
             });
         });
@@ -249,7 +248,7 @@ export function compareScript(loginData: nodeDoc.LoginData, _param: any) {
 }
 
 /**
- * Download scriptnames
+ * Download script names
  */
 export function getScriptnames(loginData: nodeDoc.LoginData, param: any) {
     nodeDoc.sdsSession(loginData, [], nodeDoc.getScriptNamesFromServer).then((_scripts) => {
@@ -272,7 +271,7 @@ export function getScriptParameters(loginData: nodeDoc.LoginData, param: any) {
         if (!doc) {
             vscode.window.showErrorMessage(`get script parameters: get DOCUMENTS version failed`);
         } else if (doc.version && (Number(VERSION_SCRIPT_PARAMS) > Number(doc.version))) {
-            const errmsg = `Get Script Parameters: requiered DOCUMENTS version is ${VERSION_SCRIPT_PARAMS}, you are using ${doc.version}`;
+            const errmsg = `Get Script Parameters: required DOCUMENTS version is ${VERSION_SCRIPT_PARAMS}, you are using ${doc.version}`;
             vscode.window.showErrorMessage(errmsg);
         } else {
             // get names of all scripts in script array
@@ -294,16 +293,16 @@ export function getScriptParameters(loginData: nodeDoc.LoginData, param: any) {
                                 parameters: jsonObject[scriptName].parameters
                             };
                         }
-                        const jsonOtuput = JSON.stringify(scriptsObject, null, '\t').split('\n').map(line => '\t' + line).join('\n').trim();
+                        const jsonOutput = JSON.stringify(scriptsObject, null, '\t').split('\n').map(line => '\t' + line).join('\n').trim();
                         // save json to workspace or write it to console
                         if (vscode.workspace) {
                             const jsonfilename = 'jscript.specs.json';
                             const jsonfilepath = path.join(vscode.workspace.rootPath, jsonfilename);
-                            return nodeDoc.writeFile(jsonOtuput, jsonfilepath).then(() => {
+                            return nodeDoc.writeFile(jsonOutput, jsonfilepath).then(() => {
                                 vscode.window.setStatusBarMessage('wrote script parameters to ' + jsonfilename);
                             });
                         } else {
-                            console.log(jsonOtuput);
+                            console.log(jsonOutput);
                         }
                     } else {
                         console.log('get script parameters failed: array.length: ' + value.length);
@@ -321,8 +320,8 @@ export function getScriptParameters(loginData: nodeDoc.LoginData, param: any) {
  * -------------------------------------------------- */
 
 export function viewDocumentation() {
-    const portalscriptdocu = 'http://doku.otris.de/api/portalscript/';
-    urlExists(portalscriptdocu, function(err: any, exists: any) {
+    const portalScriptDocs = 'http://doku.otris.de/api/portalscript/';
+    urlExists(portalScriptDocs, function(err: any, exists: any) {
         if (!exists) {
             vscode.window.showInformationMessage('Documentation is not available!');
         } else {
@@ -335,20 +334,20 @@ export function viewDocumentation() {
 
             // skip import lines
             let cnt = 0;
-            let currline: string = editor.document.lineAt(cnt).text;
-            while (currline.startsWith('import')) {
+            let currLine: string = editor.document.lineAt(cnt).text;
+            while (currLine.startsWith('import')) {
                 cnt++;
-                currline = editor.document.lineAt(cnt).text;
+                currLine = editor.document.lineAt(cnt).text;
             }
 
             // first line after import should look like "export class Context {"
-            const _words = currline.split(' ');
+            const _words = currLine.split(' ');
             if (_words.length !== 4 || _words[0] !== 'export' || _words[1] !== 'class' || _words[3] !== '{') {
                 return;
             }
 
 
-            const classname = _words[2];
+            const className = _words[2];
 
             // the Position object gives you the line and character where the cursor is
             const pos = editor.selection.active;
@@ -367,15 +366,15 @@ export function viewDocumentation() {
                 }
             }
 
-            const jsFileName = 'class' + classname + '.js';
-            const htmlFileName = 'class' + classname + '.html';
+            const jsFileName = 'class' + className + '.js';
+            const htmlFileName = 'class' + className + '.html';
             const jsFilePath = path.join(vscode.workspace.rootPath, 'mapping', jsFileName);
 
             fs.readFile(jsFilePath, (error, data) => {
 
                 const browser = 'firefox';
                 if (err || !data) {
-                    const page = portalscriptdocu + htmlFileName;
+                    const page = portalScriptDocs + htmlFileName;
                     open(page, browser);
 
                 } else {
@@ -394,13 +393,13 @@ export function viewDocumentation() {
                         if (entry === member) {
                             // entries[1] looks like: "  "classContext.html#a6d644a063ace489a2893165bb3856579""
                             const link = entries[1].replace(/"/g, '').trim();
-                            const page = portalscriptdocu + link;
+                            const page = portalScriptDocs + link;
                             open(page, browser);
                             break;
                         }
                     }
                     if (i === lines.length - 1) {
-                        const page = portalscriptdocu + htmlFileName;
+                        const page = portalScriptDocs + htmlFileName;
                         open(page, browser);
                     }
                 }

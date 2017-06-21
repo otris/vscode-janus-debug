@@ -297,7 +297,7 @@
       },
       {
         "command": "extension.vscode-janus-debug.getScriptNames",
-        "title": "Get Scriptnames"
+        "title": "Get Script Names"
       },
       {
         "command": "extension.vscode-janus-debug.getScriptParameters",

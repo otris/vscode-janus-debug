@@ -362,6 +362,10 @@ export class JanusDebugSession extends DebugSession {
                     }
                 });
             });
+
+            // TODO: the timeout needs to be cancelled when the request is resolved, right? Anyway, use
+            // promised-timeout library for that
+
             Promise.race([request, timeout]).then(() => {
 
                 // Tell the frontend that we are ready to set breakpoints and so on. The frontend will end the
