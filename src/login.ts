@@ -18,7 +18,7 @@ const initialConfigurations = [
         host: 'localhost',
         applicationPort: 11000,
         debuggerPort: 8089,
-        stopOnEntry: false,
+        stopOnEntry: true,
         log: {
             fileName: '${workspaceRoot}/vscode-janus-debug-launch.log',
             logLevel: {
