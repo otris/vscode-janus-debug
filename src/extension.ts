@@ -15,6 +15,7 @@ const DOCUMENTS_SETTINGS = 'documents-scripting-settings.json';
 
 let launchJsonWatcher: vscode.FileSystemWatcher;
 let serverConsole: ServerConsole;
+let runScriptChannel: vscode.OutputChannel;
 
 /**
  * Reads and returns the launch.json file's configurations.
@@ -163,7 +164,7 @@ export function activate(context: vscode.ExtensionContext): void {
     loginData.getLoginData = login.createLoginData;
 
     // output channel for run script...
-    const runScriptChannel: vscode.OutputChannel = vscode.window.createOutputChannel('Script Console');
+    runScriptChannel = vscode.window.createOutputChannel('Script Console');
 
     // register commands...
     // this commands can activate the extension
@@ -325,5 +326,7 @@ export function deactivate(): undefined {
     launchJsonWatcher.dispose();
     serverConsole.hide();
     serverConsole.dispose();
+    runScriptChannel.hide();
+    runScriptChannel.dispose();
     return;
 }
