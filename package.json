@@ -97,11 +97,6 @@
                 "description": "Time in ms until we give up trying to connect.",
                 "default": 6000
               },
-              "sdsTimeout": {
-                "type": "number",
-                "description": "Time in ms until we give up waiting for a response.",
-                "default": 60000
-              },
               "stopOnEntry": {
                 "type": "boolean",
                 "description": "Automatically pause script after launch.",
@@ -168,11 +163,6 @@
                 "type": "number",
                 "description": "Time in ms until we give up trying to connect.",
                 "default": 6000
-              },
-              "sdsTimeout": {
-                "type": "number",
-                "description": "Time in ms until we give up waiting for a response.",
-                "default": 60000
               },
               "log": {
                 "type": "object",
