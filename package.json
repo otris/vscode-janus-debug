@@ -94,7 +94,7 @@
               },
               "timeout": {
                 "type": "number",
-                "description": "Time in ms until we give up trying to connect.",
+                "description": "Time in ms until we give up trying to connect or waiting for an answer.",
                 "default": 6000
               },
               "stopOnEntry": {
@@ -161,7 +161,7 @@
               },
               "timeout": {
                 "type": "number",
-                "description": "Time in ms until we give up trying to connect.",
+                "description": "Time in ms until we give up trying to connect or waiting for an answer.",
                 "default": 6000
               },
               "log": {
