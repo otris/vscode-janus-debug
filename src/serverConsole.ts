@@ -31,6 +31,12 @@ export interface Config {
      * messages. Optional. Default is 3000.
      */
     refreshRate?: number;
+
+    /**
+     * Time in milliseconds until we give up trying to connect or waiting
+     * for an answer. Optional. Default is 3000.
+     */
+    timeout?: number;
 }
 
 const log = Logger.create(`ServerConsole`);
@@ -76,8 +82,8 @@ export class ServerConsole {
                 sock = createConnection(config.port, config.hostname, () => {
                     this.conn = new SDSConnection(sock);
                     const conn = this.conn;
-
-                    this.conn.connect('server-console').then(() => {
+                    conn.timeout = config.timeout || 6000;
+                    conn.connect('server-console').then(() => {
 
                         /*
 
