@@ -105,7 +105,7 @@
               "stopOnEntry": {
                 "type": "boolean",
                 "description": "Automatically pause script after launch.",
-                "default": false
+                "default": true
               },
               "log": {
                 "type": "object",
