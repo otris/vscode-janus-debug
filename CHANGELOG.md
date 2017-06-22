@@ -4,7 +4,12 @@ You'll find a complete list of changes at our project site on [GitHub](https://g
 
 ### 0.0.7 (YYYY-MM-DD)
 
-TODO
+WIP
+
+Following issues have been fixed in this release:
+
+  - User can now change all network related timeouts from within `launch.json` file ([#51](https://github.com/otris/vscode-janus-debug/issues/51)).
+  - Some minor errors have been fixed when a new `launch.json` was created from previously entered data ([5c45fa0](https://github.com/otris/vscode-janus-debug/commit/5c45fa0ee06c19ca2b1f1641cdce89e200175c16)).
 
 ### 0.0.6 (2017-06-21)
 
