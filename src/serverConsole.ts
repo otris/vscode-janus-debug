@@ -34,7 +34,7 @@ export interface Config {
 
     /**
      * Time in milliseconds until we give up trying to connect or waiting
-     * for an answer. Optional. Default is 3000.
+     * for an answer. Optional. Default is 6000.
      */
     timeout?: number;
 }
