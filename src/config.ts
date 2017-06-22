@@ -60,6 +60,7 @@ const initialConfigurations = [
                 default: 'Debug',
             },
         },
+        timeout: 6000
     },
     {
         name: 'Attach to Server',
@@ -73,6 +74,7 @@ const initialConfigurations = [
                 default: 'Debug',
             },
         },
+        timeout: 6000
     },
 ];
 

@@ -94,13 +94,8 @@
               },
               "timeout": {
                 "type": "number",
-                "description": "Time in ms until we give up trying to connect.",
+                "description": "Time in ms until we give up trying to connect or waiting for an answer.",
                 "default": 6000
-              },
-              "sdsTimeout": {
-                "type": "number",
-                "description": "Time in ms until we give up waiting for a response.",
-                "default": 60000
               },
               "stopOnEntry": {
                 "type": "boolean",
@@ -166,13 +161,8 @@
               },
               "timeout": {
                 "type": "number",
-                "description": "Time in ms until we give up trying to connect.",
+                "description": "Time in ms until we give up trying to connect or waiting for an answer.",
                 "default": 6000
-              },
-              "sdsTimeout": {
-                "type": "number",
-                "description": "Time in ms until we give up waiting for a response.",
-                "default": 60000
               },
               "log": {
                 "type": "object",

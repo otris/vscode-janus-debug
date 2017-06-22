@@ -79,6 +79,7 @@ async function reconnectServerConsole(console: ServerConsole): Promise<void> {
 
     let hostname: string | undefined;
     let port: number | undefined;
+    let timeout: number | undefined;
 
     try {
         await console.disconnect();
@@ -90,6 +91,7 @@ async function reconnectServerConsole(console: ServerConsole): Promise<void> {
             if (config.hasOwnProperty('type') && config.type === 'janus') {
                 hostname = config.host;
                 port = config.applicationPort;
+                timeout = config.timeout;
                 break;
             }
         }
@@ -98,7 +100,7 @@ async function reconnectServerConsole(console: ServerConsole): Promise<void> {
     }
 
     if (hostname && port) {
-        console.connect({ hostname, port });
+        console.connect({ hostname, port, timeout });
     }
 }
 
