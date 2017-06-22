@@ -193,7 +193,7 @@ export function downloadAll(loginData: nodeDoc.LoginData, _param: any) {
             helpers.readConflictModes(_scripts);
 
             // download scripts
-            return nodeDoc.sdsSession(loginData, _scripts, nodeDoc.dwonloadAll).then((scripts) => {
+            return nodeDoc.sdsSession(loginData, _scripts, nodeDoc.downloadAll).then((scripts) => {
                 const numScripts = scripts.length;
                 helpers.updateHashValues(scripts);
                 vscode.window.setStatusBarMessage('downloaded ' + numScripts + ' scripts');
