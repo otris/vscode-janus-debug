@@ -1,6 +1,5 @@
 'use strict';
 
-import { decode } from 'utf8';
 import { DebugProtocol } from 'vscode-debugprotocol';
 import { cantorPairing, reverseCantorPairing } from './cantor';
 import { Logger } from './log';
@@ -126,9 +125,7 @@ export class VariablesMap {
         // We have to differentiate between primitive types, arrays, objects, and functions.
         switch (typeof variableValue) {
             case 'string':
-                const decodedValue = decode(variableValue);
-                log.debug(`value of decoded UTF-8 variableValue is ${decodedValue}`);
-                return this.createPrimitiveVariable(variableName, decodedValue, evaluateName);
+                return this.createPrimitiveVariable(variableName, variableValue, evaluateName);
             case 'number':
             case 'boolean':
             case 'undefined':
