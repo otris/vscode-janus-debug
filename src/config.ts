@@ -109,9 +109,11 @@ export /* meh */ function parseEntryPoint(packageJsonPath: string): string | und
 /**
  * Returns a complete new launch.json as string.
  *
- * @param workspaceRootPath {string} The folder that is open in VS Code
+ * @param {string} [workspaceRootPath] The folder that is open in VS Code. Optional.
+ * @param {*} [overwrites] An optional set of properties that get used in the resulting config.
+ * @returns {string} The contents of the launch.json file.
  */
-export function provideInitialConfigurations(workspaceRootPath?: string): string {
+export function provideInitialConfigurations(workspaceRootPath?: string, overwrites?: any): string {
     // Get 'main' property from package.json iff there is a package.json. This is probably the primary entry
     // point for the program and we use it to set the "script" property in our initial configurations.
 
@@ -126,6 +128,16 @@ export function provideInitialConfigurations(workspaceRootPath?: string): string
                 }
             });
         }
+    }
+
+    if (overwrites) {
+        initialConfigurations.forEach((config: any) => {
+            Object.keys(overwrites).forEach(key => {
+                if (config[key] !== undefined) {
+                    config[key] = overwrites[key];
+                }
+            });
+        });
     }
 
     const configurations = JSON.stringify(initialConfigurations, null, '\t')

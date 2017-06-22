@@ -4,44 +4,7 @@ import * as fs from 'fs';
 import * as nodeDoc from 'node-documents-scripting';
 import * as path from 'path';
 import * as vscode from 'vscode';
-
-// todo debugger
-const initialConfigurations = [
-    {
-        name: 'Launch Script on Server',
-        request: 'launch',
-        type: 'janus',
-        script: '',
-        username: '',
-        password: '',
-        principal: '',
-        host: 'localhost',
-        applicationPort: 11000,
-        debuggerPort: 8089,
-        stopOnEntry: true,
-        log: {
-            fileName: '${workspaceRoot}/vscode-janus-debug-launch.log',
-            logLevel: {
-                default: 'Debug',
-            },
-        },
-    },
-    {
-        name: 'Attach to Server',
-        request: 'attach',
-        type: 'janus',
-        host: 'localhost',
-        debuggerPort: 8089,
-        log: {
-            fileName: '${workspaceRoot}/vscode-janus-debug-attach.log',
-            logLevel: {
-                default: 'Debug',
-            },
-        },
-    },
-];
-
-
+import { provideInitialConfigurations } from './config';
 
 export async function createLoginData(_loginData: nodeDoc.LoginData): Promise<void> {
     return new Promise<void>((resolve, reject) => {
@@ -70,10 +33,10 @@ async function askForLoginData(_loginData: nodeDoc.LoginData): Promise<void> {
     const PASSWORD = '';
 
     return new Promise<void>((resolve, reject) => {
-        let tmpserver: string;
-        let tmpport: string;
-        let tmpprincipal: string;
-        let tmpusername: string;
+        let tmpServer: string;
+        let tmpPort: string;
+        let tmpPrincipal: string;
+        let tmpUsername: string;
 
         // showInputBox() returns a thenable(value) object,
         // that is, these objects always have a then(value) function,
@@ -83,7 +46,7 @@ async function askForLoginData(_loginData: nodeDoc.LoginData): Promise<void> {
             value: SERVER,
             ignoreFocusOut: true,
         }).then((server): Thenable<string> => {
-            tmpserver = server;
+            tmpServer = server;
             if (server.length > 0) {
                 return vscode.window.showInputBox({
                     prompt: 'Please enter the port',
@@ -94,7 +57,7 @@ async function askForLoginData(_loginData: nodeDoc.LoginData): Promise<void> {
             throw new Error('input login data cancelled');
         }).then((port): Thenable<string> => {
             if (port.length > 0) {
-                tmpport = port;
+                tmpPort = port;
                 return vscode.window.showInputBox({
                     prompt: 'Please enter the principal',
                     value: _loginData.principal ? _loginData.principal : PRINCIPAL,
@@ -104,7 +67,7 @@ async function askForLoginData(_loginData: nodeDoc.LoginData): Promise<void> {
             throw new Error('input login data cancelled');
         }).then((principal): Thenable<string> => {
             if (principal.length > 0) {
-                tmpprincipal = principal;
+                tmpPrincipal = principal;
                 return vscode.window.showInputBox({
                     prompt: 'Please enter the username (username.principal)',
                     value: _loginData.username ? _loginData.username : USERNAME,
@@ -114,7 +77,7 @@ async function askForLoginData(_loginData: nodeDoc.LoginData): Promise<void> {
             throw new Error('input login data cancelled');
         }).then((username): Thenable<string> => {
             if (username.length > 0) {
-                tmpusername = username;
+                tmpUsername = username;
                 return vscode.window.showInputBox({
                     prompt: 'Please enter the password',
                     value: PASSWORD,
@@ -126,10 +89,10 @@ async function askForLoginData(_loginData: nodeDoc.LoginData): Promise<void> {
         }).then((password): void => {
             if (password !== undefined) {
                 _loginData.password = password;
-                _loginData.server = tmpserver;
-                _loginData.port = Number(tmpport);
-                _loginData.principal = tmpprincipal;
-                _loginData.username = tmpusername;
+                _loginData.server = tmpServer;
+                _loginData.port = Number(tmpPort);
+                _loginData.principal = tmpPrincipal;
+                _loginData.username = tmpUsername;
                 resolve();
             } else {
                 throw new Error('input login data cancelled');
@@ -138,15 +101,11 @@ async function askForLoginData(_loginData: nodeDoc.LoginData): Promise<void> {
     });
 }
 
-
-
-
-
-async function createLaunchJson(_loginData: nodeDoc.LoginData): Promise<void> {
+async function createLaunchJson(loginData: nodeDoc.LoginData): Promise<void> {
     console.log('createLaunchJson');
 
     return new Promise<void>((resolve, reject) => {
-        let rootPath;
+        let rootPath: string | undefined;
 
         if (!vscode.workspace) {
             reject('no workspace');
@@ -159,31 +118,15 @@ async function createLaunchJson(_loginData: nodeDoc.LoginData): Promise<void> {
             fs.stat(filename, function(err, stats) {
                 if (err) {
                     if ('ENOENT' === err.code) {
-                        // launch.json doesn't exist, create the default
-                        // launch.json for janus-debugger
+                        // launch.json doesn't exist, create one
 
-                        initialConfigurations.forEach((config: any) => {
-                            if (config.request === 'launch') {
-                                config.host = _loginData.server;
-                                config.applicationPort = _loginData.port;
-                                config.principal = _loginData.principal;
-                                config.username = _loginData.username;
-                                config.password = _loginData.password;
-                            }
+                        const data = provideInitialConfigurations(rootPath, {
+                            host: loginData.server,
+                            applicationPort: loginData.port,
+                            principal: loginData.principal,
+                            username: loginData.username,
+                            password: loginData.password,
                         });
-
-                        const configurations = JSON.stringify(initialConfigurations, null, '\t').split('\n').map(line => '\t' + line).join('\n').trim();
-                        const data = [
-                            '{',
-                            '\t// Use IntelliSense to learn about possible configuration attributes.',
-                            '\t// Hover to view descriptions of existing attributes.',
-                            '\t// For more information, visit',
-                            '\t// https://github.com/otris/vscode-janus-debug/wiki/Launching-the-Debugger',
-                            '\t"version": "0.2.0",',
-                            '\t"configurations": ' + configurations,
-                            '}',
-                        ].join('\n');
-
 
                         nodeDoc.writeFile(data, filename, true).then(() => {
                             resolve();
