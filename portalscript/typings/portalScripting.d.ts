@@ -242,7 +242,7 @@ declare namespace Documents {
 	* @param {string} blobreference
 	* @returns {boolean}
 	**/
-	putBlob(doc: any, blobreference: string): boolean;
+	putBlob(doc: Documents.Document, blobreference: string): boolean;
 	/**
 	 * Sends a query EQL to the EE.x XML-Server and returns the response XML. 
 	 * 
@@ -288,7 +288,7 @@ declare class ArchiveConnection implements Documents.ArchiveConnection {
 	downloadBlob(fileKey: string, docKey: string): Documents.ArchiveConnectionBlob;
 	downloadBlobs(fileKey: string, docKey: string): Documents.ArchiveConnectionBlobIterator;
 	getLastError(): string;
-	putBlob(doc: any, blobreference: string): boolean;
+	putBlob(doc: Documents.Document, blobreference: string): boolean;
 	queryRawEEx(eql: string, wantedHits: number, maxHits: number): string;
 	sendEbisRequest(resourceIdentifier: string, postData: string, extraHeaders: Array<any>): string;
 	sendRequest(request: string): string;
@@ -563,7 +563,7 @@ declare namespace Documents {
 	/**
 	 * Returns the object-id. 
 	 * 
-	 * ... ... ... ... 
+	 * ... ... ... 
 	 */
 	/**
 	* @memberof ArchiveServer
@@ -583,6 +583,16 @@ declare namespace Documents {
 	* @returns {boolean}
 	**/
 	setAttribute(attribute: string, value: string): boolean;
+	/**
+	 * After changes on the ArchiveServer with scripting methods, it is necessary to submit them to make them immediately valid. 
+	 * 
+	 * The settings of the ArchiveServer will be cached in a connection pool to the archive system. The pool does not recognize changes in the ArchiveServer object automatically, therefore it is necessary to call this method after all.
+	 */
+	/**
+	* @memberof ArchiveServer
+	* @returns {void}
+	**/
+	submitChanges(): void;
 	}
 }
 
@@ -593,6 +603,7 @@ declare class ArchiveServer implements Documents.ArchiveServer {
 	getLastError(): string;
 	getOID(oidLow: boolean): string;
 	setAttribute(attribute: string, value: string): boolean;
+	submitChanges(): void;
 }
 
 
@@ -1107,7 +1118,7 @@ declare namespace Documents {
 	* @param {any} folderObj
 	* @returns {boolean}
 	**/
-	deleteFolder(folderObj: any): boolean;
+	deleteFolder(folderObj: Folder): boolean;
 	/**
 	 * Delete a user in the DOCUMENTS environment. 
 	 * 
@@ -1414,7 +1425,7 @@ declare namespace Documents {
 	* @param {any} folder
 	* @returns {number}
 	**/
-	getFolderPosition(folder: any): number;
+	getFolderPosition(folder: Folder): number;
 	/**
 	 * Retrieve a list of folders with identical name. 
 	 * 
@@ -1603,7 +1614,7 @@ declare namespace Documents {
 	* @param {number} position
 	* @returns {boolean}
 	**/
-	setFolderPosition(folder: any, position: number): boolean;
+	setFolderPosition(folder: Documents.Folder, position: number): boolean;
 	/**
 	 * Creates or modifies a global custom property according the name and type. 
 	 * 
@@ -2264,7 +2275,7 @@ declare namespace Documents {
 	* @param {any} referencFileToParse
 	* @returns {Documents.Document}
 	**/
-	addDocumentFromFileSystem(pathDocument: string, targetRegister: string, targetFileName: string, deleteDocumentAtFileSystem: boolean, parseAutoText: boolean, referencFileToParse: any): Documents.Document;
+	addDocumentFromFileSystem(pathDocument: string, targetRegister: string, targetFileName: string, deleteDocumentAtFileSystem: boolean, parseAutoText: boolean, referencFileToParse: Documents.DocFile): Documents.Document;
 	/**
 	 * Create a PDF file containing the current DocFile's contents and store it on a given document register. 
 	 * 
@@ -2311,7 +2322,7 @@ declare namespace Documents {
 	* @param {any} desc
 	* @returns {boolean}
 	**/
-	archive(desc: any): boolean;
+	archive(desc: ArchivingDescription): boolean;
 	/**
 	 * Archive the DocFile object and remove the DOCUMENTS file. 
 	 * 
@@ -2371,7 +2382,7 @@ declare namespace Documents {
 	* @param {any} pUser
 	* @returns {boolean}
 	**/
-	clearFollowUpDate(pUser: any): boolean;
+	clearFollowUpDate(pUser: SystemUser): boolean;
 	/**
 	 * Commit any changes to the DocFile object. 
 	 * 
@@ -2392,7 +2403,7 @@ declare namespace Documents {
 	* @param {any} fObj
 	* @returns {boolean}
 	**/
-	connectFolder(fObj: any): boolean;
+	connectFolder(fObj: Folder): boolean;
 	/**
 	 * Count fields with a desired name in the file. 
 	 * 
@@ -2461,7 +2472,7 @@ declare namespace Documents {
 	* @param {any} fObj
 	* @returns {boolean}
 	**/
-	disconnectFolder(fObj: any): boolean;
+	disconnectFolder(fObj: Folder): boolean;
 	/**
 	 * Export the file as an XML file. 
 	 * 
@@ -2575,6 +2586,27 @@ declare namespace Documents {
 	**/
 	getCopy(copyMode: string): Documents.DocFile;
 	/**
+	 * Returns the creation date (timestamp) of a DocFile. 
+	 * 
+	 * ... ... ... ... ... 
+	 */
+	/**
+	* @memberof DocFile
+	* @returns {Date}
+	**/
+	getCreationDate(): Date;
+	/**
+	 * Returns the SystemUser object or fullname as String of the creator of the DocFile. 
+	 * 
+	 * ... ... ... ... ... ... ... 
+	 */
+	/**
+	* @memberof DocFile
+	* @param {boolean} asObject
+	* @returns {any}
+	**/
+	getCreator(asObject: boolean): any;
+	/**
 	 * Get the current workflow step of the current user locking the file. 
 	 * 
 	 * The function returns a valid WorkflowStep object if there exists one for the current user. If the current user does not lock the file, the function returns null instead. ... ... ... ... ... 
@@ -2650,6 +2682,16 @@ declare namespace Documents {
 	**/
 	getFirstLockingWorkflowStep(): Documents.WorkflowStep;
 	/**
+	 * Returns the file id of the DocFile. 
+	 * 
+	 * ... ... ... 
+	 */
+	/**
+	* @memberof DocFile
+	* @returns {string}
+	**/
+	getid(): string;
+	/**
 	 * Function to get the description of the last error that occurred. 
 	 * 
 	 * ... ... ... 
@@ -2659,6 +2701,26 @@ declare namespace Documents {
 	* @returns {string}
 	**/
 	getLastError(): string;
+	/**
+	 * Returns the last modification date (timestamp) of a DocFile. 
+	 * 
+	 * ... ... ... ... ... 
+	 */
+	/**
+	* @memberof DocFile
+	* @returns {Date}
+	**/
+	getLastModificationDate(): Date;
+	/**
+	 * Returns the fullname as String of the last editor of the DocFile. 
+	 * 
+	 * ... ... ... ... ... 
+	 */
+	/**
+	* @memberof DocFile
+	* @returns {string}
+	**/
+	getLastModifier(): string;
 	/**
 	 * Returns the object-id. 
 	 * 
@@ -2712,6 +2774,17 @@ declare namespace Documents {
 	* @returns {Documents.RegisterIterator}
 	**/
 	getRegisters(type: string): Documents.RegisterIterator;
+	/**
+	 * Returns the title of the DocFile. 
+	 * 
+	 * ... ... ... ... ... 
+	 */
+	/**
+	* @memberof DocFile
+	* @param {string} locale
+	* @returns {string}
+	**/
+	getTitle(locale: string): string;
 	/**
 	 * Get the status of the file for a desired user. 
 	 * 
@@ -2863,7 +2936,7 @@ declare namespace Documents {
 	* @param {any} owner
 	* @returns {boolean}
 	**/
-	setFileOwner(owner: any): boolean;
+	setFileOwner(owner: SystemUser): boolean;
 	/**
 	 * Set a followup date for a desired user. 
 	 * 
@@ -2876,7 +2949,7 @@ declare namespace Documents {
 	* @param {string} comment
 	* @returns {boolean}
 	**/
-	setFollowUpDate(pUser: any, followUpDate: Date, comment: string): boolean;
+	setFollowUpDate(pUser: Documents.SystemUser, followUpDate: Date, comment: string): boolean;
 	/**
 	 * Mark the file as read or unread for the desired user. 
 	 * 
@@ -2926,7 +2999,7 @@ declare namespace Documents {
 	/**
 	 * Synchronize any changes to the DocFile object back to the real file. 
 	 * 
-	 * It is strictly prohibited to execute the sync() method in a script that has been switched to edit mode with the startEdit() method. If you want to apply changes to file fields through a script that is executed as a signal exit inside a workflow, you should rather prefer sync() than the startEdit() / commit() instruction pair. ... ... ... ... ... ... ... ... 
+	 * If you want to apply changes to file fields through a script that is executed as a signal exit inside a workflow, you should rather prefer sync() than the startEdit() / commit() instruction pair. ... ... ... ... ... ... ... ... 
 	 */
 	/**
 	* @memberof DocFile
@@ -2953,25 +3026,25 @@ declare namespace Documents {
 declare class DocFile implements Documents.DocFile {
 	fieldName: any;
 	abort(): boolean;
-	addDocumentFromFileSystem(pathDocument: string, targetRegister: string, targetFileName: string, deleteDocumentAtFileSystem: boolean, parseAutoText: boolean, referencFileToParse: any): Documents.Document;
+	addDocumentFromFileSystem(pathDocument: string, targetRegister: string, targetFileName: string, deleteDocumentAtFileSystem: boolean, parseAutoText: boolean, referencFileToParse: Documents.DocFile): Documents.Document;
 	addPDF(pathCoverXML: string, createCover: boolean, pdfFileName: string, targetRegister: string, sourceRegisterNames: Array<any>): boolean;
 	archive(): boolean;
 	archive(archiveKey: string): boolean;
-	archive(desc: any): boolean;
+	archive(desc: ArchivingDescription): boolean;
 	archiveAndDelete(): boolean;
 	asJSON(): string;
 	cancelWorkflow(): boolean;
 	changeFiletype(nameFiletype: string): boolean;
 	checkWorkflowReceiveSignal(): boolean;
-	clearFollowUpDate(pUser: any): boolean;
+	clearFollowUpDate(pUser: SystemUser): boolean;
 	commit(): boolean;
-	connectFolder(fObj: any): boolean;
+	connectFolder(fObj: Folder): boolean;
 	countFields(fieldName: string): number;
 	createMonitorFile(asPDF: boolean, locale: string): string;
 	createStatusFile(asPDF: boolean, locale: string): string;
 	deleteFile(moveTrash: boolean, movePool: boolean, allVersions: boolean): boolean;
 	disconnectArchivedFile(): boolean;
-	disconnectFolder(fObj: any): boolean;
+	disconnectFolder(fObj: Folder): boolean;
 	exportXML(pathXML: string, withDocuments: boolean, withStatus: boolean, withMonitor: boolean): boolean;
 	forwardFile(controlFlowId: string, comment: string): boolean;
 	fromJSON(jsonstring: string): boolean;
@@ -2982,6 +3055,8 @@ declare class DocFile implements Documents.DocFile {
 	getAttribute(attribute: string): string;
 	getAutoText(autoText: string): string;
 	getCopy(copyMode: string): Documents.DocFile;
+	getCreationDate(): Date;
+	getCreator(asObject: boolean): any;
 	getCurrentWorkflowStep(): Documents.WorkflowStep;
 	getEnumAutoText(autoText: string): Array<any>;
 	getFieldAttribute(fieldName: string, attrName: string): string;
@@ -2989,12 +3064,16 @@ declare class DocFile implements Documents.DocFile {
 	getFieldValue(fieldName: string): any;
 	getFileOwner(): Documents.SystemUser;
 	getFirstLockingWorkflowStep(): Documents.WorkflowStep;
+	getid(): string;
 	getLastError(): string;
+	getLastModificationDate(): Date;
+	getLastModifier(): string;
 	getOID(oidLow: boolean): string;
 	getOriginal(): Documents.DocFile;
 	getReferenceFile(referenceFileField: string): Documents.DocFile;
 	getRegisterByName(registerName: string): Documents.Register;
 	getRegisters(type: string): Documents.RegisterIterator;
+	getTitle(locale: string): string;
 	getUserStatus(login: string): string;
 	hasField(fieldName: string): boolean;
 	insertStatusEntry(action: string, comment: string): boolean;
@@ -3007,8 +3086,8 @@ declare class DocFile implements Documents.DocFile {
 	setAttribute(attribute: string, value: string): boolean;
 	setFieldAttribute(fieldName: string, attrName: string, value: string): boolean;
 	setFieldValue(fieldName: string, value: any): boolean;
-	setFileOwner(owner: any): boolean;
-	setFollowUpDate(pUser: any, followUpDate: Date, comment: string): boolean;
+	setFileOwner(owner: SystemUser): boolean;
+	setFollowUpDate(pUser: Documents.SystemUser, followUpDate: Date, comment: string): boolean;
 	setUserRead(login: string, fileRead: boolean): boolean;
 	setUserStatus(login: string, status: string): boolean;
 	startEdit(): boolean;
@@ -3061,6 +3140,16 @@ declare namespace Documents {
 	* @returns {string}
 	**/
 	getArchiveKey(withServer: boolean): string;
+	/**
+	 * Function to get the blob info of the hit as xml. 
+	 * 
+	 * ... ... 
+	 */
+	/**
+	* @memberof DocHit
+	* @returns {string}
+	**/
+	getBlobInfo(): string;
 	/**
 	 * Get the file associated to the hit. 
 	 * 
@@ -3163,6 +3252,7 @@ declare class DocHit implements Documents.DocHit {
 	asJSON(): string;
 	getArchiveFile(): Documents.DocFile;
 	getArchiveKey(withServer: boolean): string;
+	getBlobInfo(): string;
 	getFile(): Documents.DocFile;
 	getFileId(): string;
 	getLastError(): string;
@@ -3391,7 +3481,7 @@ declare namespace Documents {
 	* @param {any} regObj
 	* @returns {boolean}
 	**/
-	moveToRegister(regObj: any): boolean;
+	moveToRegister(regObj: Register): boolean;
 	/**
 	 * Set the String value of an attribute of the Document to the desired value. 
 	 * 
@@ -3432,7 +3522,7 @@ declare class Document implements Documents.Document {
 	getAttribute(attribute: string): string;
 	getLastError(): string;
 	getOID(oidLow: boolean): string;
-	moveToRegister(regObj: any): boolean;
+	moveToRegister(regObj: Register): boolean;
 	setAttribute(attribute: string, value: string): boolean;
 	uploadDocument(sourceFilePath: string, versioning: boolean): boolean;
 }
@@ -3814,7 +3904,7 @@ declare namespace Documents {
 	* @param {any} oldAttr
 	* @returns {Documents.DOMAttr}
 	**/
-	removeAttributeNode(oldAttr: any): Documents.DOMAttr;
+	removeAttributeNode(oldAttr: DOMAttr): Documents.DOMAttr;
 	/**
 	 * Set an attribute of this element by string. 
 	 * 
@@ -3837,7 +3927,7 @@ declare namespace Documents {
 	* @param {any} newAttr
 	* @returns {Documents.DOMAttr}
 	**/
-	setAttributeNode(newAttr: any): Documents.DOMAttr;
+	setAttributeNode(newAttr: DOMAttr): Documents.DOMAttr;
 	}
 }
 
@@ -3847,9 +3937,9 @@ declare class DOMElement implements Documents.DOMElement {
 	getAttributeNode(name: string): Documents.DOMAttr;
 	getElementsByTagName(tagName: string): Documents.DOMNodeList;
 	removeAttribute(name: string): void;
-	removeAttributeNode(oldAttr: any): Documents.DOMAttr;
+	removeAttributeNode(oldAttr: DOMAttr): Documents.DOMAttr;
 	setAttribute(name: string, value: string): void;
-	setAttributeNode(newAttr: any): Documents.DOMAttr;
+	setAttributeNode(newAttr: DOMAttr): Documents.DOMAttr;
 }
 
 
@@ -3941,7 +4031,7 @@ declare namespace Documents {
 	* @param {any} arg
 	* @returns {Documents.DOMNode}
 	**/
-	setNamedItem(arg: any): Documents.DOMNode;
+	setNamedItem(arg: DOMNode): Documents.DOMNode;
 	}
 }
 
@@ -3950,7 +4040,7 @@ declare class DOMNamedNodeMap implements Documents.DOMNamedNodeMap {
 	getNamedItem(name: string): Documents.DOMNode;
 	item(index: number): Documents.DOMNode;
 	removeNamedItem(name: string): Documents.DOMNode;
-	setNamedItem(arg: any): Documents.DOMNode;
+	setNamedItem(arg: DOMNode): Documents.DOMNode;
 }
 
 
@@ -4020,7 +4110,7 @@ declare namespace Documents {
 	* @param {any} newChild
 	* @returns {Documents.DOMNode}
 	**/
-	appendChild(newChild: any): Documents.DOMNode;
+	appendChild(newChild: DOMNode): Documents.DOMNode;
 	/**
 	 * Create a duplicate of this node. 
 	 * 
@@ -4063,7 +4153,7 @@ declare namespace Documents {
 	* @param {any} refChild
 	* @returns {Documents.DOMNode}
 	**/
-	insertBefore(newChild: any, refChild: any): Documents.DOMNode;
+	insertBefore(newChild: Documents.DOMNode, refChild: Documents.DOMNode): Documents.DOMNode;
 	/**
 	 * Normalize the node ans its subtree. 
 	 * 
@@ -4084,7 +4174,7 @@ declare namespace Documents {
 	* @param {any} oldChild
 	* @returns {Documents.DOMNode}
 	**/
-	removeChild(oldChild: any): Documents.DOMNode;
+	removeChild(oldChild: DOMNode): Documents.DOMNode;
 	/**
 	 * Replace a node in the list of child nodes. 
 	 * 
@@ -4096,7 +4186,7 @@ declare namespace Documents {
 	* @param {any} oldChild
 	* @returns {Documents.DOMNode}
 	**/
-	replaceChild(newChild: any, oldChild: any): Documents.DOMNode;
+	replaceChild(newChild: Documents.DOMNode, oldChild: Documents.DOMNode): Documents.DOMNode;
 	}
 }
 
@@ -4112,14 +4202,14 @@ declare class DOMNode implements Documents.DOMNode {
 	ownerDocument: Documents.DOMDocument;
 	parentNode: Documents.DOMNode;
 	previousSibling: Documents.DOMNode;
-	appendChild(newChild: any): Documents.DOMNode;
+	appendChild(newChild: DOMNode): Documents.DOMNode;
 	cloneNode(deep: boolean): Documents.DOMNode;
 	hasAttributes(): boolean;
 	hasChildNodes(): boolean;
-	insertBefore(newChild: any, refChild: any): Documents.DOMNode;
+	insertBefore(newChild: Documents.DOMNode, refChild: Documents.DOMNode): Documents.DOMNode;
 	normalize(): void;
-	removeChild(oldChild: any): Documents.DOMNode;
-	replaceChild(newChild: any, oldChild: any): Documents.DOMNode;
+	removeChild(oldChild: DOMNode): Documents.DOMNode;
+	replaceChild(newChild: Documents.DOMNode, oldChild: Documents.DOMNode): Documents.DOMNode;
 }
 
 
@@ -4214,7 +4304,7 @@ declare namespace Documents {
 	* @param {boolean} prettyPrint
 	* @returns {any}
 	**/
-	write(node: any, path: string, encoding: string, prettyPrint: boolean): any;
+	write(node: Documents.DOMNode, path: string, encoding: string, prettyPrint: boolean): any;
 	}
 }
 
@@ -4224,7 +4314,7 @@ declare class DOMParser implements Documents.DOMParser {
 	getDocument(): Documents.DOMDocument;
 	getLastError(): string;
 	parse(xml: string, fromFile: boolean): number;
-	write(node: any, path: string, encoding: string, prettyPrint: boolean): any;
+	write(node: Documents.DOMNode, path: string, encoding: string, prettyPrint: boolean): any;
 }
 
 
@@ -4490,6 +4580,17 @@ declare namespace Documents {
 	**/
 	readLine(): string;
 	/**
+	 * Write binary data to the file. 
+	 * 
+	 * This requires to have the file handle opened with write access (meaning modes r+, w/w+, a/a+) and binary mode b. ... ... ... ... ... 
+	 */
+	/**
+	* @memberof File
+	* @param {Array<any>} byteArray
+	* @returns {boolean}
+	**/
+	write(byteArray: Array<any>): boolean;
+	/**
 	 * Write data to the file. 
 	 * 
 	 * This requires to have the file handle opened with write access (meaning modes r+, w/w+, a/a+). You may concatenate as many strings as you want. ... ... ... 
@@ -4498,10 +4599,10 @@ declare namespace Documents {
 	* @memberof File
 	* @param {string} a
 	* @param {string} b
-	* @param {} 
+	* @param {...} 
 	* @returns {boolean}
 	**/
-	write(a: string, b: string, ): boolean;
+	write(a: string, b: string, ...restParams: any[]): boolean;
 	/**
 	 * Write data to the file. 
 	 * 
@@ -4526,7 +4627,8 @@ declare class File implements Documents.File {
 	ok(): boolean;
 	read(charsNo: number): string;
 	readLine(): string;
-	write(a: string, b: string, ): boolean;
+	write(byteArray: Array<any>): boolean;
+	write(a: string, b: string, ...restParams: any[]): boolean;
 	writeBuffer(data: string, charsNo: number): boolean;
 }
 
@@ -4789,7 +4891,7 @@ declare namespace Documents {
 	* @param {any} docFile
 	* @returns {boolean}
 	**/
-	addFile(docFile: any): boolean;
+	addFile(docFile: DocFile): boolean;
 	/**
 	 * Add an EDA server to the filter of the folder. 
 	 * 
@@ -4936,6 +5038,16 @@ declare namespace Documents {
 	**/
 	getFilterFileTypes(): Array<any>;
 	/**
+	 * Create a HitResultset, which summarizes all DocFiles in the folder. 
+	 * 
+	 * This function executes an empty (=unfiltered) search in the folder. It creates a HitResultset, which summarizes all the Folder's files. The Resultset contains the same columns as the folder's default web view. ... ... ... ... ... 
+	 */
+	/**
+	* @memberof Folder
+	* @returns {Documents.HitResultset}
+	**/
+	getHitResultset(): Documents.HitResultset;
+	/**
 	 * Function to get the description of the last error that occurred. 
 	 * 
 	 * ... ... ... 
@@ -4977,7 +5089,7 @@ declare namespace Documents {
 	* @param {any} subFolder
 	* @returns {number}
 	**/
-	getPosition(subFolder: any): number;
+	getPosition(subFolder: Folder): number;
 	/**
 	 * Retrieve a FolderIterator containing all Folder objects which represent subfolders of the given Folder. 
 	 * 
@@ -5019,7 +5131,7 @@ declare namespace Documents {
 	* @param {any} docFile
 	* @returns {boolean}
 	**/
-	removeFile(docFile: any): boolean;
+	removeFile(docFile: DocFile): boolean;
 	/**
 	 * Remove an EDA server from the filter of the folder. 
 	 * 
@@ -5119,7 +5231,7 @@ declare namespace Documents {
 	* @param {any} parentFolder
 	* @returns {boolean}
 	**/
-	setParentFolder(parentFolder: any): boolean;
+	setParentFolder(parentFolder: Folder): boolean;
 	/**
 	 * Place a subfolder at the given position in the subfolder list. 
 	 * 
@@ -5131,7 +5243,7 @@ declare namespace Documents {
 	* @param {number} position
 	* @returns {boolean}
 	**/
-	setPosition(subFolder: any, position: number): boolean;
+	setPosition(subFolder: Documents.Folder, position: number): boolean;
 	}
 }
 
@@ -5165,7 +5277,7 @@ declare class Folder implements Documents.Folder {
 	value2: string;
 	value3: string;
 	addAccessProfile(accessProfileName: string, allowInsertFiles: boolean, allowRemoveFiles: boolean): boolean;
-	addFile(docFile: any): boolean;
+	addFile(docFile: DocFile): boolean;
 	addFilterEDAServer(serverName: string): boolean;
 	addFilterEEiArchive(archiveKey: string): boolean;
 	addFilterEExView(viewKey: string): boolean;
@@ -5179,14 +5291,15 @@ declare class Folder implements Documents.Folder {
 	getAttribute(attribute: string): string;
 	getFiles(): Documents.FileResultset;
 	getFilterFileTypes(): Array<any>;
+	getHitResultset(): Documents.HitResultset;
 	getLastError(): string;
 	getLocaleLabel(locale: string): string;
 	getOID(oidLow: boolean): string;
-	getPosition(subFolder: any): number;
+	getPosition(subFolder: Folder): number;
 	getSubFolders(): Documents.FolderIterator;
 	hasFiles(): boolean;
 	removeAccessProfile(accessProfileName: string): boolean;
-	removeFile(docFile: any): boolean;
+	removeFile(docFile: DocFile): boolean;
 	removeFilterEDAServer(serverName: string): boolean;
 	removeFilterEEiArchive(archiveKey: string): boolean;
 	removeFilterEExView(viewKey: string): boolean;
@@ -5195,8 +5308,8 @@ declare class Folder implements Documents.Folder {
 	removeSystemUser(loginName: string): boolean;
 	setAllowedActionScript(scriptName: string): boolean;
 	setAttribute(attribute: string, value: string): boolean;
-	setParentFolder(parentFolder: any): boolean;
-	setPosition(subFolder: any, position: number): boolean;
+	setParentFolder(parentFolder: Folder): boolean;
+	setPosition(subFolder: Documents.Folder, position: number): boolean;
 }
 
 
@@ -5385,9 +5498,10 @@ declare namespace Documents {
 	* @param {number} pageSize
 	* @param {boolean} unlimitedHits
 	* @param {boolean} fullColumnLength
+	* @param {boolean} withBlobInfo
 	* @returns {Documents.HitResultset}
 	**/
-	HitResultset(searchResources: any, filter: string, sortOrder: string, hitlist: any, pageSize: number, unlimitedHits: boolean, fullColumnLength: boolean): Documents.HitResultset;
+	HitResultset(searchResources: any, filter: string, sortOrder: string, hitlist: any, pageSize: number, unlimitedHits: boolean, fullColumnLength: boolean, withBlobInfo: boolean): Documents.HitResultset;
 	/**
 	 * Retrieve the next DocHit in the HitResultset. 
 	 * 
@@ -5423,7 +5537,7 @@ declare class HitResultset implements Documents.HitResultset {
 	getLastError(): string;
 	getLastErrorCode(): number;
 	constructor();
-	HitResultset(searchResources: any, filter: string, sortOrder: string, hitlist: any, pageSize: number, unlimitedHits: boolean, fullColumnLength: boolean): Documents.HitResultset;
+	HitResultset(searchResources: any, filter: string, sortOrder: string, hitlist: any, pageSize: number, unlimitedHits: boolean, fullColumnLength: boolean, withBlobInfo: boolean): Documents.HitResultset;
 	next(): Documents.DocHit;
 	size(): number;
 }
@@ -5502,7 +5616,7 @@ declare namespace Documents {
 	* @param {any} file
 	* @returns {boolean}
 	**/
-	addFileLink(file: any): boolean;
+	addFileLink(file: DocFile): boolean;
 	/**
 	 * Delete a Document at the Register. 
 	 * 
@@ -5513,7 +5627,7 @@ declare namespace Documents {
 	* @param {any} doc
 	* @returns {boolean}
 	**/
-	deleteDocument(doc: any): boolean;
+	deleteDocument(doc: Document): boolean;
 	/**
 	 * Get the String value of an attribute of the Register. 
 	 * 
@@ -5574,7 +5688,7 @@ declare namespace Documents {
 	* @param {any} file
 	* @returns {boolean}
 	**/
-	removeFileLink(file: any): boolean;
+	removeFileLink(file: DocFile): boolean;
 	/**
 	 * Set the String value of an attribute of the Register to the desired value. 
 	 * 
@@ -5606,14 +5720,14 @@ declare class Register implements Documents.Register {
 	label: string;
 	name: string;
 	type: string;
-	addFileLink(file: any): boolean;
-	deleteDocument(doc: any): boolean;
+	addFileLink(file: DocFile): boolean;
+	deleteDocument(doc: Document): boolean;
 	getAttribute(attribute: string): string;
 	getDocuments(): Documents.DocumentIterator;
 	getFiles(): Documents.FileResultset;
 	getLastError(): string;
 	getOID(oidLow: boolean): string;
-	removeFileLink(file: any): boolean;
+	removeFileLink(file: DocFile): boolean;
 	setAttribute(attribute: string, value: string): boolean;
 	uploadDocument(filePath: string, registerFileName: string): Documents.Document;
 }
@@ -5861,7 +5975,7 @@ declare namespace Documents {
 	* @param {any} docFile
 	* @returns {boolean}
 	**/
-	setDocFile(docFile: any): boolean;
+	setDocFile(docFile: DocFile): boolean;
 	/**
 	 * Set the execution context document of the called script. 
 	 * 
@@ -5872,7 +5986,7 @@ declare namespace Documents {
 	* @param {any} doc
 	* @returns {boolean}
 	**/
-	setDocument(doc: any): boolean;
+	setDocument(doc: Document): boolean;
 	/**
 	 * Set the execution context event of the called script. 
 	 * 
@@ -5894,7 +6008,7 @@ declare namespace Documents {
 	* @param {any} register
 	* @returns {boolean}
 	**/
-	setRegister(register: any): boolean;
+	setRegister(register: Register): boolean;
 	/**
 	 * Wait for the script call to finish. 
 	 * 
@@ -5914,10 +6028,10 @@ declare class ScriptCall implements Documents.ScriptCall {
 	getReturnValue(): string;
 	isRunning(): boolean;
 	launch(): boolean;
-	setDocFile(docFile: any): boolean;
-	setDocument(doc: any): boolean;
+	setDocFile(docFile: DocFile): boolean;
+	setDocument(doc: Document): boolean;
 	setEvent(scriptEvent: string): boolean;
-	setRegister(register: any): boolean;
+	setRegister(register: Register): boolean;
 	waitForFinish(): boolean;
 }
 
@@ -6097,7 +6211,7 @@ declare namespace Documents {
 	* @param {any} ap
 	* @returns {boolean}
 	**/
-	addToAccessProfile(ap: any): boolean;
+	addToAccessProfile(ap: AccessProfile): boolean;
 	/**
 	 * Evaluate if the password is correct. 
 	 * 
@@ -6129,7 +6243,7 @@ declare namespace Documents {
 	* @param {any} docFile
 	* @returns {number}
 	**/
-	getAccess(docFile: any): number;
+	getAccess(docFile: DocFile): number;
 	/**
 	 * Retrieve an AccessProfileIterator representing a list of all AccessProfiles the user is a member of. 
 	 * 
@@ -6150,6 +6264,16 @@ declare namespace Documents {
 	* @returns {Documents.SystemUserIterator}
 	**/
 	getAgents(): Documents.SystemUserIterator;
+	/**
+	 * Retrieve a list of private and public Folders of the Systemuser. 
+	 * 
+	 * ... ... ... ... 
+	 */
+	/**
+	* @memberof SystemUser
+	* @returns {Documents.FolderIterator}
+	**/
+	getAllFolders(): Documents.FolderIterator;
 	/**
 	 * Get the String value of an attribute of the SystemUser. 
 	 * 
@@ -6331,7 +6455,7 @@ declare namespace Documents {
 	* @param {any} ap
 	* @returns {boolean}
 	**/
-	removeFromAccessProfile(ap: any): boolean;
+	removeFromAccessProfile(ap: AccessProfile): boolean;
 	/**
 	 * Clear the user's relation to a superior. 
 	 * 
@@ -6416,7 +6540,7 @@ declare namespace Documents {
 	* @param {any} sup
 	* @returns {boolean}
 	**/
-	setSuperior(sup: any): boolean;
+	setSuperior(sup: SystemUser): boolean;
 	}
 }
 
@@ -6444,12 +6568,13 @@ declare class SystemUser implements Documents.SystemUser {
 	addCustomProperty(name: string, type: string, value: string): Documents.CustomProperty;
 	addFileTypeAgent(fileTypes: any, loginNames: Array<any>): boolean;
 	addFileTypeAgentScript(fileTypes: any, scriptName: string): boolean;
-	addToAccessProfile(ap: any): boolean;
+	addToAccessProfile(ap: AccessProfile): boolean;
 	checkPassword(passwd: string): boolean;
 	delegateFilesOfAbsentUser(): boolean;
-	getAccess(docFile: any): number;
+	getAccess(docFile: DocFile): number;
 	getAccessProfiles(): Documents.AccessProfileIterator;
 	getAgents(): Documents.SystemUserIterator;
+	getAllFolders(): Documents.FolderIterator;
 	getAttribute(attribute: string): string;
 	getBackDelegatedFiles(removeFromAgentInbox: boolean): boolean;
 	getCustomProperties(nameFilter: string, typeFilter: string): Documents.CustomPropertyIterator;
@@ -6466,14 +6591,14 @@ declare class SystemUser implements Documents.SystemUser {
 	notifyFileReturnedFromSending(notifying: boolean): boolean;
 	notifyNewFileInInbox(notifying: boolean): boolean;
 	removeFileTypeAgent(fileTypes: any): boolean;
-	removeFromAccessProfile(ap: any): boolean;
+	removeFromAccessProfile(ap: AccessProfile): boolean;
 	resetSuperior(): boolean;
 	setAbsent(absent: boolean, filesDueAbsenceToInfo: boolean, agents: Array<any>, removeFromAgentInbox: boolean, from: Date, until: Date): boolean;
 	setAbsentMail(sendMail: boolean, message: string): boolean;
 	setAttribute(attribute: string, value: string): boolean;
 	setOrAddCustomProperty(name: string, type: string, value: string): Documents.CustomProperty;
 	setPassword(newPwd: string): boolean;
-	setSuperior(sup: any): boolean;
+	setSuperior(sup: SystemUser): boolean;
 }
 
 
@@ -6584,7 +6709,7 @@ declare namespace Documents {
 	* @param {any} folder
 	* @returns {boolean}
 	**/
-	addToFolder(folder: any): boolean;
+	addToFolder(folder: Folder): boolean;
 	/**
 	 * Get the description of the last error that occurred. 
 	 * 
@@ -6705,7 +6830,7 @@ declare class UserAction implements Documents.UserAction {
 	scope: string;
 	type: string;
 	widget: string;
-	addToFolder(folder: any): boolean;
+	addToFolder(folder: Folder): boolean;
 	getLastError(): string;
 	getOID(oidLow: boolean): string;
 	getPosition(): number;
@@ -7537,7 +7662,7 @@ declare namespace Documents {
 	* @param {any} exportCondition
 	* @returns {boolean}
 	**/
-	addFile(docFile: any, exportCondition: any): boolean;
+	addFile(docFile: Documents.DocFile, exportCondition: any): boolean;
 	/**
 	 * Add the desired file type to the XMLExport. 
 	 * 
@@ -7572,7 +7697,7 @@ declare namespace Documents {
 	* @param {any} exportCondition
 	* @returns {boolean}
 	**/
-	addFolder(folder: any, exportStructure: boolean, exportCondition: any): boolean;
+	addFolder(folder: Documents.Folder, exportStructure: boolean, exportCondition: any): boolean;
 	/**
 	 * Add the desired number range alias to the XMLExport. 
 	 * 
@@ -7704,10 +7829,10 @@ declare class XMLExport implements Documents.XMLExport {
 	addDistributionList(distributionListName: string): boolean;
 	addDocumentsSettings(): boolean;
 	addFellow(editor: any, includePrivateFolders: boolean): boolean;
-	addFile(docFile: any, exportCondition: any): boolean;
+	addFile(docFile: Documents.DocFile, exportCondition: any): boolean;
 	addFileType(fileTypeName: string): boolean;
 	addFilingPlan(filingPlanName: string): boolean;
-	addFolder(folder: any, exportStructure: boolean, exportCondition: any): boolean;
+	addFolder(folder: Documents.Folder, exportStructure: boolean, exportCondition: any): boolean;
 	addNumberRange(name: string, withCounter: boolean): boolean;
 	addOutbar(outbarName: string): boolean;
 	addPartnerAccount(userAccount: any, includePrivateFolders: boolean): boolean;
@@ -7775,9 +7900,9 @@ declare class XMLExportDescription implements Documents.XMLExportDescription {
 
 declare namespace Documents {
 	/**
-	 * The XMLHTTPRequest class represents a HTTP request using XML in Windows. 
+	 * The XMLHTTPRequest class represents a HTTP request. 
 	 * 
-	 * The interface follows the definition of the class IXMLHTTPRequest from MSXML. To send a HTTP request the following steps are needed: ... ... ... ... ... 
+	 * Though the name of this class traditionally refers to XML, it can be used to transfer arbitrary strings or binary data. The interface is based on the definition of the class IXMLHTTPRequest from MSXML. To send a HTTP request the following steps are needed: ... ... ... ... ... 
 	 */
 	export interface XMLHTTPRequest {
 	/**
@@ -7797,6 +7922,16 @@ declare namespace Documents {
 	 */
 	COMPLETED: number;
 	/**
+	 * Optional File size indicator for sending pure sequential files. 
+	 * 
+	 * When uploading files, the send() function usually detects the file size and forwards it to lower APIs. This is helpful in most cases, because old simple HTTP servers do not support the transfer mode "chunked". Web services may reject uploads without an announced content-length, too. 
+	 * 
+	 *  However, the auto-detection will fail, if a given file is not rewindable (a named pipe, for instance). To avoid errors this property should be set before sending such a special file. After the transmission the property should be either set to "-1" or deleted. 
+	 * 
+	 * The value is interpreted in the following way.... 
+	 */
+	FileSizeHint: number;
+	/**
 	 * The constant 3 for XMLHTTPRequest.readyState. 
 	 */
 	INTERACTIVE: number;
@@ -7813,9 +7948,21 @@ declare namespace Documents {
 	/**
 	 * The response received from the HTTP server or null if no response is received. 
 	 * 
-	 * ... ... ... 
+	 * ... ... ... ... 
 	 */
-	response: string;
+	response: any;
+	/**
+	 * An optional writable file for streaming a large response. 
+	 * 
+	 * To achieve an efficient download scripts can create a writable File an attach it to the request. The complete response will then be written into this file. The value of the response property, however, will be truncated after the first few kBytes.
+	 */
+	responseFile: Documents.File;
+	/**
+	 * Preferred output format of the response property (optional). 
+	 * 
+	 * By default, the object expects text responses and stores them in a String. If the application expects binary data, it may request an ArrayBuffer by setting this property to "arraybuffer". ... ... ... 
+	 */
+	responseType: string;
 	/**
 	 * The constant 2 for XMLHTTPRequest.readyState. 
 	 */
@@ -7901,10 +8048,10 @@ declare namespace Documents {
 	 */
 	/**
 	* @memberof XMLHTTPRequest
-	* @param {string} content
+	* @param {any} content
 	* @returns {boolean}
 	**/
-	send(content: string): boolean;
+	send(content: any): boolean;
 	/**
 	 * Create a new XMLHTTPRequest object. 
 	 * 
@@ -7926,10 +8073,13 @@ declare class XMLHTTPRequest implements Documents.XMLHTTPRequest {
 	canAsync: boolean;
 	canProxy: boolean;
 	COMPLETED: number;
+	FileSizeHint: number;
 	INTERACTIVE: number;
 	NOTSENT: number;
 	readyState: number;
-	response: string;
+	response: any;
+	responseFile: Documents.File;
+	responseType: string;
 	SENT: number;
 	status: number;
 	statusText: string;
@@ -7939,8 +8089,8 @@ declare class XMLHTTPRequest implements Documents.XMLHTTPRequest {
 	getAllResponseHeaders(): string;
 	getResponseHeader(name: string): string;
 	open(method: string, url: string, async: boolean, user: string, passwd: string): boolean;
-	send(content: string): boolean;
-	constructor(content: string);
+	send(content: any): boolean;
+	constructor(content: any);
 	XMLHTTPRequest(proxy: string, proxyPort: number, proxyUser: string, proxyPasswd: string): Documents.XMLHTTPRequest;
 }
 
