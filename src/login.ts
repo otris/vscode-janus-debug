@@ -45,7 +45,7 @@ async function askForLoginData(_loginData: nodeDoc.LoginData): Promise<void> {
             prompt: 'Please enter the hostname',
             value: SERVER,
             ignoreFocusOut: true,
-        }).then((server: string) => {
+        }).then((server: string): string | Thenable<string> | never => {
             tmpServer = server;
             if (server.length > 0) {
                 return vscode.window.showInputBox({
@@ -55,8 +55,8 @@ async function askForLoginData(_loginData: nodeDoc.LoginData): Promise<void> {
                 });
             }
             throw new Error('input login data cancelled');
-        }).then((port: string) => {
-            if (port.length > 0) {
+        }).then((port: string): string | Thenable<string> | never => {
+            if (port && typeof(port) === 'string' && port.length > 0) {
                 tmpPort = port;
                 return vscode.window.showInputBox({
                     prompt: 'Please enter the principal',
@@ -65,7 +65,7 @@ async function askForLoginData(_loginData: nodeDoc.LoginData): Promise<void> {
                 });
             }
             throw new Error('input login data cancelled');
-        }).then((principal: string) => {
+        }).then((principal: string): string | Thenable<string> | never => {
             if (principal.length > 0) {
                 tmpPrincipal = principal;
                 return vscode.window.showInputBox({
@@ -75,7 +75,7 @@ async function askForLoginData(_loginData: nodeDoc.LoginData): Promise<void> {
                 });
             }
             throw new Error('input login data cancelled');
-        }).then((username: string) => {
+        }).then((username: string): string | Thenable<string> | never => {
             if (username.length > 0) {
                 tmpUsername = username;
                 return vscode.window.showInputBox({
@@ -86,7 +86,7 @@ async function askForLoginData(_loginData: nodeDoc.LoginData): Promise<void> {
                 });
             }
             throw new Error('input login data cancelled');
-        }).then((password: string) => {
+        }).then((password: string): void => {
             if (password !== undefined) {
                 _loginData.password = password;
                 _loginData.server = tmpServer;
