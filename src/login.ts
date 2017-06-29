@@ -37,10 +37,6 @@ async function askForLoginData(_loginData: nodeDoc.LoginData): Promise<void> {
     const PASSWORD = '';
 
     return new Promise<void>(async (resolve, reject) => {
-        let tmpServer: string;
-        let tmpPort: string;
-        let tmpPrincipal: string;
-        let tmpUsername: string;
 
         // showInputBox() returns a thenable(value) object,
         // that is, these objects always have a then(value) function,
@@ -55,7 +51,6 @@ async function askForLoginData(_loginData: nodeDoc.LoginData): Promise<void> {
             return reject(new Error('input login data cancelled'));
         }
 
-        tmpServer = server;
         const port = await vscode.window.showInputBox({
             prompt: 'Please enter the port',
             value: _loginData.port ? _loginData.port.toString() : PORT.toString(),
@@ -67,7 +62,6 @@ async function askForLoginData(_loginData: nodeDoc.LoginData): Promise<void> {
             return reject(new Error('input login data cancelled'));
         }
 
-        tmpPort = port;
         const principal = await vscode.window.showInputBox({
             prompt: 'Please enter the principal',
             value: _loginData.principal ? _loginData.principal : PRINCIPAL,
@@ -79,7 +73,6 @@ async function askForLoginData(_loginData: nodeDoc.LoginData): Promise<void> {
             return reject(new Error('input login data cancelled'));
         }
 
-        tmpPrincipal = principal;
         const username = await vscode.window.showInputBox({
             prompt: 'Please enter the username (username.principal)',
             value: _loginData.username ? _loginData.username : USERNAME,
@@ -91,7 +84,6 @@ async function askForLoginData(_loginData: nodeDoc.LoginData): Promise<void> {
             return reject(new Error('input login data cancelled'));
         }
 
-        tmpUsername = username;
         const password = await vscode.window.showInputBox({
             prompt: 'Please enter the password',
             value: PASSWORD,
@@ -105,12 +97,11 @@ async function askForLoginData(_loginData: nodeDoc.LoginData): Promise<void> {
         }
 
         _loginData.password = password;
-        _loginData.server = tmpServer;
-        _loginData.port = Number(tmpPort);
-        _loginData.principal = tmpPrincipal;
-        _loginData.username = tmpUsername;
+        _loginData.server = server;
+        _loginData.port = Number(port);
+        _loginData.principal = principal;
+        _loginData.username = username;
         resolve();
-
     });
 }
 
