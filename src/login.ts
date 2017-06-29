@@ -45,7 +45,7 @@ async function askForLoginData(_loginData: nodeDoc.LoginData): Promise<void> {
             prompt: 'Please enter the hostname',
             value: SERVER,
             ignoreFocusOut: true,
-        }).then((server): Thenable<string> => {
+        }).then((server: string) => {
             tmpServer = server;
             if (server.length > 0) {
                 return vscode.window.showInputBox({
@@ -55,7 +55,7 @@ async function askForLoginData(_loginData: nodeDoc.LoginData): Promise<void> {
                 });
             }
             throw new Error('input login data cancelled');
-        }).then((port): Thenable<string> => {
+        }).then((port: string) => {
             if (port.length > 0) {
                 tmpPort = port;
                 return vscode.window.showInputBox({
@@ -65,7 +65,7 @@ async function askForLoginData(_loginData: nodeDoc.LoginData): Promise<void> {
                 });
             }
             throw new Error('input login data cancelled');
-        }).then((principal): Thenable<string> => {
+        }).then((principal: string) => {
             if (principal.length > 0) {
                 tmpPrincipal = principal;
                 return vscode.window.showInputBox({
@@ -75,7 +75,7 @@ async function askForLoginData(_loginData: nodeDoc.LoginData): Promise<void> {
                 });
             }
             throw new Error('input login data cancelled');
-        }).then((username): Thenable<string> => {
+        }).then((username: string) => {
             if (username.length > 0) {
                 tmpUsername = username;
                 return vscode.window.showInputBox({
@@ -86,7 +86,7 @@ async function askForLoginData(_loginData: nodeDoc.LoginData): Promise<void> {
                 });
             }
             throw new Error('input login data cancelled');
-        }).then((password): void => {
+        }).then((password: string) => {
             if (password !== undefined) {
                 _loginData.password = password;
                 _loginData.server = tmpServer;
