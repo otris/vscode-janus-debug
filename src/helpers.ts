@@ -174,7 +174,7 @@ export async function ensureUploadOnSave(param: string): Promise<boolean> {
 }
 
 /**
- * Read downloadScripts-list from settings.json, if this list is empty,
+ * Read list downloadScriptNames, if this list is empty,
  * get all scriptnames from server.
  *
  * @param loginData
@@ -195,7 +195,7 @@ export async function getDownloadScriptNames(loginData: nodeDoc.LoginData): Prom
 }
 
 /**
- * Read list downloadScripts from settings.json.
+ * Read list downloadScriptNames
  */
 export function getDownloadScriptNamesFromList(): nodeDoc.scriptT[] {
     let scriptnames: string[];
