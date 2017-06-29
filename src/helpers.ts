@@ -181,7 +181,7 @@ export async function ensureUploadOnSave(param: string): Promise<boolean> {
  */
 export async function getDownloadScriptNames(loginData: nodeDoc.LoginData): Promise<nodeDoc.scriptT[]> {
     return new Promise<nodeDoc.scriptT[]>((resolve, reject) => {
-        const scripts: nodeDoc.scriptT[] = readDownloadScripts();
+        const scripts: nodeDoc.scriptT[] = getDownloadScriptNamesFromList();
         if (0 < scripts.length) {
             resolve(scripts);
         } else {
@@ -197,19 +197,25 @@ export async function getDownloadScriptNames(loginData: nodeDoc.LoginData): Prom
 /**
  * Read list downloadScripts from settings.json.
  */
-export function readDownloadScripts(): nodeDoc.scriptT[] {
-    const scripts: nodeDoc.scriptT[] = [];
-    if (!vscode.workspace) {
-        return scripts;
+export function getDownloadScriptNamesFromList(): nodeDoc.scriptT[] {
+    let scriptnames: string[];
+    let scripts: nodeDoc.scriptT[];
+
+    try {
+        const file = path.join(vscode.workspace.rootPath, SCRIPT_NAMES_FILE);
+        scriptnames = fs.readFileSync(file, 'utf8').trim().split(os.EOL);
+    } catch (err) {
+        return [];
     }
-    // get extension-part of settings.json
-    const conf = vscode.workspace.getConfiguration('vscode-documents-scripting');
+
 
     // get scriptnames and insert in return list
-    const scriptnames = conf.get('downloadScripts');
-    if (scriptnames instanceof Array) {
+    scripts = [];
+    if (scriptnames instanceof Array && 0 < scriptnames.length) {
         scriptnames.forEach((scriptname) => {
-            const script: nodeDoc.scriptT = { name: scriptname };
+            const script: nodeDoc.scriptT = {
+                name: scriptname.trim()
+            };
             scripts.push(script);
         });
     }
