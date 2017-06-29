@@ -226,11 +226,6 @@
           "default": [],
           "description": "Always overwrite server script, ignore changes."
         },
-        "vscode-documents-scripting.downloadScripts": {
-          "type": "array",
-          "default": [],
-          "description": "Scripts to download on command Download Scripts To Folder. If this list is empty all scripts from server are downloaded."
-        },
         "vscode-janus-debug.serverConsole": {
           "type": "object",
           "title": "Server Console",
