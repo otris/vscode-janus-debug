@@ -7,19 +7,23 @@ import * as vscode from 'vscode';
 import { provideInitialConfigurations } from './config';
 
 export async function createLoginData(_loginData: nodeDoc.LoginData): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
-        askForLoginData(_loginData).then(() => {
-            createLaunchJson(_loginData).then(() => {
-                resolve();
-            }).catch((reason) => {
+    return new Promise<void>(async (resolve, reject) => {
+
+        try {
+            await askForLoginData(_loginData);
+
+            try {
+                await createLaunchJson(_loginData);
+            } catch (err) {
                 // couldn't save login data,
                 // doesn't matter, just leave a warning and continue anyway
-                vscode.window.showWarningMessage('did not save login data: ' + reason);
-                resolve();
-            });
-        }).catch((reason) => {
-            reject(reason);
-        });
+                vscode.window.showWarningMessage('did not save login data: ' + err);
+                return resolve();
+            }
+
+        } catch (err) {
+            return reject(err);
+        }
     });
 }
 
@@ -32,7 +36,7 @@ async function askForLoginData(_loginData: nodeDoc.LoginData): Promise<void> {
     const USERNAME: string = 'admin';
     const PASSWORD = '';
 
-    return new Promise<void>((resolve, reject) => {
+    return new Promise<void>(async (resolve, reject) => {
         let tmpServer: string;
         let tmpPort: string;
         let tmpPrincipal: string;
@@ -41,63 +45,72 @@ async function askForLoginData(_loginData: nodeDoc.LoginData): Promise<void> {
         // showInputBox() returns a thenable(value) object,
         // that is, these objects always have a then(value) function,
         // value can't be empty iff it's predefined in options
-        vscode.window.showInputBox({
+        const server = await vscode.window.showInputBox({
             prompt: 'Please enter the hostname',
             value: SERVER,
             ignoreFocusOut: true,
-        }).then((server: string): string | Thenable<string> | never => {
-            tmpServer = server;
-            if (server.length > 0) {
-                return vscode.window.showInputBox({
-                    prompt: 'Please enter the port',
-                    value: _loginData.port ? _loginData.port.toString() : PORT.toString(),
-                    ignoreFocusOut: true,
-                });
-            }
-            throw new Error('input login data cancelled');
-        }).then((port: string): string | Thenable<string> | never => {
-            if (port && typeof(port) === 'string' && port.length > 0) {
-                tmpPort = port;
-                return vscode.window.showInputBox({
-                    prompt: 'Please enter the principal',
-                    value: _loginData.principal ? _loginData.principal : PRINCIPAL,
-                    ignoreFocusOut: true,
-                });
-            }
-            throw new Error('input login data cancelled');
-        }).then((principal: string): string | Thenable<string> | never => {
-            if (principal.length > 0) {
-                tmpPrincipal = principal;
-                return vscode.window.showInputBox({
-                    prompt: 'Please enter the username (username.principal)',
-                    value: _loginData.username ? _loginData.username : USERNAME,
-                    ignoreFocusOut: true,
-                });
-            }
-            throw new Error('input login data cancelled');
-        }).then((username: string): string | Thenable<string> | never => {
-            if (username.length > 0) {
-                tmpUsername = username;
-                return vscode.window.showInputBox({
-                    prompt: 'Please enter the password',
-                    value: PASSWORD,
-                    password: true,
-                    ignoreFocusOut: true,
-                });
-            }
-            throw new Error('input login data cancelled');
-        }).then((password: string): void => {
-            if (password !== undefined) {
-                _loginData.password = password;
-                _loginData.server = tmpServer;
-                _loginData.port = Number(tmpPort);
-                _loginData.principal = tmpPrincipal;
-                _loginData.username = tmpUsername;
-                resolve();
-            } else {
-                throw new Error('input login data cancelled');
-            }
         });
+
+        if (!server) {
+            return reject(new Error('input login data cancelled'));
+        }
+
+        tmpServer = server;
+        const port = await vscode.window.showInputBox({
+            prompt: 'Please enter the port',
+            value: _loginData.port ? _loginData.port.toString() : PORT.toString(),
+            ignoreFocusOut: true,
+        });
+
+
+        if (!port) {
+            return reject(new Error('input login data cancelled'));
+        }
+
+        tmpPort = port;
+        const principal = await vscode.window.showInputBox({
+            prompt: 'Please enter the principal',
+            value: _loginData.principal ? _loginData.principal : PRINCIPAL,
+            ignoreFocusOut: true,
+        });
+
+
+        if (!principal) {
+            return reject(new Error('input login data cancelled'));
+        }
+
+        tmpPrincipal = principal;
+        const username = await vscode.window.showInputBox({
+            prompt: 'Please enter the username (username.principal)',
+            value: _loginData.username ? _loginData.username : USERNAME,
+            ignoreFocusOut: true,
+        });
+
+
+        if (!username) {
+            return reject(new Error('input login data cancelled'));
+        }
+
+        tmpUsername = username;
+        const password = await vscode.window.showInputBox({
+            prompt: 'Please enter the password',
+            value: PASSWORD,
+            password: true,
+            ignoreFocusOut: true,
+        });
+
+
+        if (password === undefined) { // Note: empty passwords are fine
+            return reject(new Error('input login data cancelled'));
+        }
+
+        _loginData.password = password;
+        _loginData.server = tmpServer;
+        _loginData.port = Number(tmpPort);
+        _loginData.principal = tmpPrincipal;
+        _loginData.username = tmpUsername;
+        resolve();
+
     });
 }
 
