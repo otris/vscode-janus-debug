@@ -13,6 +13,8 @@ import stripJsonComments = require('strip-json-comments');
 const urlExists = require('url-exists');
 // tslint:disable-next-line:no-var-requires
 const open = require('open');
+// tslint:disable-next-line:no-var-requires
+const tsc = require('typescript-compiler');
 
 const VERSION_SCRIPT_PARAMS = '8035';
 
@@ -408,32 +410,34 @@ export function viewDocumentation() {
     });
 }
 
-// rename to getJSFromTS
-// export async function uploadJSFromTS(sdsConnection: SDSConnection, textDocument: vscode.TextDocument): Promise<void> {
-//     return new Promise<void>((resolve, reject) => {
 
-//         if(!textDocument || '.ts' !== path.extname(textDocument.fileName)) {
-//             reject('No active ts script');
 
-//         } else {
-//             let shortName = '';
-//             let scriptSource = '';
 
-//             shortName = path.basename(textDocument.fileName, '.ts');
-//             let tsname:string = textDocument.fileName;
-//             let jsname:string = tsname.substr(0, tsname.length - 3) + ".js";
-//             //let tscargs = ['--module', 'commonjs', '-t', 'ES6'];
-//             let tscargs = ['-t', 'ES5', '--out', jsname];
-//             let retval = tsc.compile([textDocument.fileName], tscargs, null, function(e) { console.log(e); });
-//             scriptSource = retval.sources[jsname];
-//             console.log("scriptSource: " + scriptSource);
 
-//             sdsAccess.uploadScript(sdsConnection, shortName, scriptSource).then((value) => {
-//                 vscode.window.setStatusBarMessage('uploaded: ' + shortName);
-//                 resolve();
-//             }).catch((reason) => {
-//                 reject(reason);
-//             });
-//         }
-//     });
-// }
+export async function uploadJSFromTS(loginData: nodeDoc.LoginData, textDocument: vscode.TextDocument): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+
+        if (!textDocument || '.ts' !== path.extname(textDocument.fileName)) {
+            reject('No active ts script');
+
+        } else {
+            let shortName = '';
+            let scriptSource = '';
+
+            shortName = path.basename(textDocument.fileName, '.ts');
+            const tsname: string = textDocument.fileName;
+            const jsname: string = tsname.substr(0, tsname.length - 3) + ".js";
+            const tscargs = ['-t', 'ES5', '--out', jsname];
+            const retval = tsc.compile([textDocument.fileName], tscargs);
+            scriptSource = retval.sources[jsname];
+            console.log("scriptSource:\n" + scriptSource);
+
+            _uploadScript(loginData, jsname).then((scriptname) => {
+                vscode.window.setStatusBarMessage('uploaded: ' + scriptname);
+                resolve();
+            }).catch((reason) => {
+                reject(reason);
+            });
+        }
+    });
+}

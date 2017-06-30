@@ -191,6 +191,16 @@ export function activate(context: vscode.ExtensionContext): void {
         })
     );
 
+    // uploadJSFromTS
+    context.subscriptions.push(
+        vscode.commands.registerCommand('extension.vscode-janus-debug.uploadJSFromTS', (param) => {
+            if (vscode.window.activeTextEditor) {
+                const _param = vscode.window.activeTextEditor.document;
+                commands.uploadJSFromTS(loginData, _param);
+            }
+        })
+    );
+
     // Upload all
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.uploadScriptsFromFolder', (param) => {
