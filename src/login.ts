@@ -24,6 +24,8 @@ export async function createLoginData(_loginData: nodeDoc.LoginData): Promise<vo
         } catch (err) {
             return reject(err);
         }
+
+        resolve();
     });
 }
 
