@@ -308,6 +308,11 @@
           "group": "DOCUMENTS@2"
         },
         {
+          "command": "extension.vscode-janus-debug.downloadScript",
+          "when": "explorerResourceIsFolder",
+          "group": "DOCUMENTS@2"
+        },
+        {
           "command": "extension.vscode-janus-debug.runScript",
           "when": "resourceLangId == javascript",
           "group": "DOCUMENTS@3"

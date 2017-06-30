@@ -563,7 +563,7 @@ export async function ensureScriptName(paramscript?: string): Promise<string> {
     console.log('ensureScriptName');
     return new Promise<string>((resolve, reject) => {
 
-        if (paramscript) {
+        if (paramscript && '.js' === path.extname(paramscript)) {
             resolve(path.basename(paramscript, '.js'));
 
         } else {
