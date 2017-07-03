@@ -414,29 +414,29 @@ export function viewDocumentation() {
 
 
 
-export async function uploadJSFromTS(loginData: nodeDoc.LoginData, textDocument: vscode.TextDocument): Promise<void> {
+export function uploadJSFromTS(loginData: nodeDoc.LoginData, textDocument: vscode.TextDocument): Promise<void> {
     return new Promise<void>((resolve, reject) => {
 
         if (!textDocument || '.ts' !== path.extname(textDocument.fileName)) {
-            reject('No active ts script');
-
+            vscode.window.showErrorMessage('No active TypeScript file');
+            resolve();
         } else {
-            let shortName = '';
-            let scriptSource = '';
 
-            shortName = path.basename(textDocument.fileName, '.ts');
             const tsname: string = textDocument.fileName;
             const jsname: string = tsname.substr(0, tsname.length - 3) + ".js";
             const tscargs = ['-t', 'ES5', '--out', jsname];
             const retval = tsc.compile([textDocument.fileName], tscargs);
-            scriptSource = retval.sources[jsname];
-            console.log("scriptSource:\n" + scriptSource);
+            const scriptSource = retval.sources[jsname];
+            if (scriptSource) {
+                console.log("scriptSource:\n" + scriptSource);
+            }
 
             _uploadScript(loginData, jsname).then((scriptname) => {
                 vscode.window.setStatusBarMessage('uploaded: ' + scriptname);
                 resolve();
             }).catch((reason) => {
-                reject(reason);
+                vscode.window.showErrorMessage(reason);
+                resolve();
             });
         }
     });
