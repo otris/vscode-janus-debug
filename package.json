@@ -251,6 +251,11 @@
         "category": "DOCUMENTS"
       },
       {
+        "command": "extension.vscode-janus-debug.uploadJSFromTS",
+        "title": "Upload JS From TS",
+        "category": "DOCUMENTS"
+      },
+      {
         "command": "extension.vscode-janus-debug.downloadScript",
         "title": "Download Script",
         "category": "DOCUMENTS"
@@ -367,6 +372,11 @@
           "command": "extension.vscode-janus-debug.downloadScript",
           "when": "resourceLangId == javascript",
           "group": "DOCUMENTS@2"
+        },
+        {
+          "command": "extension.vscode-janus-debug.uploadJSFromTS",
+          "when": "resourceLangId == typescript",
+          "category": "DOCUMENTS@2"
         },
         {
           "command": "extension.vscode-janus-debug.runScript",

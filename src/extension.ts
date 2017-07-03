@@ -180,92 +180,102 @@ export function activate(context: vscode.ExtensionContext): void {
     // Upload script
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.uploadScript', (param) => {
-            let _param;
+            let fsPath;
             if (param) {
-                _param = param._fsPath;
+                fsPath = param._fsPath;
             }
-            if (!_param && vscode.window.activeTextEditor) {
-                _param = vscode.window.activeTextEditor.document.fileName;
+            if (!fsPath && vscode.window.activeTextEditor) {
+                fsPath = vscode.window.activeTextEditor.document.fileName;
             }
-            commands.uploadScript(loginData, _param);
+            commands.uploadScript(loginData, fsPath);
+        })
+    );
+
+    // uploadJSFromTS
+    context.subscriptions.push(
+        vscode.commands.registerCommand('extension.vscode-janus-debug.uploadJSFromTS', async (param) => {
+            if (vscode.window.activeTextEditor) {
+                const doc = vscode.window.activeTextEditor.document;
+                await commands.uploadJSFromTS(loginData, doc);
+            }
         })
     );
 
     // Upload all
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.uploadScriptsFromFolder', (param) => {
-            let _param;
+            let fsPath;
             if (param) {
-                _param = param._fsPath;
+                fsPath = param._fsPath;
             }
-            commands.uploadAll(loginData, _param);
+            commands.uploadAll(loginData, fsPath);
         })
     );
 
     // Download script
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.downloadScript', (param) => {
-            let _param;
+            let fsPath;
             if (param) {
-                _param = param._fsPath;
+                fsPath = param._fsPath;
             }
-            if (!_param && vscode.window.activeTextEditor) {
-                _param = vscode.window.activeTextEditor.document.fileName;
+            if (!fsPath && vscode.window.activeTextEditor) {
+                fsPath = vscode.window.activeTextEditor.document.fileName;
             }
-            commands.downloadScript(loginData, _param);
+            commands.downloadScript(loginData, fsPath);
         })
     );
 
     // Download all
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.downloadScriptsToFolder', (param) => {
-            let _param;
+            let fsPath;
             if (param) {
-                _param = param._fsPath;
+                fsPath = param._fsPath;
             }
-            commands.downloadAll(loginData, _param);
+            commands.downloadAll(loginData, fsPath);
         })
     );
 
     // Run script
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.runScript', (param) => {
-            let _param;
+            let fsPath;
             if (param) {
-                _param = param._fsPath;
+                fsPath = param._fsPath;
             }
-            if (!_param && vscode.window.activeTextEditor) {
-                _param = vscode.window.activeTextEditor.document.fileName;
+            if (!fsPath && vscode.window.activeTextEditor) {
+                fsPath = vscode.window.activeTextEditor.document.fileName;
             }
-            commands.runScript(loginData, _param, runScriptChannel);
+            commands.runScript(loginData, fsPath, runScriptChannel);
         })
     );
 
     // Upload and Run script
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.uploadRunScript', (param) => {
-            let _param;
+            let fsPath;
             if (param) {
-                _param = param._fsPath;
+                fsPath = param._fsPath;
             }
-            if (!_param && vscode.window.activeTextEditor) {
-                _param = vscode.window.activeTextEditor.document.fileName;
+            if (!fsPath && vscode.window.activeTextEditor) {
+                fsPath = vscode.window.activeTextEditor.document.fileName;
             }
-            commands.uploadRunScript(loginData, _param, runScriptChannel);
+            commands.uploadRunScript(loginData, fsPath, runScriptChannel);
         })
     );
 
     // Compare script
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.compareScript', (param) => {
-            let _param;
+            let fsPath;
             if (param) {
-                _param = param._fsPath;
+                fsPath = param._fsPath;
             }
-            if (!_param && vscode.window.activeTextEditor) {
-                _param = vscode.window.activeTextEditor.document.fileName;
+            if (!fsPath && vscode.window.activeTextEditor) {
+                fsPath = vscode.window.activeTextEditor.document.fileName;
             }
-            commands.compareScript(loginData, _param);
+            commands.compareScript(loginData, fsPath);
         })
     );
 
