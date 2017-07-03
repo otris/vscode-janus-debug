@@ -63,6 +63,20 @@ You can alter log behavior in the `.vscode/launch.json` file.
 
 The default log level can be any of `Debug`, `Info`, `Warn`, or `Error`.
 
+## Development
+If you want to hack on this VS Code extension start with following recipe:
+
+Fork the repo on our GitHub [project page](https://github.com/otris/vscode-janus-debug) and then
+
+```bash
+$ git clone https://github.com/your-user-name/vscode-janus-debug.git  # Clone the forked repo
+$ cd vscode-janus-debug/  # Change into the source directory
+$ npm i  # Install necessary dependencies
+```
+Then open the folder in VS Code and you're all set. There are two configurations in the `launch.json` file, one configuration that starts a new instance of VS Code with just our extension installed, the so called Extension Host, the other configuration executes all tests using mocha.
+
+Make sure you read the [contribution guide](https://github.com/otris/vscode-janus-debug/blob/master/CONTRIBUTING.md). Happy hacking!
+
 ## Legal Notice
 This Visual Studio Code extension is developed by otris software AG and was initially released in March 2017. It is licensed under the MIT License, (see [LICENSE file](LICENSE)).
 
