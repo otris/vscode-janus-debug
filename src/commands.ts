@@ -231,7 +231,7 @@ export function compareScript(loginData: nodeDoc.LoginData, _param: any) {
         const _scriptname = _path[1];
         return helpers.ensureScriptName(_scriptname).then((scriptname) => {
             let comparePath: string;
-            if (vscode.workspace) {
+            if (vscode.workspace && vscode.workspace.rootPath) {
                 comparePath = path.join(vscode.workspace.rootPath, helpers.COMPARE_FOLDER);
             } else {
                 comparePath = path.join(scriptFolder, helpers.COMPARE_FOLDER);
@@ -297,7 +297,7 @@ export function getScriptParameters(loginData: nodeDoc.LoginData, param: any) {
                         }
                         const jsonOutput = JSON.stringify(scriptsObject, null, '\t').split('\n').map(line => '\t' + line).join('\n').trim();
                         // save json to workspace or write it to console
-                        if (vscode.workspace) {
+                        if (vscode.workspace && vscode.workspace.rootPath) {
                             const jsonfilename = 'jscript.specs.json';
                             const jsonfilepath = path.join(vscode.workspace.rootPath, jsonfilename);
                             return nodeDoc.writeFile(jsonOutput, jsonfilepath).then(() => {

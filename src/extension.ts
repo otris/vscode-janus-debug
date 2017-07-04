@@ -48,6 +48,10 @@ async function getLaunchConfigFromDisk(): Promise<vscode.WorkspaceConfiguration>
             // Not implemented... and makes no sense to implement
             return Promise.reject(new Error('Not implemented'));
         }
+
+        public inspect<T>(section: string): { key: string; defaultValue?: T; globalValue?: T; workspaceValue?: T } | undefined {
+            throw new Error('Not implemented');
+        }
     }
 
     return new Promise<vscode.WorkspaceConfiguration>((resolve, reject) => {
@@ -157,7 +161,7 @@ export function activate(context: vscode.ExtensionContext): void {
     const loginData: nodeDoc.LoginData = new nodeDoc.LoginData();
     context.subscriptions.push(loginData);
     // set launch.json for saving login data
-    if (isFolderOpen) {
+    if (isFolderOpen && vscode.workspace.rootPath) {
         loginData.launchjson = path.join(vscode.workspace.rootPath, '.vscode', 'launch.json');
     }
     // set additional function for getting and saving login data
@@ -308,7 +312,7 @@ export function activate(context: vscode.ExtensionContext): void {
 
 
     // Some features only available in workspace
-    if (isFolderOpen) {
+    if (isFolderOpen && vscode.workspace.rootPath) {
         const activationFile = path.join(vscode.workspace.rootPath, DOCUMENTS_SETTINGS);
         try {
             fs.readFileSync(activationFile);

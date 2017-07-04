@@ -201,6 +201,10 @@ export function getDownloadScriptNamesFromList(): nodeDoc.scriptT[] {
     let scriptnames: string[];
     let scripts: nodeDoc.scriptT[];
 
+    if (!vscode.workspace || !vscode.workspace.rootPath) {
+        return [];
+    }
+
     try {
         const file = path.join(vscode.workspace.rootPath, SCRIPT_NAMES_FILE);
         scriptnames = fs.readFileSync(file, 'utf8').trim().split(os.EOL);
@@ -224,7 +228,7 @@ export function getDownloadScriptNamesFromList(): nodeDoc.scriptT[] {
 }
 
 export function writeScriptNamesToFile(scripts: nodeDoc.scriptT[]) {
-    if (!vscode.workspace) {
+    if (!vscode.workspace || !vscode.workspace.rootPath) {
         return;
     }
     if (!scripts || 0 === scripts.length) {
@@ -279,7 +283,8 @@ export function readHashValues(pscripts: nodeDoc.scriptT[]) {
     if (!pscripts || 0 === pscripts.length) {
         return;
     }
-    if (!vscode.workspace) {
+
+    if (!vscode.workspace || !vscode.workspace.rootPath) {
         return;
     }
 
@@ -330,7 +335,7 @@ export function updateHashValues(pscripts: nodeDoc.scriptT[]) {
     if (!pscripts || 0 === pscripts.length) {
         return;
     }
-    if (!vscode.workspace) {
+    if (!vscode.workspace || !vscode.workspace.rootPath) {
         return;
     }
 
@@ -388,7 +393,11 @@ export function updateHashValues(pscripts: nodeDoc.scriptT[]) {
     nodeDoc.writeFile(hashValStr, _documents);
 }
 
-export function compareScript(_path: string, scriptname: string) {
+export function compareScript(_path: string, scriptname: string): void {
+    if (!vscode.workspace.rootPath || !vscode.workspace.rootPath) {
+        return;
+    }
+
     if (!_path || !scriptname) {
         vscode.window.showErrorMessage('Select or open a file to compare');
         return;
@@ -497,13 +506,19 @@ export async function getFolder(fileOrFolder: string, allowNewSubFolder = false)
 export async function ensurePath(fileOrFolder: string, allowSubDir = false, withBaseName = false): Promise<string[]> {
     console.log('ensurePath');
 
+    if (!vscode.workspace || !vscode.workspace.rootPath) {
+        return [];
+    }
+
+    const workspaceFolder = vscode.workspace.rootPath;
+
     return new Promise<string[]>((resolve, reject) => {
 
         // given path must be absolute
         if (fileOrFolder) {
 
             // if there's a workspace, returned path must be a subfolder of rootPath
-            if (!vscode.workspace || fileOrFolder.toLowerCase().startsWith(vscode.workspace.rootPath.toLowerCase())) {
+            if (!vscode.workspace || fileOrFolder.toLowerCase().startsWith(workspaceFolder.toLowerCase())) {
 
                 // check folder and get folder from file
                 getFolder(fileOrFolder).then((retpath) => {
@@ -526,7 +541,7 @@ export async function ensurePath(fileOrFolder: string, allowSubDir = false, with
                     defaultPath = path.dirname(vscode.window.activeTextEditor.document.fileName);
                 }
             } else if (vscode.workspace && !withBaseName) {
-                defaultPath = vscode.workspace.rootPath;
+                defaultPath = workspaceFolder;
             }
             // ask for path
             const _promt = withBaseName ? 'Please enter the script' : 'Please enter the folder';
@@ -540,7 +555,7 @@ export async function ensurePath(fileOrFolder: string, allowSubDir = false, with
                 if (input) {
 
                     // if there's a workspace, returned path must be subfolder of rootPath
-                    if (!vscode.workspace || input.toLowerCase().startsWith(vscode.workspace.rootPath.toLowerCase())) {
+                    if (!vscode.workspace || input.toLowerCase().startsWith(workspaceFolder.toLowerCase())) {
 
                         // check folder and get folder from file
                         getFolder(input, allowSubDir).then((retpath) => {
@@ -549,7 +564,7 @@ export async function ensurePath(fileOrFolder: string, allowSubDir = false, with
                             reject(reason);
                         });
                     } else {
-                        reject(input + ' is not a subfolder of ' + vscode.workspace.rootPath);
+                        reject(input + ' is not a subfolder of ' + workspaceFolder);
                     }
                 } else {
                     reject('no path');
