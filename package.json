@@ -23,6 +23,7 @@
     "Debuggers",
     "Other"
   ],
+  "icon": "icons/JS_Icon.png",
   "activationEvents": [
     "workspaceContains:documents-scripting-settings.json",
     "onCommand:extension.vscode-janus-debug.provideInitialConfigurations",
@@ -407,7 +408,7 @@
     }
   },
   "scripts": {
-    "vscode:prepublish": "npm run compile",
+    "vscode:prepublish": "npm run compile && mkdir -p extension/icons && cp -r icons/* extension/icons",
     "compile": "tsc -p ./ && node ./scripts/createVersionNumber.js",
     "watch": "tsc -watch -p ./",
     "test": "npm run compile && mocha --timeout 10000 -u tdd out/test/",
@@ -418,8 +419,8 @@
     "@types/uuid": "^2.0.29",
     "fs": "0.0.1-security",
     "net": "^1.0.2",
-    "node-documents-scripting": "git+https://github.com/otris/node-documents-scripting.git#0.0.2",
     "node-sds": "git+https://git@github.com/otris/node-sds.git#1.0.0",
+    "node-documents-scripting": "git+https://github.com/otris/node-documents-scripting.git#0.0.2",
     "open": "0.0.5",
     "reduce-for-promises": "^1.2.1",
     "strip-json-comments": "^2.0.1",
