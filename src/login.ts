@@ -10,20 +10,42 @@ export async function createLoginData(_loginData: nodeDoc.LoginData): Promise<vo
     return new Promise<void>(async (resolve, reject) => {
 
         try {
-            await askForLoginData(_loginData);
-
-            try {
-                await createLaunchJson(_loginData);
-            } catch (err) {
-                // couldn't save login data,
-                // doesn't matter, just leave a warning and continue anyway
-                vscode.window.showWarningMessage('did not save login data: ' + err);
-                return resolve();
+            if (!_loginData.checkLoginData()) {
+                await askForLoginData(_loginData);
+                try {
+                    await createLaunchJson(_loginData);
+                } catch (err) {
+                    // couldn't save login data,
+                    // doesn't matter, just leave a warning and continue anyway
+                    vscode.window.showWarningMessage('did not save login data: ' + err);
+                    return resolve();
+                }
+            } else {
+                await askForPassword(_loginData);
             }
-
         } catch (err) {
             return reject(err);
         }
+
+        resolve();
+    });
+}
+
+
+async function askForPassword(_loginData: nodeDoc.LoginData): Promise<void> {
+    return new Promise<void>(async (resolve, reject) => {
+        const password = await vscode.window.showInputBox({
+            prompt: 'Please enter the password',
+            value: '',
+            password: true,
+            ignoreFocusOut: true,
+        });
+
+        if (password === undefined) { // Note: empty passwords are fine
+            return reject(new Error('input password cancelled'));
+        }
+
+        _loginData.password = password;
 
         resolve();
     });
@@ -36,13 +58,9 @@ async function askForLoginData(_loginData: nodeDoc.LoginData): Promise<void> {
     const PORT: number = 11000;
     const PRINCIPAL: string = 'dopaag';
     const USERNAME: string = 'admin';
-    const PASSWORD = '';
 
     return new Promise<void>(async (resolve, reject) => {
 
-        // showInputBox() returns a thenable(value) object,
-        // that is, these objects always have a then(value) function,
-        // value can't be empty iff it's predefined in options
         const server = await vscode.window.showInputBox({
             prompt: 'Please enter the hostname',
             value: SERVER,
@@ -59,7 +77,6 @@ async function askForLoginData(_loginData: nodeDoc.LoginData): Promise<void> {
             ignoreFocusOut: true,
         });
 
-
         if (!port) {
             return reject(new Error('input login data cancelled'));
         }
@@ -69,7 +86,6 @@ async function askForLoginData(_loginData: nodeDoc.LoginData): Promise<void> {
             value: _loginData.principal ? _loginData.principal : PRINCIPAL,
             ignoreFocusOut: true,
         });
-
 
         if (!principal) {
             return reject(new Error('input login data cancelled'));
@@ -81,28 +97,35 @@ async function askForLoginData(_loginData: nodeDoc.LoginData): Promise<void> {
             ignoreFocusOut: true,
         });
 
-
         if (!username) {
             return reject(new Error('input login data cancelled'));
         }
 
+        _loginData.server = server;
+        _loginData.port = Number(port);
+        _loginData.principal = principal;
+        _loginData.username = username;
+
         const password = await vscode.window.showInputBox({
             prompt: 'Please enter the password',
-            value: PASSWORD,
+            value: '',
             password: true,
             ignoreFocusOut: true,
         });
-
 
         if (password === undefined) { // Note: empty passwords are fine
             return reject(new Error('input login data cancelled'));
         }
 
         _loginData.password = password;
-        _loginData.server = server;
-        _loginData.port = Number(port);
-        _loginData.principal = principal;
-        _loginData.username = username;
+
+        const savePw = await vscode.window.showQuickPick(["Yes", "No"], {placeHolder: "Save password to launch.json?"});
+        if ("No" === savePw) {
+            // if the password field of launch.json contains this string, the password shouldn't
+            // be written to launch.json, instead the user should be asked for the password
+            _loginData.askForPassword = true;
+        }
+
         resolve();
     });
 }
@@ -126,12 +149,18 @@ async function createLaunchJson(loginData: nodeDoc.LoginData): Promise<void> {
                     if ('ENOENT' === err.code) {
                         // launch.json doesn't exist, create one
 
+                        let pw = '';
+                        if (loginData.askForPassword) {
+                            pw = '${command:extension.vscode-janus-debug.askForPassword}';
+                        } else {
+                            pw = loginData.password;
+                        }
                         const data = provideInitialConfigurations(rootPath, {
                             host: loginData.server,
                             applicationPort: loginData.port,
                             principal: loginData.principal,
                             username: loginData.username,
-                            password: loginData.password,
+                            password: pw
                         });
 
                         nodeDoc.writeFile(data, filename, true).then(() => {
