@@ -116,6 +116,20 @@ function disconnectServerConsole(console: ServerConsole): void {
 export function activate(context: vscode.ExtensionContext): void {
 
     const isFolderOpen: boolean = vscode.workspace !== undefined;
+    let launchJson = '';
+
+    // login data
+    const loginData: nodeDoc.LoginData = new nodeDoc.LoginData();
+    context.subscriptions.push(loginData);
+
+    // set additional properties for login data
+    loginData.getLoginData = login.createLoginData;
+    loginData.askForPasswordStr = '${command:extension.vscode-janus-debug.askForPassword}';
+    if (vscode.workspace && vscode.workspace.rootPath) {
+        launchJson = path.join(vscode.workspace.rootPath, '.vscode', 'launch.json');
+        loginData.loadConfigFile(launchJson);
+    }
+
 
     if (isFolderOpen) {
         const outputChannel = vscode.window.createOutputChannel('Server Console');
@@ -130,15 +144,24 @@ export function activate(context: vscode.ExtensionContext): void {
 
             launchJsonWatcher = vscode.workspace.createFileSystemWatcher('**/launch.json',
                 false, false, false);
-            launchJsonWatcher.onDidCreate(() => {
+            launchJsonWatcher.onDidCreate((file) => {
                 outputChannel.appendLine('launch.json created; trying to connect...');
                 reconnectServerConsole(serverConsole);
+                if (file.fsPath === launchJson) {
+                    loginData.loadConfigFile(launchJson);
+                }
             });
-            launchJsonWatcher.onDidChange(() => {
+            launchJsonWatcher.onDidChange((file) => {
                 outputChannel.appendLine('launch.json changed; trying to (re)connect...');
                 reconnectServerConsole(serverConsole);
+                if (file.fsPath === launchJson) {
+                    loginData.loadConfigFile(launchJson);
+                }
             });
-            launchJsonWatcher.onDidDelete(() => disconnectServerConsole(serverConsole));
+            launchJsonWatcher.onDidDelete(() => {
+                disconnectServerConsole(serverConsole);
+                loginData.resetLoginData();
+            });
         }
     }
 
@@ -156,16 +179,8 @@ export function activate(context: vscode.ExtensionContext): void {
             return provideInitialConfigurations(vscode.workspace.rootPath);
         }));
 
-    // login data
-    // needed for all features
-    const loginData: nodeDoc.LoginData = new nodeDoc.LoginData();
-    context.subscriptions.push(loginData);
-    // set launch.json for saving login data
-    if (isFolderOpen && vscode.workspace.rootPath) {
-        loginData.launchjson = path.join(vscode.workspace.rootPath, '.vscode', 'launch.json');
-    }
-    // set additional function for getting and saving login data
-    loginData.getLoginData = login.createLoginData;
+
+
 
     // output channel for run script...
     runScriptChannel = vscode.window.createOutputChannel('Script Console');
