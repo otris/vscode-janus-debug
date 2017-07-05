@@ -2,7 +2,7 @@
   "name": "vscode-janus-debug",
   "displayName": "JavaScript Remote Debugger for JANUS Apps",
   "description": "Debug your JANUS-based applications in Visual Studio Code",
-  "version": "0.0.7",
+  "version": "0.0.9",
   "publisher": "otris-software",
   "author": {
     "name": "otris software",
@@ -23,6 +23,11 @@
     "Debuggers",
     "Other"
   ],
+  "icon": "img/extension-icon.png",
+  "galleryBanner": {
+    "color": "#009bd5",
+    "theme": "light"
+  },
   "activationEvents": [
     "workspaceContains:documents-scripting-settings.json",
     "onCommand:extension.vscode-janus-debug.provideInitialConfigurations",
@@ -418,8 +423,8 @@
     "@types/uuid": "^2.0.29",
     "fs": "0.0.1-security",
     "net": "^1.0.2",
-    "node-documents-scripting": "git+https://github.com/otris/node-documents-scripting.git#0.0.2",
     "node-sds": "git+https://git@github.com/otris/node-sds.git#1.0.0",
+    "node-documents-scripting": "git+https://github.com/otris/node-documents-scripting.git#0.0.2",
     "open": "0.0.5",
     "reduce-for-promises": "^1.2.1",
     "strip-json-comments": "^2.0.1",
