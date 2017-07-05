@@ -50,7 +50,8 @@ export type ResponseSubType =
     'evaluated' |
     'all_source_urls' |
     'breakpoints_list' |
-    'contexts_list';
+    'contexts_list' |
+    'paused';
 
 export interface Response {
     /** Type of the response: 'info' for normal responses, 'error' for errors. */

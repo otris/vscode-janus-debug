@@ -200,6 +200,9 @@ export class JanusDebugSession extends DebugSession {
                 const connection = new DebugConnection(debuggerSocket);
                 this.connection = connection;
 
+                this.connection.on('contextPaused', (ctxId: number) => {
+                    this.sendEvent(new StoppedEvent("hit breakpoint", ctxId));
+                });
                 debuggerSocket.on('connect', () => {
 
                     log.info(`launchRequest: connection to ${host}:${debuggerPort} established. Testing...`);
@@ -454,9 +457,9 @@ export class JanusDebugSession extends DebugSession {
                             // pending attribute set to false.
                             if (res.type === 'error' && res.content.message && res.content.message === 'Cannot set breakpoint at given line.') {
                                 resolve({
-                                        line: breakpoint.line,
-                                        pending: false,
-                                    } as Breakpoint);
+                                    line: breakpoint.line,
+                                    pending: false,
+                                } as Breakpoint);
                             }
                             // When the debugger give a error back and the message
                             // dont tell us that a breakpoint cant set we reject this one, cause a 'unknown'
