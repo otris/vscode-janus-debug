@@ -117,6 +117,7 @@ function disconnectServerConsole(console: ServerConsole): void {
 export function activate(context: vscode.ExtensionContext): void {
 
     const isFolderOpen: boolean = vscode.workspace !== undefined;
+    let launchJson = '';
 
     // login data
     const loginData: nodeDoc.LoginData = new nodeDoc.LoginData();
@@ -126,7 +127,7 @@ export function activate(context: vscode.ExtensionContext): void {
     loginData.getLoginData = login.createLoginData;
     loginData.askForPasswordStr = '${command:extension.vscode-janus-debug.askForPassword}';
     if (vscode.workspace && vscode.workspace.rootPath) {
-        const launchJson = path.join(vscode.workspace.rootPath, '.vscode', 'launch.json');
+        launchJson = path.join(vscode.workspace.rootPath, '.vscode', 'launch.json');
         loginData.loadConfigFile(launchJson);
     }
 
@@ -149,15 +150,19 @@ export function activate(context: vscode.ExtensionContext): void {
 
                 launchJsonWatcher = vscode.workspace.createFileSystemWatcher('**/launch.json',
                     false, false, false);
-                launchJsonWatcher.onDidCreate(() => {
+                launchJsonWatcher.onDidCreate((file) => {
                     outputChannel.appendLine('launch.json created; trying to connect...');
                     reconnectServerConsole(serverConsole);
-                    loginData.loadConfigFile(launchJson);
+                    if (file.fsPath === launchJson) {
+                        loginData.loadConfigFile(launchJson);
+                    }
                 });
-                launchJsonWatcher.onDidChange(() => {
+                launchJsonWatcher.onDidChange((file) => {
                     outputChannel.appendLine('launch.json changed; trying to (re)connect...');
                     reconnectServerConsole(serverConsole);
-                    loginData.loadConfigFile(launchJson);
+                    if (file.fsPath === launchJson) {
+                        loginData.loadConfigFile(launchJson);
+                    }
                 });
                 launchJsonWatcher.onDidDelete(() => {
                     disconnectServerConsole(serverConsole);
