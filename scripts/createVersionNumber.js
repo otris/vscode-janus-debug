@@ -1,7 +1,7 @@
-const {exec} = require('child_process');
+const { exec } = require('child_process');
 const fs = require('fs');
 
-async function determineCommit() {
+function determineCommit() {
     return new Promise((resolve, reject) => {
         exec('"git" log --oneline', function (err, stdout, stderr) {
 
@@ -14,7 +14,7 @@ async function determineCommit() {
     });
 }
 
-async function determineVersion() {
+function determineVersion() {
     return new Promise((resolve, reject) => {
         exec('"git" tag', function (err, stdout, stderr) {
             if (err) {
@@ -34,30 +34,32 @@ async function determineVersion() {
 }
 
 
-async function writeVersionToJson() {
+function writeVersionToJson() {
 
-    let commit = await determineCommit();
-    let version = await determineVersion();
+    determineCommit().then((commit) => {
+        determineVersion().then((version) => {
 
-    console.log("Determined version: " + version.major + "." + version.minor + "." + version.patch + " commit: " + commit);
+            console.log("Determined version: " + version.major + "." + version.minor + "." + version.patch + " commit: " + commit);
 
-    fs.open('out/src/version.json', 'w', (err, fd) => {
-        if (err) {
-            throw err;
-        }
+            fs.open('out/src/version.json', 'w', (err, fd) => {
+                if (err) {
+                    throw err;
+                }
 
-        let jsonObj = {
-            commit: commit,
-            major: version.major,
-            minor: version.minor,
-            patch: version.patch,
-        }
+                let jsonObj = {
+                    commit: commit,
+                    major: version.major,
+                    minor: version.minor,
+                    patch: version.patch,
+                }
 
-        fs.write(fd, JSON.stringify(jsonObj), (err) => {
-            if (err) {
-                console.log(err);
-                throw err;
-            }
+                fs.write(fd, JSON.stringify(jsonObj), (err) => {
+                    if (err) {
+                        console.log(err);
+                        throw err;
+                    }
+                });
+            });
         });
     });
 }
