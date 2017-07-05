@@ -119,13 +119,16 @@ export function activate(context: vscode.ExtensionContext): void {
     const isFolderOpen: boolean = vscode.workspace !== undefined;
 
     // login data
-    const launchJson = path.join(vscode.workspace.rootPath, '.vscode', 'launch.json');
     const loginData: nodeDoc.LoginData = new nodeDoc.LoginData();
-    // set additional function for getting and saving login data
+    context.subscriptions.push(loginData);
+
+    // set additional properties for login data
     loginData.getLoginData = login.createLoginData;
     loginData.askForPasswordStr = '${command:extension.vscode-janus-debug.askForPassword}';
-    loginData.loadConfigFile(launchJson);
-    context.subscriptions.push(loginData);
+    if (vscode.workspace && vscode.workspace.rootPath) {
+        const launchJson = path.join(vscode.workspace.rootPath, '.vscode', 'launch.json');
+        loginData.loadConfigFile(launchJson);
+    }
 
 
     if (isFolderOpen) {
