@@ -118,6 +118,16 @@ export function activate(context: vscode.ExtensionContext): void {
 
     const isFolderOpen: boolean = vscode.workspace !== undefined;
 
+    // login data
+    const launchJson = path.join(vscode.workspace.rootPath, '.vscode', 'launch.json');
+    const loginData: nodeDoc.LoginData = new nodeDoc.LoginData();
+    // set additional function for getting and saving login data
+    loginData.getLoginData = login.createLoginData;
+    loginData.askForPasswordStr = '${command:extension.vscode-janus-debug.askForPassword}';
+    loginData.loadConfigFile(launchJson);
+    context.subscriptions.push(loginData);
+
+
     if (isFolderOpen) {
         const outputChannel = vscode.window.createOutputChannel('Server Console');
         outputChannel.appendLine('Extension activated');
@@ -139,12 +149,17 @@ export function activate(context: vscode.ExtensionContext): void {
                 launchJsonWatcher.onDidCreate(() => {
                     outputChannel.appendLine('launch.json created; trying to connect...');
                     reconnectServerConsole(serverConsole);
+                    loginData.loadConfigFile(launchJson);
                 });
                 launchJsonWatcher.onDidChange(() => {
                     outputChannel.appendLine('launch.json changed; trying to (re)connect...');
                     reconnectServerConsole(serverConsole);
+                    loginData.loadConfigFile(launchJson);
                 });
-                launchJsonWatcher.onDidDelete(() => disconnectServerConsole(serverConsole));
+                launchJsonWatcher.onDidDelete(() => {
+                    disconnectServerConsole(serverConsole);
+                    loginData.resetLoginData();
+                });
             }
         });
     }
@@ -163,16 +178,8 @@ export function activate(context: vscode.ExtensionContext): void {
             return provideInitialConfigurations(vscode.workspace.rootPath);
         }));
 
-    // login data
-    // needed for all features
-    const loginData: nodeDoc.LoginData = new nodeDoc.LoginData();
-    context.subscriptions.push(loginData);
-    // set launch.json for saving login data
-    if (isFolderOpen && vscode.workspace.rootPath) {
-        loginData.launchjson = path.join(vscode.workspace.rootPath, '.vscode', 'launch.json');
-    }
-    // set additional function for getting and saving login data
-    loginData.getLoginData = login.createLoginData;
+
+
 
     // output channel for run script...
     runScriptChannel = vscode.window.createOutputChannel('Script Console');
