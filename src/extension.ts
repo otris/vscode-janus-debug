@@ -10,6 +10,7 @@ import { extend } from './helpers';
 import * as login from './login';
 import { ServerConsole } from './serverConsole';
 import stripJsonComments = require('strip-json-comments');
+import { getVersion } from './version';
 
 const DOCUMENTS_SETTINGS = 'documents-scripting-settings.json';
 
@@ -120,26 +121,32 @@ export function activate(context: vscode.ExtensionContext): void {
     if (isFolderOpen) {
         const outputChannel = vscode.window.createOutputChannel('Server Console');
         outputChannel.appendLine('Extension activated');
-        outputChannel.show();
-        serverConsole = new ServerConsole(outputChannel);
+        getVersion().then(ver => {
+            outputChannel.appendLine("Version: " + ver.toString());
+        }).catch(err => {
+            outputChannel.appendLine('getVersion failed' + err);
+        }).then(() => {
+            outputChannel.show();
+            serverConsole = new ServerConsole(outputChannel);
 
-        const extensionSettings = vscode.workspace.getConfiguration('vscode-janus-debug');
-        const autoConnectEnabled = extensionSettings.get('serverConsole.autoConnect', true);
-        if (autoConnectEnabled) {
-            reconnectServerConsole(serverConsole);
+            const extensionSettings = vscode.workspace.getConfiguration('vscode-janus-debug');
+            const autoConnectEnabled = extensionSettings.get('serverConsole.autoConnect', true);
+            if (autoConnectEnabled) {
+                reconnectServerConsole(serverConsole);
 
-            launchJsonWatcher = vscode.workspace.createFileSystemWatcher('**/launch.json',
-                false, false, false);
-            launchJsonWatcher.onDidCreate(() => {
-                outputChannel.appendLine('launch.json created; trying to connect...');
-                reconnectServerConsole(serverConsole);
-            });
-            launchJsonWatcher.onDidChange(() => {
-                outputChannel.appendLine('launch.json changed; trying to (re)connect...');
-                reconnectServerConsole(serverConsole);
-            });
-            launchJsonWatcher.onDidDelete(() => disconnectServerConsole(serverConsole));
-        }
+                launchJsonWatcher = vscode.workspace.createFileSystemWatcher('**/launch.json',
+                    false, false, false);
+                launchJsonWatcher.onDidCreate(() => {
+                    outputChannel.appendLine('launch.json created; trying to connect...');
+                    reconnectServerConsole(serverConsole);
+                });
+                launchJsonWatcher.onDidChange(() => {
+                    outputChannel.appendLine('launch.json changed; trying to (re)connect...');
+                    reconnectServerConsole(serverConsole);
+                });
+                launchJsonWatcher.onDidDelete(() => disconnectServerConsole(serverConsole));
+            }
+        });
     }
 
     context.subscriptions.push(
