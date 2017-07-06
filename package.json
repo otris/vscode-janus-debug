@@ -241,6 +241,12 @@
               "description": "Try to auto connect Server Console every time the launch.json is changed"
             }
           }
+        },
+        "vscode-janus-debug.log": {
+          "type": "string",
+          "title": "Extension log-file",
+          "description": "Location of the extension's log file",
+          "default": "${workspaceRoot}/vscode-janus-debug-extension.log"
         }
       }
     },

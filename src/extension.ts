@@ -2,11 +2,13 @@
 
 import * as fs from 'fs';
 import * as nodeDoc from 'node-documents-scripting';
+import * as os from 'os';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import * as commands from './commands';
 import { provideInitialConfigurations } from './config';
 import { extend } from './helpers';
+import { Logger } from './log';
 import * as login from './login';
 import { ServerConsole } from './serverConsole';
 import stripJsonComments = require('strip-json-comments');
@@ -17,6 +19,23 @@ const DOCUMENTS_SETTINGS = 'documents-scripting-settings.json';
 let launchJsonWatcher: vscode.FileSystemWatcher;
 let serverConsole: ServerConsole;
 let runScriptChannel: vscode.OutputChannel;
+
+function getExtensionLogPath(): string | undefined {
+    const config = vscode.workspace.getConfiguration('vscode-janus-debug');
+    const log = config.get("log");
+    let fileName = "";
+    if (log) {
+        fileName = log.toString().replace(/\s/g, '').substr(16);
+    } else {
+        return undefined;
+    }
+    const workspacePath = vscode.workspace.rootPath;
+    if (workspacePath !== undefined) {
+        return workspacePath + fileName;
+    } else {
+        return undefined;
+    }
+}
 
 /**
  * Reads and returns the launch.json file's configurations.
@@ -115,6 +134,9 @@ function disconnectServerConsole(console: ServerConsole): void {
 }
 
 export function activate(context: vscode.ExtensionContext): void {
+
+    // set up file logging
+    Logger.config = { fileName: getExtensionLogPath() };
 
     const isFolderOpen: boolean = vscode.workspace !== undefined;
     let launchJson = '';
