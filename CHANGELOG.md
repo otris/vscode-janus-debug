@@ -8,6 +8,10 @@ WIP
 
 Following issues have been fixed in this release:
 
+  - The debugger stops now immediately when a breakpoint is hit or the program halts ([#57] (https://github.com/otris/vscode-janus-debug/issues/57)).
+  - The version and commit number are now printed out on the console when the debug extension is activated ([#39]
+  (https://github.com/otris/vscode-janus-debug/issues/39)).
+  - The extension comes with a lovely icon now 👊 ([#31] (https://github.com/otris/vscode-janus-debug/issues/31).
   - User can now change all network related timeouts from within `launch.json` file ([#51](https://github.com/otris/vscode-janus-debug/issues/51)).
   - Some minor errors have been fixed when a new `launch.json` was created from previously entered data ([5c45fa0](https://github.com/otris/vscode-janus-debug/commit/5c45fa0ee06c19ca2b1f1641cdce89e200175c16)).
 
