@@ -1,3 +1,4 @@
+Philipp Rosendahl <rosendahl@otris.de>
 Maximilian Wehrstedt <wehrstedt@otris.de>
 Holger Benl <hbenl@evandor.de> (Logger class)
 Fabian Terstegen <FabianTe@users.noreply.github.com>
