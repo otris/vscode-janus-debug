@@ -243,10 +243,29 @@
           }
         },
         "vscode-janus-debug.log": {
-          "type": "string",
+          "type": "object",
           "title": "Extension log-file",
           "description": "Location of the extension's log file",
-          "default": "${workspaceRoot}/vscode-janus-debug-extension.log"
+          "required": [
+            "logLevel",
+            "fileName"
+          ],
+          "properties": {
+            "logLevel": {
+              "type": "String",
+              "default": "Debug",
+              "enum": [
+                "Debug",
+                "Info",
+                "Warn",
+                "Error"
+              ]
+            },
+            "fileName": {
+              "type": "String",
+              "default": "${workspaceRoot}/vscode-janus-debug-extension.log"
+            }
+          }
         }
       }
     },

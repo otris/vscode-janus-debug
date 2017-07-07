@@ -8,7 +8,7 @@ import * as vscode from 'vscode';
 import * as commands from './commands';
 import { provideInitialConfigurations } from './config';
 import { extend } from './helpers';
-import { Logger } from './log';
+import { LogConfiguration, Logger } from './log';
 import * as login from './login';
 import { ServerConsole } from './serverConsole';
 import stripJsonComments = require('strip-json-comments');
@@ -20,18 +20,20 @@ let launchJsonWatcher: vscode.FileSystemWatcher;
 let serverConsole: ServerConsole;
 let runScriptChannel: vscode.OutputChannel;
 
-function getExtensionLogPath(): string | undefined {
+function getExtensionLogPath(): LogConfiguration | undefined {
     const config = vscode.workspace.getConfiguration('vscode-janus-debug');
-    const log = config.get("log");
-    let fileName = "";
-    if (log) {
-        fileName = log.toString().replace(/\s/g, '').substr(16);
-    } else {
-        return undefined;
-    }
-    const workspacePath = vscode.workspace.rootPath;
-    if (workspacePath !== undefined) {
-        return workspacePath + fileName;
+    const log: any = config.get("log");
+    if (log && log.fileName) {
+        return {
+            fileName: log.fileName,
+            logLevel: function() {
+                if (log.logLevel) {
+                    return log.logLevel;
+                } else {
+                    return "Debug";
+                }
+            }()
+        };
     } else {
         return undefined;
     }
@@ -136,7 +138,10 @@ function disconnectServerConsole(console: ServerConsole): void {
 export function activate(context: vscode.ExtensionContext): void {
 
     // set up file logging
-    Logger.config = { fileName: getExtensionLogPath() };
+    const extensionLoggerConf = getExtensionLogPath();
+    if (extensionLoggerConf) {
+        Logger.config = extensionLoggerConf;
+    }
 
     const isFolderOpen: boolean = vscode.workspace !== undefined;
     let launchJson = '';
