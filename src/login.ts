@@ -120,9 +120,9 @@ async function askForLoginData(_loginData: nodeDoc.LoginData): Promise<void> {
         _loginData.password = password;
 
         const savePw = await vscode.window.showQuickPick(["Yes", "No"], {placeHolder: "Save password to launch.json?"});
-        if ("No" === savePw) {
-            // if the password field of launch.json contains this string, the password shouldn't
-            // be written to launch.json, instead the user should be asked for the password
+        if ("Yes" === savePw) {
+            _loginData.askForPassword = false;
+        } else if ("No" === savePw) {
             _loginData.askForPassword = true;
         }
 
