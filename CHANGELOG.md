@@ -4,22 +4,23 @@ You'll find a complete list of changes at our project site on [GitHub](https://g
 
 ### 0.0.8 (2017-07-07)
 
-Only bugfix in saving passwords.
+New Features:
 
-### 0.0.7 (2017-07-07)
-
-WIP
+- Users can now write DOCUMENTS scripts in [TypeScript](https://www.typescriptlang.org/) and then use the command `Upload JS from TS` to compile the TypeScript file and upload the corresponding JavaScript ([#55](https://github.com/otris/vscode-janus-debug/issues/55)).
+- Users can now download a script from the server via the context menu when using right-click on a folder.
+- Users will be asked before passwords will be written in plain-text to the project's `launch.json` file.
+- The extension comes with a lovely icon now 👊 ([#31](https://github.com/otris/vscode-janus-debug/issues/31)).
 
 Following issues have been fixed in this release:
 
-  - The debugger stops now immediately when a breakpoint is hit or the program halts ([#57](https://github.com/otris/vscode-janus-debug/issues/57)).
-  - The version and commit number are now printed out on the console when the debug extension is activated ([#39](https://github.com/otris/vscode-janus-debug/issues/39)).
-  - The extension comes with a lovely icon now 👊 ([#31](https://github.com/otris/vscode-janus-debug/issues/31).
-  - User can now change all network related timeouts from within `launch.json` file ([#51](https://github.com/otris/vscode-janus-debug/issues/51)).
-  - Some minor errors have been fixed when a new `launch.json` was created from previously entered data ([5c45fa0](https://github.com/otris/vscode-janus-debug/commit/5c45fa0ee06c19ca2b1f1641cdce89e200175c16)).
-  - User can now write DOCUMENTS scripts in TypeScript and then use the command `Upload JS from TS` to compile the TypeScript file and upload the corresponding JavaScript ([#55](https://github.com/otris/vscode-janus-debug/issues/55)).
-  - User can download a new script from server via context menu on a folder.
-  - User will be asked before password will be written in plain text into launch.json.
+  - The debugger stops now immediately when a breakpoint is hit or the script halts ([#57](https://github.com/otris/vscode-janus-debug/issues/57)).
+  - The version and commit number are now printed out on the console when the extension is activated ([#39](https://github.com/otris/vscode-janus-debug/issues/39)).
+  - Users can now change all network related timeouts from within `launch.json` file ([#51](https://github.com/otris/vscode-janus-debug/issues/51)). Previously, not all timeouts where configurable.
+  - Some minor errors have been fixed when a new `launch.json` is created when the user uploads a script the first time. ([5c45fa0](https://github.com/otris/vscode-janus-debug/commit/5c45fa0ee06c19ca2b1f1641cdce89e200175c16)).
+
+### 0.0.7 (2017-07-07)
+
+Accidentally released.
 
 ### 0.0.6 (2017-06-21)
 
