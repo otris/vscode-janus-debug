@@ -111,7 +111,11 @@ async function reconnectServerConsole(console: ServerConsole): Promise<void> {
 }
 
 function disconnectServerConsole(console: ServerConsole): void {
-    console.outputChannel.appendLine(`Disconnected from server`);
+    console.disconnect().then(() => {
+        console.outputChannel.appendLine(`Disconnected from server`);
+    }).catch((reason) => {
+        console.outputChannel.appendLine(`unable to disconnect from server ${reason.toString()}`);
+    });
 }
 
 export function activate(context: vscode.ExtensionContext): void {
@@ -132,8 +136,8 @@ export function activate(context: vscode.ExtensionContext): void {
     }
 
 
+    const outputChannel = vscode.window.createOutputChannel('Server Console');
     if (isFolderOpen) {
-        const outputChannel = vscode.window.createOutputChannel('Server Console');
         outputChannel.appendLine('Extension activated');
         getVersion().then(ver => {
             outputChannel.appendLine("Version: " + ver.toString());
@@ -325,6 +329,20 @@ export function activate(context: vscode.ExtensionContext): void {
         vscode.commands.registerCommand('extension.vscode-janus-debug.viewDocumentation', (file) => {
             // file is not used, use active editor...
             commands.viewDocumentation();
+        })
+    );
+
+    // connect the sever console manually
+    context.subscriptions.push(
+        vscode.commands.registerCommand('extension.vscode-janus.debug.connectServerConsole', (param) => {
+            reconnectServerConsole(serverConsole);
+        })
+    );
+
+    // disconnect the server console manually
+    context.subscriptions.push(
+        vscode.commands.registerCommand('extension.vscode-janus.debug.disconnectServerConsole', (param) => {
+            disconnectServerConsole(serverConsole);
         })
     );
 

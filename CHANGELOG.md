@@ -2,6 +2,14 @@
 
 You'll find a complete list of changes at our project site on [GitHub](https://github.com/otris/vscode-janus-debug).
 
+### 0.0.9 (yyyy-mm-dd)
+
+New Features:
+
+- Users can now disconnect, connect and reconnect the severConsole on command ([Connect, Disconnect, Reconnect] Server Console )
+  ([#48](https://github.com/otris/vscode-janus-debug/issues/48))
+
+
 ### 0.0.8 (2017-07-07)
 
 New Features:
