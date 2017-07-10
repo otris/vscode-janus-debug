@@ -336,6 +336,16 @@
         "command": "extension.vscode-janus-debug.viewDocumentation",
         "title": "View Documentation",
         "category": "DOCUMENTS"
+      },
+      {
+        "command": "extension.vscode-janus.debug.connectServerConsole",
+        "title": "Connect ServerConsole",
+        "category": "DOCUMENTS"
+      },
+      {
+        "command": "extension.vscode-janus.debug.disconnectServerConsole",
+        "title": "Disconnect ServerConsole",
+        "category": "DOCUMENTS"
       }
     ],
     "menus": {
