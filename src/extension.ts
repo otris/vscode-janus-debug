@@ -22,26 +22,13 @@ let runScriptChannel: vscode.OutputChannel;
 
 function getExtensionLogPath(): LogConfiguration | undefined {
     const workspaceRoot = vscode.workspace.rootPath;
-    if (workspaceRoot) {
-        const config = vscode.workspace.getConfiguration('vscode-janus-debug');
-        const log: any = config.get("log");
-        if (log && log.fileName) {
-            const ret = {
-                fileName: log.fileName.replace(/[$]{workspaceRoot}/, workspaceRoot),
-                logLevel: function() {
-                    if (log.logLevel) {
-                        return log.logLevel;
-                    } else {
-                        return "Debug";
-                    }
-                }()
-            };
-            return ret;
-        } else {
-            return undefined;
-        }
-    } else {
-        return undefined;
+    const config = vscode.workspace.getConfiguration('vscode-janus-debug');
+    const log: any = config.get("log");
+    if (log && log.fileName && workspaceRoot) {
+        return {
+            fileName: log.fileName.replace(/[$]{workspaceRoot}/, workspaceRoot),
+            logLevel: log.logLevel ? log.logLevel : "Debug"
+        };
     }
 }
 

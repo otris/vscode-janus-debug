@@ -252,8 +252,9 @@
           ],
           "properties": {
             "logLevel": {
-              "type": "String",
+              "type": "string",
               "default": "Debug",
+              "description": "Specifies the severity of messages that get logged to the file",
               "enum": [
                 "Debug",
                 "Info",
@@ -262,7 +263,8 @@
               ]
             },
             "fileName": {
-              "type": "String",
+              "type": "string",
+              "description": "Path to the log file",
               "default": "${workspaceRoot}/vscode-janus-debug-extension.log"
             }
           }
