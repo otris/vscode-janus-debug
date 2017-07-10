@@ -241,6 +241,12 @@
               "description": "Try to auto connect Server Console every time the launch.json is changed"
             }
           }
+        },
+        "vscode-janus-debug.uploadOnSave": {
+          "type": "boolean",
+          "title": "Upload Scripts On Save",
+          "default": true,
+          "description": "Upload JavaScript files automatically every time the files are saved"
         }
       }
     },

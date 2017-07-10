@@ -355,15 +355,18 @@ export function activate(context: vscode.ExtensionContext): void {
             }
         }
 
-
         // Upload script on save
+        const extensionSettings = vscode.workspace.getConfiguration('vscode-janus-debug');
+        const autoUploadEnabled = extensionSettings.get('uploadOnSave', true);
         let disposableOnSave: vscode.Disposable;
-        disposableOnSave = vscode.workspace.onDidSaveTextDocument((textDocument) => {
-            if ('.js' === path.extname(textDocument.fileName)) {
-                commands.uploadScriptOnSave(loginData, textDocument.fileName);
-            }
-        });
-        context.subscriptions.push(disposableOnSave);
+        if (autoUploadEnabled) {
+            disposableOnSave = vscode.workspace.onDidSaveTextDocument((textDocument) => {
+                if ('.js' === path.extname(textDocument.fileName)) {
+                    commands.uploadScriptOnSave(loginData, textDocument.fileName);
+                }
+            });
+            context.subscriptions.push(disposableOnSave);
+        }
     }
 
     vscode.window.setStatusBarMessage('vscode-janus-debug is active');
