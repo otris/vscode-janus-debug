@@ -268,6 +268,7 @@
               "default": "${workspaceRoot}/vscode-janus-debug-extension.log"
             }
           }
+        },
         "vscode-janus-debug.uploadOnSave": {
           "type": "boolean",
           "title": "Upload Scripts On Save",
