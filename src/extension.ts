@@ -157,8 +157,10 @@ export function activate(context: vscode.ExtensionContext): void {
         outputChannel.appendLine('Extension activated');
         getVersion().then(ver => {
             outputChannel.appendLine("Version: " + ver.toString());
+
         }).catch(err => {
             outputChannel.appendLine('getVersion failed' + err);
+
         }).then(() => {
             outputChannel.show();
             serverConsole = new ServerConsole(outputChannel);
@@ -167,28 +169,37 @@ export function activate(context: vscode.ExtensionContext): void {
             const autoConnectEnabled = extensionSettings.get('serverConsole.autoConnect', true);
             if (autoConnectEnabled) {
                 reconnectServerConsole(serverConsole);
+            }
 
-                launchJsonWatcher = vscode.workspace.createFileSystemWatcher('**/launch.json',
-                    false, false, false);
-                launchJsonWatcher.onDidCreate((file) => {
+            launchJsonWatcher = vscode.workspace.createFileSystemWatcher('**/launch.json', false, false, false);
+            launchJsonWatcher.onDidCreate((file) => {
+                if (autoConnectEnabled) {
                     outputChannel.appendLine('launch.json created; trying to connect...');
                     reconnectServerConsole(serverConsole);
-                    if (file.fsPath === launchJson) {
-                        loginData.loadConfigFile(launchJson);
-                    }
-                });
-                launchJsonWatcher.onDidChange((file) => {
+                }
+                if (file.fsPath === launchJson) {
+                    loginData.loadConfigFile(launchJson);
+                }
+            });
+
+            launchJsonWatcher.onDidChange((file) => {
+                if (autoConnectEnabled) {
                     outputChannel.appendLine('launch.json changed; trying to (re)connect...');
                     reconnectServerConsole(serverConsole);
-                    if (file.fsPath === launchJson) {
-                        loginData.loadConfigFile(launchJson);
-                    }
-                });
-                launchJsonWatcher.onDidDelete(() => {
+                }
+                if (file.fsPath === launchJson) {
+                    loginData.loadConfigFile(launchJson);
+                }
+            });
+
+            launchJsonWatcher.onDidDelete((file) => {
+                if (autoConnectEnabled) {
                     disconnectServerConsole(serverConsole);
+                }
+                if (file.fsPath === launchJson) {
                     loginData.resetLoginData();
-                });
-            }
+                }
+            });
         });
     }
 
@@ -364,15 +375,18 @@ export function activate(context: vscode.ExtensionContext): void {
             }
         }
 
-
         // Upload script on save
+        const extensionSettings = vscode.workspace.getConfiguration('vscode-janus-debug');
+        const autoUploadEnabled = extensionSettings.get('uploadOnSave', true);
         let disposableOnSave: vscode.Disposable;
-        disposableOnSave = vscode.workspace.onDidSaveTextDocument((textDocument) => {
-            if ('.js' === path.extname(textDocument.fileName)) {
-                commands.uploadScriptOnSave(loginData, textDocument.fileName);
-            }
-        });
-        context.subscriptions.push(disposableOnSave);
+        if (autoUploadEnabled) {
+            disposableOnSave = vscode.workspace.onDidSaveTextDocument((textDocument) => {
+                if ('.js' === path.extname(textDocument.fileName)) {
+                    commands.uploadScriptOnSave(loginData, textDocument.fileName);
+                }
+            });
+            context.subscriptions.push(disposableOnSave);
+        }
     }
 
     vscode.window.setStatusBarMessage('vscode-janus-debug is active');
