@@ -242,6 +242,33 @@
             }
           }
         },
+        "vscode-janus-debug.log": {
+          "type": "object",
+          "title": "Extension log-file",
+          "description": "Location of the extension's log file",
+          "required": [
+            "logLevel",
+            "fileName"
+          ],
+          "properties": {
+            "logLevel": {
+              "type": "string",
+              "default": "Debug",
+              "description": "Specifies the severity of messages that get logged to the file",
+              "enum": [
+                "Debug",
+                "Info",
+                "Warn",
+                "Error"
+              ]
+            },
+            "fileName": {
+              "type": "string",
+              "description": "Path to the log file",
+              "default": "${workspaceRoot}/vscode-janus-debug-extension.log"
+            }
+          }
+        },
         "vscode-janus-debug.uploadOnSave": {
           "type": "boolean",
           "title": "Upload Scripts On Save",

@@ -4,6 +4,12 @@ You'll find a complete list of changes at our project site on [GitHub](https://g
 
 ### 0.0.8 (2017-07-07)
 
+
+
+- Loging is now additionally available in the extension of VS Code and not only in the DebugAdapter. To activate this feature you have to
+  add an Object called vscode-janus-debug.log to the settings.json containging information about the path to the logfile (fileName) and
+  the loglevel (logLevel). ([#30](https://github.com/otris/vscode-janus-debug/issues/30))
+ 
 New Features:
 
 - Users can now write DOCUMENTS scripts in [TypeScript](https://www.typescriptlang.org/) and then use the command `Upload JS from TS` to compile the TypeScript file and upload the corresponding JavaScript ([#55](https://github.com/otris/vscode-janus-debug/issues/55)).
