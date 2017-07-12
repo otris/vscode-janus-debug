@@ -41,7 +41,9 @@
     "onCommand:extension.vscode-janus-debug.downloadScriptsToFolder",
     "onCommand:extension.vscode-janus-debug.getScriptParameters",
     "onCommand:extension.vscode-janus-debug.getScriptNames",
-    "onDebug:janus"
+    "onDebug:janus",
+    "onCommand:extension.vscode-janus.debug.connectServerConsole",
+    "onCommand:extension.vscode-janus.debug.disconnectServerConsole"
   ],
   "main": "./out/src/extension",
   "contributes": {
@@ -335,6 +337,16 @@
       {
         "command": "extension.vscode-janus-debug.viewDocumentation",
         "title": "View Documentation",
+        "category": "DOCUMENTS"
+      },
+      {
+        "command": "extension.vscode-janus.debug.connectServerConsole",
+        "title": "(Re-)Connect to the Server-Console",
+        "category": "DOCUMENTS"
+      },
+      {
+      "command": "extension.vscode-janus.debug.disconnectServerConsole",
+        "title": "Disconnect from the Server-Console",
         "category": "DOCUMENTS"
       }
     ],
