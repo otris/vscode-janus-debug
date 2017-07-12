@@ -2,24 +2,24 @@
 
 import * as fs from 'fs';
 
-export type LogLevel = 'Debug' | 'Info' | 'Warn' | 'Error';
+enum LogLevel { Debug, Info, Warn, Error }
 
-enum NumericLogLevel { Debug, Info, Warn, Error }
-
-function toNumericLogLevel(logLevel: LogLevel): NumericLogLevel {
+function toNumericLogLevel(logLevel: string): LogLevel {
     // tslint:disable-next-line:switch-default
     switch (logLevel) {
         case 'Debug':
-            return NumericLogLevel.Debug;
+            return LogLevel.Debug;
 
         case 'Info':
-            return NumericLogLevel.Info;
+            return LogLevel.Info;
 
         case 'Warn':
-            return NumericLogLevel.Warn;
+            return LogLevel.Warn;
 
         case 'Error':
-            return NumericLogLevel.Error;
+            return LogLevel.Error;
+        default:
+            return LogLevel.Error;
     }
 }
 
@@ -40,20 +40,20 @@ export class Logger {
     private static fd: number | undefined;
     private static startTime = Date.now();
 
-    private logLevel: NumericLogLevel;
+    private logLevel: LogLevel;
 
     constructor(private name: string) {
         this.configure();
         Logger.loggers.set(name, this);
     }
 
-    public debug(msg: string): void { this.log(NumericLogLevel.Debug, 'DEBUG', msg); }
+    public debug(msg: string): void { this.log(LogLevel.Debug, 'DEBUG', msg); }
 
-    public info(msg: string): void { this.log(NumericLogLevel.Info, 'INFO', msg); }
+    public info(msg: string): void { this.log(LogLevel.Info, 'INFO', msg); }
 
-    public warn(msg: string): void { this.log(NumericLogLevel.Warn, 'WARN', msg); }
+    public warn(msg: string): void { this.log(LogLevel.Warn, 'WARN', msg); }
 
-    public error(msg: string): void { this.log(NumericLogLevel.Error, 'ERROR', msg); }
+    public error(msg: string): void { this.log(LogLevel.Error, 'ERROR', msg); }
 
     public static set config(newConfig: LogConfiguration) {
         if (Logger.fd !== undefined) {
@@ -73,7 +73,7 @@ export class Logger {
         Logger.loggers.forEach(logger => logger.configure());
     }
 
-    private log(level: NumericLogLevel, displayLevel: string, msg: string): void {
+    private log(level: LogLevel, displayLevel: string, msg: string): void {
         if (level < this.logLevel) {
             return;
         }
@@ -96,14 +96,14 @@ export class Logger {
     private configure(): void {
         if (Logger._config.fileName && Logger._config.logLevel) {
             try {
-                this.logLevel = toNumericLogLevel(Logger._config.logLevel[this.name]);
+                this.logLevel = Logger._config.logLevel[this.name];
             } catch (err) {
                 // tslint:disable-next-line:no-string-literal
-                this.logLevel = toNumericLogLevel(Logger._config.logLevel['default']);
+                this.logLevel = Logger._config.logLevel['default'];
                 throw err;
             }
         } else {
-            this.logLevel = NumericLogLevel.Debug;
+            this.logLevel = LogLevel.Debug;
         }
     }
 }
