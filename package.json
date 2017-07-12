@@ -456,7 +456,7 @@
     "@types/uuid": "^2.0.29",
     "fs": "0.0.1-security",
     "net": "^1.0.2",
-    "node-documents-scripting": "git+https://github.com/otris/node-documents-scripting.git#0.0.3",
+    "node-documents-scripting": "git+https://github.com/otris/node-documents-scripting.git#0.0.4",
     "node-sds": "git+https://git@github.com/otris/node-sds.git#1.0.0",
     "open": "0.0.5",
     "reduce-for-promises": "^1.2.1",
