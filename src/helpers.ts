@@ -289,7 +289,7 @@ export function readHashValues(pscripts: nodeDoc.scriptT[]) {
     }
 
     // filename of cache file CACHE_FILE
-    const _documents = path.join(vscode.workspace.rootPath, '.vscode', CACHE_FILE);
+    const _documents = path.join(vscode.workspace.rootPath, CACHE_FILE);
 
     // get hash values from file as array
     let hashValues: string[];
@@ -340,7 +340,7 @@ export function updateHashValues(pscripts: nodeDoc.scriptT[]) {
     }
 
     // filename of cache file CACHE_FILE
-    const _documents = path.join(vscode.workspace.rootPath, '.vscode', CACHE_FILE);
+    const _documents = path.join(vscode.workspace.rootPath, CACHE_FILE);
 
     let hashValues: string[];
     try {
