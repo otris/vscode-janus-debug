@@ -276,9 +276,6 @@ export function activate(context: vscode.ExtensionContext): void {
             if (param) {
                 fsPath = param._fsPath;
             }
-            if (!fsPath && vscode.window.activeTextEditor) {
-                fsPath = vscode.window.activeTextEditor.document.fileName;
-            }
             commands.downloadScript(loginData, fsPath);
         })
     );
