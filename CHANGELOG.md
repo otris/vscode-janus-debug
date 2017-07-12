@@ -6,18 +6,14 @@ You'll find a complete list of changes at our project site on [GitHub](https://g
 
 New Features:
 
-- Users can now disconnect, connect and reconnect the severConsole on command ([Connect, Disconnect, Reconnect] Server Console )
-  ([#48](https://github.com/otris/vscode-janus-debug/issues/48))
+- Users can connect and disconnect the ServerConsole using the command palette now. Two new commands have been added: _Connect ServerConsole_ and _Disconnect ServerConsole_ ([#48](https://github.com/otris/vscode-janus-debug/issues/48)).
 
+![Screenshot](img/connect-server-console.png "Screenshot")
+
+- And one for the hackers: File logging is now additionally available in the extension process of VS Code and not only in the debug adapter process. To activate this feature you have to add `"vscode-janus-debug.log"` to your settings ([#30](https://github.com/otris/vscode-janus-debug/issues/30)).
 
 ### 0.0.8 (2017-07-07)
 
-
-
-- Loging is now additionally available in the extension of VS Code and not only in the DebugAdapter. To activate this feature you have to
-  add an Object called vscode-janus-debug.log to the settings.json containging information about the path to the logfile (fileName) and
-  the loglevel (logLevel). ([#30](https://github.com/otris/vscode-janus-debug/issues/30))
- 
 New Features:
 
 - Users can now write DOCUMENTS scripts in [TypeScript](https://www.typescriptlang.org/) and then use the command `Upload JS from TS` to compile the TypeScript file and upload the corresponding JavaScript ([#55](https://github.com/otris/vscode-janus-debug/issues/55)).
