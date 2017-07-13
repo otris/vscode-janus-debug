@@ -399,7 +399,11 @@ export function activate(context: vscode.ExtensionContext): void {
         if (autoUploadEnabled) {
             disposableOnSave = vscode.workspace.onDidSaveTextDocument((textDocument) => {
                 if ('.js' === path.extname(textDocument.fileName)) {
-                    commands.uploadScriptOnSave(loginData, textDocument.fileName);
+                    commands.uploadScriptOnSave(loginData, textDocument.fileName).then((value) => {
+                        if (!value && disposableOnSave) {
+                            disposableOnSave.dispose();
+                        }
+                    });
                 }
             });
             context.subscriptions.push(disposableOnSave);

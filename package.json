@@ -216,12 +216,12 @@
     ],
     "configuration": {
       "properties": {
-        "vscode-documents-scripting.uploadOnSave": {
+        "vscode-janus-debug.uploadOnSave": {
           "type": "array",
           "default": [],
           "description": "Always upload scripts in this list after save automatically."
         },
-        "vscode-documents-scripting.uploadManually": {
+        "vscode-janus-debug.uploadManually": {
           "type": "array",
           "default": [],
           "description": "Never automatically upload scripts in this list and never ask to."
@@ -269,7 +269,7 @@
             }
           }
         },
-        "vscode-janus-debug.uploadOnSave": {
+        "vscode-janus-debug.uploadOnSaveGlobal": {
           "type": "boolean",
           "title": "Upload Scripts On Save",
           "default": true,

@@ -24,6 +24,12 @@ const NO_CONFLICT = 'No conflict';
 const CACHE_FILE = '.documents-scripting-cache';
 const SCRIPT_NAMES_FILE = '.documents-script-names';
 
+export enum autoUploadAnser {
+    yes,
+    no,
+    never
+}
+
 /**
  * Extends an object with another object's properties.
  *
@@ -120,19 +126,20 @@ export async function ensureForceUpload(scripts: nodeDoc.scriptT[]): Promise<[no
  *
  * @param param script-name or -path
  */
-export async function ensureUploadOnSave(param: string): Promise<boolean> {
-    return new Promise<boolean>((resolve, reject) => {
+export async function ensureUploadOnSave(param: string): Promise<autoUploadAnser> {
+    return new Promise<autoUploadAnser>((resolve, reject) => {
         let always: string[] = [];
         let never: string[] = [];
 
-        if (!vscode.workspace || !param || 0 === param.length) {
-            return;
+        // get extension-part of settings.json
+        const conf = vscode.workspace.getConfiguration('vscode-janus-debug');
+
+        if (!vscode.workspace || !param || 0 === param.length || !conf) {
+            return reject('something is undefined');
         }
 
         const scriptname = path.basename(param, '.js');
 
-        // get extension-part of settings.json
-        const conf = vscode.workspace.getConfiguration('vscode-documents-scripting');
 
         // get the encrypted/decrypted lists
         const _always = conf.get('uploadOnSave');
@@ -142,31 +149,35 @@ export async function ensureUploadOnSave(param: string): Promise<boolean> {
             never = _never;
         } else {
             vscode.window.showWarningMessage('Cannot read encrypted states from settings.json');
-            reject();
+            return reject();
         }
         if (0 <= never.indexOf(scriptname)) {
-            resolve(false);
+            resolve(autoUploadAnser.never);
         } else if (0 <= always.indexOf(scriptname)) {
-            resolve(true);
+            resolve(autoUploadAnser.yes);
         } else {
             const QUESTION: string = `Upload script ${scriptname}?`;
             const YES: string = 'Yes';
             const NO: string = 'No';
-            const ALWAYS: string = 'Yes always (save to settings.json)';
-            const NEVER: string = 'No never (save to settings.json)';
-            vscode.window.showQuickPick([YES, NO, ALWAYS, NEVER], { placeHolder: QUESTION }).then((answer) => {
+            const ALWAYS: string = 'Always upload ${scriptname} automatically';
+            const NEVER: string = 'Never upload ${scriptname} automatically';
+            const NEVERASK: string = 'Never upload automatically';
+            vscode.window.showQuickPick([YES, NO, ALWAYS, NEVER, NEVERASK], { placeHolder: QUESTION }).then((answer) => {
                 if (YES === answer) {
-                    resolve(true);
+                    resolve(autoUploadAnser.yes);
                 } else if (NO === answer) {
-                    resolve(false);
+                    resolve(autoUploadAnser.no);
                 } else if (ALWAYS === answer) {
                     always.push(scriptname);
                     conf.update('uploadOnSave', always);
-                    resolve(true);
+                    resolve(autoUploadAnser.yes);
                 } else if (NEVER === answer) {
                     never.push(scriptname);
                     conf.update('uploadManually', never);
-                    resolve(false);
+                    resolve(autoUploadAnser.no);
+                } else if (NEVERASK === answer) {
+                    conf.update('uploadOnSaveGlobal', false);
+                    resolve(autoUploadAnser.never);
                 }
             });
         }

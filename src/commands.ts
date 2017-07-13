@@ -89,19 +89,26 @@ export function uploadScript(loginData: nodeDoc.LoginData, param: any) {
 /**
  * Upload script on save
  */
-export function uploadScriptOnSave(loginData: nodeDoc.LoginData, fileName: string) {
-    helpers.ensureUploadOnSave(fileName).then((value) => {
-        if (value) {
+export function uploadScriptOnSave(loginData: nodeDoc.LoginData, fileName: string): Promise<boolean> {
+    return new Promise<boolean>((resolve, reject) => {
+        helpers.ensureUploadOnSave(fileName).then((value) => {
+            if (helpers.autoUploadAnser.yes === value) {
 
-            _uploadScript(loginData, fileName).then((scriptName) => {
-                vscode.window.setStatusBarMessage('uploaded: ' + scriptName);
-            }).catch((reason) => {
-                vscode.window.showErrorMessage(reason);
-            });
-
-        }
-    }).catch((reason) => {
-        vscode.window.showErrorMessage('upload script failed: ' + reason);
+                _uploadScript(loginData, fileName).then((scriptName) => {
+                    vscode.window.setStatusBarMessage('uploaded: ' + scriptName);
+                }).catch((reason) => {
+                    vscode.window.showErrorMessage(reason);
+                });
+                resolve(true);
+            } else if (helpers.autoUploadAnser.never === value) {
+                resolve(false);
+            } else {
+                resolve(true);
+            }
+        }).catch((reason) => {
+            vscode.window.showErrorMessage('upload script failed: ' + reason);
+            reject();
+        });
     });
 }
 
