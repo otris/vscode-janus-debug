@@ -776,9 +776,7 @@ declare namespace Documents {
 	 * Event which triggered the script execution. 
 	 * 
 	 * According to the context where the portal script has been called this property contains a key name for this event. 
-
 	 * 
-
 	 * 
 	 * The following events are available: ... ... ... ... ... 
 	 */
@@ -799,7 +797,6 @@ declare namespace Documents {
 	 * FileResultset with all files of a folder. 
 	 * 
 	 * This property allows to retrieve a list of all files of a folder if this script is run as user defined action at the folder. You can then iterate through this list for further use of the distinct files.
-
 	 * ... ... ... ... 
 	 */
 	folderFiles: Documents.FileResultset;
@@ -819,9 +816,7 @@ declare namespace Documents {
 	 * Type of the return value that the script returns. 
 	 * 
 	 * User defined actions attached to a file or a folder allow to influence the behaviour of the Web-Client. As soon as you define a return type you explicitely have to return a value. 
-
 	 * 
-
 	 * 
 	 * The following types of return values are available: ... ... ... ... ... ... ... 
 	 */
@@ -836,7 +831,6 @@ declare namespace Documents {
 	 * Iterator with the selected archive files of a folder. 
 	 * 
 	 * This property allows to retrieve a list of the selected archive files of a folder if this script is run as user defined action at the folder. You can then iterate through this list for further use of the distinct files.
-
 	 * ... ... ... ... 
 	 */
 	selectedArchiveFiles: Documents.ArchiveFileResultset;
@@ -856,7 +850,6 @@ declare namespace Documents {
 	 * Iterator with the selected files of a folder. 
 	 * 
 	 * This property allows to retrieve a list of the selected files of a folder if this script is run as user defined action at the folder. You can then iterate through this list for further use of the distinct files.
-
 	 * ... ... ... ... 
 	 */
 	selectedFiles: Documents.FileResultset;
@@ -1059,7 +1052,6 @@ declare namespace Documents {
 	 * Create a new file of the specified filetype. 
 	 * 
 	 * This function creates a new file of the given filetype. Since the script is executed in the context of a particular user, it is mandatory that user possesses sufficient access privileges to create new instances of the desired filetype, otherwise the method will fail. 
-
 	 * 
 	 * If an error occurs during creation of the file the return value will be null and you can access an error message describing the error with getLastError(). ... ... ... ... 
 	 */
@@ -2248,7 +2240,6 @@ declare namespace Documents {
 	 * The DocFile class implements the file object of DOCUMENTS. 
 	 * 
 	 * You may access a single DocFile with the help of the attribute context.file or by creating a FileResultset. There are no special properties available, but each field of a file is mapped to an according property. You can access the different field values with their technical names.
-
 	 * 
 	 * For this reason it is mandatory to use programming language friendly technical names, meaning ... ... 
 	 */
@@ -3763,7 +3754,6 @@ declare namespace Documents {
 	 * Create a new CDATA section within this document. 
 	 * 
 	 * ... ... ... ... ... 
-
 	 * 
 	 *  The W3C specifies the return type as "CDATASection". Considering code size (and work) the actual implementation omits a class CDATASection and presents the only additional member (splitText(), inherited from "Text") directly in the second level base class. Scripts can examine DOMNode.nodeType to distinguish different types of character data, if necessary. ... 
 	 */
@@ -3777,7 +3767,6 @@ declare namespace Documents {
 	 * Create a new comment node within this document. 
 	 * 
 	 * ... ... ... ... 
-
 	 * 
 	 *  The W3C specifies the return type as "Comment". Considering code size (and work) the actual implementation omits a class DOMComment, which would not get any more members apart from the inherited ones. Scripts can examine DOMNode.nodeType to distinguish different types of character data, if necessary. ... 
 	 */
@@ -3802,7 +3791,6 @@ declare namespace Documents {
 	 * Create a new text node within this document. 
 	 * 
 	 * ... ... ... ... 
-
 	 * 
 	 *  The W3C specifies the return type as "Text". Considering code size (and work) the actual implementation omits a class DOMText and presents the only additional member (splitText()) directly in the base class. Scripts can examine DOMNode.nodeType to distinguish different types of character data, if necessary. ... 
 	 */
@@ -3961,7 +3949,6 @@ declare namespace Documents {
 	 * Many of the DOM API functions throw a DOMException, when an error has occurred. 
 	 * 
 	 * ... 
-
 	 * 
 	 *  The class implements the DOMException exception type with the error codes specified in DOM level 2. ... 
 	 */
@@ -4063,7 +4050,6 @@ declare namespace Documents {
 	 * DOMNode is the base class of all tree elements in a DOMDocument. 
 	 * 
 	 * DOMNodes cannot be created with new. Different create methods of DOMDocument can be used to create different types of nodes. ... ... 
-
 	 * 
 	 *  The class covers the Node interface of DOM level 1. The underlying native library already supports at least level 2. ... 
 	 */
@@ -7939,10 +7925,8 @@ declare namespace Documents {
 	 * Optional File size indicator for sending pure sequential files. 
 	 * 
 	 * When uploading files, the send() function usually detects the file size and forwards it to lower APIs. This is helpful in most cases, because old simple HTTP servers do not support the transfer mode "chunked". Web services may reject uploads without an announced content-length, too. 
-
 	 * 
 	 *  However, the auto-detection will fail, if a given file is not rewindable (a named pipe, for instance). To avoid errors this property should be set before sending such a special file. After the transmission the property should be either set to "-1" or deleted. 
-
 	 * 
 	 * The value is interpreted in the following way.... 
 	 */
