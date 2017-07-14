@@ -2,8 +2,8 @@
 
 import { EventEmitter } from 'events';
 import { Socket } from 'net';
+import { Logger } from 'node-file-log';
 import { ContextCoordinator } from './context';
-import { Logger } from './log';
 import { Command, Response } from './protocol';
 import { DebugProtocolTransport } from './transport';
 
