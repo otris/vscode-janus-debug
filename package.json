@@ -72,7 +72,7 @@
               },
               "username": {
                 "type": "string",
-                "description": "A username (username.principal). The script is executed in the context of this user."
+                "description": "A username (admin or username.principal). The script is executed in the context of this user."
               },
               "password": {
                 "type": "string",
@@ -226,10 +226,10 @@
           "default": [],
           "description": "Never automatically upload scripts in this list and never ask to."
         },
-        "vscode-documents-scripting.conflictMode": {
+        "vscode-janus-debug.conflictMode": {
           "type": "array",
           "default": [],
-          "description": "Always overwrite server script, ignore changes."
+          "description": "Only upload script if server script has not changed."
         },
         "vscode-janus-debug.serverConsole": {
           "type": "object",

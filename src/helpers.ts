@@ -271,7 +271,7 @@ export function readConflictModes(pscripts: nodeDoc.scriptT[]) {
     }
 
     // get extension-part of settings.json
-    const conf = vscode.workspace.getConfiguration('vscode-documents-scripting');
+    const conf = vscode.workspace.getConfiguration('vscode-janus-debug');
 
     const _conflictMode = conf.get('conflictMode');
     let conflictMode: string[];
@@ -316,7 +316,7 @@ export function readHashValues(pscripts: nodeDoc.scriptT[]) {
     }
 
     // get extension-part of settings.json
-    const conf = vscode.workspace.getConfiguration('vscode-documents-scripting');
+    const conf = vscode.workspace.getConfiguration('vscode-janus-debug');
 
     // get the list of scripts in conflict mode
     const _conflictMode = conf.get('conflictMode');
@@ -370,7 +370,7 @@ export function updateHashValues(pscripts: nodeDoc.scriptT[]) {
     }
 
     // get extension-part of settings.json
-    const conf = vscode.workspace.getConfiguration('vscode-documents-scripting');
+    const conf = vscode.workspace.getConfiguration('vscode-janus-debug');
 
     // get the list of scripts in conflict mode
     const _conflictMode = conf.get('conflictMode');
