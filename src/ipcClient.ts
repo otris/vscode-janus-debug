@@ -1,6 +1,6 @@
 import ipc = require('node-ipc');
+import { Logger } from 'node-file-log';
 import { timeout } from 'promised-timeout';
-import { Logger } from './log';
 
 ipc.config.appspace = 'vscode-janus-debug.';
 ipc.config.id = 'debug_adapter';

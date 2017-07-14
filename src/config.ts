@@ -1,9 +1,9 @@
 'use strict';
 
 import * as fs from 'fs';
+import { LogConfiguration } from 'node-file-log';
 import { isAbsolute, join } from 'path';
 import { DebugProtocol } from 'vscode-debugprotocol';
-import { LogConfiguration } from './log';
 
 export interface CommonArguments {
     /** The debugger port to attach to. */

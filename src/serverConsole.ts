@@ -2,8 +2,8 @@
 
 import * as assert from 'assert';
 import { createConnection, Socket } from 'net';
+import { Logger } from 'node-file-log';
 import { crypt_md5, SDSConnection } from 'node-sds';
-import { Logger } from './log';
 
 export interface Output {
     append(value: string): void;

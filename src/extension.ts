@@ -2,6 +2,7 @@
 
 import * as fs from 'fs';
 import * as nodeDoc from 'node-documents-scripting';
+import { LogConfiguration, Logger } from 'node-file-log';
 import * as os from 'os';
 import * as path from 'path';
 import * as vscode from 'vscode';
@@ -9,7 +10,6 @@ import * as commands from './commands';
 import { provideInitialConfigurations } from './config';
 import { extend } from './helpers';
 import { VSCodeExtensionIPC } from './ipcServer';
-import { LogConfiguration, Logger } from './log';
 import * as login from './login';
 import { ServerConsole } from './serverConsole';
 import stripJsonComments = require('strip-json-comments');

@@ -1,8 +1,8 @@
 'use strict';
 
 import * as assert from 'assert';
+import { Logger } from 'node-file-log';
 import { ConnectionLike } from './connection';
-import { Logger } from './log';
 import { Command, ErrorCode, Response, StackFrame, Variable } from './protocol';
 
 export type ContextId = number;

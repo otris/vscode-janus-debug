@@ -2,8 +2,8 @@
 
 import * as crypto from 'crypto';
 import * as fs from 'fs';
+import { Logger } from 'node-file-log';
 import { parse, ParsedPath, sep } from 'path';
-import { Logger } from './log';
 
 class ValueMap<K, V> extends Map<K, V> {
 

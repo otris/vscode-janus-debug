@@ -2,6 +2,7 @@
 
 import * as assert from 'assert';
 import { connect, Socket } from 'net';
+import { Logger } from 'node-file-log';
 import { crypt_md5, SDSConnection } from 'node-sds';
 import { ContinuedEvent, DebugSession, InitializedEvent, OutputEvent, StoppedEvent, TerminatedEvent } from 'vscode-debugadapter';
 import { DebugProtocol } from 'vscode-debugprotocol';
@@ -10,7 +11,6 @@ import { DebugConnection } from './connection';
 import { ContextId } from './context';
 import { FrameMap } from './frameMap';
 import { DebugAdapterIPC } from './ipcClient';
-import { Logger } from './log';
 import { Breakpoint, Command, Response, StackFrame, Variable, variableValueToString } from './protocol';
 import { LocalSource, SourceMap } from './sourceMap';
 import { VariablesContainer, VariablesMap } from './variablesMap';
