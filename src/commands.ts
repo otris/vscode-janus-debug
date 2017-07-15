@@ -92,7 +92,7 @@ export function uploadScript(loginData: nodeDoc.LoginData, param: any) {
 export function uploadScriptOnSave(loginData: nodeDoc.LoginData, fileName: string): Promise<boolean> {
     return new Promise<boolean>((resolve, reject) => {
         helpers.ensureUploadOnSave(fileName).then((value) => {
-            if (helpers.autoUploadAnser.yes === value) {
+            if (helpers.autoUploadAnswer.yes === value) {
 
                 _uploadScript(loginData, fileName).then((scriptName) => {
                     vscode.window.setStatusBarMessage('uploaded: ' + scriptName);
@@ -100,7 +100,7 @@ export function uploadScriptOnSave(loginData: nodeDoc.LoginData, fileName: strin
                     vscode.window.showErrorMessage(reason);
                 });
                 resolve(true);
-            } else if (helpers.autoUploadAnser.never === value) {
+            } else if (helpers.autoUploadAnswer.never === value) {
                 resolve(false);
             } else {
                 resolve(true);

@@ -12,7 +12,7 @@
 * script
     * positive:
         * valid path
-        * encrypted, decrypted (check settings.json)
+        * encrypted, decrypted
         * with bom, without bom
     * negative: invalid path
 * scriptname
@@ -30,7 +30,6 @@
 ## Events
 
 * Save script
-* Delete Script that is listed in settings.json as encrypted or decrypted
 
 ## Keys
 
