@@ -274,6 +274,19 @@
           "title": "Upload Scripts On Save",
           "default": true,
           "description": "Upload JavaScript files automatically every time the files are saved"
+        },
+        "vscode-janus-debug.encryptionOnUpload": {
+          "type": "object",
+          "properties": {
+            "encrypt": {
+              "type": "boolean",
+              "description": "If true, script will be encrypted. If set to false, set 'setEncrypted'."
+            },
+            "setEncrypted": {
+              "type": "boolean",
+              "description": "Set encryption flag on server. True, if 'encrypt' is true."
+            }
+          }
         }
       }
     },
