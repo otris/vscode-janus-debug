@@ -43,6 +43,7 @@ async function _uploadScript(loginData: nodeDoc.LoginData, param: any): Promise<
     return new Promise<string>((resolve, reject) => {
         helpers.ensureScript(param).then((_script) => {
 
+            // reads conflict mode and hash value
             helpers.readHashValues([_script]);
             return nodeDoc.sdsSession(loginData, [_script], nodeDoc.uploadScript).then((value) => {
 
@@ -137,6 +138,7 @@ export function uploadAll(loginData: nodeDoc.LoginData, _param: any) {
     helpers.ensurePath(_param).then((folder) => {
         return nodeDoc.getScriptsFromFolder(folder[0]).then((folderScripts) => {
 
+            // reads conflict modes and hash values
             helpers.readHashValues(folderScripts);
             return nodeDoc.sdsSession(loginData, folderScripts, nodeDoc.uploadAll).then((value1) => {
                 const retScripts: nodeDoc.scriptT[] = value1;

@@ -288,6 +288,9 @@ export function readConflictModes(pscripts: nodeDoc.scriptT[]) {
     });
 }
 
+/**
+ * Reads the conflict mode and hash value of any script in pscripts.
+ */
 export function readHashValues(pscripts: nodeDoc.scriptT[]) {
     if (!pscripts || 0 === pscripts.length) {
         return;
