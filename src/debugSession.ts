@@ -607,7 +607,7 @@ export class JanusDebugSession extends DebugSession {
         });
     }
 
-    protected stepInRequest(response: DebugProtocol.StepInResponse, args: DebugProtocol.StepInArguments): void {
+    protected async stepInRequest(response: DebugProtocol.StepInResponse, args: DebugProtocol.StepInArguments): Promise<void> {
         log.info(`stepInRequest for threadId: ${args.threadId}`);
 
         if (this.connection === undefined) {
@@ -617,22 +617,21 @@ export class JanusDebugSession extends DebugSession {
         const contextId: ContextId = args.threadId || 0;
         const context = this.connection.coordinator.getContext(contextId);
 
-        context.stepIn().then(() => {
+        try {
+            await context.stepIn();
             log.debug('first stepInRequest succeeded');
 
             // We have to step in twice to get the correct stack frame
-            context.stepIn().then(() => {
-                log.debug('second stepInRequest succeeded');
-                const stoppedEvent = new StoppedEvent('step', contextId);
-                this.sendResponse(response);
-                this.sendEvent(stoppedEvent);
-            });
-        }, (err) => {
+            log.debug('second stepInRequest succeeded');
+            const stoppedEvent = new StoppedEvent('step', contextId);
+            this.sendResponse(response);
+            this.sendEvent(stoppedEvent);
+        } catch (err) {
             log.error('stepInRequest failed: ' + err);
             response.success = false;
             response.message = err.toString();
             this.sendResponse(response);
-        });
+        }
     }
 
     protected async stepOutRequest(response: DebugProtocol.StepOutResponse, args: DebugProtocol.StepOutArguments): Promise<void> {
