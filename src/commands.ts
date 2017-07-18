@@ -35,6 +35,7 @@ export function saveLoginData(loginData: nodeDoc.LoginData, param: any) {
 
 /**
  * Common function for uploading script.
+ * TODO merge with uploadScript
  *
  * @param loginData
  * @param param
@@ -45,6 +46,9 @@ async function _uploadScript(loginData: nodeDoc.LoginData, param: any): Promise<
 
             // reads conflict mode and hash value
             helpers.readHashValues([_script]);
+            // read encryption flags
+            helpers.readEncryptionFlag([_script]);
+
             return nodeDoc.sdsSession(loginData, [_script], nodeDoc.uploadScript).then((value) => {
 
                 // in case of conflict (server-script changed by someone else)
@@ -78,6 +82,7 @@ async function _uploadScript(loginData: nodeDoc.LoginData, param: any): Promise<
 
 /**
  * Upload script
+ * TODO merge with _uploadScript
  */
 export function uploadScript(loginData: nodeDoc.LoginData, param: any) {
     _uploadScript(loginData, param).then((scriptName) => {
@@ -140,6 +145,9 @@ export function uploadAll(loginData: nodeDoc.LoginData, _param: any) {
 
             // reads conflict modes and hash values
             helpers.readHashValues(folderScripts);
+            // read encryption flags
+            helpers.readEncryptionFlag(folderScripts);
+
             return nodeDoc.sdsSession(loginData, folderScripts, nodeDoc.uploadAll).then((value1) => {
                 const retScripts: nodeDoc.scriptT[] = value1;
 

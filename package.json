@@ -275,18 +275,11 @@
           "default": true,
           "description": "Upload JavaScript files automatically every time the files are saved"
         },
-        "vscode-janus-debug.encryptionOnUpload": {
-          "type": "object",
-          "properties": {
-            "encrypt": {
-              "type": "boolean",
-              "description": "If true, script will be encrypted. If set to false, set 'setEncrypted'."
-            },
-            "setEncrypted": {
-              "type": "boolean",
-              "description": "Set encryption flag on server. True, if 'encrypt' is true."
-            }
-          }
+        "vscode-janus-debug.encryptOnUpload": {
+          "type": "boolean",
+          "title": "Encrypt Scripts On Upload",
+          "default": false,
+          "description": "If true, scripts will be encrypted on upload"
         }
       }
     },
@@ -479,7 +472,7 @@
     "@types/uuid": "^2.0.29",
     "fs": "0.0.1-security",
     "net": "^1.0.2",
-    "node-documents-scripting": "git+https://github.com/otris/node-documents-scripting.git#0.0.4",
+    "node-documents-scripting": "git+https://github.com/otris/node-documents-scripting.git#0.0.5",
     "node-ipc": "^9.0.1",
     "node-sds": "git+https://git@github.com/otris/node-sds#1.1.0",
     "node-file-log": "git+https://git@github.com/otris/node-file-log#1.0.0",

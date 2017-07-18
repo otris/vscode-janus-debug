@@ -260,6 +260,34 @@ export function writeScriptNamesToFile(scripts: nodeDoc.scriptT[]) {
 }
 
 
+
+export function readEncryptionFlag(pscripts: nodeDoc.scriptT[]) {
+    if (!pscripts || 0 === pscripts.length || !vscode.workspace) {
+        return;
+    }
+
+    // get extension-part of settings.json
+    const conf = vscode.workspace.getConfiguration('vscode-janus-debug');
+    if (!conf) {
+        vscode.window.showWarningMessage('Cannot read from settings.json');
+        return;
+    }
+
+    // write values
+    const encryptOnUpload = conf.get('encryptOnUpload');
+    if (encryptOnUpload) {
+        pscripts.forEach((script) => {
+            script.encrypted = 'decrypted';
+        });
+    } else {
+        pscripts.forEach((script) => {
+            script.encrypted = 'false';
+        });
+    }
+}
+
+
+
 export function readConflictModes(pscripts: nodeDoc.scriptT[]) {
     if (!pscripts || 0 === pscripts.length) {
         return;
