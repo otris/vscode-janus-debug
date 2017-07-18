@@ -464,7 +464,7 @@
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./ && node ./scripts/createVersionNumber.js",
     "watch": "tsc -watch -p ./",
-    "test": "npm run compile && mocha --timeout 10000 -u tdd out/test/",
+    "test": "npm run compile && mocha",
     "lint": "tslint src/*.ts test/*.ts",
     "postinstall": "node ./node_modules/vscode/bin/install"
   },
