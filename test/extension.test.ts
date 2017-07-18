@@ -1,12 +1,7 @@
 'use strict';
 
 import * as assert from 'assert';
-import { EventEmitter } from 'events';
-import { SocketLike } from 'node-sds';
-import { cantorPairing, reverseCantorPairing } from '../src/cantor';
 import { Command, ErrorCode, parseResponse, Response, variableValueToString } from '../src/protocol';
-import { DebugProtocolTransport } from '../src/transport';
-import { VariablesContainer, VariablesMap } from '../src/variablesMap';
 
 suite('protocol tests', () => {
 
