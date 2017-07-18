@@ -121,7 +121,7 @@ export class Context {
 
     public stepOut(): Promise<void> {
         contextLog.debug(`request 'stepOut' for context ${this.id}`);
-        return this.connection.sendRequest(new Command('step-out', this.id));
+        return this.connection.sendRequest(new Command('step_out', this.id));
     }
     public evaluate(expression: string): Promise<Variable> {
         contextLog.debug(`request 'evaluate' for context ${this.id}`);

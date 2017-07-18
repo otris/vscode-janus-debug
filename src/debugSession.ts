@@ -648,13 +648,9 @@ export class JanusDebugSession extends DebugSession {
         context.stepOut().then(() => {
             log.debug('first stepOutRequest succeeded');
 
-            // We have to step in twice to get the correct stack frame
-            context.stepOut().then(() => {
-                log.debug('second stepOutRequest succeeded');
-                const stoppedEvent = new StoppedEvent('step_out', contextId);
-                this.sendResponse(response);
-                this.sendEvent(stoppedEvent);
-            });
+            const stoppedEvent = new StoppedEvent('step_out', contextId);
+            this.sendResponse(response);
+            this.sendEvent(stoppedEvent);
         }, (err) => {
             log.error('stepInRequest failed: ' + err);
             response.success = false;
