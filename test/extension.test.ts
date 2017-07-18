@@ -161,32 +161,6 @@ suite('variables map tests', () => {
     });
 });
 
-suite('debug adapter tests', () => {
-
-    const DEBUG_ADAPTER = './out/src/debugSession.js';
-
-    let debugClient: DebugClient;
-
-    setup(() => {
-        debugClient = new DebugClient('node', DEBUG_ADAPTER, 'janus');
-        return debugClient.start();
-    });
-
-    teardown(() => debugClient.stop());
-
-    suite('initialize', () => {
-
-        test('should respond with supported features', done => {
-            return debugClient.initializeRequest().then((response) => {
-                const body = response.body || {};
-                assert.equal(body.supportsConfigurationDoneRequest, true);
-                assert.equal(body.supportsConditionalBreakpoints, false);
-                done();
-            }).catch(err => done(err));
-        });
-    });
-});
-
 suite('transport tests', () => {
 
     class MockSocket extends EventEmitter implements SocketLike {
