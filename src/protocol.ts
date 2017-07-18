@@ -23,6 +23,7 @@ export type CommandName =
     'pc' |
     'step' |
     'next' |
+    'step_out' |
     'continue' |
     'get_source' |
     'delete_all_breakpoints' |
