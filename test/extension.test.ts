@@ -301,6 +301,11 @@ suite('protocol tests', () => {
             assert.equal(cmd.toString(), `42/{"name":"evaluate","type":"command","id":"${cmd.id}","path":"toString","options":{"show-hierarchy":true,"evaluation-depth":1}}\n`);
         });
 
+        test('step_out', () => {
+            const cmd = new Command('step_out');
+            assert.equal(cmd.toString(), `{"name":"step_out","type":"command","id":"${cmd.id}"}\n`);
+        });
+
         suite('set_breakpoint', () => {
 
             test('with pending === false', () => {
