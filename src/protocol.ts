@@ -22,7 +22,6 @@ export enum ErrorCode {
 export type CommandName =
     'pc' |
     'step' |
-    'step-out' |
     'next' |
     'step_out' |
     'continue' |
