@@ -635,7 +635,7 @@ export class JanusDebugSession extends DebugSession {
         });
     }
 
-    protected stepOutRequest(response: DebugProtocol.StepOutResponse, args: DebugProtocol.StepOutArguments): void {
+    protected async stepOutRequest(response: DebugProtocol.StepOutResponse, args: DebugProtocol.StepOutArguments): Promise<void> {
         log.info(`stepOutRequest for threadId: ${args.threadId}`);
 
         if (this.connection === undefined) {
@@ -645,18 +645,21 @@ export class JanusDebugSession extends DebugSession {
         const contextId: ContextId = args.threadId || 0;
         const context = this.connection.coordinator.getContext(contextId);
 
-        context.stepOut().then(() => {
+        try {
+            await context.stepOut();
+
             log.debug('first stepOutRequest succeeded');
 
             const stoppedEvent = new StoppedEvent('step_out', contextId);
             this.sendResponse(response);
             this.sendEvent(stoppedEvent);
-        }, (err) => {
-            log.error('stepInRequest failed: ' + err);
+
+        } catch (err) {
+            log.error('stepOutRequest failed: ' + err);
             response.success = false;
             response.message = err.toString();
             this.sendResponse(response);
-        });
+        }
     }
 
     protected stepBackRequest(response: DebugProtocol.StepBackResponse,
