@@ -1,5 +1,3 @@
-'use strict';
-
 import * as assert from 'assert';
 import { Command, ErrorCode, parseResponse, Response, variableValueToString } from '../src/protocol';
 
