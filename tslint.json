@@ -23,6 +23,7 @@
     ],
     "object-literal-sort-keys": false,
     "arrow-parens": false,
+    "triple-equals":true,
     "only-arrow-functions": [
       false
     ],
