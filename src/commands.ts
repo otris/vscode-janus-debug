@@ -1,6 +1,5 @@
 ﻿'use strict';
 
-import * as fs from 'fs';
 import * as nodeDoc from 'node-documents-scripting';
 import * as os from 'os';
 import * as path from 'path';
@@ -15,6 +14,8 @@ const urlExists = require('url-exists');
 const open = require('open');
 // tslint:disable-next-line:no-var-requires
 const tsc = require('typescript-compiler');
+// tslint:disable-next-line:no-var-requires
+const fs = require('fs-extra');
 
 const VERSION_SCRIPT_PARAMS = '8035';
 
@@ -389,7 +390,7 @@ export function viewDocumentation() {
             const htmlFileName = 'class' + className + '.html';
             const jsFilePath = path.join(vscode.workspace.rootPath, 'mapping', jsFileName);
 
-            fs.readFile(jsFilePath, (error, data) => {
+            fs.readFile(jsFilePath, (error: any, data: any) => {
 
                 const browser = 'firefox';
                 if (err || !data) {
@@ -457,4 +458,42 @@ export function uploadJSFromTS(loginData: nodeDoc.LoginData, textDocument: vscod
             });
         }
     });
+}
+
+
+export function installIntellisenseFiles() {
+    const extension = vscode.extensions.getExtension('otris-software.vscode-janus-debug');
+    if (extension && vscode.workspace && vscode.workspace.rootPath) {
+        const dtsfile = path.join(extension.extensionPath, 'portalscript', 'typings', 'portalScripting.d.ts');
+        const projecttypings = path.join(vscode.workspace.rootPath, 'typings');
+
+        // check typings folder
+        try {
+            fs.readdirSync(projecttypings);
+        } catch (err) {
+            if (err.code === 'ENOENT') {
+                fs.mkdir(projecttypings);
+            }
+        }
+
+        // check and copy dts file
+        try {
+            fs.readFileSync(dtsfile);
+            const dstfile = path.join(projecttypings, 'portalScripting.d.ts');
+            // overwrites existing on default
+            fs.copySync(dtsfile, dstfile);
+        } catch (err) {
+            vscode.window.showErrorMessage(err);
+        }
+
+        // create empty jsconfig.json
+        const jsconfig = path.join(vscode.workspace.rootPath, 'jsconfig.json');
+        try {
+            fs.readFileSync(jsconfig);
+        } catch (err) {
+            if (err.code === 'ENOENT') {
+                fs.writeFileSync(jsconfig, '');
+            }
+        }
+    }
 }

@@ -352,6 +352,11 @@
         "command": "extension.vscode-janus.debug.disconnectServerConsole",
         "title": "Disconnect ServerConsole",
         "category": "DOCUMENTS"
+      },
+      {
+        "command": "extension.vscode-janus-debug.installIntellisenseFiles",
+        "title": "Install Intellisense Files",
+        "category": "DOCUMENTS"
       }
     ],
     "menus": {
@@ -414,6 +419,10 @@
           "command": "extension.vscode-janus-debug.getScriptNames",
           "when": "resourceFilename == .documents-script-names",
           "group": "DOCUMENTS@11"
+        },
+        {
+          "command": "extension.vscode-janus-debug.installIntellisenseFiles",
+          "group": "DOCUMENTS@12"
         }
       ],
       "editor/context": [
@@ -471,11 +480,12 @@
   "dependencies": {
     "@types/uuid": "^2.0.29",
     "fs": "0.0.1-security",
+    "fs-extra": "^4.0.0",
     "net": "^1.0.2",
     "node-documents-scripting": "git+https://github.com/otris/node-documents-scripting.git#0.0.7",
+    "node-file-log": "git+https://git@github.com/otris/node-file-log#1.0.0",
     "node-ipc": "^9.0.1",
     "node-sds": "git+https://git@github.com/otris/node-sds#1.1.0",
-    "node-file-log": "git+https://git@github.com/otris/node-file-log#1.0.0",
     "open": "0.0.5",
     "reduce-for-promises": "^1.2.1",
     "strip-json-comments": "^2.0.1",

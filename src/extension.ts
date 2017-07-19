@@ -353,6 +353,12 @@ export function activate(context: vscode.ExtensionContext): void {
         })
     );
 
+    context.subscriptions.push(
+        vscode.commands.registerCommand('extension.vscode-janus-debug.installIntellisenseFiles', () => {
+            commands.installIntellisenseFiles();
+        })
+    );
+
     // todo...
     // View documentation
     context.subscriptions.push(
