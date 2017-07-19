@@ -14,11 +14,15 @@ New Features:
 
 - The configuration name for the extension settings in `settings.json` is now `"vscode-janus-debug"` instead of `"vscode-documents-scripting"`. The user has to change the name for any list in `settings.json`.
 
+- Command for installing IntelliSense files.
+
+- The debugger can now "Step Out" (Shift+F11) of a function. Just make sure you have the latest DOCUMENTS/JANUS server running ([#68](https://github.com/otris/vscode-janus-debug/issues/68)). Thanks [@PhilippRo](https://github.com/PhilippRo).
+
+Fixes in this release:
+
 - Fix problems with encrypted scripts again. It's not possible anymore to upload or download encrypted scripts. Scripts can only be encrypted on upload or decrypted on download. ([#64](https://github.com/otris/vscode-janus-debug/issues/64))
 
 - Fix upload script via command palette. Now the extension will ask for the scriptname again, if upload script is called while another script is open in VS Code.
-
-- Command for installing IntelliSense files.
 
 ### 0.0.8 (2017-07-07)
 
