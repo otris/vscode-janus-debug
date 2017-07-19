@@ -1,0 +1,16 @@
+{
+  "include": [
+    "src/**/*.ts",
+    "out/src/**/*.js"
+  ],
+  "exclude": [
+    "test/index.ts",
+    "test/**/*.test.ts"
+  ],
+  "reporter": [
+    "text-summary",
+    "html"
+  ],
+  "cache": true,
+  "sourceMap": true
+}
