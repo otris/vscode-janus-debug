@@ -2,7 +2,7 @@
 
 You'll find a complete list of changes at our project site on [GitHub](https://github.com/otris/vscode-janus-debug).
 
-### 0.0.9 (yyyy-mm-dd)
+### 0.0.9 (2017-07-19)
 
 New Features:
 
@@ -17,6 +17,8 @@ New Features:
 - Fix problems with encrypted scripts again. It's not possible anymore to upload or download encrypted scripts. Scripts can only be encrypted on upload or decrypted on download. ([#64](https://github.com/otris/vscode-janus-debug/issues/64))
 
 - Fix upload script via command palette. Now the extension will ask for the scriptname again, if upload script is called while another script is open in VS Code.
+
+- Command for installing IntelliSense files.
 
 ### 0.0.8 (2017-07-07)
 
