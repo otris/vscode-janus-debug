@@ -472,7 +472,7 @@
     "@types/uuid": "^2.0.29",
     "fs": "0.0.1-security",
     "net": "^1.0.2",
-    "node-documents-scripting": "git+https://github.com/otris/node-documents-scripting.git#0.0.5",
+    "node-documents-scripting": "git+https://github.com/otris/node-documents-scripting.git#0.0.7",
     "node-ipc": "^9.0.1",
     "node-sds": "git+https://git@github.com/otris/node-sds#1.1.0",
     "node-file-log": "git+https://git@github.com/otris/node-file-log#1.0.0",
