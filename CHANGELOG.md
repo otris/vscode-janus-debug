@@ -2,6 +2,12 @@
 
 You'll find a complete list of changes at our project site on [GitHub](https://github.com/otris/vscode-janus-debug).
 
+### 0.0.10 (YYYY-MM-DD)
+
+New Features in this release:
+
+Following bugs have been addressed in this release:
+
 ### 0.0.9 (2017-07-19)
 
 New Features:
