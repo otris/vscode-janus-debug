@@ -174,9 +174,9 @@ export async function uploadAll(loginData: nodeDoc.LoginData, paramFolderName: s
         const subDirs: string[] = fs.readdirSync(paramFolderName);
         subDirs.map( subDir => { // prepend parent path to sub elements
             return path.join(paramFolderName,  subDir);
-        }).map(subDir => {
-            if (fs.statSync(subDir).isDirectory()) { // upload the next sub directory
-                uploadAll(loginData, subDir);
+        }).map(subDirFullPath => {
+            if (fs.statSync(subDirFullPath).isDirectory()) { // upload the next sub directory
+                uploadAll(loginData, subDirFullPath);
             } else { // return an empty promise, if the sub element is not a directory
                 return new Promise(res => res());
             }
