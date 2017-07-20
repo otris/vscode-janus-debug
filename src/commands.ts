@@ -140,40 +140,52 @@ export function uploadRunScript(loginData: nodeDoc.LoginData, param: any, myOutp
 /**
  * Upload all
  */
-export function uploadAll(loginData: nodeDoc.LoginData, _param: any) {
-    helpers.ensurePath(_param).then((folder) => {
-        return nodeDoc.getScriptsFromFolder(folder[0]).then((folderScripts) => {
+export async function uploadAll(loginData: nodeDoc.LoginData, paramFolderName: string) {
+    try {
+        const folder = await helpers.ensurePath(paramFolderName);
+        const folderScripts = await nodeDoc.getScriptsFromFolder(folder[0]);
 
-            // reads conflict modes and hash values
-            helpers.readHashValues(folderScripts);
-            // read encryption flags
-            helpers.readEncryptionFlag(folderScripts);
+        // reads conflict modes and hash values
+        helpers.readHashValues(folderScripts);
+        // read encryption flags
+        helpers.readEncryptionFlag(folderScripts);
 
-            return nodeDoc.sdsSession(loginData, folderScripts, nodeDoc.uploadAll).then((value1) => {
-                const retScripts: nodeDoc.scriptT[] = value1;
+        const retScripts: nodeDoc.scriptT[] = await nodeDoc.sdsSession(loginData, folderScripts, nodeDoc.uploadAll);
 
-                // ask user about how to handle conflict scripts
-                helpers.ensureForceUpload(retScripts).then(([noConflict, forceUpload]) => {
+        // ask user about how to handle conflict scripts
+        const [noConflict, forceUpload] = await helpers.ensureForceUpload(retScripts);
 
-                    // forceUpload might be empty, function resolves anyway
-                    nodeDoc.sdsSession(loginData, forceUpload, nodeDoc.uploadAll).then((value2) => {
-                        const retScripts2: nodeDoc.scriptT[] = value2;
+        // forceUpload might be empty, function resolves anyway
+        try {
+            const retScripts2: nodeDoc.scriptT[] = await nodeDoc.sdsSession(loginData, forceUpload, nodeDoc.uploadAll);
 
-                        // retscripts2 might be empty
-                        const uploaded = noConflict.concat(retScripts2);
 
-                        helpers.updateHashValues(uploaded);
+            // retscripts2 might be empty
+            const uploaded = noConflict.concat(retScripts2);
 
-                        vscode.window.setStatusBarMessage('uploaded ' + uploaded.length + ' scripts from ' + folder[0]);
-                    }).catch((reason) => {
-                        vscode.window.showErrorMessage('force upload of conflict scripts failed: ' + reason);
-                    });
-                });
-            });
+            helpers.updateHashValues(uploaded);
+
+            vscode.window.setStatusBarMessage('uploaded ' + uploaded.length + ' scripts from ' + folder[0]);
+        } catch (reason) {
+            vscode.window.showErrorMessage('force upload of conflict scripts failed: ' + reason);
+        }
+        // Upload sub folders recursively
+        // get the sub-dirs
+        const subDirs: string[] = fs.readdirSync(paramFolderName);
+        subDirs.map( subDir => { // prepend parent path to sub elements
+            return path.join(paramFolderName,  subDir);
+        }).map(subDir => {
+            if (fs.statSync(subDir).isDirectory()) { // upload the next sub directory
+                uploadAll(loginData, subDir);
+            } else { // return an empty promise, if the sub element is not a directory
+                return new Promise(res => res());
+            }
+        }).map(async promise => { // wait all uploads to finish
+            await promise;
         });
-    }).catch((reason) => {
+    } catch (reason) {
         vscode.window.showErrorMessage('upload all failed: ' + reason);
-    });
+    }
 }
 
 /**
