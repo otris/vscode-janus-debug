@@ -6,7 +6,7 @@ You'll find a complete list of changes at our project site on [GitHub](https://g
 
 New Features in this release:
  - Users can now use keyboard shortcuts for uploading, running, uploading and running, and uploading from ts to js ([#84](https://github.com/otris/vscode-janus-debug/issues/84)).
-
+ - Uploading directories is now done recursively. Before 0.0.10 uploading directories did not include scripts from subdirectories. ([#72](https://github.com/otris/vscode-janus-debug/issues/72))
 Following bugs have been addressed in this release:
 
 ### 0.0.9 (2017-07-19)
