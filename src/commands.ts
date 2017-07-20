@@ -140,7 +140,7 @@ export function uploadRunScript(loginData: nodeDoc.LoginData, param: any, myOutp
 /**
  * Upload all
  */
-export async function uploadAll(loginData: nodeDoc.LoginData, paramFolderName: string) {
+export async function uploadAll(loginData: nodeDoc.LoginData, paramFolderName: string): Promise<'success' | 'error'> {
     try {
         const folder = await helpers.ensurePath(paramFolderName);
         const folderScripts = await nodeDoc.getScriptsFromFolder(folder[0]);
@@ -165,27 +165,32 @@ export async function uploadAll(loginData: nodeDoc.LoginData, paramFolderName: s
 
             helpers.updateHashValues(uploaded);
 
-            vscode.window.setStatusBarMessage('uploaded ' + uploaded.length + ' scripts from ' + folder[0]);
         } catch (reason) {
             vscode.window.showErrorMessage('force upload of conflict scripts failed: ' + reason);
+            return 'error';
         }
         // Upload sub folders recursively
         // get the sub-dirs
         const subDirs: string[] = fs.readdirSync(paramFolderName);
-        subDirs.map( subDir => { // prepend parent path to sub elements
-            return path.join(paramFolderName,  subDir);
+        const subDirsResult = subDirs.map(subDir => { // prepend parent path to sub elements
+            return path.join(paramFolderName, subDir);
         }).map(subDirFullPath => {
             if (fs.statSync(subDirFullPath).isDirectory()) { // upload the next sub directory
                 uploadAll(loginData, subDirFullPath);
             } else { // return an empty promise, if the sub element is not a directory
                 return new Promise(res => res());
             }
-        }).map(async promise => { // wait all uploads to finish
-            await promise;
         });
+        for (const maybeError of subDirsResult) {
+            if (await maybeError === 'error') {
+                return 'error';
+            }
+        }
     } catch (reason) {
         vscode.window.showErrorMessage('upload all failed: ' + reason);
+        return 'error';
     }
+    return 'success';
 }
 
 /**
