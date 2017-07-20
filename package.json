@@ -359,6 +359,24 @@
         "category": "DOCUMENTS"
       }
     ],
+    "keybindings": [
+      {
+        "key": "ctrl+alt+u",
+        "command": "extension.vscode-janus-debug.uploadScript"
+      },  
+      {
+        "key": "ctrl+alt+r",
+        "command": "extension.vscode-janus-debug.runScript"
+      },
+      {
+        "key": "ctrl+alt+x",
+        "command": "extension.vscode-janus-debug.uploadRunScript"
+      },
+      {
+        "key": "ctrl+alt+j",
+        "command": "extension.vscode-janus-debug.uploadJSFromTS"
+      }
+    ],
     "menus": {
       "explorer/context": [
         {
