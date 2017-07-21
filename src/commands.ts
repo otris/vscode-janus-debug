@@ -140,7 +140,7 @@ export function uploadRunScript(loginData: nodeDoc.LoginData, param: any, myOutp
 /**
  * Upload all
  */
-export async function uploadAll(loginData: nodeDoc.LoginData, paramFolderName: string): Promise<'success' | 'error'> {
+export async function uploadAll(loginData: nodeDoc.LoginData, paramFolderName: string): Promise< 'success' | 'error' | 'finish' > {
     try {
         const folder = await helpers.ensurePath(paramFolderName);
         const folderScripts = await nodeDoc.getScriptsFromFolder(folder[0]);
@@ -177,13 +177,17 @@ export async function uploadAll(loginData: nodeDoc.LoginData, paramFolderName: s
         }).map(subDirFullPath => {
             if (fs.statSync(subDirFullPath).isDirectory()) { // upload the next sub directory
                 uploadAll(loginData, subDirFullPath);
-            } else { // return an empty promise, if the sub element is not a directory
-                return new Promise(res => res());
+            } else { // return an finish promise, if the sub element is not a directory
+               return 'finish'; // So you did all recursion steps and finished one part
             }
         });
-        for (const maybeError of subDirsResult) {
-            if (await maybeError === 'error') {
-                return 'error';
+        for (const maybeErrorPromise of subDirsResult) { // iterates over all results of the subdirectories
+            const maybeError = await maybeErrorPromise; // wait fot the subdirectories to finish their recursion
+                                                        // cannot be done inline, because there are many checks needed
+                                                        // to pass the typechecker
+                // needed to persuade the typechecker
+            if (maybeError && maybeError !== 'finish' && maybeError === 'error' ) {
+                return 'error'; // If there is one error in one subdirectory the whole process is not successful
             }
         }
     } catch (reason) {
