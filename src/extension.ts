@@ -266,12 +266,16 @@ export function activate(context: vscode.ExtensionContext): void {
 
     // Upload all
     context.subscriptions.push(
-        vscode.commands.registerCommand('extension.vscode-janus-debug.uploadScriptsFromFolder', (param) => {
+        vscode.commands.registerCommand('extension.vscode-janus-debug.uploadScriptsFromFolder', async (param) => {
             let fsPath;
             if (param) {
                 fsPath = param._fsPath;
             }
-            commands.uploadAll(loginData, fsPath);
+            if (await commands.uploadAll(loginData, fsPath) === 'success') {
+                vscode.window.setStatusBarMessage('uploaded all scripts successfully');
+            } else {
+                vscode.window.setStatusBarMessage('failed to upload all scripts');
+            }
         })
     );
 
