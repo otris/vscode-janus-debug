@@ -1,18 +1,18 @@
-'use strict';
+    'use strict';
 
-import * as assert from 'assert';
-import * as uuid from 'uuid';
-import { DebugProtocol } from 'vscode-debugprotocol';
+    import * as assert from 'assert';
+    import * as uuid from 'uuid';
+    import { DebugProtocol } from 'vscode-debugprotocol';
 
-export enum ErrorCode {
-    UNKNOWN_COMMAND = 1,
-    NO_COMMAND_NAME = 2,
-    NOT_A_COMMAND_PACKAGE = 3,
-    NOT_PAUSED = 4,
-    BAD_ARGS = 5,
-    SCRIPT_NOT_FOUND = 6,
-    CANNOT_SET_BREAKPOINT = 8,
-    IS_PAUSED = 9,
+    export enum ErrorCode {
+        UNKNOWN_COMMAND = 1,
+        NO_COMMAND_NAME = 2,
+        NOT_A_COMMAND_PACKAGE = 3,
+        NOT_PAUSED = 4,
+        BAD_ARGS = 5,
+        SCRIPT_NOT_FOUND = 6,
+        CANNOT_SET_BREAKPOINT = 8,
+        IS_PAUSED = 9,
     UNEXPECTED_EXC = 10,
     EVALUATION_FAILED = 11,
     PC_NOT_AVAILABLE = 12,
@@ -20,6 +20,7 @@ export enum ErrorCode {
 }
 
 export type CommandName =
+    'server_version' |
     'pc' |
     'step' |
     'next' |
@@ -41,6 +42,7 @@ export type CommandName =
 export type ResponseType = 'info' | 'error';
 
 export type ResponseSubType =
+    'server_version' |
     'pc' |
     'source_code' |
     'all_breakpoints_deleted' |
@@ -219,6 +221,8 @@ export class Command {
             return `get_available_contexts/${this.payload.id}\n`;
         } else if (this.name === 'exit') {
             return 'exit\n';
+        } else if (this.name === 'server_version') {
+            return `server_version/${this.id}\n`;
         } else if ((this.name === 'continue') && !this.contextId) {
             return '{"type":"command","name":"continue"}\n';
         } else if (this.contextId) {

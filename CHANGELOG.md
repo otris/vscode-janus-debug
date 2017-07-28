@@ -14,6 +14,8 @@ New Features in this release:
 
 - Typescript 2.5 is now used to generate javascript.
 
+- The version of the remote debugger is no logged in the log file of the requests. The line begins with "Determined version".
+
 Following bugs have been addressed in this release:
 
 - Download all to workspace root folder is now possible again.
