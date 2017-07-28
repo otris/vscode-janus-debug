@@ -59,6 +59,8 @@ export class DebugConnection extends EventEmitter implements ConnectionLike {
 
         if ( response.type === "info" && response.subtype && response.subtype === "paused") {
             this.emit('contextPaused', response.contextId);
+        }else if ( response.type === "info" && response.subtype && response.subtype === "server_version") {
+            this.emit('serverVersion', response.content );
         }
 
         // No response handler; let the context coordinator decide on how to handle the response

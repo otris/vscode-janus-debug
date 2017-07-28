@@ -20,6 +20,7 @@ export enum ErrorCode {
 }
 
 export type CommandName =
+    'server_version' |
     'pc' |
     'step' |
     'next' |
@@ -41,6 +42,7 @@ export type CommandName =
 export type ResponseType = 'info' | 'error';
 
 export type ResponseSubType =
+    'server_version' |
     'pc' |
     'source_code' |
     'all_breakpoints_deleted' |
@@ -218,6 +220,9 @@ export class Command {
     public toString(): string {
         if (this.name === 'get_available_contexts') {
             return 'get_available_contexts\n';
+        }
+        if (this.name === 'server_version') {
+            return 'server_version\n';
         }
         if (this.name === 'exit') {
             return 'exit\n';
