@@ -10,6 +10,7 @@ New Features in this release:
  - The command `Upload Scripts From Folder` will upload scripts from folder and all subfolders ([#72](https://github.com/otris/vscode-janus-debug/issues/72)).
 
 Following bugs have been addressed in this release:
+ - The server console was not reconnecting after the launch.json was changed ([#103](https://github.com/otris/vscode-janus-debug/issues/103)).
 
 ### 0.0.9 (2017-07-19)
 
