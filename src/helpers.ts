@@ -174,7 +174,7 @@ export async function ensureUploadOnSave(param: string): Promise<autoUploadAnswe
                     conf.update('uploadManually', never);
                     resolve(autoUploadAnswer.no);
                 } else if (NEVERASK === answer) {
-                    conf.update('uploadOnSaveGlobal', false);
+                    conf.update('uploadOnSaveGlobal', false, true);
                     resolve(autoUploadAnswer.never);
                 }
             });
