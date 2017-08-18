@@ -496,12 +496,12 @@ export async function createFolder(_path: string, hidden = false): Promise<void>
  * Returns [folder:string], if fileOrFolder is a folder and
  * [folder:string, file:string] if fileOrFolder is a file.
  */
-export async function getFolder(fileOrFolder: string, allowNewSubFolder = false): Promise<string[]> {
+export async function checkPath(fileOrFolder: string, allowCreateFolder = false): Promise<string[]> {
     return new Promise<string[]>((resolve, reject) => {
         fs.stat(fileOrFolder, function(err1, stats1) {
 
             if (err1) {
-                if (allowNewSubFolder && 'ENOENT' === err1.code && 'js' !== path.extname(fileOrFolder)) {
+                if (allowCreateFolder && 'ENOENT' === err1.code && 'js' !== path.extname(fileOrFolder)) {
                     const p = fileOrFolder.split(path.sep);
                     const newfolder = p.pop();
                     const _path = p.join(path.sep);
@@ -543,8 +543,8 @@ export async function getFolder(fileOrFolder: string, allowNewSubFolder = false)
 /**
  * Returns [folder], if fileOrFolder is a folder and [folder, file] if fileOrFolder is a file.
  */
-export async function ensurePath(fileOrFolder: string, allowSubDir = false, withBaseName = false): Promise<string[]> {
-    console.log('ensurePath');
+export async function ensurePathInput(fileOrFolder: string, allowSubDir = false, withBaseName = false): Promise<string[]> {
+    console.log('ensurePathInput');
 
     if (!vscode.workspace || !vscode.workspace.rootPath) {
         return [];
@@ -561,7 +561,7 @@ export async function ensurePath(fileOrFolder: string, allowSubDir = false, with
             if (!vscode.workspace || fileOrFolder.toLowerCase().startsWith(workspaceFolder.toLowerCase())) {
 
                 // check folder and get folder from file
-                getFolder(fileOrFolder).then((retpath) => {
+                checkPath(fileOrFolder).then((retpath) => {
                     resolve(retpath);
                 }).catch((reason) => {
                     reject(reason);
@@ -583,6 +583,7 @@ export async function ensurePath(fileOrFolder: string, allowSubDir = false, with
             } else if (vscode.workspace && !withBaseName) {
                 defaultPath = workspaceFolder;
             }
+
             // ask for path
             const _promt = withBaseName ? 'Please enter the script' : 'Please enter the folder';
             vscode.window.showInputBox({
@@ -598,7 +599,7 @@ export async function ensurePath(fileOrFolder: string, allowSubDir = false, with
                     if (!vscode.workspace || input.toLowerCase().startsWith(workspaceFolder.toLowerCase())) {
 
                         // check folder and get folder from file
-                        getFolder(input, allowSubDir).then((retpath) => {
+                        checkPath(input, allowSubDir).then((retpath) => {
                             resolve(retpath);
                         }).catch((reason) => {
                             reject(reason);

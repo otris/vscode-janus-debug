@@ -141,7 +141,7 @@ export function uploadRunScript(loginData: nodeDoc.LoginData, param: any, myOutp
  * Upload all
  */
 export function uploadAll(loginData: nodeDoc.LoginData, _param: any) {
-    helpers.ensurePath(_param).then((folder) => {
+    helpers.ensurePathInput(_param).then((folder) => {
 
         // get all scripts from folder and subfolders
         const folderScripts = nodeDoc.getScriptsFromFolderSync(folder[0]);
@@ -182,7 +182,7 @@ export function uploadAll(loginData: nodeDoc.LoginData, _param: any) {
  */
 export function downloadScript(loginData: nodeDoc.LoginData, param: any) {
     helpers.ensureScriptName(param).then((scriptName) => {
-        return helpers.ensurePath(param, true).then((_path) => {
+        return helpers.ensurePathInput(param, true).then((_path) => {
             let script: nodeDoc.scriptT = { name: scriptName, path: _path[0] };
 
             helpers.readConflictModes([script]);
@@ -201,7 +201,7 @@ export function downloadScript(loginData: nodeDoc.LoginData, param: any) {
  * Download all
  */
 export function downloadAll(loginData: nodeDoc.LoginData, _param: any) {
-    helpers.ensurePath(_param, true).then((_path) => {
+    helpers.ensurePathInput(_param, true).then((_path) => {
 
         // get names of scripts that should be downloaded
         return helpers.getDownloadScriptNames(loginData).then((_scripts) => {
@@ -245,7 +245,7 @@ export function runScript(loginData: nodeDoc.LoginData, param: any, myOutputChan
  * Compare script
  */
 export function compareScript(loginData: nodeDoc.LoginData, _param: any) {
-    helpers.ensurePath(_param, false, true).then((_path) => {
+    helpers.ensurePathInput(_param, false, true).then((_path) => {
         const scriptFolder = _path[0];
         const _scriptname = _path[1];
         return helpers.ensureScriptName(_scriptname).then((scriptname) => {
