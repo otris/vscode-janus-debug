@@ -21,6 +21,7 @@ let ipcServer: VSCodeExtensionIPC;
 let launchJsonWatcher: vscode.FileSystemWatcher;
 let serverConsole: ServerConsole;
 let runScriptChannel: vscode.OutputChannel;
+let disposableOnSave: vscode.Disposable;
 
 function getExtensionLogPath(): LogConfiguration | undefined {
     const workspaceRoot = vscode.workspace.rootPath;
@@ -400,8 +401,7 @@ export function activate(context: vscode.ExtensionContext): void {
 
         // Upload script on save
         const extensionSettings = vscode.workspace.getConfiguration('vscode-janus-debug');
-        const autoUploadEnabled = extensionSettings.get('uploadOnSave', true);
-        let disposableOnSave: vscode.Disposable;
+        const autoUploadEnabled = extensionSettings.get('uploadOnSaveGlobal', true);
         if (autoUploadEnabled) {
             disposableOnSave = vscode.workspace.onDidSaveTextDocument((textDocument) => {
                 if ('.js' === path.extname(textDocument.fileName)) {
