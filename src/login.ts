@@ -163,7 +163,7 @@ async function createLaunchJson(loginData: nodeDoc.LoginData): Promise<void> {
                             password: pw
                         });
 
-                        nodeDoc.writeFile(data, filename, true).then(() => {
+                        nodeDoc.writeFile(data, filename).then(() => {
                             resolve();
                         }).catch((reason) => {
                             reject(reason);
