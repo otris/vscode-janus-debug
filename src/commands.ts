@@ -215,9 +215,16 @@ export function downloadAll(loginData: nodeDoc.LoginData, _param: any) {
 
             // download scripts
             return nodeDoc.sdsSession(loginData, _scripts, nodeDoc.downloadAll).then((scripts) => {
-                const numScripts = scripts.length;
                 helpers.updateHashValues(scripts);
-                vscode.window.setStatusBarMessage('downloaded ' + numScripts + ' scripts');
+                // if a script from input list has not been downloaded but the function was resolved
+                // then the script is encrypted on server
+                const encryptedScripts = _scripts.length - scripts.length;
+                if (1 === encryptedScripts) {
+                    vscode.window.showWarningMessage(`1 encrypted script has not been downloaded`);
+                } else if (1 < encryptedScripts) {
+                    vscode.window.showWarningMessage(`${encryptedScripts} encrypted scripts have not been downloaded`);
+                }
+                vscode.window.setStatusBarMessage(`downloaded ${scripts.length} scripts`);
             });
         });
     }).catch((reason) => {
