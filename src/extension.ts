@@ -383,10 +383,6 @@ export function activate(context: vscode.ExtensionContext): void {
         })
     );
 
-    // add additional features...
-    // this features can not activate the extension
-    // but they are needed immediately
-
 
     // Some features only available in workspace
     if (isFolderOpen && vscode.workspace.rootPath) {
