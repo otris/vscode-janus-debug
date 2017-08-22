@@ -415,26 +415,20 @@
         },
         {
           "command": "extension.vscode-janus-debug.downloadScriptsToFolder",
-          "when": "resourceLangId == javascript",
           "group": "DOCUMENTS@8"
         },
         {
-          "command": "extension.vscode-janus-debug.downloadScriptsToFolder",
-          "when": "explorerResourceIsFolder",
-          "group": "DOCUMENTS@9"
-        },
-        {
           "command": "extension.vscode-janus-debug.getScriptParameters",
-          "group": "DOCUMENTS@10"
+          "group": "DOCUMENTS@9"
         },
         {
           "command": "extension.vscode-janus-debug.getScriptNames",
           "when": "resourceFilename == .documents-script-names",
-          "group": "DOCUMENTS@11"
+          "group": "DOCUMENTS@10"
         },
         {
           "command": "extension.vscode-janus-debug.installIntellisenseFiles",
-          "group": "DOCUMENTS@12"
+          "group": "DOCUMENTS@11"
         }
       ],
       "editor/context": [

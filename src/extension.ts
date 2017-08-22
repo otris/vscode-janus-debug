@@ -306,7 +306,7 @@ export function activate(context: vscode.ExtensionContext): void {
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.downloadScriptsToFolder', (param) => {
             let fsPath;
-            if (param) {
+            if (param && (!vscode.workspace || vscode.workspace.rootPath !== param._fsPath)) {
                 fsPath = param._fsPath;
             }
             commands.downloadAll(loginData, fsPath);
