@@ -18,6 +18,47 @@ const tsc = require('typescript-compiler');
 const fs = require('fs-extra');
 
 const VERSION_SCRIPT_PARAMS = '8035';
+const VERSION_DECRYPT_PERM = '8040';
+
+export let decrptionVersionChecked: boolean;
+
+export function setDecryptionVersionChecked(value: boolean) {
+    decrptionVersionChecked = value;
+}
+
+/**
+ * Returns false if user has decryption permission and server version is not 5.0c or higher.
+ * Because then the upload with encrypted scripts will cause problems.
+ */
+export async function checkDecryptionVersion(loginData: nodeDoc.LoginData): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+        if (!decrptionVersionChecked) {
+            nodeDoc.sdsSession(loginData, [], nodeDoc.checkDecryptionPermission).then((retval1) => {
+                const perm: nodeDoc.documentsT = retval1[0];
+                if (perm) {
+                    // user has decryption permission, so server version must be 5.0c
+                    nodeDoc.sdsSession(loginData, [], nodeDoc.getDocumentsVersion).then((retval2) => {
+                        const version = retval2;
+                        if (Number(version) < Number(VERSION_DECRYPT_PERM)) {
+                            vscode.window.showWarningMessage(``);
+                            resolve();
+                        }
+                    });
+                } else {
+                    resolve();
+                }
+                decrptionVersionChecked = true;
+            }).catch((reason) => {
+                reject('checkDecryptionVersion failed ' + reason);
+            });
+        } else {
+            resolve();
+        }
+    });
+
+}
+
+
 
 /**
  * Save login data

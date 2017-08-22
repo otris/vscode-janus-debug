@@ -252,7 +252,11 @@ export function activate(context: vscode.ExtensionContext): void {
 
     // Upload script
     context.subscriptions.push(
-        vscode.commands.registerCommand('extension.vscode-janus-debug.uploadScript', (param) => {
+        vscode.commands.registerCommand('extension.vscode-janus-debug.uploadScript', async (param) => {
+
+            // show warning if server is too old
+            await commands.checkDecryptionVersion(loginData);
+
             let fsPath;
             if (param) {
                 fsPath = param._fsPath;
@@ -260,13 +264,17 @@ export function activate(context: vscode.ExtensionContext): void {
             if (!fsPath && vscode.window.activeTextEditor) {
                 fsPath = vscode.window.activeTextEditor.document.fileName;
             }
-            commands.uploadScript(loginData, fsPath);
+            await commands.uploadScript(loginData, fsPath);
         })
     );
 
     // uploadJSFromTS
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.uploadJSFromTS', async (param) => {
+
+            // show warning if server is too old
+            await commands.checkDecryptionVersion(loginData);
+
             if (vscode.window.activeTextEditor) {
                 const doc = vscode.window.activeTextEditor.document;
                 await commands.uploadJSFromTS(loginData, doc);
@@ -276,12 +284,16 @@ export function activate(context: vscode.ExtensionContext): void {
 
     // Upload all
     context.subscriptions.push(
-        vscode.commands.registerCommand('extension.vscode-janus-debug.uploadScriptsFromFolder', (param) => {
+        vscode.commands.registerCommand('extension.vscode-janus-debug.uploadScriptsFromFolder', async (param) => {
+
+            // show warning if server is too old
+            await commands.checkDecryptionVersion(loginData);
+
             let fsPath;
             if (param) {
                 fsPath = param._fsPath;
             }
-            commands.uploadAll(loginData, fsPath);
+            await commands.uploadAll(loginData, fsPath);
         })
     );
 
@@ -323,7 +335,11 @@ export function activate(context: vscode.ExtensionContext): void {
 
     // Upload and Run script
     context.subscriptions.push(
-        vscode.commands.registerCommand('extension.vscode-janus-debug.uploadRunScript', (param) => {
+        vscode.commands.registerCommand('extension.vscode-janus-debug.uploadRunScript', async (param) => {
+
+            // show warning if server is too old
+            await commands.checkDecryptionVersion(loginData);
+
             let fsPath;
             if (param) {
                 fsPath = param._fsPath;
@@ -331,7 +347,7 @@ export function activate(context: vscode.ExtensionContext): void {
             if (!fsPath && vscode.window.activeTextEditor) {
                 fsPath = vscode.window.activeTextEditor.document.fileName;
             }
-            commands.uploadRunScript(loginData, fsPath, runScriptChannel);
+            await commands.uploadRunScript(loginData, fsPath, runScriptChannel);
         })
     );
 
