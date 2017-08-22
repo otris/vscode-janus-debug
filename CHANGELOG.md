@@ -2,7 +2,7 @@
 
 You'll find a complete list of changes at our project site on [GitHub](https://github.com/otris/vscode-janus-debug).
 
-### 0.0.10 (YYYY-MM-DD)
+### 0.0.10 (2017-08-22)
 
 New Features in this release:
  - Users can now use keyboard shortcuts for uploading, running, uploading and running, and uploading from ts to js ([#84](https://github.com/otris/vscode-janus-debug/issues/84)).
