@@ -35,19 +35,19 @@ export async function checkDecryptionVersion(loginData: nodeDoc.LoginData): Prom
         if (!decrptionVersionChecked) {
             nodeDoc.sdsSession(loginData, [], nodeDoc.checkDecryptionPermission).then((retval1) => {
                 const perm: nodeDoc.documentsT = retval1[0];
-                if (perm) {
-                    // user has decryption permission, so server version must be 5.0c
-                    nodeDoc.sdsSession(loginData, [], nodeDoc.getDocumentsVersion).then((retval2) => {
-                        const version = retval2;
-                        if (Number(version) < Number(VERSION_DECRYPT_PERM)) {
-                            vscode.window.showWarningMessage(``);
+                decrptionVersionChecked = true;
+                if (perm && Number(loginData.DocumentsVersion) < Number(VERSION_DECRYPT_PERM)) {
+                    const info = `Please update your DOCUMENTS to 5.0c (#${VERSION_DECRYPT_PERM}) to avoid problems with encrypted scripts`;
+                    vscode.window.showQuickPick(['Upload anyway', 'Cancel'], { placeHolder: info }).then((answer) => {
+                        if ('Upload anyway' === answer) {
                             resolve();
+                        } else {
+                            reject();
                         }
                     });
                 } else {
                     resolve();
                 }
-                decrptionVersionChecked = true;
             }).catch((reason) => {
                 reject('checkDecryptionVersion failed ' + reason);
             });
