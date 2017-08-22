@@ -23,6 +23,8 @@ let serverConsole: ServerConsole;
 let runScriptChannel: vscode.OutputChannel;
 let disposableOnSave: vscode.Disposable;
 
+
+
 function getExtensionLogPath(): LogConfiguration | undefined {
     const workspaceRoot = vscode.workspace.rootPath;
     const config = vscode.workspace.getConfiguration('vscode-janus-debug');
@@ -133,32 +135,11 @@ function disconnectServerConsole(console: ServerConsole): void {
     });
 }
 
-export function activate(context: vscode.ExtensionContext): void {
 
-    // set up file logging
-    const extensionLoggerConf = getExtensionLogPath();
-    if (extensionLoggerConf) {
-        Logger.config = extensionLoggerConf;
-    }
+function startServerConsole(launchJson: string, loginData: nodeDoc.LoginData) {
+    if (vscode.workspace !== undefined) {
+        const outputChannel = vscode.window.createOutputChannel('Server Console');
 
-    const isFolderOpen: boolean = vscode.workspace !== undefined;
-    let launchJson = '';
-
-    // login data
-    const loginData: nodeDoc.LoginData = new nodeDoc.LoginData();
-    context.subscriptions.push(loginData);
-
-    // set additional properties for login data
-    loginData.getLoginData = login.createLoginData;
-    loginData.askForPasswordStr = '${command:extension.vscode-janus-debug.askForPassword}';
-    if (vscode.workspace && vscode.workspace.rootPath) {
-        launchJson = path.join(vscode.workspace.rootPath, '.vscode', 'launch.json');
-        loginData.loadConfigFile(launchJson);
-    }
-
-    const outputChannel = vscode.window.createOutputChannel('Server Console');
-
-    if (isFolderOpen) {
         outputChannel.appendLine('Extension activated');
         getVersion().then(ver => {
             outputChannel.appendLine("Version: " + ver.toString());
@@ -184,6 +165,7 @@ export function activate(context: vscode.ExtensionContext): void {
                 }
                 if (file.fsPath === launchJson) {
                     loginData.loadConfigFile(launchJson);
+                    commands.setDecryptionVersionChecked(false);
                 }
             });
 
@@ -194,6 +176,7 @@ export function activate(context: vscode.ExtensionContext): void {
                 }
                 if (file.fsPath === launchJson) {
                     loginData.loadConfigFile(launchJson);
+                    commands.setDecryptionVersionChecked(false);
                 }
             });
 
@@ -207,6 +190,32 @@ export function activate(context: vscode.ExtensionContext): void {
             });
         });
     }
+}
+
+export function activate(context: vscode.ExtensionContext): void {
+
+    // set up file logging
+    const extensionLoggerConf = getExtensionLogPath();
+    if (extensionLoggerConf) {
+        Logger.config = extensionLoggerConf;
+    }
+
+    const isFolderOpen: boolean = vscode.workspace !== undefined;
+    let launchJson = '';
+
+    // login data
+    const loginData: nodeDoc.LoginData = new nodeDoc.LoginData();
+    context.subscriptions.push(loginData);
+
+    // set additional properties for login data
+    loginData.getLoginData = login.createLoginData;
+    loginData.askForPasswordStr = '${command:extension.vscode-janus-debug.askForPassword}';
+    if (vscode.workspace && vscode.workspace.rootPath) {
+        launchJson = path.join(vscode.workspace.rootPath, '.vscode', 'launch.json');
+        loginData.loadConfigFile(launchJson);
+    }
+
+    startServerConsole(launchJson, loginData);
 
     ipcServer = new VSCodeExtensionIPC();
 
