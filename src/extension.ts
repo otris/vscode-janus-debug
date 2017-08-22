@@ -243,12 +243,6 @@ export function activate(context: vscode.ExtensionContext): void {
     // this commands can activate the extension
     // so they are actually available immediately
 
-    // Save login data
-    context.subscriptions.push(
-        vscode.commands.registerCommand('extension.vscode-janus-debug.saveConfiguration', (param) => {
-            commands.saveLoginData(loginData, param);
-        })
-    );
 
     // Upload script
     context.subscriptions.push(

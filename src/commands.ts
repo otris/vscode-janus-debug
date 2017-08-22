@@ -60,20 +60,6 @@ export async function checkDecryptionVersion(loginData: nodeDoc.LoginData): Prom
 
 
 
-/**
- * Save login data
- */
-export function saveLoginData(loginData: nodeDoc.LoginData, param: any) {
-    if (loginData) {
-        login.createLoginData(loginData).then(() => {
-            vscode.window.setStatusBarMessage('Saved login data');
-        }).catch((reason) => {
-            vscode.window.showWarningMessage(reason);
-        });
-    } else {
-        vscode.window.showErrorMessage('unexpected error: login data object missing');
-    }
-}
 
 /**
  * Common function for uploading script.

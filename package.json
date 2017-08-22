@@ -32,7 +32,6 @@
     "workspaceContains:documents-scripting-settings.json",
     "onCommand:extension.vscode-janus-debug.provideInitialConfigurations",
     "onCommand:extension.vscode-janus-debug.askForPassword",
-    "onCommand:extension.vscode-janus-debug.saveConfiguration",
     "onCommand:extension.vscode-janus-debug.uploadScript",
     "onCommand:extension.vscode-janus-debug.downloadScript",
     "onCommand:extension.vscode-janus-debug.runScript",
@@ -284,11 +283,6 @@
       }
     },
     "commands": [
-      {
-        "command": "extension.vscode-janus-debug.saveConfiguration",
-        "title": "Create launch.json",
-        "category": "DOCUMENTS"
-      },
       {
         "command": "extension.vscode-janus-debug.uploadScript",
         "title": "Upload Script",
