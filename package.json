@@ -225,7 +225,7 @@
           "default": [],
           "description": "Never automatically upload scripts in this list and never ask to."
         },
-        "vscode-janus-debug.conflictMode": {
+        "vscode-janus-debug.forceUpload": {
           "type": "array",
           "default": [],
           "description": "Only upload script if server script has not changed."
