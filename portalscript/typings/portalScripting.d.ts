@@ -1482,6 +1482,16 @@ declare namespace Documents {
 	**/
 	getPrincipalAttribute(attributeName: string): string;
 	/**
+	 * Gets the current progress value in % of the progress bar in the Documents-Manager during the PortalScript execution. 
+	 * 
+	 * ... ... ... ... 
+	 */
+	/**
+	* @memberof Context
+	* @returns {number}
+	**/
+	getProgressBar(): number;
+	/**
 	 * Get the actual search parameters within an "OnSearch" or "FillSearchScript" exit. 
 	 * 
 	 * ... ... ... ... 
@@ -1640,6 +1650,28 @@ declare namespace Documents {
 	* @returns {boolean}
 	**/
 	setPrincipalAttribute(attributeName: string, value: string): boolean;
+	/**
+	 * Sets the progress (%) of the progress bar in the Documents-Manager during the PortalScript execution. 
+	 * 
+	 * ... ... ... ... 
+	 */
+	/**
+	* @memberof Context
+	* @param {number} value
+	* @returns {void}
+	**/
+	setProgressBar(value: number): void;
+	/**
+	 * Sets the progress bar text in the Documents-Manager during the PortalScript execution. 
+	 * 
+	 * ... ... ... ... 
+	 */
+	/**
+	* @memberof Context
+	* @param {string} text
+	* @returns {void}
+	**/
+	setProgressBarText(text: string): void;
 	}
 }
 declare var context: Documents.Context;
@@ -2640,6 +2672,18 @@ declare namespace Documents {
 	**/
 	getFieldAttribute(fieldName: string, attrName: string): string;
 	/**
+	 * Returns an AutoText value of a specified field of the DocFile. 
+	 * 
+	 * The following AutoTexts are available ... ... ... ... ... 
+	 */
+	/**
+	* @memberof DocFile
+	* @param {string} fieldName
+	* @param {string} autoText
+	* @returns {string}
+	**/
+	getFieldAutoText(fieldName: string, autoText: string): string;
+	/**
 	 * Get the technical name of the n-th field of the file. 
 	 * 
 	 * This allows generic scripts to be capable of different versions of the same filetype, e.g. if you changed details of the filetype, but there are still older files of the filetype in the system. ... ... ... ... ... 
@@ -2755,25 +2799,27 @@ declare namespace Documents {
 	getReferenceFile(referenceFileField: string): Documents.DocFile;
 	/**
 	 * 
-	 * ... ... ... ... ... ... 
+	 * ... ... ... ... ... ... ... ... 
 	 */
 	/**
 	* @memberof DocFile
 	* @param {string} registerName
+	* @param {boolean} checkAccessRight
 	* @returns {Documents.Register}
 	**/
-	getRegisterByName(registerName: string): Documents.Register;
+	getRegisterByName(registerName: string, checkAccessRight: boolean): Documents.Register;
 	/**
 	 * Get an iterator with the registers of the file for the specified type. 
 	 * 
-	 * ... ... ... ... ... ... 
+	 * ... ... ... ... ... ... ... ... 
 	 */
 	/**
 	* @memberof DocFile
 	* @param {string} type
+	* @param {boolean} checkAccessRight
 	* @returns {Documents.RegisterIterator}
 	**/
-	getRegisters(type: string): Documents.RegisterIterator;
+	getRegisters(type: string, checkAccessRight: boolean): Documents.RegisterIterator;
 	/**
 	 * Returns the title of the DocFile. 
 	 * 
@@ -3060,6 +3106,7 @@ declare class DocFile implements Documents.DocFile {
 	getCurrentWorkflowStep(): Documents.WorkflowStep;
 	getEnumAutoText(autoText: string): Array<any>;
 	getFieldAttribute(fieldName: string, attrName: string): string;
+	getFieldAutoText(fieldName: string, autoText: string): string;
 	getFieldName(index: number): string;
 	getFieldValue(fieldName: string): any;
 	getFileOwner(): Documents.SystemUser;
@@ -3071,8 +3118,8 @@ declare class DocFile implements Documents.DocFile {
 	getOID(oidLow: boolean): string;
 	getOriginal(): Documents.DocFile;
 	getReferenceFile(referenceFileField: string): Documents.DocFile;
-	getRegisterByName(registerName: string): Documents.Register;
-	getRegisters(type: string): Documents.RegisterIterator;
+	getRegisterByName(registerName: string, checkAccessRight: boolean): Documents.Register;
+	getRegisters(type: string, checkAccessRight: boolean): Documents.RegisterIterator;
 	getTitle(locale: string): string;
 	getUserStatus(login: string): string;
 	hasField(fieldName: string): boolean;
@@ -4652,6 +4699,16 @@ declare namespace Documents {
 	**/
 	first(): Documents.DocFile;
 	/**
+	 * Returns an array with all file ids in the FileResultset. 
+	 * 
+	 * ... ... ... 
+	 */
+	/**
+	* @memberof FileResultset
+	* @returns {number}
+	**/
+	getIds(): number;
+	/**
 	 * Retrieve the last DocFile object in the FileResultset. 
 	 * 
 	 * ... ... 
@@ -4686,6 +4743,7 @@ declare namespace Documents {
 
 declare class FileResultset implements Documents.FileResultset {
 	first(): Documents.DocFile;
+	getIds(): number;
 	last(): Documents.DocFile;
 	next(): Documents.DocFile;
 	size(): number;
@@ -5966,6 +6024,20 @@ declare namespace Documents {
 	**/
 	launch(): boolean;
 	/**
+	 * Create a new ScriptCall object. 
+	 * 
+	 * The following properties of the execution context of the called script are carried over from the execution context of the script where this ScriptCall object is created: ... 
+	 * You can change these context properties with the available set-methods. ... ... 
+	 */
+	/**
+	* @memberof ScriptCall
+	* @param {any} systemUser
+	* @param {string} scriptName
+	* @param {boolean} waitable
+	* @returns {Documents.ScriptCall}
+	**/
+	ScriptCall(systemUser: any, scriptName: string, waitable: boolean): Documents.ScriptCall;
+	/**
 	 * Set the execution context file of the called script. 
 	 * 
 	 * ... ... ... ... ... 
@@ -6028,6 +6100,8 @@ declare class ScriptCall implements Documents.ScriptCall {
 	getReturnValue(): string;
 	isRunning(): boolean;
 	launch(): boolean;
+	constructor();
+	ScriptCall(systemUser: any, scriptName: string, waitable: boolean): Documents.ScriptCall;
 	setDocFile(docFile: Documents.DocFile): boolean;
 	setDocument(doc: Documents.Document): boolean;
 	setEvent(scriptEvent: string): boolean;
