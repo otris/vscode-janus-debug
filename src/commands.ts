@@ -110,7 +110,6 @@ async function _uploadScript(loginData: nodeDoc.LoginData, param: any): Promise<
 
 /**
  * Upload script
- * TODO merge with _uploadScript
  */
 export function uploadScript(loginData: nodeDoc.LoginData, param: any) {
     _uploadScript(loginData, param).then((scriptName) => {
@@ -152,7 +151,7 @@ export function uploadScriptOnSave(loginData: nodeDoc.LoginData, fileName: strin
 export function uploadRunScript(loginData: nodeDoc.LoginData, param: any, myOutputChannel: vscode.OutputChannel) {
     _uploadScript(loginData, param).then((scriptName) => {
 
-        let script: nodeDoc.scriptT = { name: scriptName };
+        let script: nodeDoc.scriptT = new nodeDoc.scriptT(scriptName);
         return nodeDoc.sdsSession(loginData, [script], nodeDoc.runScript).then((value) => {
             script = value[0];
             myOutputChannel.append(script.output + os.EOL);
@@ -210,7 +209,7 @@ export function uploadAll(loginData: nodeDoc.LoginData, _param: any) {
 export function downloadScript(loginData: nodeDoc.LoginData, param: any) {
     helpers.ensureScriptName(param).then((scriptName) => {
         return helpers.ensurePathInput(param, true).then((_path) => {
-            let script: nodeDoc.scriptT = { name: scriptName, path: _path[0] };
+            let script: nodeDoc.scriptT = new nodeDoc.scriptT(scriptName, _path[0]);
 
             helpers.readConflictModes([script]);
             return nodeDoc.sdsSession(loginData, [script], nodeDoc.downloadScript).then((value) => {
@@ -264,7 +263,7 @@ export function downloadAll(loginData: nodeDoc.LoginData, _param: any) {
  */
 export function runScript(loginData: nodeDoc.LoginData, param: any, myOutputChannel: vscode.OutputChannel) {
     helpers.ensureScriptName(param).then((scriptname) => {
-        let script: nodeDoc.scriptT = { name: scriptname };
+        let script: nodeDoc.scriptT = new nodeDoc.scriptT(scriptname);
         return nodeDoc.sdsSession(loginData, [script], nodeDoc.runScript).then((value) => {
             script = value[0];
             myOutputChannel.append(script.output + os.EOL);
@@ -290,7 +289,7 @@ export function compareScript(loginData: nodeDoc.LoginData, _param: any) {
                 comparePath = path.join(scriptFolder, helpers.COMPARE_FOLDER);
             }
             return helpers.createFolder(comparePath, true).then(() => {
-                let script: nodeDoc.scriptT = { name: scriptname, path: comparePath, rename: helpers.COMPARE_FILE_PREFIX + scriptname };
+                let script: nodeDoc.scriptT = new nodeDoc.scriptT(scriptname, comparePath, '', helpers.COMPARE_FILE_PREFIX + scriptname);
                 return nodeDoc.sdsSession(loginData, [script], nodeDoc.downloadScript).then((value) => {
                     script = value[0];
                     helpers.compareScript(scriptFolder, scriptname);

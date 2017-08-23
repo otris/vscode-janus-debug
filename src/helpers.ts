@@ -226,10 +226,7 @@ export function getDownloadScriptNamesFromList(): nodeDoc.scriptT[] {
     scripts = [];
     if (scriptnames instanceof Array && 0 < scriptnames.length) {
         scriptnames.forEach((scriptname) => {
-            const script: nodeDoc.scriptT = {
-                name: scriptname.trim()
-            };
-            scripts.push(script);
+            scripts.push(new nodeDoc.scriptT(scriptname.trim()));
         });
     }
 
@@ -299,10 +296,10 @@ export function readConflictModes(pscripts: nodeDoc.scriptT[]) {
     // get extension-part of settings.json
     const conf = vscode.workspace.getConfiguration('vscode-janus-debug');
 
-    const _conflictMode = conf.get('conflictMode');
-    let conflictMode: string[];
-    if (_conflictMode instanceof Array) {
-        conflictMode = _conflictMode;
+    const _forceUpload = conf.get('forceUpload');
+    let forceUpload: string[];
+    if (_forceUpload instanceof Array) {
+        forceUpload = _forceUpload;
     } else {
         vscode.window.showWarningMessage('Cannot write to settings.json');
         return;
@@ -310,8 +307,8 @@ export function readConflictModes(pscripts: nodeDoc.scriptT[]) {
 
     // read values
     pscripts.forEach((script) => {
-        if (0 <= conflictMode.indexOf(script.name)) {
-            script.conflictMode = true;
+        if (0 <= forceUpload.indexOf(script.name)) {
+            script.conflictMode = false;
         }
     });
 }
@@ -348,10 +345,10 @@ export function readHashValues(pscripts: nodeDoc.scriptT[]) {
     const conf = vscode.workspace.getConfiguration('vscode-janus-debug');
 
     // get the list of scripts in conflict mode
-    const _conflictMode = conf.get('conflictMode');
-    let conflictMode: string[];
-    if (_conflictMode instanceof Array) {
-        conflictMode = _conflictMode;
+    const _forceUpload = conf.get('forceUpload');
+    let forceUpload: string[];
+    if (_forceUpload instanceof Array) {
+        forceUpload = _forceUpload;
     } else {
         vscode.window.showWarningMessage('Cannot write to settings.json');
         return;
@@ -359,8 +356,9 @@ export function readHashValues(pscripts: nodeDoc.scriptT[]) {
 
     // read hash values of scripts in conflict mode
     pscripts.forEach((script) => {
-        if (0 <= conflictMode.indexOf(script.name)) {
-            script.conflictMode = true;
+        if (0 <= forceUpload.indexOf(script.name)) {
+            script.conflictMode = false;
+        } else {
             hashValues.forEach((value, idx) => {
                 const scriptname = value.split(':')[0];
                 if (scriptname === script.name) {
@@ -402,10 +400,10 @@ export function updateHashValues(pscripts: nodeDoc.scriptT[]) {
     const conf = vscode.workspace.getConfiguration('vscode-janus-debug');
 
     // get the list of scripts in conflict mode
-    const _conflictMode = conf.get('conflictMode');
-    let conflictMode: string[];
-    if (_conflictMode instanceof Array) {
-        conflictMode = _conflictMode;
+    const _forceUpload = conf.get('forceUpload');
+    let forceUpload: string[];
+    if (_forceUpload instanceof Array) {
+        forceUpload = _forceUpload;
     } else {
         vscode.window.showWarningMessage('Cannot write to settings.json');
         return;
@@ -413,7 +411,8 @@ export function updateHashValues(pscripts: nodeDoc.scriptT[]) {
 
     // set hash values of scripts in conflict mode
     pscripts.forEach((script) => {
-        if (0 <= conflictMode.indexOf(script.name) && true !== script.conflict) {
+        // todo docu why (true !== script.conflict)
+        if (0 > forceUpload.indexOf(script.name) && true !== script.conflict) {
             let updated = false;
             hashValues.forEach((value, idx) => {
                 const scriptname = value.split(':')[0];
@@ -663,10 +662,7 @@ export async function ensureScript(param?: string | vscode.TextDocument): Promis
                 }
 
             } else { // param: vscode.TextDocument
-                const ret: nodeDoc.scriptT = {
-                    name: path.basename(param.fileName, '.js'),
-                    sourceCode: param.getText()
-                };
+                const ret: nodeDoc.scriptT = new nodeDoc.scriptT(path.basename(param.fileName, '.js'), '', param.getText());
                 resolve(ret);
             }
         } else {
