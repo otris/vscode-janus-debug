@@ -2,6 +2,14 @@
 
 You'll find a complete list of changes at our project site on [GitHub](https://github.com/otris/vscode-janus-debug).
 
+### 0.0.11 (yyyy-mm-dd)
+
+New Features in this release:
+- The conflict mode is now the default state of all scripts, meaning every script will be checked on upload if it has been changed on server.
+
+Following bugs have been addressed in this release:
+
+
 ### 0.0.10 (2017-08-22)
 
 New Features in this release:

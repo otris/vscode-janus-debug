@@ -148,7 +148,7 @@ export function provideInitialConfigurations(workspaceRootPath?: string, overwri
         '\t// Hover to view descriptions of existing attributes.',
         '\t// For more information, visit',
         '\t// https://github.com/otris/vscode-janus-debug/wiki/Launching-the-Debugger',
-        '\t"version": "0.0.10",',
+        '\t"version": "0.0.11",',
         '\t"configurations": ' + configurations,
         '}',
     ].join('\n');
