@@ -68,14 +68,14 @@ export async function checkDecryptionVersion(loginData: nodeDoc.LoginData): Prom
  * @param loginData
  * @param param
  */
-async function _uploadScript(loginData: nodeDoc.LoginData, param: any): Promise<string> {
+function _uploadScript(loginData: nodeDoc.LoginData, param: any): Promise<string> {
     return new Promise<string>((resolve, reject) => {
         helpers.ensureScript(param).then((_script) => {
 
-            // reads conflict mode and hash value
+            // get information from settings and hash values
             helpers.readHashValues([_script]);
-            // read encryption flags
             helpers.readEncryptionFlag([_script]);
+            helpers.setCategories([_script]);
 
             return nodeDoc.sdsSession(loginData, [_script], nodeDoc.uploadScript).then((value) => {
 
@@ -111,11 +111,15 @@ async function _uploadScript(loginData: nodeDoc.LoginData, param: any): Promise<
 /**
  * Upload script
  */
-export function uploadScript(loginData: nodeDoc.LoginData, param: any) {
-    _uploadScript(loginData, param).then((scriptName) => {
-        vscode.window.setStatusBarMessage('uploaded: ' + scriptName);
-    }).catch((reason) => {
-        vscode.window.showErrorMessage(reason);
+export function uploadScript(loginData: nodeDoc.LoginData, param: any): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+        _uploadScript(loginData, param).then((scriptName) => {
+            vscode.window.setStatusBarMessage('uploaded: ' + scriptName);
+            resolve();
+        }).catch((reason) => {
+            vscode.window.showErrorMessage(reason);
+            reject();
+        });
     });
 }
 
@@ -169,12 +173,12 @@ export function uploadRunScript(loginData: nodeDoc.LoginData, param: any, myOutp
 export function uploadAll(loginData: nodeDoc.LoginData, _param: any) {
     helpers.ensurePathInput(_param).then((folder) => {
 
-        // get all scripts from folder and subfolders
+        // get all scripts from folder and subfolders and read information
+        // from .vscode\settings.json
         const folderScripts = nodeDoc.getScriptsFromFolderSync(folder[0]);
-        // reads conflict modes and hash values
         helpers.readHashValues(folderScripts);
-        // read encryption flags
         helpers.readEncryptionFlag(folderScripts);
+        helpers.setCategories(folderScripts);
 
         return nodeDoc.sdsSession(loginData, folderScripts, nodeDoc.uploadAll).then((value1) => {
             const retScripts: nodeDoc.scriptT[] = value1;
@@ -212,6 +216,8 @@ export function downloadScript(loginData: nodeDoc.LoginData, param: any) {
             let script: nodeDoc.scriptT = new nodeDoc.scriptT(scriptName, _path[0]);
 
             helpers.readConflictModes([script]);
+            helpers.setCategoryRoots([script]);
+
             return nodeDoc.sdsSession(loginData, [script], nodeDoc.downloadScript).then((value) => {
                 script = value[0];
                 helpers.updateHashValues([script]);
@@ -238,6 +244,7 @@ export function downloadAll(loginData: nodeDoc.LoginData, _param: any) {
             });
 
             helpers.readConflictModes(_scripts);
+            helpers.setCategoryRoots(_scripts);
 
             // download scripts
             return nodeDoc.sdsSession(loginData, _scripts, nodeDoc.downloadAll).then((scripts) => {

@@ -9,6 +9,7 @@ import * as vscode from 'vscode';
 import * as commands from './commands';
 import { provideInitialConfigurations } from './config';
 import { extend } from './helpers';
+import * as helpers from './helpers';
 import { VSCodeExtensionIPC } from './ipcServer';
 import * as login from './login';
 import { ServerConsole } from './serverConsole';
@@ -259,6 +260,7 @@ export function activate(context: vscode.ExtensionContext): void {
                 fsPath = vscode.window.activeTextEditor.document.fileName;
             }
             await commands.uploadScript(loginData, fsPath);
+            helpers.showWarning(loginData);
         })
     );
 
@@ -272,6 +274,7 @@ export function activate(context: vscode.ExtensionContext): void {
             if (vscode.window.activeTextEditor) {
                 const doc = vscode.window.activeTextEditor.document;
                 await commands.uploadJSFromTS(loginData, doc);
+                helpers.showWarning(loginData);
             }
         })
     );
@@ -288,6 +291,7 @@ export function activate(context: vscode.ExtensionContext): void {
                 fsPath = param._fsPath;
             }
             await commands.uploadAll(loginData, fsPath);
+            helpers.showWarning(loginData);
         })
     );
 
@@ -299,6 +303,7 @@ export function activate(context: vscode.ExtensionContext): void {
                 fsPath = param._fsPath;
             }
             commands.downloadScript(loginData, fsPath);
+            helpers.showWarning(loginData);
         })
     );
 
@@ -310,6 +315,7 @@ export function activate(context: vscode.ExtensionContext): void {
                 fsPath = param._fsPath;
             }
             commands.downloadAll(loginData, fsPath);
+            helpers.showWarning(loginData);
         })
     );
 
@@ -342,6 +348,7 @@ export function activate(context: vscode.ExtensionContext): void {
                 fsPath = vscode.window.activeTextEditor.document.fileName;
             }
             await commands.uploadRunScript(loginData, fsPath, runScriptChannel);
+            helpers.showWarning(loginData);
         })
     );
 
