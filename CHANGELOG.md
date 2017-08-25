@@ -5,7 +5,10 @@ You'll find a complete list of changes at our project site on [GitHub](https://g
 ### 0.0.11 (yyyy-mm-dd)
 
 New Features in this release:
+
 - The conflict mode is now the default state of all scripts, meaning every script will be checked on upload if it has been changed on server.
+
+- Creating categories from folders and folders from categories is supported (but only available with DOCUMENTS #8041 or higher). ([#40](https://github.com/otris/vscode-janus-debug/issues/40)
 
 Following bugs have been addressed in this release:
 
@@ -13,6 +16,7 @@ Following bugs have been addressed in this release:
 ### 0.0.10 (2017-08-22)
 
 New Features in this release:
+
  - Users can now use keyboard shortcuts for uploading, running, uploading and running, and uploading from ts to js ([#84](https://github.com/otris/vscode-janus-debug/issues/84)).
 
  - The command `Upload Scripts From Folder` will upload scripts from folder and all subfolders ([#72](https://github.com/otris/vscode-janus-debug/issues/72)).
