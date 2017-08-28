@@ -195,22 +195,20 @@ function startServerConsole(launchJson: string, loginData: nodeDoc.LoginData) {
 
 export function activate(context: vscode.ExtensionContext): void {
 
+    const isFolderOpen: boolean = vscode.workspace !== undefined;
+
     // set up file logging
     const extensionLoggerConf = getExtensionLogPath();
     if (extensionLoggerConf) {
         Logger.config = extensionLoggerConf;
     }
 
-    const isFolderOpen: boolean = vscode.workspace !== undefined;
-    let launchJson = '';
-
-    // login data
+    // Create login data
     const loginData: nodeDoc.LoginData = new nodeDoc.LoginData();
     context.subscriptions.push(loginData);
-
-    // set additional properties for login data
     loginData.getLoginData = login.createLoginData;
     loginData.askForPasswordStr = '${command:extension.vscode-janus-debug.askForPassword}';
+    let launchJson = '';
     if (vscode.workspace && vscode.workspace.rootPath) {
         launchJson = path.join(vscode.workspace.rootPath, '.vscode', 'launch.json');
         loginData.loadConfigFile(launchJson);
@@ -220,14 +218,21 @@ export function activate(context: vscode.ExtensionContext): void {
 
     ipcServer = new VSCodeExtensionIPC();
 
+    // Output channel for run script
+    runScriptChannel = vscode.window.createOutputChannel('Script Console');
+
+
+    // Register commands
+
+
     context.subscriptions.push(
-        vscode.commands.registerCommand('extension.vscode-janus-debug.askForPassword', () => {
-            return vscode.window.showInputBox({
-                prompt: 'Please enter the password',
-                password: true,
-                ignoreFocusOut: true,
-            });
-        }));
+    vscode.commands.registerCommand('extension.vscode-janus-debug.askForPassword', () => {
+        return vscode.window.showInputBox({
+            prompt: 'Please enter the password',
+            password: true,
+            ignoreFocusOut: true,
+        });
+    }));
 
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.provideInitialConfigurations', () => {
@@ -235,21 +240,11 @@ export function activate(context: vscode.ExtensionContext): void {
         }));
 
 
-
-
-    // output channel for run script...
-    runScriptChannel = vscode.window.createOutputChannel('Script Console');
-
-    // register commands...
-    // this commands can activate the extension
-    // so they are actually available immediately
-
-
     // Upload script
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.uploadScript', async (param) => {
 
-            // show warning if server is too old
+            // show warning if server is too old for using encrypted scripts
             await commands.checkDecryptionVersion(loginData);
 
             let fsPath;
@@ -380,14 +375,14 @@ export function activate(context: vscode.ExtensionContext): void {
         })
     );
 
+    // Install intellisense files
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.installIntellisenseFiles', () => {
             commands.installIntellisenseFiles();
         })
     );
 
-    // todo...
-    // View documentation
+    // TODO: View documentation
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.viewDocumentation', (file) => {
             // file is not used, use active editor...
