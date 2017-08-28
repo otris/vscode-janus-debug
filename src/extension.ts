@@ -16,7 +16,6 @@ import { ServerConsole } from './serverConsole';
 import stripJsonComments = require('strip-json-comments');
 import { getVersion } from './version';
 
-const DOCUMENTS_SETTINGS = 'documents-scripting-settings.json';
 
 let ipcServer: VSCodeExtensionIPC;
 let launchJsonWatcher: vscode.FileSystemWatcher;
@@ -405,9 +404,10 @@ export function activate(context: vscode.ExtensionContext): void {
     );
 
 
-    // Some features only available in workspace
     if (isFolderOpen && vscode.workspace.rootPath) {
-        const activationFile = path.join(vscode.workspace.rootPath, DOCUMENTS_SETTINGS);
+
+        // create activation file if it does not exist
+        const activationFile = path.join(vscode.workspace.rootPath, helpers.CACHE_FILE);
         try {
             fs.readFileSync(activationFile);
         } catch (err) {
@@ -430,6 +430,31 @@ export function activate(context: vscode.ExtensionContext): void {
                 }
             });
             context.subscriptions.push(disposableOnSave);
+        }
+    }
+
+
+
+    // show warnings for deprecated files
+    if (vscode.workspace && vscode.workspace.rootPath) {
+        let settingsfile;
+        try {
+            settingsfile = fs.readFileSync(path.join(vscode.workspace.rootPath, 'documents-scripting-settings.json'));
+        } catch (err) {
+            settingsfile = undefined;
+        }
+        let cachefile;
+        try {
+            cachefile = fs.readFileSync(path.join(vscode.workspace.rootPath, '.documents-scripting-cache'));
+        } catch (err) {
+            cachefile = undefined;
+        }
+        if (settingsfile && cachefile) {
+            vscode.window.showWarningMessage('documents-scripting-settings.json and .documents-scripting-cache are deprecated and can be deleted');
+        } else if (settingsfile) {
+            vscode.window.showWarningMessage('documents-scripting-settings.json is deprecated and can be deleted');
+        } else if (cachefile) {
+            vscode.window.showWarningMessage('.documents-scripting-cache is deprecated and can be deleted');
         }
     }
 

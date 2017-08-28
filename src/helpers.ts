@@ -21,7 +21,7 @@ const FORCE_UPLOAD_ALL = 'Yes (remember my answer for this operation)';
 const FORCE_UPLOAD_NONE = 'No (remember my answer for this operation)';
 const NO_CONFLICT = 'No conflict';
 
-const CACHE_FILE = '.documents-scripting-cache';
+export const CACHE_FILE = '.vscode-janus-debug';
 const SCRIPT_NAMES_FILE = '.documents-script-names';
 
 export enum autoUploadAnswer {
@@ -54,13 +54,18 @@ export function extend<T, U>(target: T, source: U): T & U {
  */
 export async function askForUpload(script: nodeDoc.scriptT, all: boolean, none: boolean, singlescript?: boolean): Promise<string> {
     return new Promise<string>((resolve, reject) => {
-        if (script.conflict) {
+        if (script.conflict || !script.lastSyncHash) {
             if (all) {
                 resolve(FORCE_UPLOAD_ALL);
             } else if (none) {
                 resolve(FORCE_UPLOAD_NONE);
             } else {
-                const question = script.name + ' has been changed on server, force upload?';
+                let question;
+                if (script.lastSyncHash) {
+                    question = `${script.name} has been changed on server, upload anyway?`;
+                } else {
+                    question = `${script.name} might have been changed on server, upload anyway?`;
+                }
                 let answers = [FORCE_UPLOAD_YES, FORCE_UPLOAD_NO];
                 if (!singlescript) {
                     answers = [FORCE_UPLOAD_YES, FORCE_UPLOAD_NO, FORCE_UPLOAD_ALL, FORCE_UPLOAD_NONE];
