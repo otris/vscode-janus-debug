@@ -173,7 +173,7 @@ export class JanusDebugSession extends DebugSession {
                 if (stopOnEntry) {
                     scriptSource = 'debugger;' + scriptSource;
                 }
-                sdsConnection.runScriptOnServer(scriptSource).then(returnedString => {
+                sdsConnection.runScriptOnServer(scriptSource, args.script).then(returnedString => {
 
                     // Important: this block is reached after the script returned and the debug session has ended. So
                     // the entire environment of this block might not even exist anymore!
