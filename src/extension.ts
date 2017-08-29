@@ -136,60 +136,65 @@ function disconnectServerConsole(console: ServerConsole): void {
 }
 
 
-function startServerConsole(launchJson: string, loginData: nodeDoc.LoginData) {
-    if (vscode.workspace !== undefined) {
-        const outputChannel = vscode.window.createOutputChannel('Server Console');
+function initServerConsole(): Promise<boolean> {
+    return new Promise<boolean>((resolve, reject) => {
+        if (vscode.workspace !== undefined) {
+            const outputChannel = vscode.window.createOutputChannel('Server Console');
 
-        outputChannel.appendLine('Extension activated');
-        getVersion().then(ver => {
-            outputChannel.appendLine("Version: " + ver.toString());
+            outputChannel.appendLine('Extension activated');
+            getVersion().then(ver => {
+                outputChannel.appendLine("Version: " + ver.toString());
 
-        }).catch(err => {
-            outputChannel.appendLine('getVersion failed' + err);
+            }).catch(err => {
+                outputChannel.appendLine('getVersion failed' + err);
 
-        }).then(() => {
-            outputChannel.show();
-            serverConsole = new ServerConsole(outputChannel);
+            }).then(() => {
+                outputChannel.show();
+                serverConsole = new ServerConsole(outputChannel);
 
-            const extensionSettings = vscode.workspace.getConfiguration('vscode-janus-debug');
-            const autoConnectEnabled = extensionSettings.get('serverConsole.autoConnect', true);
-            if (autoConnectEnabled) {
-                reconnectServerConsole(serverConsole);
-            }
-
-            launchJsonWatcher = vscode.workspace.createFileSystemWatcher('**/launch.json', false, false, false);
-            launchJsonWatcher.onDidCreate((file) => {
+                const extensionSettings = vscode.workspace.getConfiguration('vscode-janus-debug');
+                const autoConnectEnabled = extensionSettings.get('serverConsole.autoConnect', true);
                 if (autoConnectEnabled) {
-                    outputChannel.appendLine('launch.json created; trying to connect...');
                     reconnectServerConsole(serverConsole);
+                    return resolve(true);
                 }
-                if (file.fsPath === launchJson) {
-                    loginData.loadConfigFile(launchJson);
-                    commands.setDecryptionVersionChecked(false);
-                }
+                return resolve(false);
             });
+        }
+    });
+}
 
-            launchJsonWatcher.onDidChange((file) => {
-                if (autoConnectEnabled) {
-                    outputChannel.appendLine('launch.json changed; trying to (re)connect...');
-                    reconnectServerConsole(serverConsole);
-                }
-                if (file.fsPath === launchJson) {
-                    loginData.loadConfigFile(launchJson);
-                    commands.setDecryptionVersionChecked(false);
-                }
-            });
+function watchLaunchJson(autoConnectEnabled: boolean, loginData: nodeDoc.LoginData) {
+    launchJsonWatcher = vscode.workspace.createFileSystemWatcher('**/launch.json', false, false, false);
 
-            launchJsonWatcher.onDidDelete((file) => {
-                if (autoConnectEnabled) {
-                    disconnectServerConsole(serverConsole);
-                }
-                if (file.fsPath === launchJson) {
-                    loginData.resetLoginData();
-                }
-            });
-        });
-    }
+    launchJsonWatcher.onDidCreate((file) => {
+        if (autoConnectEnabled && serverConsole) {
+            serverConsole.outputChannel.appendLine('launch.json created; trying to connect...');
+            reconnectServerConsole(serverConsole);
+        }
+        if (file) {
+            loginData.loadConfigFile(file.fsPath);
+        }
+        commands.setDecryptionVersionChecked(false);
+    });
+
+    launchJsonWatcher.onDidChange((file) => {
+        if (autoConnectEnabled && serverConsole) {
+            serverConsole.outputChannel.appendLine('launch.json changed; trying to (re)connect...');
+            reconnectServerConsole(serverConsole);
+        }
+        if (file) {
+            loginData.loadConfigFile(file.fsPath);
+        }
+        commands.setDecryptionVersionChecked(false);
+    });
+
+    launchJsonWatcher.onDidDelete((file) => {
+        if (autoConnectEnabled) {
+            disconnectServerConsole(serverConsole);
+        }
+        loginData.resetLoginData();
+    });
 }
 
 export function activate(context: vscode.ExtensionContext): void {
@@ -213,7 +218,9 @@ export function activate(context: vscode.ExtensionContext): void {
         loginData.loadConfigFile(launchJson);
     }
 
-    startServerConsole(launchJson, loginData);
+    initServerConsole().then((autoConnect) => {
+        watchLaunchJson(autoConnect, loginData);
+    });
 
     ipcServer = new VSCodeExtensionIPC();
 
