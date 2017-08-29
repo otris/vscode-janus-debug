@@ -22,6 +22,11 @@ let launchJsonWatcher: vscode.FileSystemWatcher;
 let serverConsole: ServerConsole;
 let runScriptChannel: vscode.OutputChannel;
 let disposableOnSave: vscode.Disposable;
+/**
+ * Flag in settings.json (vscode-janus-debug.serverConsole.autoConnect)
+ * Note: should be considered in a settings.json watcher.
+ */
+let autoConnectServerConsole: boolean;
 
 
 
@@ -136,10 +141,18 @@ function disconnectServerConsole(console: ServerConsole): void {
 }
 
 
-function initServerConsole(): Promise<boolean> {
-    return new Promise<boolean>((resolve, reject) => {
+/**
+ * The flag vscode-janus-debug.serverConsole.autoConnect is read
+ * once on startup.
+ */
+function readAutoConnectServerConsole() {
+    const extensionSettings = vscode.workspace.getConfiguration('vscode-janus-debug');
+    autoConnectServerConsole = extensionSettings.get('serverConsole.autoConnect', true);
+}
+
+function printVersion(outputChannel: vscode.OutputChannel): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
         if (vscode.workspace !== undefined) {
-            const outputChannel = vscode.window.createOutputChannel('Server Console');
 
             outputChannel.appendLine('Extension activated');
             getVersion().then(ver => {
@@ -149,27 +162,25 @@ function initServerConsole(): Promise<boolean> {
                 outputChannel.appendLine('getVersion failed' + err);
 
             }).then(() => {
-                outputChannel.show();
-                serverConsole = new ServerConsole(outputChannel);
-
-                const extensionSettings = vscode.workspace.getConfiguration('vscode-janus-debug');
-                const autoConnectEnabled = extensionSettings.get('serverConsole.autoConnect', true);
-                if (autoConnectEnabled) {
-                    reconnectServerConsole(serverConsole);
-                    return resolve(true);
-                }
-                return resolve(false);
+                resolve();
             });
         }
     });
 }
 
-function watchLaunchJson(autoConnectEnabled: boolean, loginData: nodeDoc.LoginData) {
+function initServerConsole(outputChannel: vscode.OutputChannel) {
+    serverConsole = new ServerConsole(outputChannel);
+    if (autoConnectServerConsole) {
+        reconnectServerConsole(serverConsole);
+    }
+}
+
+function initLaunchJsonWatcher(outputChannel: vscode.OutputChannel, loginData: nodeDoc.LoginData) {
     launchJsonWatcher = vscode.workspace.createFileSystemWatcher('**/launch.json', false, false, false);
 
     launchJsonWatcher.onDidCreate((file) => {
-        if (autoConnectEnabled && serverConsole) {
-            serverConsole.outputChannel.appendLine('launch.json created; trying to connect...');
+        if (autoConnectServerConsole && serverConsole) {
+            outputChannel.appendLine('launch.json created; trying to connect...');
             reconnectServerConsole(serverConsole);
         }
         if (file) {
@@ -179,8 +190,8 @@ function watchLaunchJson(autoConnectEnabled: boolean, loginData: nodeDoc.LoginDa
     });
 
     launchJsonWatcher.onDidChange((file) => {
-        if (autoConnectEnabled && serverConsole) {
-            serverConsole.outputChannel.appendLine('launch.json changed; trying to (re)connect...');
+        if (autoConnectServerConsole && serverConsole) {
+            outputChannel.appendLine('launch.json changed; trying to (re)connect...');
             reconnectServerConsole(serverConsole);
         }
         if (file) {
@@ -190,7 +201,7 @@ function watchLaunchJson(autoConnectEnabled: boolean, loginData: nodeDoc.LoginDa
     });
 
     launchJsonWatcher.onDidDelete((file) => {
-        if (autoConnectEnabled) {
+        if (autoConnectServerConsole && serverConsole) {
             disconnectServerConsole(serverConsole);
         }
         loginData.resetLoginData();
@@ -218,14 +229,24 @@ export function activate(context: vscode.ExtensionContext): void {
         loginData.loadConfigFile(launchJson);
     }
 
-    initServerConsole().then((autoConnect) => {
-        watchLaunchJson(autoConnect, loginData);
+    // Create output channels
+    // output channel for server console not global because serverConsole is global
+    const outputChannel = vscode.window.createOutputChannel('Server Console');
+    outputChannel.show();
+    runScriptChannel = vscode.window.createOutputChannel('Script Console');
+    runScriptChannel.show();
+
+    // Initialise server console and launch.json watcher.
+    // The launch.json watcher has effects on the server console so it's
+    // important to call it in the 'then()' part.
+    readAutoConnectServerConsole();
+    printVersion(outputChannel).then(() => {
+        initServerConsole(outputChannel);
+        initLaunchJsonWatcher(outputChannel, loginData);
     });
 
     ipcServer = new VSCodeExtensionIPC();
 
-    // Output channel for run script
-    runScriptChannel = vscode.window.createOutputChannel('Script Console');
 
 
     // Register commands

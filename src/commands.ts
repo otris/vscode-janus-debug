@@ -159,7 +159,6 @@ export function uploadRunScript(loginData: nodeDoc.LoginData, param: any, myOutp
         return nodeDoc.sdsSession(loginData, [script], nodeDoc.runScript).then((value) => {
             script = value[0];
             myOutputChannel.append(script.output + os.EOL);
-            myOutputChannel.show();
         });
 
     }).catch((reason) => {
@@ -274,7 +273,6 @@ export function runScript(loginData: nodeDoc.LoginData, param: any, myOutputChan
         return nodeDoc.sdsSession(loginData, [script], nodeDoc.runScript).then((value) => {
             script = value[0];
             myOutputChannel.append(script.output + os.EOL);
-            myOutputChannel.show();
         });
     }).catch((reason) => {
         vscode.window.showErrorMessage('run script failed: ' + reason);
