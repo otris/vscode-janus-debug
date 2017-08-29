@@ -4,6 +4,7 @@ import * as assert from 'assert';
 import { connect, Socket } from 'net';
 import { Logger } from 'node-file-log';
 import { crypt_md5, SDSConnection } from 'node-sds';
+import {v4 as uuidV4} from 'uuid';
 import { ContinuedEvent, DebugSession, InitializedEvent, OutputEvent, StoppedEvent, TerminatedEvent } from 'vscode-debugadapter';
 import { DebugProtocol } from 'vscode-debugprotocol';
 import { AttachRequestArguments, CommonArguments, LaunchRequestArguments } from './config';
@@ -125,6 +126,8 @@ export class JanusDebugSession extends DebugSession {
         const password = args.password.length > 0 ? crypt_md5(args.password, 'o3') : '';
         const stopOnEntry = args.stopOnEntry || true;
 
+        let scriptIdentifier: string | undefined;
+
         if (!args.script || typeof args.script !== 'string' || args.script.length === 0) {
             log.error(`launchRequest failed: no script specified by user`);
             response.success = false;
@@ -173,7 +176,10 @@ export class JanusDebugSession extends DebugSession {
                 if (stopOnEntry) {
                     scriptSource = 'debugger;' + scriptSource;
                 }
-                sdsConnection.runScriptOnServer(scriptSource, args.script).then(returnedString => {
+
+                // fill identifier
+                scriptIdentifier = uuidV4();
+                sdsConnection.runScriptOnServer(scriptSource, scriptIdentifier).then(returnedString => {
 
                     // Important: this block is reached after the script returned and the debug session has ended. So
                     // the entire environment of this block might not even exist anymore!
@@ -214,49 +220,19 @@ export class JanusDebugSession extends DebugSession {
                     const timeout = new Promise<void>((resolve, reject) => {
                         setTimeout(reject, args.timeout || 6000, "Operation timed out");
                     });
-                    const request = connection.sendRequest(new Command('get_all_source_urls'), (res: Response): Promise<void> => {
-
-                        return new Promise<void>((resolve, reject) => {
-
-                            assert.notEqual(res, undefined);
-
-                            if (res.subtype === 'all_source_urls') {
-                                log.info(`launchRequest: ...looks good. ${JSON.stringify(res.content.urls)}`);
-                                assert.ok(Array.isArray(res.content.urls));
-
-                                // FIXME: this is a hack. Either the remote script's url is 'JANUS (otris privacy)
-                                // or the only remote script that is currently executed. We need a reliable way
-                                // to identify the remote script we start with runScriptOnServer
-
-                                if (res.content.urls.length === 1) {
-                                    this.sourceMap.addMapping(source, res.content.urls[0]);
-                                    resolve();
-                                } else if (res.content.urls.indexOf('JANUS') !== -1) {
-                                    this.sourceMap.addMapping(source, 'JANUS');
-                                    resolve();
-                                } else {
-                                    log.error(`launchRequest: could not find remote script that was just launched`);
-                                    reject(`Oops. Could not attach to script`);
-                                }
-                            } else {
-                                log.error(`launchRequest: error while connecting to ${host}:${debuggerPort}`);
-                                reject(`Error while connecting to ${host}:${debuggerPort}`);
-                            }
-                        });
-                    });
-                    Promise.race([request, timeout]).then(() => {
-
+                    if (scriptIdentifier) {
+                        this.sourceMap.addMapping(source, scriptIdentifier);
                         log.debug(`sending InitializedEvent`);
                         this.sendEvent(new InitializedEvent());
                         this.debugConsole(`Debugger listening on ${host}:${debuggerPort}`);
                         this.sendResponse(response);
-
-                    }).catch(reason => {
+                    } else {
+                        const reason = "script Identifier was not defined";
                         log.error(`launchRequest: ...failed. ${reason}`);
                         response.success = false;
                         response.message = `Could not attach to remote process: ${reason}`;
                         this.sendResponse(response);
-                    });
+                    }
                 });
 
                 debuggerSocket.on('close', (hadError: boolean) => {
