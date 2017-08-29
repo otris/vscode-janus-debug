@@ -110,7 +110,7 @@ export class ServerConsole {
 
                         const pollingInterval = config.refreshRate || 3000;
                         let taskIsRunning = false;
-                        setInterval(async () => {
+                        const timer = setInterval(async () => {
                             if (!taskIsRunning) {
                                 taskIsRunning = true;
                                 await conn.getLogMessages(this.lastSeen).then(messages => {
@@ -119,6 +119,8 @@ export class ServerConsole {
                                     }
                                     this.lastSeen = messages.lastSeen;
 
+                                }).catch(() => {
+                                    clearInterval(timer);
                                 }).then(() => {
                                     taskIsRunning = false;
                                 });
