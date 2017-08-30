@@ -152,13 +152,14 @@ export function uploadScriptOnSave(loginData: nodeDoc.LoginData, fileName: strin
 /**
  * Upload and run script
  */
-export function uploadRunScript(loginData: nodeDoc.LoginData, param: any, myOutputChannel: vscode.OutputChannel) {
+export function uploadRunScript(loginData: nodeDoc.LoginData, param: any, runScriptChannel: vscode.OutputChannel) {
     _uploadScript(loginData, param).then((scriptName) => {
 
         let script: nodeDoc.scriptT = new nodeDoc.scriptT(scriptName);
         return nodeDoc.sdsSession(loginData, [script], nodeDoc.runScript).then((value) => {
             script = value[0];
-            myOutputChannel.append(script.output + os.EOL);
+            runScriptChannel.append(script.output + os.EOL);
+            runScriptChannel.show();
         });
 
     }).catch((reason) => {
@@ -267,12 +268,13 @@ export function downloadAll(loginData: nodeDoc.LoginData, _param: any) {
 /**
  * Run script
  */
-export function runScript(loginData: nodeDoc.LoginData, param: any, myOutputChannel: vscode.OutputChannel) {
+export function runScript(loginData: nodeDoc.LoginData, param: any, runScriptChannel: vscode.OutputChannel) {
     helpers.ensureScriptName(param).then((scriptname) => {
         let script: nodeDoc.scriptT = new nodeDoc.scriptT(scriptname);
         return nodeDoc.sdsSession(loginData, [script], nodeDoc.runScript).then((value) => {
             script = value[0];
-            myOutputChannel.append(script.output + os.EOL);
+            runScriptChannel.append(script.output + os.EOL);
+            runScriptChannel.show();
         });
     }).catch((reason) => {
         vscode.window.showErrorMessage('run script failed: ' + reason);

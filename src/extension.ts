@@ -20,7 +20,7 @@ import { getVersion } from './version';
 let ipcServer: VSCodeExtensionIPC;
 let launchJsonWatcher: vscode.FileSystemWatcher;
 let serverConsole: ServerConsole;
-let runScriptChannel: vscode.OutputChannel;
+let scriptChannel: vscode.OutputChannel;
 let disposableOnSave: vscode.Disposable;
 /**
  * Flag in settings.json (vscode-janus-debug.serverConsole.autoConnect)
@@ -162,6 +162,7 @@ function printVersion(outputChannel: vscode.OutputChannel): Promise<void> {
                 outputChannel.appendLine('getVersion failed' + err);
 
             }).then(() => {
+                outputChannel.show();
                 resolve();
             });
         }
@@ -231,18 +232,16 @@ export function activate(context: vscode.ExtensionContext): void {
 
     // Create output channels
     // output channel for server console not global because serverConsole is global
-    const outputChannel = vscode.window.createOutputChannel('Server Console');
-    outputChannel.show();
-    runScriptChannel = vscode.window.createOutputChannel('Script Console');
-    runScriptChannel.show();
+    const serverChannel = vscode.window.createOutputChannel('Server Console');
+    scriptChannel = vscode.window.createOutputChannel('Script Console');
 
     // Initialise server console and launch.json watcher.
     // The launch.json watcher has effects on the server console so it's
     // important to call it in the 'then()' part.
     readAutoConnectServerConsole();
-    printVersion(outputChannel).then(() => {
-        initServerConsole(outputChannel);
-        initLaunchJsonWatcher(outputChannel, loginData);
+    printVersion(serverChannel).then(() => {
+        initServerConsole(serverChannel);
+        initLaunchJsonWatcher(serverChannel, loginData);
     });
 
     ipcServer = new VSCodeExtensionIPC();
@@ -351,7 +350,7 @@ export function activate(context: vscode.ExtensionContext): void {
             if (!fsPath && vscode.window.activeTextEditor) {
                 fsPath = vscode.window.activeTextEditor.document.fileName;
             }
-            commands.runScript(loginData, fsPath, runScriptChannel);
+            commands.runScript(loginData, fsPath, scriptChannel);
         })
     );
 
@@ -369,7 +368,7 @@ export function activate(context: vscode.ExtensionContext): void {
             if (!fsPath && vscode.window.activeTextEditor) {
                 fsPath = vscode.window.activeTextEditor.document.fileName;
             }
-            await commands.uploadRunScript(loginData, fsPath, runScriptChannel);
+            await commands.uploadRunScript(loginData, fsPath, scriptChannel);
             helpers.showWarning(loginData);
         })
     );
@@ -494,7 +493,7 @@ export function deactivate(): undefined {
     launchJsonWatcher.dispose();
     serverConsole.hide();
     serverConsole.dispose();
-    runScriptChannel.hide();
-    runScriptChannel.dispose();
+    scriptChannel.hide();
+    scriptChannel.dispose();
     return;
 }
