@@ -505,7 +505,7 @@ declare namespace Documents {
 }
 
 declare class ArchiveFileResultset implements Documents.ArchiveFileResultset {
-	constructor();
+	constructor(archiveKey: string, filter: string, sortOrder: string, hitlist: string, unlimitedHits?: boolean);
 	ArchiveFileResultset(archiveKey: string, filter: string, sortOrder: string, hitlist: string, unlimitedHits?: boolean): Documents.ArchiveFileResultset;
 	first(): Documents.DocFile;
 	getLastError(): string;
@@ -2099,9 +2099,9 @@ declare namespace Documents {
 
 declare class DBConnection implements Documents.DBConnection {
 	close(): boolean;
-	constructor();
-	DBConnection(connType: string, connString: string, user: string, password: string): Documents.DBConnection;
 	constructor(connType: string, connString: string, user: string, password: string);
+	DBConnection(connType: string, connString: string, user: string, password: string): Documents.DBConnection;
+	constructor();
 	DBConnection(): Documents.DBConnection;
 	executeQuery(sqlStatement: string): Documents.DBResultSet;
 	executeQueryUC(sqlStatement: string): Documents.DBResultSet;
@@ -3879,7 +3879,7 @@ declare class DOMDocument implements Documents.DOMDocument {
 	createComment(data: string): Documents.DOMCharacterData;
 	createElement(tagName: string): Documents.DOMElement;
 	createTextNode(data: string): Documents.DOMCharacterData;
-	constructor(data: string);
+	constructor(rootElementName: string);
 	DOMDocument(rootElementName: string): any;
 	getElementsByTagName(tagName: string): Documents.DOMNodeList;
 }
@@ -4356,7 +4356,7 @@ declare namespace Documents {
 }
 
 declare class DOMParser implements Documents.DOMParser {
-	constructor(index: number);
+	constructor();
 	DOMParser(): any;
 	getDocument(): Documents.DOMDocument;
 	getLastError(): string;
@@ -4530,7 +4530,7 @@ declare namespace Documents {
 
 declare class Email implements Documents.Email {
 	addAttachment(attachment: any, sourceFilePath: string): boolean;
-	constructor(attachment: any, sourceFilePath: string);
+	constructor(to: string, from: string, subject: string, body: string, cc: string, bcc: string, sendingTime: Date, deleteAfterSending: boolean);
 	Email(to: string, from: string, subject: string, body: string, cc: string, bcc: string, sendingTime: Date, deleteAfterSending: boolean): Documents.Email;
 	getLastError(): string;
 	send(): boolean;
@@ -4669,7 +4669,7 @@ declare class File implements Documents.File {
 	close(): boolean;
 	eof(): boolean;
 	error(): string;
-	constructor();
+	constructor(pathFileName: string, mode: string);
 	File(pathFileName: string, mode: string): Documents.File;
 	ok(): boolean;
 	read(charsNo: number): string;
@@ -5594,7 +5594,7 @@ declare class HitResultset implements Documents.HitResultset {
 	getColumnNames(local?: boolean): Array<any>;
 	getLastError(): string;
 	getLastErrorCode(): number;
-	constructor();
+	constructor(searchResources: any, filter: string, sortOrder: string, hitlist: any, pageSize?: number, unlimitedHits?: boolean, fullColumnLength?: boolean, withBlobInfo?: boolean);
 	HitResultset(searchResources: any, filter: string, sortOrder: string, hitlist: any, pageSize?: number, unlimitedHits?: boolean, fullColumnLength?: boolean, withBlobInfo?: boolean): Documents.HitResultset;
 	next(): Documents.DocHit;
 	size(): number;
@@ -6100,7 +6100,7 @@ declare class ScriptCall implements Documents.ScriptCall {
 	getReturnValue(): string;
 	isRunning(): boolean;
 	launch(): boolean;
-	constructor();
+	constructor(systemUser: any, scriptName: string, waitable: boolean);
 	ScriptCall(systemUser: any, scriptName: string, waitable: boolean): Documents.ScriptCall;
 	setDocFile(docFile: Documents.DocFile): boolean;
 	setDocument(doc: Documents.Document): boolean;
@@ -6914,7 +6914,7 @@ declare class UserAction implements Documents.UserAction {
 	setFileTypeForNewFile(fileType: string): boolean;
 	setPortalScript(scriptName: string): boolean;
 	setPosition(position: number): boolean;
-	constructor(position: number);
+	constructor(name: string, label?: string, widget?: string, type?: string, scope?: string);
 	UserAction(name: string, label?: string, widget?: string, type?: string, scope?: string): Documents.UserAction;
 }
 
@@ -8164,7 +8164,7 @@ declare class XMLHTTPRequest implements Documents.XMLHTTPRequest {
 	getResponseHeader(name: string): string;
 	open(method: string, url: string, async?: boolean, user?: string, passwd?: string): boolean;
 	send(content?: string): boolean;
-	constructor(content?: string);
+	constructor(proxy?: string, proxyPort?: number, proxyUser?: string, proxyPasswd?: string);
 	XMLHTTPRequest(proxy?: string, proxyPort?: number, proxyUser?: string, proxyPasswd?: string): Documents.XMLHTTPRequest;
 }
 
