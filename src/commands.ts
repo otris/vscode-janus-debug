@@ -502,6 +502,26 @@ export function uploadJSFromTS(loginData: nodeDoc.LoginData, textDocument: vscod
 }
 
 
+
+function getJsconfigJsonString() {
+    // "compilerOptions": {
+    //    "noLib": true
+    //  }
+    const compilerOptions = {
+        noLib: true
+    };
+
+    const compilerOptionsJ = JSON.stringify(compilerOptions, null, '\t').split('\n').map(line => '\t' + line).join('\n').trim();
+    const jsconfigJson = [
+        '{',
+        '\t"compilerOptions": ' + compilerOptionsJ,
+        '}',
+    ].join('\n');
+
+    return jsconfigJson;
+}
+
+
 export function installIntellisenseFiles() {
     const extension = vscode.extensions.getExtension('otris-software.vscode-janus-debug');
     if (extension && vscode.workspace && vscode.workspace.rootPath) {
@@ -528,12 +548,17 @@ export function installIntellisenseFiles() {
         }
 
         // create empty jsconfig.json
-        const jsconfig = path.join(vscode.workspace.rootPath, 'jsconfig.json');
+        const jsconfigPath = path.join(vscode.workspace.rootPath, 'jsconfig.json');
         try {
-            fs.readFileSync(jsconfig);
+            fs.readFileSync(jsconfigPath);
         } catch (err) {
             if (err.code === 'ENOENT') {
-                fs.writeFileSync(jsconfig, '');
+                const jsconfigContent = getJsconfigJsonString();
+                try {
+                    fs.writeFileSync(jsconfigPath, jsconfigContent);
+                } catch (reason) {
+                    console.log('Write jsonfig.json failed: ' + reason);
+                }
             }
         }
     }
