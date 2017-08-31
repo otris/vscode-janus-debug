@@ -9,7 +9,7 @@ import { ContinuedEvent, DebugSession, InitializedEvent, OutputEvent, StoppedEve
 import { DebugProtocol } from 'vscode-debugprotocol';
 import { AttachRequestArguments, CommonArguments, LaunchRequestArguments } from './config';
 import { DebugConnection } from './connection';
-import { ContextId } from './context';
+import { Context, ContextId } from './context';
 import { FrameMap } from './frameMap';
 import { DebugAdapterIPC } from './ipcClient';
 import { Breakpoint, Command, Response, StackFrame, Variable, variableValueToString } from './protocol';
@@ -147,9 +147,6 @@ export class JanusDebugSession extends DebugSession {
             this.sendResponse(response);
             return;
         }
-
-        const ipcClient = new DebugAdapterIPC();
-        await ipcClient.connect();
 
         const sdsSocket = connect(sdsPort, host);
         const sdsConnection = new SDSConnection(sdsSocket);
@@ -331,27 +328,21 @@ export class JanusDebugSession extends DebugSession {
 
             try {
 
-                await connection.sendRequest(new Command('get_all_source_urls'), (res: Response): Promise<void> => {
-
-                    return new Promise<void>(async (resolve, reject) => {
-
-                        assert.notEqual(res, undefined);
-
-                        if (res.subtype === 'all_source_urls') {
-                            log.info('attachRequest: ...looks good');
-                            this.sourceMap.setAllRemoteUrls(res.content.urls);
-
-                            // Here we'd show the user the available contexts with something like
-                            // await ipcClient.showContextQuickPick(res.content.urls);
-
-                            resolve();
-                        } else {
-                            log.error(`attachRequest: error while connecting to ${host}:${port}`);
-                            reject(`Error while connecting to ${host}:${port}`);
-                        }
-                    });
-                });
-
+                if (this.connection) {
+                    const ctx: Context[] = await this.connection.coordinator.getAllAvailableContexts();
+                    log.info(`available contexts: ${ctx.length}`);
+                    if (ctx.length < 1) {
+                        throw new Error("no context found to attach to");
+                    } else {
+                        const ctxNameAttach = await ipcClient.showContextQuickPick(ctx.map((mCtx) => mCtx.name));
+                        log.info(`got ${ctxNameAttach} to attach to`);
+                        const ctxAttach = ctx.filter((mCtx) => mCtx.name === ctxNameAttach)[0];
+                        log.info(`chose context ${JSON.stringify}`);
+                        ctxAttach.pause();
+                    }
+                } else {
+                    throw new Error(`not connected to a remote debugger`);
+                }
 
             } catch (err) {
                 log.error(`attachRequest: ...failed. ${err}`);
@@ -368,7 +359,9 @@ export class JanusDebugSession extends DebugSession {
             this.sendResponse(response);
         });
 
-        socket.on('close', (hadError: boolean) => {
+        socket.on('close', async (hadError: boolean) => {
+            await ipcClient.disconnect();
+
             if (hadError) {
                 log.error(`remote closed the connection due to error`);
             } else {
@@ -378,8 +371,9 @@ export class JanusDebugSession extends DebugSession {
             this.sendEvent(new TerminatedEvent());
         });
 
-        socket.on('error', (err: any) => {
+        socket.on('error', async (err: any) => {
             log.error(`failed to connect to ${host}:${port}: ${err.code}`);
+            await ipcClient.disconnect();
 
             response.success = false;
             response.message = `Failed to connect to server: ${codeToString(err.code)}`;
@@ -391,8 +385,6 @@ export class JanusDebugSession extends DebugSession {
             this.connection = undefined;
             this.sendEvent(new TerminatedEvent());
         });
-
-        await ipcClient.disconnect();
     }
 
     protected setBreakPointsRequest(response: DebugProtocol.SetBreakpointsResponse,
@@ -503,8 +495,8 @@ export class JanusDebugSession extends DebugSession {
         log.info("setExceptionBreakPointsRequest");
     }
 
-    protected configurationDoneRequest(response: DebugProtocol.ConfigurationDoneResponse,
-                                       args: DebugProtocol.ConfigurationDoneArguments): void {
+    protected async configurationDoneRequest(response: DebugProtocol.ConfigurationDoneResponse,
+                                             args: DebugProtocol.ConfigurationDoneArguments): Promise<void> {
         log.info("configurationDoneRequest");
 
         if (this.connection === undefined) {
@@ -514,8 +506,7 @@ export class JanusDebugSession extends DebugSession {
         // Only after all configuration is done it is allowed to notify the frontend about paused contexts. We do
         // this once initially for all already discovered contexts and then let an event handler do this for future
         // contexts.
-
-        const contexts = this.connection.coordinator.getAllAvailableContexts();
+        const contexts = await this.connection.coordinator.getAllAvailableContexts();
         contexts.forEach(context => {
             if (context.isStopped()) {
                 log.debug(`sending StoppedEvent('pause', ${context.id})`);
@@ -700,13 +691,13 @@ export class JanusDebugSession extends DebugSession {
         this.sendResponse(response);
     }
 
-    protected threadsRequest(response: DebugProtocol.ThreadsResponse): void {
+    protected async threadsRequest(response: DebugProtocol.ThreadsResponse): Promise<void> {
         log.info(`threadsRequest`);
 
         if (this.connection === undefined) {
             throw new Error('No connection');
         }
-        const contexts = this.connection.coordinator.getAllAvailableContexts();
+        const contexts = await this.connection.coordinator.getAllAvailableContexts();
         const threads: DebugProtocol.Thread[] = contexts.map(context => {
             return {
                 id: context.id,

@@ -72,7 +72,7 @@ suite('protocol tests', () => {
 
         test('get_available_contexts', () => {
             const cmd = new Command('get_available_contexts');
-            assert.equal(`get_available_contexts\n`, cmd.toString());
+            assert.equal(`get_available_contexts/${cmd.id}\n`, cmd.toString());
         });
 
         test('delete_all_breakpoints', () => {
