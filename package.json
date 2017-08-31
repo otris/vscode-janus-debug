@@ -284,8 +284,7 @@
         "vscode-janus-debug.categoryRoot": {
           "type": "string",
           "title": "The Root Folder For The Category Matching",
-          "default": "${workspaceRoot}/src",
-          "description": "If set, the matching between folders and categories will be created relative to this folder"
+          "description": "Subfolders of this folder will be assigned to categories (e.g. ${workspaceRoot}/src)"
         }
       }
     },
