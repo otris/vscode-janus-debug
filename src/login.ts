@@ -6,7 +6,43 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import { provideInitialConfigurations } from './config';
 
-export async function createLoginData(_loginData: nodeDoc.LoginData): Promise<void> {
+// tslint:disable-next-line:no-var-requires
+const stripJsonComments = require('strip-json-comments');
+
+
+export function loadConfigFile(login: nodeDoc.LoginData, configFile: string): boolean {
+    console.log('loadConfigFile');
+    login.configFile = configFile;
+
+    try {
+        const jsonContent = fs.readFileSync(login.configFile, 'utf8');
+        const jsonObject = JSON.parse(stripJsonComments(jsonContent));
+        const configurations = jsonObject.configurations;
+
+        if (configurations) {
+            configurations.forEach((config: any) => {
+                if (config.type === 'janus' && config.request === 'launch') {
+                    login.server = config.host;
+                    login.port = config.applicationPort;
+                    login.principal = config.principal;
+                    login.username = config.username;
+                    if (login.askForPasswordStr === config.password) {
+                        login.askForPassword = true;
+                    }
+                    login.password = config.password;
+                    login.sdsTimeout = config.sdsTimeout;
+                }
+            });
+        }
+    } catch (err) {
+        return false;
+    }
+
+    return true;
+}
+
+
+export async function getLoginData(_loginData: nodeDoc.LoginData): Promise<void> {
     return new Promise<void>(async (resolve, reject) => {
 
         try {
