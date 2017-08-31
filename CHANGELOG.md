@@ -10,6 +10,8 @@ New Features in this release:
 
 - Creating categories from folders and folders from categories is supported (but only available with DOCUMENTS #8041 or higher). ([#40](https://github.com/otris/vscode-janus-debug/issues/40)
 
+- Add ``noLib: true`` to ``compilerOptions`` part in ``jsconfig.json`` when command **Install Intellisense Files** is executed.
+
 Following bugs have been addressed in this release:
 
 
