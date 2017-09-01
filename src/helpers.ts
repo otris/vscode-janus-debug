@@ -375,7 +375,7 @@ export function readConflictModes(pscripts: nodeDoc.scriptT[]) {
 /**
  * Reads the conflict mode and hash value of any script in pscripts.
  */
-export function readHashValues(pscripts: nodeDoc.scriptT[]) {
+export function readHashValues(pscripts: nodeDoc.scriptT[], server: string) {
     if (!pscripts || 0 === pscripts.length) {
         return;
     }
@@ -419,8 +419,10 @@ export function readHashValues(pscripts: nodeDoc.scriptT[]) {
             script.conflictMode = false;
         } else {
             hashValues.forEach((value, idx) => {
-                const scriptname = value.split(':')[0];
-                if (scriptname === script.name) {
+                const scriptpart = value.split(':')[0];
+                const scriptAtServer = script.name + '@' + server;
+
+                if (scriptpart === scriptAtServer) {
                     script.lastSyncHash = hashValues[idx].split(':')[1];
                 }
             });
@@ -428,7 +430,7 @@ export function readHashValues(pscripts: nodeDoc.scriptT[]) {
     });
 }
 
-export function updateHashValues(pscripts: nodeDoc.scriptT[]) {
+export function updateHashValues(pscripts: nodeDoc.scriptT[], server: string) {
     if (!pscripts || 0 === pscripts.length) {
         return;
     }
@@ -472,16 +474,22 @@ export function updateHashValues(pscripts: nodeDoc.scriptT[]) {
     pscripts.forEach((script) => {
         // todo docu why (true !== script.conflict)
         if (0 > forceUpload.indexOf(script.name) && true !== script.conflict) {
+            const scriptAtServer = script.name + '@' + server;
+            const entry = scriptAtServer + ':' + script.lastSyncHash;
+
+            // search entry
             let updated = false;
             hashValues.forEach((value, idx) => {
-                const scriptname = value.split(':')[0];
-                if (scriptname === script.name) {
-                    hashValues[idx] = script.name + ':' + script.lastSyncHash;
+                const scriptpart = value.split(':')[0];
+                if (scriptpart === scriptAtServer) {
+                    hashValues[idx] = entry;
                     updated = true;
                 }
             });
+
+            // create new entry
             if (!updated) {
-                hashValues.push(script.name + ':' + script.lastSyncHash);
+                hashValues.push(entry);
             }
         }
     });

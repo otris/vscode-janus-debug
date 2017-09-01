@@ -73,7 +73,7 @@ function _uploadScript(loginData: nodeDoc.LoginData, param: any): Promise<string
         helpers.ensureScript(param).then((_script) => {
 
             // get information from settings and hash values
-            helpers.readHashValues([_script]);
+            helpers.readHashValues([_script], loginData.server);
             helpers.readEncryptionFlag([_script]);
             helpers.setCategories([_script]);
 
@@ -93,7 +93,7 @@ function _uploadScript(loginData: nodeDoc.LoginData, param: any): Promise<string
                         // if script had conflict and was not force-uploaded
                         // conflict is true in this script
                         if (true !== script.conflict) {
-                            helpers.updateHashValues([script]);
+                            helpers.updateHashValues([script], loginData.server);
                             resolve(script.name);
                         }
                     }).catch((reason) => {
@@ -176,7 +176,7 @@ export function uploadAll(loginData: nodeDoc.LoginData, _param: any) {
         // get all scripts from folder and subfolders and read information
         // from .vscode\settings.json
         const folderScripts = nodeDoc.getScriptsFromFolderSync(folder[0]);
-        helpers.readHashValues(folderScripts);
+        helpers.readHashValues(folderScripts, loginData.server);
         helpers.readEncryptionFlag(folderScripts);
         helpers.setCategories(folderScripts);
 
@@ -193,7 +193,7 @@ export function uploadAll(loginData: nodeDoc.LoginData, _param: any) {
                     // retscripts2 might be empty
                     const uploaded = noConflict.concat(retScripts2);
 
-                    helpers.updateHashValues(uploaded);
+                    helpers.updateHashValues(uploaded, loginData.server);
 
                     vscode.window.setStatusBarMessage('uploaded ' + uploaded.length + ' scripts from ' + folder[0]);
                 }).catch((reason) => {
@@ -220,7 +220,7 @@ export function downloadScript(loginData: nodeDoc.LoginData, param: any) {
 
             return nodeDoc.sdsSession(loginData, [script], nodeDoc.downloadScript).then((value) => {
                 script = value[0];
-                helpers.updateHashValues([script]);
+                helpers.updateHashValues([script], loginData.server);
                 vscode.window.setStatusBarMessage('downloaded: ' + script.name);
             });
         });
@@ -248,7 +248,7 @@ export function downloadAll(loginData: nodeDoc.LoginData, _param: any) {
 
             // download scripts
             return nodeDoc.sdsSession(loginData, _scripts, nodeDoc.downloadAll).then((scripts) => {
-                helpers.updateHashValues(scripts);
+                helpers.updateHashValues(scripts, loginData.server);
                 // if a script from input list has not been downloaded but the function was resolved
                 // then the script is encrypted on server
                 const encryptedScripts = _scripts.length - scripts.length;
