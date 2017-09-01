@@ -12,6 +12,8 @@ New Features in this release:
 
 - Add ``noLib: true`` to ``compilerOptions`` part in ``jsconfig.json`` when command **Install Intellisense Files** is executed.
 
+- Typescript 2.5 is now used to generate javascript.
+
 Following bugs have been addressed in this release:
 
 
