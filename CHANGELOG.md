@@ -12,6 +12,8 @@ New Features in this release:
 
 - Add ``noLib: true`` to ``compilerOptions`` part in ``jsconfig.json`` when command **Install Intellisense Files** is executed.
 
+- The version of the remote debugger is no logged in the log file of the requests. The line begins with "Determined version".
+
 Following bugs have been addressed in this release:
 
 
