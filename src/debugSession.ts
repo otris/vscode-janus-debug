@@ -69,10 +69,9 @@ export class JanusDebugSession extends DebugSession {
     protected async logServerVersion() {
         log.debug("sending sever_version Request ...");
         if (this.connection) {
-            this.connection.once('serverVersion', (response: any) => {
-                log.info(`Determined version ${response.version ? response.version : undefined} of remote debugger`);
+            await this.connection.sendRequest(new Command('server_version'), async (response: Response) => {
+                log.info(`Determined version ${response.content.version ? response.content.version : undefined} of remote debugger`);
              });
-            await this.connection.sendRequest(new Command('server_version'));
         } else {
             log.error("Connection must not be undefined to log server version.");
             throw new Error("Connection must not be undefined to log server version.");

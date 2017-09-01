@@ -222,7 +222,7 @@ export class Command {
             return 'get_available_contexts\n';
         }
         if (this.name === 'server_version') {
-            return 'server_version\n';
+            return `server_version/${this.id}\n`;
         }
         if (this.name === 'exit') {
             return 'exit\n';
