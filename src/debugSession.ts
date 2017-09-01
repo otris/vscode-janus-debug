@@ -66,6 +66,19 @@ export class JanusDebugSession extends DebugSession {
         this.variablesMap = new VariablesMap();
     }
 
+    protected async logServerVersion() {
+        log.debug("sending sever_version Request ...");
+        if (this.connection) {
+            this.connection.once('serverVersion', (response: any) => {
+                log.info(`Determined version ${response.version ? response.version : undefined} of remote debugger`);
+             });
+            await this.connection.sendRequest(new Command('server_version'));
+        } else {
+            log.error("Connection must not be undefined to log server version.");
+            throw new Error("Connection must not be undefined to log server version.");
+        }
+    }
+
     protected initializeRequest(response: DebugProtocol.InitializeResponse,
                                 args: DebugProtocol.InitializeRequestArguments): void {
         log.info("initializeRequest");
@@ -203,6 +216,8 @@ export class JanusDebugSession extends DebugSession {
 
                 const connection = new DebugConnection(debuggerSocket);
                 this.connection = connection;
+
+                this.logServerVersion();
 
                 this.connection.on('contextPaused', (ctxId: number) => {
                     this.sendEvent(new StoppedEvent("hit breakpoint", ctxId));
@@ -345,6 +360,8 @@ export class JanusDebugSession extends DebugSession {
 
         const connection = new DebugConnection(socket);
         this.connection = connection;
+
+        this.logServerVersion();
 
         socket.on('connect', async () => {
 
