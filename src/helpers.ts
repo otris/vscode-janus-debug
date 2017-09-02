@@ -291,6 +291,8 @@ export function setCategories(pscripts: nodeDoc.scriptT[]) {
 }
 
 export function setCategoryRoots(pscripts: nodeDoc.scriptT[], scriptpath: string) {
+    console.log('setCategoryRoots');
+
     if (!pscripts || 0 === pscripts.length || !vscode.workspace) {
         return;
     }
