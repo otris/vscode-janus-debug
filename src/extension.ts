@@ -316,31 +316,31 @@ export function activate(context: vscode.ExtensionContext): void {
 
     // Download script
     context.subscriptions.push(
-        vscode.commands.registerCommand('extension.vscode-janus-debug.downloadScript', (param) => {
+        vscode.commands.registerCommand('extension.vscode-janus-debug.downloadScript', async (param) => {
             let fsPath;
             if (param) {
                 fsPath = param._fsPath;
             }
-            commands.downloadScript(loginData, fsPath);
+            await commands.downloadScript(loginData, fsPath);
             helpers.showWarning(loginData);
         })
     );
 
     // Download all
     context.subscriptions.push(
-        vscode.commands.registerCommand('extension.vscode-janus-debug.downloadScriptsToFolder', (param) => {
+        vscode.commands.registerCommand('extension.vscode-janus-debug.downloadScriptsToFolder', async (param) => {
             let fsPath;
             if (param && (!vscode.workspace || vscode.workspace.rootPath !== param._fsPath)) {
                 fsPath = param._fsPath;
             }
-            commands.downloadAll(loginData, fsPath);
+            await commands.downloadAll(loginData, fsPath);
             helpers.showWarning(loginData);
         })
     );
 
     // Run script
     context.subscriptions.push(
-        vscode.commands.registerCommand('extension.vscode-janus-debug.runScript', (param) => {
+        vscode.commands.registerCommand('extension.vscode-janus-debug.runScript', async (param) => {
             let fsPath;
             if (param) {
                 fsPath = param._fsPath;
@@ -348,7 +348,8 @@ export function activate(context: vscode.ExtensionContext): void {
             if (!fsPath && vscode.window.activeTextEditor) {
                 fsPath = vscode.window.activeTextEditor.document.fileName;
             }
-            commands.runScript(loginData, fsPath, scriptChannel);
+            await commands.runScript(loginData, fsPath, scriptChannel);
+            helpers.showWarning(loginData);
         })
     );
 
