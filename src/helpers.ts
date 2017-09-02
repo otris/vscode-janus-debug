@@ -273,24 +273,24 @@ export function setCategories(pscripts: nodeDoc.scriptT[]) {
         vscode.window.showWarningMessage('Cannot read from settings.json');
         return;
     }
-    const categoryRootConf = conf.get('categoryRoot', '');
+    const categories = conf.get('categories', false);
 
-    if (typeof(categoryRootConf) === 'string' && 0 < categoryRootConf.length) {
+    if (categories) {
         pscripts.forEach((script) => {
-            if (script.path && vscode.workspace.rootPath) {
-                // normalize both paths for comparison
-                const categoryRoot = path.normalize(categoryRootConf).replace(/[$]{workspaceRoot}/, vscode.workspace.rootPath);
-                const scriptDir = path.dirname(path.normalize(script.path).replace(/[$]{workspaceRoot}/, vscode.workspace.rootPath));
-                // category root must be inside workspace and part of script path
-                if (0 === categoryRoot.indexOf(vscode.workspace.rootPath) && 0 === scriptDir.indexOf(categoryRoot) && scriptDir.length > categoryRoot.length) {
-                    script.category = scriptDir.substr(categoryRoot.length + 1);
+            if (script.path) {
+                let scriptDir = '';
+                if (fs.statSync(script.path).isDirectory()) {
+                    scriptDir = path.normalize(script.path);
+                } else if (fs.statSync(script.path).isFile()) {
+                    scriptDir = path.dirname(path.normalize(script.path));
                 }
+                script.category = scriptDir.split(path.sep).pop();
             }
         });
     }
 }
 
-export function setCategoryRoots(pscripts: nodeDoc.scriptT[]) {
+export function setCategoryRoots(pscripts: nodeDoc.scriptT[], scriptpath: string) {
     if (!pscripts || 0 === pscripts.length || !vscode.workspace) {
         return;
     }
@@ -301,16 +301,16 @@ export function setCategoryRoots(pscripts: nodeDoc.scriptT[]) {
         vscode.window.showWarningMessage('Cannot read from settings.json');
         return;
     }
-    const categoryRootConf = conf.get('categoryRoot', '');
 
-    if (typeof(categoryRootConf) === 'string' && 0 < categoryRootConf.length) {
+    // get category flag
+    const categories = conf.get('categories', false);
+
+    if (categories) {
         pscripts.forEach((script) => {
-            if (vscode.workspace.rootPath) {
-                // normalize path
-                const categoryRoot = path.normalize(categoryRootConf).replace(/[$]{workspaceRoot}/, vscode.workspace.rootPath);
-                if (0 === categoryRoot.indexOf(vscode.workspace.rootPath)) {
-                    script.categoryRoot = categoryRoot;
-                }
+            if (fs.statSync(scriptpath).isDirectory()) {
+                script.categoryRoot = path.normalize(scriptpath);
+            } else if (fs.statSync(scriptpath).isFile()) {
+                script.categoryRoot = path.dirname(path.normalize(scriptpath));
             }
         });
     }

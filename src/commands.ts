@@ -216,7 +216,7 @@ export function downloadScript(loginData: nodeDoc.LoginData, param: any) {
             let script: nodeDoc.scriptT = new nodeDoc.scriptT(scriptName, _path[0]);
 
             helpers.readConflictModes([script]);
-            helpers.setCategoryRoots([script]);
+            helpers.setCategoryRoots([script], _path[0]);
 
             return nodeDoc.sdsSession(loginData, [script], nodeDoc.downloadScript).then((value) => {
                 script = value[0];
@@ -244,7 +244,7 @@ export function downloadAll(loginData: nodeDoc.LoginData, _param: any) {
             });
 
             helpers.readConflictModes(_scripts);
-            helpers.setCategoryRoots(_scripts);
+            helpers.setCategoryRoots(_scripts, _path[0]);
 
             // download scripts
             return nodeDoc.sdsSession(loginData, _scripts, nodeDoc.downloadAll).then((scripts) => {

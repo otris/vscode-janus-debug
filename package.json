@@ -281,10 +281,10 @@
           "default": false,
           "description": "If true, scripts will be encrypted on upload"
         },
-        "vscode-janus-debug.categoryRoot": {
-          "type": "string",
-          "title": "The Root Folder For The Category Matching",
-          "description": "Subfolders of this folder will be assigned to categories (e.g. ${workspaceRoot}/src)"
+        "vscode-janus-debug.categories": {
+          "type": "boolean",
+          "title": "Script Categories",
+          "description": "Assign categories to folders."
         }
       }
     },
