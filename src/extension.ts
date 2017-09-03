@@ -460,32 +460,27 @@ export function activate(context: vscode.ExtensionContext): void {
     }
 
 
-
     // show warnings for deprecated files
     if (vscode.workspace && vscode.workspace.rootPath) {
-        let settingsfile;
         try {
-            settingsfile = fs.readFileSync(path.join(vscode.workspace.rootPath, 'documents-scripting-settings.json'));
+            fs.readFileSync(path.join(vscode.workspace.rootPath, 'documents-scripting-settings.json'));
+            vscode.window.showWarningMessage('Deprecated file "documents-scripting-settings.json" can be deleted!');
         } catch (err) {
-            settingsfile = undefined;
+            // no error
         }
-        let cachefile;
         try {
-            cachefile = fs.readFileSync(path.join(vscode.workspace.rootPath, '.documents-scripting-cache'));
+            fs.readFileSync(path.join(vscode.workspace.rootPath, '.documents-scripting-cache'));
+            vscode.window.showWarningMessage('Deprecated file ".documents-scripting-cache" can be deleted!');
         } catch (err) {
-            cachefile = undefined;
-        }
-        if (settingsfile && cachefile) {
-            vscode.window.showWarningMessage('documents-scripting-settings.json and .documents-scripting-cache are deprecated and can be deleted');
-        } else if (settingsfile) {
-            vscode.window.showWarningMessage('documents-scripting-settings.json is deprecated and can be deleted');
-        } else if (cachefile) {
-            vscode.window.showWarningMessage('.documents-scripting-cache is deprecated and can be deleted');
+            // no error
         }
     }
 
     vscode.window.setStatusBarMessage('vscode-janus-debug is active');
 }
+
+
+
 
 export function deactivate(): undefined {
     ipcServer.dispose();
