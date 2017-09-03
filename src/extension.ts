@@ -234,8 +234,7 @@ export function activate(context: vscode.ExtensionContext): void {
     scriptChannel = vscode.window.createOutputChannel('Script Console');
 
     // Initialise server console and launch.json watcher.
-    // The launch.json watcher has effects on the server console so it's
-    // important to call it in the 'then()' part.
+    // Print version before server console is initialised.
     readAutoConnectServerConsole();
     printVersion(serverChannel).then(() => {
         initServerConsole(serverChannel);
