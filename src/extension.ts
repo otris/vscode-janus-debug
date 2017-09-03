@@ -316,8 +316,8 @@ export function activate(context: vscode.ExtensionContext): void {
     // Download script
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.downloadScript', async (param) => {
-            let fsPath;
-            if (param) {
+            let fsPath: string | undefined;
+            if (param && typeof(param._fsPath) === 'string') {
                 fsPath = param._fsPath;
             }
             await commands.downloadScript(loginData, fsPath);
@@ -328,8 +328,8 @@ export function activate(context: vscode.ExtensionContext): void {
     // Download all
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.downloadScriptsToFolder', async (param) => {
-            let fsPath;
-            if (param && (!vscode.workspace || vscode.workspace.rootPath !== param._fsPath)) {
+            let fsPath: string | undefined;
+            if (param && typeof(param._fsPath) === 'string') {
                 fsPath = param._fsPath;
             }
             await commands.downloadAll(loginData, fsPath);

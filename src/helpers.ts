@@ -290,10 +290,16 @@ export function setCategories(pscripts: nodeDoc.scriptT[]) {
     }
 }
 
-export function setCategoryRoots(pscripts: nodeDoc.scriptT[], scriptpath: string) {
+export function setCategoryRoots(pscripts: nodeDoc.scriptT[], contextMenuPath: string | undefined, scriptDir: string) {
     console.log('setCategoryRoots');
 
     if (!pscripts || 0 === pscripts.length || !vscode.workspace) {
+        return;
+    }
+
+    // no folders from category should be created, if command
+    // 'downloadScript' is called on file context menu
+    if (contextMenuPath && fs.statSync(contextMenuPath).isFile()) {
         return;
     }
 
@@ -309,10 +315,10 @@ export function setCategoryRoots(pscripts: nodeDoc.scriptT[], scriptpath: string
 
     if (categories) {
         pscripts.forEach((script) => {
-            if (fs.statSync(scriptpath).isDirectory()) {
-                script.categoryRoot = path.normalize(scriptpath);
-            } else if (fs.statSync(scriptpath).isFile()) {
-                script.categoryRoot = path.dirname(path.normalize(scriptpath));
+            if (fs.statSync(scriptDir).isDirectory()) {
+                script.categoryRoot = path.normalize(scriptDir);
+            } else if (fs.statSync(scriptDir).isFile()) {
+                script.categoryRoot = path.dirname(path.normalize(scriptDir));
             }
         });
     }
@@ -611,7 +617,7 @@ export async function checkPath(fileOrFolder: string, allowCreateFolder = false)
 /**
  * Returns [folder], if fileOrFolder is a folder and [folder, file] if fileOrFolder is a file.
  */
-export async function ensurePathInput(fileOrFolder: string, allowSubDir = false, withBaseName = false): Promise<string[]> {
+export async function ensurePath(fileOrFolder: string | undefined, allowSubDir = false, withBaseName = false): Promise<string[]> {
     console.log('ensurePathInput');
 
     if (!vscode.workspace || !vscode.workspace.rootPath) {

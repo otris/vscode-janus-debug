@@ -171,7 +171,7 @@ export function uploadRunScript(loginData: nodeDoc.LoginData, param: any, runScr
  * Upload all
  */
 export function uploadAll(loginData: nodeDoc.LoginData, _param: any) {
-    helpers.ensurePathInput(_param).then((folder) => {
+    helpers.ensurePath(_param).then((folder) => {
 
         // get all scripts from folder and subfolders and read information
         // from .vscode\settings.json
@@ -209,16 +209,18 @@ export function uploadAll(loginData: nodeDoc.LoginData, _param: any) {
 
 /**
  * Download script
+ *
+ * @param contextMenuPath: If command is called from context menu, this variable should
+ * contain the corresponding path. Otherwise it should be undefined.
  */
-export function downloadScript(loginData: nodeDoc.LoginData, param: any) {
-    helpers.ensureScriptName(param).then((scriptName) => {
-        return helpers.ensurePathInput(param, true).then((_path) => {
-            let script: nodeDoc.scriptT = new nodeDoc.scriptT(scriptName, _path[0]);
+export function downloadScript(loginData: nodeDoc.LoginData, contextMenuPath: string | undefined) {
+    helpers.ensureScriptName(contextMenuPath).then((scriptName) => {
+        return helpers.ensurePath(contextMenuPath, true).then((scriptInfo) => {
+            const scriptDir: string = scriptInfo[0];
+            let script: nodeDoc.scriptT = new nodeDoc.scriptT(scriptName, scriptDir);
 
             helpers.readConflictModes([script]);
-            if (!param || fs.statSync(param).isDirectory()) {
-                helpers.setCategoryRoots([script], _path[0]);
-            }
+            helpers.setCategoryRoots([script], contextMenuPath, scriptDir);
 
             return nodeDoc.sdsSession(loginData, [script], nodeDoc.downloadScript).then((value) => {
                 script = value[0];
@@ -234,26 +236,27 @@ export function downloadScript(loginData: nodeDoc.LoginData, param: any) {
 /**
  * Download all
  */
-export function downloadAll(loginData: nodeDoc.LoginData, _param: any) {
-    helpers.ensurePathInput(_param, true).then((_path) => {
+export function downloadAll(loginData: nodeDoc.LoginData, contextMenuPath: string | undefined) {
+    helpers.ensurePath(contextMenuPath, true).then((scriptInfo) => {
+        const scriptDir: string = scriptInfo[0];
 
         // get names of scripts that should be downloaded
-        return helpers.getDownloadScriptNames(loginData).then((_scripts) => {
+        return helpers.getDownloadScriptNames(loginData).then((requestScripts) => {
 
             // set download path to scripts
-            _scripts.forEach(function(script) {
-                script.path = _path[0];
+            requestScripts.forEach(function(script) {
+                script.path = scriptDir;
             });
 
-            helpers.readConflictModes(_scripts);
-            helpers.setCategoryRoots(_scripts, _path[0]);
+            helpers.readConflictModes(requestScripts);
+            helpers.setCategoryRoots(requestScripts, contextMenuPath, scriptDir);
 
             // download scripts
-            return nodeDoc.sdsSession(loginData, _scripts, nodeDoc.downloadAll).then((scripts) => {
+            return nodeDoc.sdsSession(loginData, requestScripts, nodeDoc.downloadAll).then((scripts) => {
                 helpers.updateHashValues(scripts, loginData.server);
                 // if a script from input list has not been downloaded but the function was resolved
                 // then the script is encrypted on server
-                const encryptedScripts = _scripts.length - scripts.length;
+                const encryptedScripts = requestScripts.length - scripts.length;
                 if (1 === encryptedScripts) {
                     vscode.window.showWarningMessage(`1 encrypted script has not been downloaded`);
                 } else if (1 < encryptedScripts) {
@@ -287,7 +290,7 @@ export function runScript(loginData: nodeDoc.LoginData, param: any, runScriptCha
  * Compare script
  */
 export function compareScript(loginData: nodeDoc.LoginData, _param: any) {
-    helpers.ensurePathInput(_param, false, true).then((_path) => {
+    helpers.ensurePath(_param, false, true).then((_path) => {
         const scriptFolder = _path[0];
         const _scriptname = _path[1];
         return helpers.ensureScriptName(_scriptname).then((scriptname) => {
