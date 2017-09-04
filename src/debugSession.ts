@@ -339,6 +339,11 @@ export class JanusDebugSession extends DebugSession {
                         const ctxAttach = ctx.filter((mCtx) => mCtx.name === ctxNameAttach)[0];
                         log.info(`chose context ${JSON.stringify}`);
                         ctxAttach.pause();
+                        // looking for source
+                        const src: string = await connection.sendRequest(Command.getSource(ctxNameAttach));
+                        const lScr = new LocalSource(ctxNameAttach);
+                        lScr.sourceReference = ctxAttach.id;
+                        this.sourceMap.addMapping(lScr, ctxNameAttach);
                     }
                 } else {
                     throw new Error(`not connected to a remote debugger`);
@@ -673,7 +678,7 @@ export class JanusDebugSession extends DebugSession {
         }
     }
 
-    protected sourceRequest(response: DebugProtocol.SourceResponse, args: DebugProtocol.SourceArguments): void {
+    protected async sourceRequest(response: DebugProtocol.SourceResponse, args: DebugProtocol.SourceArguments): Promise<void> {
         if (args.sourceReference === undefined) {
             log.info('sourceRequest');
             log.warn('args.sourceReference is undefined');
@@ -682,12 +687,26 @@ export class JanusDebugSession extends DebugSession {
         }
 
         log.info(`sourceRequest for sourceReference ${args.sourceReference}`);
-        const localSource = this.sourceMap.getSourceByReference(args.sourceReference);
-        const sourceCode = 'return 42;';
-        response.body = {
-            content: sourceCode,
-            mimeType: 'text/javascript'
-        };
+        // const localSource = this.sourceMap.getSourceByReference(args.sourceReference);
+        if (!this.connection) {
+            throw new Error("connection must be defined");
+        }
+
+        try {
+            response.body = await this.connection.sendRequest(Command.getSource(
+                this.connection.coordinator.getContext(args.sourceReference).name),
+                async (res) => {
+                    log.info(`res: ${JSON.stringify(res)}, source: ${JSON.stringify(res.content.source)}`);
+                    const sourceCode = res.content.source.reduce((a: any, b: any) => a + "\n" + b);
+                    return {
+                        content: sourceCode,
+                        mimeType: 'text/javascript'
+                    };
+                });
+        } catch (err) {
+            log.error(`an error occurs: ${err}`);
+            response.success = false;
+        }
         this.sendResponse(response);
     }
 
