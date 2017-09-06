@@ -36,8 +36,8 @@ suite('context coordinator coordinates requests and responses', () => {
         eventsEmitted = [];
     });
 
-    test('has no contexts after construction', () => {
-        assert.equal(coordinator.getAllAvailableContexts().length, 0);
+    test('has no contexts after construction', async () => {
+        assert.equal((await coordinator.getAllAvailableContexts()).length, 0);
         assert.throws(() => { coordinator.getContext(23); }, 'No such context');
     });
 
@@ -61,10 +61,10 @@ suite('context coordinator coordinates requests and responses', () => {
         };
 
         test('remember all contexts in the response', done => {
-            coordinator.handleResponse(response).then(() => {
+            coordinator.handleResponse(response).then(async () => {
                 const contexts = coordinator.getAllAvailableContexts();
 
-                assert.equal(contexts.length, 2);
+                assert.equal((await contexts).length, 2);
                 assert.throws(() => { coordinator.getContext(23); }, 'No such context');
 
                 let context = coordinator.getContext(7);
@@ -129,11 +129,11 @@ suite('context coordinator coordinates requests and responses', () => {
                     type: 'info',
                 };
 
-                coordinator.handleResponse(newResponse).then(() => {
+                coordinator.handleResponse(newResponse).then(async () => {
                     assert.equal(eventsEmitted.length, 0);
 
                     const contexts = coordinator.getAllAvailableContexts();
-                    assert.equal(contexts.length, 1);
+                    assert.equal((await contexts).length, 1);
                     assert.throws(() => { coordinator.getContext(7); }, 'No such context'); // 7 got removed
                     assert.equal(8, coordinator.getContext(8).id); // 8 is still in there
                     done();

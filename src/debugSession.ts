@@ -4,11 +4,12 @@ import * as assert from 'assert';
 import { connect, Socket } from 'net';
 import { Logger } from 'node-file-log';
 import { crypt_md5, SDSConnection } from 'node-sds';
+import {v4 as uuidV4} from 'uuid';
 import { ContinuedEvent, DebugSession, InitializedEvent, OutputEvent, StoppedEvent, TerminatedEvent } from 'vscode-debugadapter';
 import { DebugProtocol } from 'vscode-debugprotocol';
 import { AttachRequestArguments, CommonArguments, LaunchRequestArguments } from './config';
 import { DebugConnection } from './connection';
-import { ContextId } from './context';
+import { Context, ContextId } from './context';
 import { FrameMap } from './frameMap';
 import { DebugAdapterIPC } from './ipcClient';
 import { Breakpoint, Command, Response, StackFrame, Variable, variableValueToString } from './protocol';
@@ -125,6 +126,8 @@ export class JanusDebugSession extends DebugSession {
         const password = args.password.length > 0 ? crypt_md5(args.password, 'o3') : '';
         const stopOnEntry = args.stopOnEntry || true;
 
+        let scriptIdentifier: string | undefined;
+
         if (!args.script || typeof args.script !== 'string' || args.script.length === 0) {
             log.error(`launchRequest failed: no script specified by user`);
             response.success = false;
@@ -144,9 +147,6 @@ export class JanusDebugSession extends DebugSession {
             this.sendResponse(response);
             return;
         }
-
-        const ipcClient = new DebugAdapterIPC();
-        await ipcClient.connect();
 
         const sdsSocket = connect(sdsPort, host);
         const sdsConnection = new SDSConnection(sdsSocket);
@@ -173,7 +173,10 @@ export class JanusDebugSession extends DebugSession {
                 if (stopOnEntry) {
                     scriptSource = 'debugger;' + scriptSource;
                 }
-                sdsConnection.runScriptOnServer(scriptSource).then(returnedString => {
+
+                // fill identifier
+                scriptIdentifier = uuidV4();
+                sdsConnection.runScriptOnServer(scriptSource, scriptIdentifier).then(returnedString => {
 
                     // Important: this block is reached after the script returned and the debug session has ended. So
                     // the entire environment of this block might not even exist anymore!
@@ -214,49 +217,19 @@ export class JanusDebugSession extends DebugSession {
                     const timeout = new Promise<void>((resolve, reject) => {
                         setTimeout(reject, args.timeout || 6000, "Operation timed out");
                     });
-                    const request = connection.sendRequest(new Command('get_all_source_urls'), (res: Response): Promise<void> => {
-
-                        return new Promise<void>((resolve, reject) => {
-
-                            assert.notEqual(res, undefined);
-
-                            if (res.subtype === 'all_source_urls') {
-                                log.info(`launchRequest: ...looks good. ${JSON.stringify(res.content.urls)}`);
-                                assert.ok(Array.isArray(res.content.urls));
-
-                                // FIXME: this is a hack. Either the remote script's url is 'JANUS (otris privacy)
-                                // or the only remote script that is currently executed. We need a reliable way
-                                // to identify the remote script we start with runScriptOnServer
-
-                                if (res.content.urls.length === 1) {
-                                    this.sourceMap.addMapping(source, res.content.urls[0]);
-                                    resolve();
-                                } else if (res.content.urls.indexOf('JANUS') !== -1) {
-                                    this.sourceMap.addMapping(source, 'JANUS');
-                                    resolve();
-                                } else {
-                                    log.error(`launchRequest: could not find remote script that was just launched`);
-                                    reject(`Oops. Could not attach to script`);
-                                }
-                            } else {
-                                log.error(`launchRequest: error while connecting to ${host}:${debuggerPort}`);
-                                reject(`Error while connecting to ${host}:${debuggerPort}`);
-                            }
-                        });
-                    });
-                    Promise.race([request, timeout]).then(() => {
-
+                    if (scriptIdentifier) {
+                        this.sourceMap.addMapping(source, scriptIdentifier);
                         log.debug(`sending InitializedEvent`);
                         this.sendEvent(new InitializedEvent());
                         this.debugConsole(`Debugger listening on ${host}:${debuggerPort}`);
                         this.sendResponse(response);
-
-                    }).catch(reason => {
+                    } else {
+                        const reason = "script Identifier was not defined";
                         log.error(`launchRequest: ...failed. ${reason}`);
                         response.success = false;
                         response.message = `Could not attach to remote process: ${reason}`;
                         this.sendResponse(response);
-                    });
+                    }
                 });
 
                 debuggerSocket.on('close', (hadError: boolean) => {
@@ -355,27 +328,26 @@ export class JanusDebugSession extends DebugSession {
 
             try {
 
-                await connection.sendRequest(new Command('get_all_source_urls'), (res: Response): Promise<void> => {
-
-                    return new Promise<void>(async (resolve, reject) => {
-
-                        assert.notEqual(res, undefined);
-
-                        if (res.subtype === 'all_source_urls') {
-                            log.info('attachRequest: ...looks good');
-                            this.sourceMap.setAllRemoteUrls(res.content.urls);
-
-                            // Here we'd show the user the available contexts with something like
-                            // await ipcClient.showContextQuickPick(res.content.urls);
-
-                            resolve();
-                        } else {
-                            log.error(`attachRequest: error while connecting to ${host}:${port}`);
-                            reject(`Error while connecting to ${host}:${port}`);
-                        }
-                    });
-                });
-
+                if (this.connection) {
+                    const ctx: Context[] = await this.connection.coordinator.getAllAvailableContexts();
+                    log.info(`available contexts: ${ctx.length}`);
+                    if (ctx.length < 1) {
+                        throw new Error("no context found to attach to");
+                    } else {
+                        const ctxNameAttach = await ipcClient.showContextQuickPick(ctx.map((mCtx) => mCtx.name));
+                        log.info(`got ${ctxNameAttach} to attach to`);
+                        const ctxAttach = ctx.filter((mCtx) => mCtx.name === ctxNameAttach)[0];
+                        log.info(`chose context ${JSON.stringify}`);
+                        ctxAttach.pause();
+                        // looking for source
+                        const src: string = await connection.sendRequest(Command.getSource(ctxNameAttach));
+                        const lScr = new LocalSource(ctxNameAttach);
+                        lScr.sourceReference = ctxAttach.id;
+                        this.sourceMap.addMapping(lScr, ctxNameAttach);
+                    }
+                } else {
+                    throw new Error(`not connected to a remote debugger`);
+                }
 
             } catch (err) {
                 log.error(`attachRequest: ...failed. ${err}`);
@@ -392,7 +364,9 @@ export class JanusDebugSession extends DebugSession {
             this.sendResponse(response);
         });
 
-        socket.on('close', (hadError: boolean) => {
+        socket.on('close', async (hadError: boolean) => {
+            await ipcClient.disconnect();
+
             if (hadError) {
                 log.error(`remote closed the connection due to error`);
             } else {
@@ -402,8 +376,9 @@ export class JanusDebugSession extends DebugSession {
             this.sendEvent(new TerminatedEvent());
         });
 
-        socket.on('error', (err: any) => {
+        socket.on('error', async (err: any) => {
             log.error(`failed to connect to ${host}:${port}: ${err.code}`);
+            await ipcClient.disconnect();
 
             response.success = false;
             response.message = `Failed to connect to server: ${codeToString(err.code)}`;
@@ -415,8 +390,6 @@ export class JanusDebugSession extends DebugSession {
             this.connection = undefined;
             this.sendEvent(new TerminatedEvent());
         });
-
-        await ipcClient.disconnect();
     }
 
     protected setBreakPointsRequest(response: DebugProtocol.SetBreakpointsResponse,
@@ -527,8 +500,8 @@ export class JanusDebugSession extends DebugSession {
         log.info("setExceptionBreakPointsRequest");
     }
 
-    protected configurationDoneRequest(response: DebugProtocol.ConfigurationDoneResponse,
-                                       args: DebugProtocol.ConfigurationDoneArguments): void {
+    protected async configurationDoneRequest(response: DebugProtocol.ConfigurationDoneResponse,
+                                             args: DebugProtocol.ConfigurationDoneArguments): Promise<void> {
         log.info("configurationDoneRequest");
 
         if (this.connection === undefined) {
@@ -538,8 +511,7 @@ export class JanusDebugSession extends DebugSession {
         // Only after all configuration is done it is allowed to notify the frontend about paused contexts. We do
         // this once initially for all already discovered contexts and then let an event handler do this for future
         // contexts.
-
-        const contexts = this.connection.coordinator.getAllAvailableContexts();
+        const contexts = await this.connection.coordinator.getAllAvailableContexts();
         contexts.forEach(context => {
             if (context.isStopped()) {
                 log.debug(`sending StoppedEvent('pause', ${context.id})`);
@@ -706,7 +678,7 @@ export class JanusDebugSession extends DebugSession {
         }
     }
 
-    protected sourceRequest(response: DebugProtocol.SourceResponse, args: DebugProtocol.SourceArguments): void {
+    protected async sourceRequest(response: DebugProtocol.SourceResponse, args: DebugProtocol.SourceArguments): Promise<void> {
         if (args.sourceReference === undefined) {
             log.info('sourceRequest');
             log.warn('args.sourceReference is undefined');
@@ -715,22 +687,36 @@ export class JanusDebugSession extends DebugSession {
         }
 
         log.info(`sourceRequest for sourceReference ${args.sourceReference}`);
-        const localSource = this.sourceMap.getSourceByReference(args.sourceReference);
-        const sourceCode = 'return 42;';
-        response.body = {
-            content: sourceCode,
-            mimeType: 'text/javascript'
-        };
+        // const localSource = this.sourceMap.getSourceByReference(args.sourceReference);
+        if (!this.connection) {
+            throw new Error("connection must be defined");
+        }
+
+        try {
+            response.body = await this.connection.sendRequest(Command.getSource(
+                this.connection.coordinator.getContext(args.sourceReference).name),
+                async (res) => {
+                    log.info(`res: ${JSON.stringify(res)}, source: ${JSON.stringify(res.content.source)}`);
+                    const sourceCode = res.content.source.reduce((a: any, b: any) => a + "\n" + b);
+                    return {
+                        content: sourceCode,
+                        mimeType: 'text/javascript'
+                    };
+                });
+        } catch (err) {
+            log.error(`an error occurs: ${err}`);
+            response.success = false;
+        }
         this.sendResponse(response);
     }
 
-    protected threadsRequest(response: DebugProtocol.ThreadsResponse): void {
+    protected async threadsRequest(response: DebugProtocol.ThreadsResponse): Promise<void> {
         log.info(`threadsRequest`);
 
         if (this.connection === undefined) {
             throw new Error('No connection');
         }
-        const contexts = this.connection.coordinator.getAllAvailableContexts();
+        const contexts = await this.connection.coordinator.getAllAvailableContexts();
         const threads: DebugProtocol.Thread[] = contexts.map(context => {
             return {
                 id: context.id,
