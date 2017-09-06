@@ -1,18 +1,18 @@
-    'use strict';
+'use strict';
 
-    import * as assert from 'assert';
-    import * as uuid from 'uuid';
-    import { DebugProtocol } from 'vscode-debugprotocol';
+import * as assert from 'assert';
+import * as uuid from 'uuid';
+import { DebugProtocol } from 'vscode-debugprotocol';
 
-    export enum ErrorCode {
-        UNKNOWN_COMMAND = 1,
-        NO_COMMAND_NAME = 2,
-        NOT_A_COMMAND_PACKAGE = 3,
-        NOT_PAUSED = 4,
-        BAD_ARGS = 5,
-        SCRIPT_NOT_FOUND = 6,
-        CANNOT_SET_BREAKPOINT = 8,
-        IS_PAUSED = 9,
+export enum ErrorCode {
+    UNKNOWN_COMMAND = 1,
+    NO_COMMAND_NAME = 2,
+    NOT_A_COMMAND_PACKAGE = 3,
+    NOT_PAUSED = 4,
+    BAD_ARGS = 5,
+    SCRIPT_NOT_FOUND = 6,
+    CANNOT_SET_BREAKPOINT = 8,
+    IS_PAUSED = 9,
     UNEXPECTED_EXC = 10,
     EVALUATION_FAILED = 11,
     PC_NOT_AVAILABLE = 12,
