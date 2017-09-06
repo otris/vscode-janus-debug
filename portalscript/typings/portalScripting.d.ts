@@ -1567,17 +1567,6 @@ declare namespace Documents {
 	**/
 	getXMLServer(archiveServerName: string): Documents.ArchiveConnection;
 	/**
-	 * Executes a PortalScript source code from a file in the file system. 
-	 */
-	/**
-	* @memberof Context
-	* @param {string} filePath
-	* @param {Array<any>} paramNames
-	* @param {Array<any>} paramValues
-	* @returns {boolean}
-	**/
-	runScriptFromFile(filePath: string, paramNames?: Array<any>, paramValues?: Array<any>): boolean;
-	/**
 	 * Send a String as TCP-Request to a server. 
 	 * 
 	 * With this method it is possible to send a String via TCP to a server. The return value of the function is the response of the server. Optional you can define a timeout in ms this function waits for the response of a server ... ... ... ... 
@@ -2366,14 +2355,6 @@ declare namespace Documents {
 	**/
 	archiveAndDelete(): boolean;
 	/**
-	 * Creates a JSON-String of this file. 
-	 */
-	/**
-	* @memberof DocFile
-	* @returns {string}
-	**/
-	asJSON(): string;
-	/**
 	 * Cancel the current workflow for the file. 
 	 * 
 	 * ... ... ... 
@@ -2531,15 +2512,6 @@ declare namespace Documents {
 	* @returns {boolean}
 	**/
 	forwardFile(controlFlowId: string, comment: string): boolean;
-	/**
-	 * Updates a file from a JSON-String. 
-	 */
-	/**
-	* @memberof DocFile
-	* @param {string} jsonstring
-	* @returns {boolean}
-	**/
-	fromJSON(jsonstring: string): boolean;
 	/**
 	 * Get a list of all locking workflow step that currently lock the file. 
 	 * 
@@ -3078,7 +3050,6 @@ declare class DocFile implements Documents.DocFile {
 	archive(archiveKey: string): boolean;
 	archive(desc: Documents.ArchivingDescription): boolean;
 	archiveAndDelete(): boolean;
-	asJSON(): string;
 	cancelWorkflow(): boolean;
 	changeFiletype(nameFiletype: string): boolean;
 	checkWorkflowReceiveSignal(): boolean;
@@ -3093,7 +3064,6 @@ declare class DocFile implements Documents.DocFile {
 	disconnectFolder(fObj: Documents.Folder): boolean;
 	exportXML(pathXML: string, withDocuments: boolean, withStatus?: boolean, withMonitor?: boolean): boolean;
 	forwardFile(controlFlowId: string, comment: string): boolean;
-	fromJSON(jsonstring: string): boolean;
 	getAllLockingWorkflowSteps(): Documents.WorkflowStepIterator;
 	getAllWorkflowSteps(): Documents.WorkflowStepIterator;
 	getArchiveKey(withServer?: boolean): string;
@@ -3158,14 +3128,6 @@ declare namespace Documents {
 	 * Each field in a DocHit is mapped to an according property. You can read the value on the basis of the column name. ... ... ... ... 
 	 */
 	columnName: any;
-	/**
-	 * Create a JSON representation of the contained fields. 
-	 */
-	/**
-	* @memberof DocHit
-	* @returns {string}
-	**/
-	asJSON(): string;
 	/**
 	 * Get a file from the archive associated to the archive hit. 
 	 * 
@@ -3296,7 +3258,6 @@ declare namespace Documents {
 
 declare class DocHit implements Documents.DocHit {
 	columnName: any;
-	asJSON(): string;
 	getArchiveFile(): Documents.DocFile;
 	getArchiveKey(withServer?: boolean): string;
 	getBlobInfo(): string;
@@ -5667,15 +5628,6 @@ declare namespace Documents {
 	 */
 	type: string;
 	/**
-	 * Adds a file to a file link register. 
-	 */
-	/**
-	* @memberof Register
-	* @param {any} file
-	* @returns {boolean}
-	**/
-	addFileLink(file: Documents.DocFile): boolean;
-	/**
 	 * Delete a Document at the Register. 
 	 * 
 	 * With the necessary access rights the user can delete a Document at the Register. ... ... ... ... 
@@ -5739,15 +5691,6 @@ declare namespace Documents {
 	**/
 	getOID(oidLow?: boolean): string;
 	/**
-	 * Removes a file to a file link register. 
-	 */
-	/**
-	* @memberof Register
-	* @param {any} file
-	* @returns {boolean}
-	**/
-	removeFileLink(file: Documents.DocFile): boolean;
-	/**
 	 * Set the String value of an attribute of the Register to the desired value. 
 	 * 
 	 * ... ... ... ... 
@@ -5778,14 +5721,12 @@ declare class Register implements Documents.Register {
 	label: string;
 	name: string;
 	type: string;
-	addFileLink(file: Documents.DocFile): boolean;
 	deleteDocument(doc: Documents.Document): boolean;
 	getAttribute(attribute: string): string;
 	getDocuments(): Documents.DocumentIterator;
 	getFiles(): Documents.FileResultset;
 	getLastError(): string;
 	getOID(oidLow?: boolean): string;
-	removeFileLink(file: Documents.DocFile): boolean;
 	setAttribute(attribute: string, value: string): boolean;
 	uploadDocument(filePath: string, registerFileName: string): Documents.Document;
 }
@@ -7177,36 +7118,6 @@ declare namespace Documents {
 	* @returns {string}
 	**/
 	getFileContentAsString(filePath: string): string;
-	/**
-	 * Returns an array with all attribute names for the class. 
-	 */
-	/**
-	* @memberof Util
-	* @param {string} classname
-	* @param {number} flags
-	* @returns {Array<any>}
-	**/
-	getModelAttributes(classname: string, flags: number): Array<any>;
-	/**
-	 * Returns the datatype as string for an attribute of a class. 
-	 */
-	/**
-	* @memberof Util
-	* @param {string} classname
-	* @param {string} attrname
-	* @returns {string}
-	**/
-	getModelDatatype(classname: string, attrname: string): string;
-	/**
-	 * Returns the label for an attribute of a class. 
-	 */
-	/**
-	* @memberof Util
-	* @param {string} classname
-	* @param {string} attrname
-	* @returns {string}
-	**/
-	getModelErgname(classname: string, attrname: string): string;
 	/**
 	 * Returns the input string enclosed in either double or single quotation marks. 
 	 */
