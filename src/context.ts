@@ -206,12 +206,12 @@ export class ContextCoordinator {
 
     constructor(private connection: ConnectionLike) { }
 
-    public getAllAvailableContexts(): Context[] {
+    public async getAllAvailableContexts(): Promise<Context[]> {
         coordinatorLog.debug(`getAllAvailableContexts`);
 
         // Meh, this is shitty. We return (most probably) an old state here. But protocol does not allow an id send in
         // an 'get_available_contexts' request so no way to handle and synchronize with the particular response here
-        this.connection.sendRequest(new Command('get_available_contexts'));
+        await this.connection.sendRequest(new Command('get_available_contexts'), (res) => this.handleResponse(res));
         return Array.from(this.contextById.values());
     }
 

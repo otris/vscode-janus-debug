@@ -198,7 +198,6 @@ export class Command {
 
         let needsId = true;
         const exceptions = [
-            () => name === 'get_available_contexts',
             () => name === 'exit',
             () => name === 'continue' && contextId === undefined,
             () => name === 'next',
@@ -217,17 +216,15 @@ export class Command {
 
     public toString(): string {
         if (this.name === 'get_available_contexts') {
-            return 'get_available_contexts\n';
-        }
-        if (this.name === 'exit') {
+            return `get_available_contexts/${this.payload.id}\n`;
+        } else if (this.name === 'exit') {
             return 'exit\n';
-        }
-        if ((this.name === 'continue') && !this.contextId) {
+        } else if ((this.name === 'continue') && !this.contextId) {
             return '{"type":"command","name":"continue"}\n';
-        }
-        if (this.contextId) {
+        } else if (this.contextId) {
             return `${this.contextId}/${JSON.stringify(this.payload)}\n`;
+        } else {
+            return `${JSON.stringify(this.payload)}\n`;
         }
-        return `${JSON.stringify(this.payload)}\n`;
     }
 }

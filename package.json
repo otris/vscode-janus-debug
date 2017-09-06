@@ -499,7 +499,7 @@
     "node-documents-scripting": "git+https://github.com/otris/node-documents-scripting.git#0.3.2",
     "node-file-log": "git+https://git@github.com/otris/node-file-log#1.0.0",
     "node-ipc": "^9.0.1",
-    "node-sds": "git+https://git@github.com/otris/node-sds.git#1.1.5",
+    "node-sds": "git+https://git@github.com/otris/node-sds.git#1.1.7",
     "open": "0.0.5",
     "reduce-for-promises": "^1.2.1",
     "strip-json-comments": "^2.0.1",
