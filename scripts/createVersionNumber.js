@@ -3,7 +3,7 @@ const fs = require('fs');
 
 function determineCommit() {
     return new Promise((resolve, reject) => {
-        exec('"git" log --oneline', function (err, stdout, stderr) {
+        exec('"git" log --oneline', function(err, stdout, stderr) {
 
             if (err) {
                 return reject(err);
@@ -16,7 +16,7 @@ function determineCommit() {
 
 function determineVersion() {
     return new Promise((resolve, reject) => {
-        exec('"git" tag', function (err, stdout, stderr) {
+        exec('"git" tag', function(err, stdout, stderr) {
             if (err) {
                 return reject(err);
             } else {
@@ -38,8 +38,6 @@ function writeVersionToJson() {
 
     determineCommit().then((commit) => {
         determineVersion().then((version) => {
-
-            console.log("Determined version: " + version.major + "." + version.minor + "." + version.patch + " commit: " + commit);
 
             fs.open('out/src/version.json', 'w', (err, fd) => {
                 if (err) {
