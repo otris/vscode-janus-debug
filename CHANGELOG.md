@@ -12,9 +12,9 @@ New Features in this release:
 
 - Add ``noLib: true`` to ``compilerOptions`` part in ``jsconfig.json`` when command **Install Intellisense Files** is executed.
 
-- Typescript 2.5 is now used to generate javascript.
+- TypeScript 2.5 is now used to generate JavaScript.
 
-- The version of the remote debugger is no logged in the log file of the requests. The line begins with "Determined version".
+- The version of the remote debugging engine is now logged in the VS Code extension's log files. This way we can see what version of debugging engine the Debugger is running against.
 
 Following bugs have been addressed in this release:
 
