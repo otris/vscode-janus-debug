@@ -21,7 +21,19 @@ This extensions includes lots of additional features that ease the development, 
 
 ## Requirements
 
-You need a relatively recent DOCUMENTS 5 (starting with 5.0b, but our focus is on 5.0c and later) or privacy 6.1 server up and running.
+This extension is only compatible with the JANUS servers listed below. Not every version supports every feature:
+
+| Server version                  	| Up-/downloading / running scripts 	| Remote debugging 	|
+|---------------------------------	|-----------------------------------	|------------------	|
+| DOCUMENTS 5.0a & DOCUMENTS 5.0b 	| X                                 	|                  	|
+| DOCUMENTS 5.0c                  	| X                                 	| X                	|
+| privacy 6.1                     	| X                                 	| X                	|
+
+If you suspect compatibility issues with your setup, please report them in the issue section.
+
+## Remote Debugging
+
+If you want to use the remote debugging features you need **at least DOCUMENTS 5.0c**!
 
 Add following line to your server's .ini file to enable the debugging engine:
 
