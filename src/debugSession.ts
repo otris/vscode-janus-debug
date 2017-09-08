@@ -58,6 +58,7 @@ export class JanusDebugSession extends DebugSession {
     private frameMap: FrameMap;
     private variablesMap: VariablesMap;
     private config: 'launch' | 'attach' | undefined;
+    private attachedContextId: number | undefined = undefined;
 
     public constructor() {
         super();
@@ -105,6 +106,8 @@ export class JanusDebugSession extends DebugSession {
     protected async disconnectRequest(response: DebugProtocol.DisconnectResponse,
                                       args: DebugProtocol.DisconnectArguments): Promise<void> {
         log.info(`disconnectRequest; debug adapter running in ${this.config} config`);
+
+        this.attachedContextId = undefined;
 
         this.config = undefined;
 
@@ -360,6 +363,8 @@ export class JanusDebugSession extends DebugSession {
                         const lScr = new LocalSource(ctxNameAttach);
                         lScr.sourceReference = ctxAttach.id;
                         this.sourceMap.addMapping(lScr, ctxNameAttach);
+                        // set state for setBreakpoints
+                        this.attachedContextId = ctxAttach.id;
                     }
                 } else {
                     throw new Error(`not connected to a remote debugger`);
@@ -408,8 +413,8 @@ export class JanusDebugSession extends DebugSession {
         });
     }
 
-    protected setBreakPointsRequest(response: DebugProtocol.SetBreakpointsResponse,
-                                    args: DebugProtocol.SetBreakpointsArguments): void {
+    protected async setBreakPointsRequest(response: DebugProtocol.SetBreakpointsResponse,
+                                          args: DebugProtocol.SetBreakpointsArguments): Promise<void> {
         const numberOfBreakpoints: number = args.breakpoints ? args.breakpoints.length : 0;
         log.info(`setBreakPointsRequest for ${numberOfBreakpoints} breakpoint(s): ${JSON.stringify(args)}`);
 
@@ -429,7 +434,7 @@ export class JanusDebugSession extends DebugSession {
         const requestedBreakpoints = args.breakpoints;
 
         const deleteAllBreakpointsCommand = new Command('delete_all_breakpoints');
-        conn.sendRequest(deleteAllBreakpointsCommand, (res: Response) => {
+        await conn.sendRequest(deleteAllBreakpointsCommand, (res: Response) => {
             return new Promise<void>((resolve, reject) => {
                 if (res.type === 'error') {
                     reject(new Error(`Target responded with error '${res.content.message}'`));
@@ -437,71 +442,97 @@ export class JanusDebugSession extends DebugSession {
                     resolve();
                 }
             });
-        }).then(() => {
+        });
 
-            const remoteSourceUrl = this.sourceMap.getRemoteUrl(localUrl);
-            const actualBreakpoints: Array<Promise<Breakpoint>> = [];
-            requestedBreakpoints.forEach((breakpoint => {
-
-                const setBreakpointCommand = Command.setBreakpoint(remoteSourceUrl, breakpoint.line);
-
-                actualBreakpoints.push(
-                    conn.sendRequest(setBreakpointCommand, (res: Response): Promise<Breakpoint> => {
-                        return new Promise<Breakpoint>((resolve, reject) => {
-                            // When the debugger give a error back but send a message that a breakpoint
-                            // cant set, we do no reject but make the specific breakpoint unverified.
-                            // We do this by passing a new breakpoint to the resolve function with the
-                            // pending attribute set to false.
-                            if (res.type === 'error' && res.content.message && res.content.message === 'Cannot set breakpoint at given line.') {
-                                resolve({
-                                    line: breakpoint.line,
-                                    pending: false,
-                                } as Breakpoint);
+        let sourceOffset = 0;
+        if (this.attachedContextId) {
+            sourceOffset = await this.connection.sendRequest(Command.getSource(
+                this.connection.coordinator.getContext(this.attachedContextId).name),
+                async (res: Response) => {
+                        const source = res.content.source;
+                        let i = 0;
+                        while (i < source.length) {
+                            const sl = source[i];
+                            if (sl.startsWith("//#") ) {
+                                const matches: any = /[\/\\]([a-zA-Z-_.]*)$/.exec(sl);
+                                if (matches !== null && matches[matches.length - 1] === args.source.name) {
+                                    return i + 1;
+                                }
                             }
-                            // When the debugger give a error back and the message
-                            // dont tell us that a breakpoint cant set we reject this one, cause a 'unknown'
-                            // error occur.
-                            // That results in a complete reject of every breakpoint.
-                            if (res.type === 'error' && res.content.message && res.content.message !== 'Cannot set breakpoint at given line.') {
-                                reject(new Error(`Target responded with error '${res.content.message}'`));
-                            } else {
-                                // The debug engine tells us that the current breakpoint can set, so
-                                // the breakpoint will verified in vscode.
-                                res.content.pending = true;
-                                resolve(res.content);
-                            }
-                        });
-                    }));
-            }));
+                            i++;
+                        }
+                        return 0;
+                    });
+        }
 
-            Promise.all(actualBreakpoints).then((res: Breakpoint[]) => {
-                const breakpoints: DebugProtocol.Breakpoint[] = res.map(actualBreakpoint => {
-                    return {
-                        id: actualBreakpoint.bid,
-                        line: actualBreakpoint.line,
-                        source: {
-                            path: actualBreakpoint.url,
-                        },
+        let remoteSourceUrl = "";
+        if (this.attachedContextId) {
+            remoteSourceUrl = await this.connection.coordinator.getContext(this.attachedContextId)
+                .name;
+        } else {
+            remoteSourceUrl = this.sourceMap.getRemoteUrl(localUrl);
+        }
+        const actualBreakpoints: Array<Promise<Breakpoint>> = [];
+        requestedBreakpoints.forEach((breakpoint => {
 
-                        // According to the pre calculated value of pending the
-                        // breakpoint is set to verified or to unverified.
-                        verified: actualBreakpoint.pending,
-                        // If the current breakpoint is unverified, we like to give a little hint.
-                        message: actualBreakpoint.pending ? '' : 'Cannot set breakpoint at this line'
+            const setBreakpointCommand = Command.setBreakpoint(remoteSourceUrl, breakpoint.line + sourceOffset);
 
-                    };
-                });
-                log.debug(`setBreakPointsRequest succeeded: ${JSON.stringify(breakpoints)}`);
-                response.body = {
-                    breakpoints,
+            actualBreakpoints.push(
+                conn.sendRequest(setBreakpointCommand, (res: Response): Promise<Breakpoint> => {
+                    return new Promise<Breakpoint>((resolve, reject) => {
+                        // When the debugger give a error back but send a message that a breakpoint
+                        // cant set, we do no reject but make the specific breakpoint unverified.
+                        // We do this by passing a new breakpoint to the resolve function with the
+                        // pending attribute set to false.
+                        if (res.type === 'error' && res.content.message && res.content.message === 'Cannot set breakpoint at given line.') {
+                            resolve({
+                                line: breakpoint.line,
+                                pending: false,
+                            } as Breakpoint);
+                        }
+                        // When the debugger give a error back and the message
+                        // dont tell us that a breakpoint cant set we reject this one, cause a 'unknown'
+                        // error occur.
+                        // That results in a complete reject of every breakpoint.
+                        if (res.type === 'error' && res.content.message && res.content.message !== 'Cannot set breakpoint at given line.') {
+                            reject(new Error(`Target responded with error '${res.content.message}'`));
+                        } else {
+                            // The debug engine tells us that the current breakpoint can set, so
+                            // the breakpoint will verified in vscode.
+                            res.content.pending = true;
+                            resolve(res.content);
+                        }
+                    });
+                }));
+        }));
+
+        Promise.all(actualBreakpoints).then((res: Breakpoint[]) => {
+            const breakpoints: DebugProtocol.Breakpoint[] = res.map(actualBreakpoint => {
+                return {
+                    id: actualBreakpoint.bid,
+                    line: actualBreakpoint.line - sourceOffset,
+                    source: {
+                        path: actualBreakpoint.url,
+                    },
+
+                    // According to the pre calculated value of pending the
+                    // breakpoint is set to verified or to unverified.
+                    verified: actualBreakpoint.pending,
+                    // If the current breakpoint is unverified, we like to give a little hint.
+                    message: actualBreakpoint.pending ? '' : 'Cannot set breakpoint at this line'
+
                 };
-                this.sendResponse(response);
-            }).catch(reason => {
-                log.error(`setBreakPointsRequest failed: ${reason}`);
-                response.success = false;
-                response.message = `Could not set breakpoint(s): ${reason}`;
-                this.sendResponse(response);
             });
+            log.debug(`setBreakPointsRequest succeeded: ${JSON.stringify(breakpoints)}`);
+            response.body = {
+                breakpoints,
+            };
+            this.sendResponse(response);
+        }).catch(reason => {
+            log.error(`setBreakPointsRequest failed: ${reason}`);
+            response.success = false;
+            response.message = `Could not set breakpoint(s): ${reason}`;
+            this.sendResponse(response);
         });
     }
 
