@@ -311,7 +311,7 @@ export function setCategoryRoots(pscripts: nodeDoc.scriptT[], contextMenuPath: s
     }
 
     // get category flag
-    const categories = conf.get('categories', false);
+    const categories = conf.get('createFoldersFromCategories', false);
 
     if (categories) {
         pscripts.forEach((script) => {

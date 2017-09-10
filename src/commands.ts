@@ -75,7 +75,7 @@ function _uploadScript(loginData: nodeDoc.LoginData, param: any): Promise<string
             // get information from settings and hash values
             helpers.readHashValues([_script], loginData.server);
             helpers.readEncryptionFlag([_script]);
-            helpers.setCategories([_script]);
+            // helpers.setCategories([_script]);
 
             return nodeDoc.sdsSession(loginData, [_script], nodeDoc.uploadScript).then((value) => {
 
@@ -178,7 +178,7 @@ export function uploadAll(loginData: nodeDoc.LoginData, _param: any) {
         const folderScripts = nodeDoc.getScriptsFromFolderSync(folder[0]);
         helpers.readHashValues(folderScripts, loginData.server);
         helpers.readEncryptionFlag(folderScripts);
-        helpers.setCategories(folderScripts);
+        // helpers.setCategories(folderScripts);
 
         return nodeDoc.sdsSession(loginData, folderScripts, nodeDoc.uploadAll).then((value1) => {
             const retScripts: nodeDoc.scriptT[] = value1;
