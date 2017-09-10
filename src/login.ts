@@ -68,6 +68,34 @@ export async function getLoginData(_loginData: nodeDoc.LoginData): Promise<void>
 }
 
 
+
+function ensureLoginInformation(serverInfo: nodeDoc.LoginData): Promise<void> {
+    console.log(`ensureLoginData start: ask ${serverInfo.askForPassword} askStr ${serverInfo.askForPasswordStr} pw ${serverInfo.password}`);
+    return new Promise<void>((resolve, reject) => {
+
+        if (serverInfo.checkLoginData() && !(serverInfo.askForPassword && (serverInfo.askForPasswordStr === serverInfo.password))) {
+            resolve();
+
+        } else if (serverInfo.getLoginData) {
+
+            getLoginData(serverInfo).then(() => {
+
+                if (serverInfo.checkLoginData() && (serverInfo.askForPasswordStr !== serverInfo.password)) {
+                    resolve();
+                } else {
+                    reject('getting login data failed');
+                }
+            }).catch((reason) => {
+                reject(reason);
+            });
+        } else {
+            reject();
+        }
+    });
+}
+
+
+
 async function askForPassword(_loginData: nodeDoc.LoginData): Promise<void> {
     return new Promise<void>(async (resolve, reject) => {
         const password = await vscode.window.showInputBox({
