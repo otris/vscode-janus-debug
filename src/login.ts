@@ -10,84 +10,8 @@ import { provideInitialConfigurations } from './config';
 const stripJsonComments = require('strip-json-comments');
 
 
-export function loadConfigFile(login: nodeDoc.ConnectionInformation, configFile: string): boolean {
-    console.log('loadConfigFile');
-    login.configFile = configFile;
-
-    try {
-        const jsonContent = fs.readFileSync(login.configFile, 'utf8');
-        const jsonObject = JSON.parse(stripJsonComments(jsonContent));
-        const configurations = jsonObject.configurations;
-
-        if (configurations) {
-            configurations.forEach((config: any) => {
-                if (config.type === 'janus' && config.request === 'launch') {
-                    login.server = config.host;
-                    login.port = config.applicationPort;
-                    login.principal = config.principal;
-                    login.username = config.username;
-                    if (login.askForPasswordStr === config.password) {
-                        login.askForPassword = true;
-                    }
-                    login.password = config.password;
-                    login.sdsTimeout = config.sdsTimeout;
-                }
-            });
-        }
-    } catch (err) {
-        return false;
-    }
-
-    return true;
-}
 
 
-export async function getLoginData(_loginData: nodeDoc.ConnectionInformation): Promise<void> {
-    return new Promise<void>(async (resolve, reject) => {
-
-        try {
-            if (!_loginData.checkLoginData()) {
-                await askForLoginData(_loginData);
-                try {
-                    await createLaunchJson(_loginData);
-                } catch (err) {
-                    // couldn't save login data,
-                    // doesn't matter, just leave a warning and continue anyway
-                    vscode.window.showWarningMessage('did not save login data: ' + err);
-                    return resolve();
-                }
-            } else {
-                await askForPassword(_loginData);
-            }
-        } catch (err) {
-            return reject(err);
-        }
-
-        resolve();
-    });
-}
-
-
-
-export function ensureLoginInformation(serverInfo: nodeDoc.ConnectionInformation): Promise<void> {
-    console.log(`ensureLoginData start: ask ${serverInfo.askForPassword} askStr ${serverInfo.askForPasswordStr} pw ${serverInfo.password}`);
-    return new Promise<void>((resolve, reject) => {
-
-        if (serverInfo.checkLoginData() && !(serverInfo.askForPassword && (serverInfo.askForPasswordStr === serverInfo.password))) {
-            return resolve();
-        }
-
-        getLoginData(serverInfo).then(() => {
-            if (serverInfo.checkLoginData() && (serverInfo.askForPasswordStr !== serverInfo.password)) {
-                resolve();
-            } else {
-                reject('getting login data failed');
-            }
-        }).catch((reason) => {
-            reject(reason);
-        });
-    });
-}
 
 
 
@@ -241,4 +165,86 @@ async function createLaunchJson(loginData: nodeDoc.ConnectionInformation): Promi
             reject('folder must be open to save login data');
         }
     });
+}
+
+
+async function getLoginData(_loginData: nodeDoc.ConnectionInformation): Promise<void> {
+    return new Promise<void>(async (resolve, reject) => {
+
+        try {
+            if (!_loginData.checkLoginData()) {
+                await askForLoginData(_loginData);
+                try {
+                    await createLaunchJson(_loginData);
+                } catch (err) {
+                    // couldn't save login data,
+                    // doesn't matter, just leave a warning and continue anyway
+                    vscode.window.showWarningMessage('did not save login data: ' + err);
+                    return resolve();
+                }
+            } else {
+                await askForPassword(_loginData);
+            }
+        } catch (err) {
+            return reject(err);
+        }
+
+        resolve();
+    });
+}
+
+
+
+export function ensureLoginInformation(serverInfo: nodeDoc.ConnectionInformation): Promise<void> {
+    console.log(`ensureLoginData start: ask ${serverInfo.askForPassword} askStr ${serverInfo.askForPasswordStr} pw ${serverInfo.password}`);
+    return new Promise<void>((resolve, reject) => {
+
+        if (serverInfo.checkLoginData() && !(serverInfo.askForPassword && (serverInfo.askForPasswordStr === serverInfo.password))) {
+            return resolve();
+        }
+
+        getLoginData(serverInfo).then(() => {
+            if (serverInfo.checkLoginData() && (serverInfo.askForPasswordStr !== serverInfo.password)) {
+                resolve();
+            } else {
+                reject('getting login data failed');
+            }
+        }).catch((reason) => {
+            reject(reason);
+        });
+    });
+}
+
+
+
+
+export function loadConfigFile(login: nodeDoc.ConnectionInformation, configFile: string): boolean {
+    console.log('loadConfigFile');
+    login.configFile = configFile;
+
+    try {
+        const jsonContent = fs.readFileSync(login.configFile, 'utf8');
+        const jsonObject = JSON.parse(stripJsonComments(jsonContent));
+        const configurations = jsonObject.configurations;
+
+        if (configurations) {
+            configurations.forEach((config: any) => {
+                if (config.type === 'janus' && config.request === 'launch') {
+                    login.server = config.host;
+                    login.port = config.applicationPort;
+                    login.principal = config.principal;
+                    login.username = config.username;
+                    if (login.askForPasswordStr === config.password) {
+                        login.askForPassword = true;
+                    }
+                    login.password = config.password;
+                    login.sdsTimeout = config.sdsTimeout;
+                }
+            });
+        }
+    } catch (err) {
+        return false;
+    }
+
+    return true;
 }
