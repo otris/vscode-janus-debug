@@ -149,6 +149,35 @@ export function uploadScriptOnSave(loginData: nodeDoc.LoginData, fileName: strin
     });
 }
 
+export function uploadJSFromTS(loginData: nodeDoc.LoginData, textDocument: vscode.TextDocument): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+
+        if (!textDocument || '.ts' !== path.extname(textDocument.fileName)) {
+            vscode.window.showErrorMessage('No active TypeScript file');
+            resolve();
+        } else {
+
+            const tsname: string = textDocument.fileName;
+            const jsname: string = tsname.substr(0, tsname.length - 3) + ".js";
+            const tscargs = ['-t', 'ES5', '--out', jsname];
+            const retval = tsc.compile([textDocument.fileName], tscargs);
+            const scriptSource = retval.sources[jsname];
+            if (scriptSource) {
+                console.log("scriptSource:\n" + scriptSource);
+            }
+
+            _uploadScript(loginData, jsname).then((scriptname) => {
+                vscode.window.setStatusBarMessage('uploaded: ' + scriptname);
+                resolve();
+            }).catch((reason) => {
+                vscode.window.showErrorMessage(reason);
+                resolve();
+            });
+        }
+    });
+}
+
+
 /**
  * Upload and run script
  */
@@ -381,6 +410,8 @@ export function getScriptParameters(loginData: nodeDoc.LoginData, param: any) {
     });
 }
 
+
+
 /* --------------------------------------------------
  *       todo...
  * -------------------------------------------------- */
@@ -478,33 +509,6 @@ export function viewDocumentation() {
 
 
 
-export function uploadJSFromTS(loginData: nodeDoc.LoginData, textDocument: vscode.TextDocument): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
-
-        if (!textDocument || '.ts' !== path.extname(textDocument.fileName)) {
-            vscode.window.showErrorMessage('No active TypeScript file');
-            resolve();
-        } else {
-
-            const tsname: string = textDocument.fileName;
-            const jsname: string = tsname.substr(0, tsname.length - 3) + ".js";
-            const tscargs = ['-t', 'ES5', '--out', jsname];
-            const retval = tsc.compile([textDocument.fileName], tscargs);
-            const scriptSource = retval.sources[jsname];
-            if (scriptSource) {
-                console.log("scriptSource:\n" + scriptSource);
-            }
-
-            _uploadScript(loginData, jsname).then((scriptname) => {
-                vscode.window.setStatusBarMessage('uploaded: ' + scriptname);
-                resolve();
-            }).catch((reason) => {
-                vscode.window.showErrorMessage(reason);
-                resolve();
-            });
-        }
-    });
-}
 
 
 
