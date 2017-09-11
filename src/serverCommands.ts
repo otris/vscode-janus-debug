@@ -64,7 +64,7 @@ export async function checkDecryptionVersion(loginData: nodeDoc.LoginData): Prom
  * @param loginData
  * @param param
  */
-function _uploadScript(loginData: nodeDoc.LoginData, param: any): Promise<string> {
+function uploadScriptCommon(loginData: nodeDoc.LoginData, param: any): Promise<string> {
     return new Promise<string>((resolve, reject) => {
         helpers.ensureScript(param).then((_script) => {
 
@@ -109,7 +109,7 @@ function _uploadScript(loginData: nodeDoc.LoginData, param: any): Promise<string
  */
 export function uploadScript(loginData: nodeDoc.LoginData, param: any): Promise<void> {
     return new Promise<void>((resolve, reject) => {
-        _uploadScript(loginData, param).then((scriptName) => {
+        uploadScriptCommon(loginData, param).then((scriptName) => {
             vscode.window.setStatusBarMessage('uploaded: ' + scriptName);
             resolve();
         }).catch((reason) => {
@@ -127,7 +127,7 @@ export function uploadScriptOnSave(loginData: nodeDoc.LoginData, fileName: strin
         helpers.ensureUploadOnSave(fileName).then((value) => {
             if (helpers.autoUploadAnswer.yes === value) {
 
-                _uploadScript(loginData, fileName).then((scriptName) => {
+                uploadScriptCommon(loginData, fileName).then((scriptName) => {
                     vscode.window.setStatusBarMessage('uploaded: ' + scriptName);
                 }).catch((reason) => {
                     vscode.window.showErrorMessage(reason);
@@ -162,7 +162,7 @@ export function uploadJSFromTS(loginData: nodeDoc.LoginData, textDocument: vscod
                 console.log("scriptSource:\n" + scriptSource);
             }
 
-            _uploadScript(loginData, jsname).then((scriptname) => {
+            uploadScriptCommon(loginData, jsname).then((scriptname) => {
                 vscode.window.setStatusBarMessage('uploaded: ' + scriptname);
                 resolve();
             }).catch((reason) => {
@@ -178,7 +178,7 @@ export function uploadJSFromTS(loginData: nodeDoc.LoginData, textDocument: vscod
  * Upload and run script
  */
 export function uploadRunScript(loginData: nodeDoc.LoginData, param: any, runScriptChannel: vscode.OutputChannel) {
-    _uploadScript(loginData, param).then((scriptName) => {
+    uploadScriptCommon(loginData, param).then((scriptName) => {
 
         let script: nodeDoc.scriptT = new nodeDoc.scriptT(scriptName);
         return nodeDoc.sdsSession(loginData, [script], nodeDoc.runScript).then((value) => {
