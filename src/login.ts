@@ -4,7 +4,7 @@ import * as fs from 'fs';
 import * as nodeDoc from 'node-documents-scripting';
 import * as path from 'path';
 import * as vscode from 'vscode';
-import { provideInitialConfigurations } from './config';
+import * as config from './config';
 
 // tslint:disable-next-line:no-var-requires
 const stripJsonComments = require('strip-json-comments');
@@ -138,7 +138,7 @@ async function createLaunchJson(loginData: nodeDoc.ConnectionInformation): Promi
                         } else {
                             pw = loginData.password;
                         }
-                        const data = provideInitialConfigurations(rootPath, {
+                        const data = config.provideInitialConfigurations(rootPath, {
                             host: loginData.server,
                             applicationPort: loginData.port,
                             principal: loginData.principal,
@@ -168,14 +168,14 @@ async function createLaunchJson(loginData: nodeDoc.ConnectionInformation): Promi
 }
 
 
-async function getLoginData(_loginData: nodeDoc.ConnectionInformation): Promise<void> {
+async function getLoginInformation(serverInfo: nodeDoc.ConnectionInformation): Promise<void> {
     return new Promise<void>(async (resolve, reject) => {
 
         try {
-            if (!_loginData.checkLoginData()) {
-                await askForLoginData(_loginData);
+            if (!serverInfo.checkLoginData()) {
+                await askForLoginData(serverInfo);
                 try {
-                    await createLaunchJson(_loginData);
+                    await createLaunchJson(serverInfo);
                 } catch (err) {
                     // couldn't save login data,
                     // doesn't matter, just leave a warning and continue anyway
@@ -183,7 +183,7 @@ async function getLoginData(_loginData: nodeDoc.ConnectionInformation): Promise<
                     return resolve();
                 }
             } else {
-                await askForPassword(_loginData);
+                await askForPassword(serverInfo);
             }
         } catch (err) {
             return reject(err);
@@ -196,20 +196,21 @@ async function getLoginData(_loginData: nodeDoc.ConnectionInformation): Promise<
 
 
 export function ensureLoginInformation(serverInfo: nodeDoc.ConnectionInformation): Promise<void> {
-    console.log(`ensureLoginData start: ask ${serverInfo.askForPassword} askStr ${serverInfo.askForPasswordStr} pw ${serverInfo.password}`);
+    console.log(`ensureLoginData askForPassword ${serverInfo.askForPassword}`);
+
     return new Promise<void>((resolve, reject) => {
 
         // serverInfo.password contains the string from launch.json that might be
         // '${command:extension.vscode-janus-debug.askForPassword}' (see deafault launch.json)
-        const askForPassword = serverInfo.askForPassword && (serverInfo.askForPasswordStr === serverInfo.password);
+        const askForPassword = serverInfo.askForPassword && (config.commandAskForPassword === serverInfo.password);
 
         if (serverInfo.checkLoginData() && !askForPassword) {
             return resolve();
         }
 
         // ask user for login information and write to launch.json
-        getLoginData(serverInfo).then(() => {
-            if (serverInfo.checkLoginData() && (serverInfo.askForPasswordStr !== serverInfo.password)) {
+        getLoginInformation(serverInfo).then(() => {
+            if (serverInfo.checkLoginData() && (config.commandAskForPassword !== serverInfo.password)) {
                 resolve();
             } else {
                 reject('getting login data failed');
@@ -223,8 +224,8 @@ export function ensureLoginInformation(serverInfo: nodeDoc.ConnectionInformation
 
 
 
-export function loadConfigFile(login: nodeDoc.ConnectionInformation, configFile: string): boolean {
-    console.log('loadConfigFile');
+export function loadLoginInformation(login: nodeDoc.ConnectionInformation, configFile: string): boolean {
+    console.log('loadLoginInformation');
     login.configFile = configFile;
 
     try {
@@ -239,7 +240,7 @@ export function loadConfigFile(login: nodeDoc.ConnectionInformation, configFile:
                     login.port = config.applicationPort;
                     login.principal = config.principal;
                     login.username = config.username;
-                    if (login.askForPasswordStr === config.password) {
+                    if (config.commandAskForPassword === config.password) {
                         login.askForPassword = true;
                     }
                     login.password = config.password;
