@@ -27,6 +27,8 @@ export function setDecryptionVersionChecked(value: boolean) {
  * Because then the upload with encrypted scripts will cause problems.
  */
 export async function checkDecryptionVersion(loginData: nodeDoc.LoginData): Promise<void> {
+    await login.ensureLoginInformation(loginData);
+
     return new Promise<void>((resolve, reject) => {
         if (!decrptionVersionChecked) {
             nodeDoc.serverSession(loginData, [], nodeDoc.checkDecryptionPermission).then((retval1) => {
@@ -64,7 +66,9 @@ export async function checkDecryptionVersion(loginData: nodeDoc.LoginData): Prom
  * @param loginData
  * @param param
  */
-function uploadScriptCommon(loginData: nodeDoc.LoginData, param: any): Promise<string> {
+async function uploadScriptCommon(loginData: nodeDoc.LoginData, param: any): Promise<string> {
+    await login.ensureLoginInformation(loginData);
+
     return new Promise<string>((resolve, reject) => {
         helpers.ensureScript(param).then((_script) => {
 
@@ -195,7 +199,9 @@ export function uploadRunScript(loginData: nodeDoc.LoginData, param: any, runScr
 /**
  * Upload all
  */
-export function uploadAll(loginData: nodeDoc.LoginData, _param: any) {
+export async function uploadAll(loginData: nodeDoc.LoginData, _param: any) {
+    await login.ensureLoginInformation(loginData);
+
     helpers.ensurePath(_param).then((folder) => {
 
         // get all scripts from folder and subfolders and read information
@@ -238,7 +244,9 @@ export function uploadAll(loginData: nodeDoc.LoginData, _param: any) {
  * @param contextMenuPath: If command is called from context menu, this variable should
  * contain the corresponding path. Otherwise it should be undefined.
  */
-export function downloadScript(loginData: nodeDoc.LoginData, contextMenuPath: string | undefined) {
+export async function downloadScript(loginData: nodeDoc.LoginData, contextMenuPath: string | undefined) {
+    await login.ensureLoginInformation(loginData);
+
     helpers.ensureScriptName(contextMenuPath).then((scriptName) => {
         return helpers.ensurePath(contextMenuPath, true).then((scriptInfo) => {
             const scriptDir: string = scriptInfo[0];
@@ -261,7 +269,9 @@ export function downloadScript(loginData: nodeDoc.LoginData, contextMenuPath: st
 /**
  * Download all
  */
-export function downloadAll(loginData: nodeDoc.LoginData, contextMenuPath: string | undefined) {
+export async function downloadAll(loginData: nodeDoc.LoginData, contextMenuPath: string | undefined) {
+    await login.ensureLoginInformation(loginData);
+
     helpers.ensurePath(contextMenuPath, true).then((scriptInfo) => {
         const scriptDir: string = scriptInfo[0];
 
@@ -298,7 +308,9 @@ export function downloadAll(loginData: nodeDoc.LoginData, contextMenuPath: strin
 /**
  * Run script
  */
-export function runScript(loginData: nodeDoc.LoginData, param: any, runScriptChannel: vscode.OutputChannel) {
+export async function runScript(loginData: nodeDoc.LoginData, param: any, runScriptChannel: vscode.OutputChannel) {
+    await login.ensureLoginInformation(loginData);
+
     helpers.ensureScriptName(param).then((scriptname) => {
         let script: nodeDoc.scriptT = new nodeDoc.scriptT(scriptname);
         return nodeDoc.serverSession(loginData, [script], nodeDoc.runScript).then((value) => {
@@ -314,7 +326,9 @@ export function runScript(loginData: nodeDoc.LoginData, param: any, runScriptCha
 /**
  * Compare script
  */
-export function compareScript(loginData: nodeDoc.LoginData, _param: any) {
+export async function compareScript(loginData: nodeDoc.LoginData, _param: any) {
+    await login.ensureLoginInformation(loginData);
+
     helpers.ensurePath(_param, false, true).then((_path) => {
         const scriptFolder = _path[0];
         const _scriptname = _path[1];
@@ -353,8 +367,8 @@ export function getScriptnames(loginData: nodeDoc.LoginData, param: any) {
 /**
  * Download script parameters
  */
-export function getScriptParameters(loginData: nodeDoc.LoginData, param: any) {
-    console.log('getScriptParameters');
+export async function getScriptParameters(loginData: nodeDoc.LoginData, param: any) {
+    await login.ensureLoginInformation(loginData);
 
     // Check documents version
     nodeDoc.serverSession(loginData, [], nodeDoc.getDocumentsVersion).then((value) => {
@@ -407,23 +421,19 @@ export function getScriptParameters(loginData: nodeDoc.LoginData, param: any) {
 }
 
 
-/**
- * Read list downloadScriptNames, if this list is empty,
- * get all scriptnames from server.
- *
- * @param loginData
- */
+// TODO: Remove this function
 async function getDownloadScriptNames(loginData: nodeDoc.LoginData): Promise<nodeDoc.scriptT[]> {
     return new Promise<nodeDoc.scriptT[]>((resolve, reject) => {
+
         const scripts: nodeDoc.scriptT[] = helpers.getDownloadScriptNamesFromList();
         if (0 < scripts.length) {
-            resolve(scripts);
-        } else {
-            nodeDoc.serverSession(loginData, [], nodeDoc.getScriptNamesFromServer).then((_scripts) => {
-                resolve(_scripts);
-            }).catch((reason) => {
-                reject(reason);
-            });
+            return resolve(scripts);
         }
+
+        nodeDoc.serverSession(loginData, [], nodeDoc.getScriptNamesFromServer).then((serverScripts) => {
+            resolve(serverScripts);
+        }).catch((reason) => {
+            reject(reason);
+        });
     });
 }
