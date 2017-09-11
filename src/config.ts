@@ -41,6 +41,8 @@ export interface LaunchRequestArguments extends DebugProtocol.LaunchRequestArgum
     stopOnEntry?: boolean;
 }
 
+export const commandAskForPassword = '${command:extension.vscode-janus-debug.askForPassword}';
+
 const initialConfigurations = [
     {
         name: 'Launch Script on Server',
@@ -48,7 +50,7 @@ const initialConfigurations = [
         type: 'janus',
         script: '',
         username: '',
-        password: '${command:extension.vscode-janus-debug.askForPassword}',
+        password: commandAskForPassword,
         principal: '',
         host: 'localhost',
         applicationPort: 10000,
