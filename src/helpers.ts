@@ -187,26 +187,6 @@ export async function ensureUploadOnSave(param: string): Promise<autoUploadAnswe
     });
 }
 
-/**
- * Read list downloadScriptNames, if this list is empty,
- * get all scriptnames from server.
- *
- * @param loginData
- */
-export async function getDownloadScriptNames(loginData: nodeDoc.LoginData): Promise<nodeDoc.scriptT[]> {
-    return new Promise<nodeDoc.scriptT[]>((resolve, reject) => {
-        const scripts: nodeDoc.scriptT[] = getDownloadScriptNamesFromList();
-        if (0 < scripts.length) {
-            resolve(scripts);
-        } else {
-            nodeDoc.sdsSession(loginData, [], nodeDoc.getScriptNamesFromServer).then((_scripts) => {
-                resolve(_scripts);
-            }).catch((reason) => {
-                reject(reason);
-            });
-        }
-    });
-}
 
 /**
  * Read list downloadScriptNames

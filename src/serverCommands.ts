@@ -266,7 +266,7 @@ export function downloadAll(loginData: nodeDoc.LoginData, contextMenuPath: strin
         const scriptDir: string = scriptInfo[0];
 
         // get names of scripts that should be downloaded
-        return helpers.getDownloadScriptNames(loginData).then((requestScripts) => {
+        return getDownloadScriptNames(loginData).then((requestScripts) => {
 
             // set download path to scripts
             requestScripts.forEach(function(script) {
@@ -369,7 +369,7 @@ export function getScriptParameters(loginData: nodeDoc.LoginData, param: any) {
             // return nodeDoc.sdsSession(loginData, [], nodeDoc.getScriptNamesFromServer).then((_scripts) => {
 
             // get names of download scripts
-            return helpers.getDownloadScriptNames(loginData).then((_scripts) => {
+            return getDownloadScriptNames(loginData).then((_scripts) => {
 
                 // get parameters
                 return nodeDoc.serverSession(loginData, _scripts, nodeDoc.getAllParameters).then((values) => {
@@ -407,3 +407,23 @@ export function getScriptParameters(loginData: nodeDoc.LoginData, param: any) {
 }
 
 
+/**
+ * Read list downloadScriptNames, if this list is empty,
+ * get all scriptnames from server.
+ *
+ * @param loginData
+ */
+async function getDownloadScriptNames(loginData: nodeDoc.LoginData): Promise<nodeDoc.scriptT[]> {
+    return new Promise<nodeDoc.scriptT[]>((resolve, reject) => {
+        const scripts: nodeDoc.scriptT[] = helpers.getDownloadScriptNamesFromList();
+        if (0 < scripts.length) {
+            resolve(scripts);
+        } else {
+            nodeDoc.serverSession(loginData, [], nodeDoc.getScriptNamesFromServer).then((_scripts) => {
+                resolve(_scripts);
+            }).catch((reason) => {
+                reject(reason);
+            });
+        }
+    });
+}
