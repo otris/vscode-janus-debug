@@ -178,7 +178,7 @@ function initServerConsole(outputChannel: vscode.OutputChannel) {
     }
 }
 
-function initLaunchJsonWatcher(outputChannel: vscode.OutputChannel, loginData: nodeDoc.LoginData) {
+function initLaunchJsonWatcher(outputChannel: vscode.OutputChannel, loginData: nodeDoc.ConnectionInformation) {
     launchJsonWatcher = vscode.workspace.createFileSystemWatcher('**/launch.json', false, false, false);
 
     launchJsonWatcher.onDidCreate((file) => {
@@ -222,9 +222,8 @@ export function activate(context: vscode.ExtensionContext): void {
     }
 
     // Get login data
-    const loginData: nodeDoc.LoginData = new nodeDoc.LoginData();
+    const loginData: nodeDoc.ConnectionInformation = new nodeDoc.ConnectionInformation();
     context.subscriptions.push(loginData);
-    loginData.getLoginData = login.getLoginData;
     loginData.askForPasswordStr = '${command:extension.vscode-janus-debug.askForPassword}';
     if (vscode.workspace && vscode.workspace.rootPath) {
         login.loadConfigFile(loginData, path.join(vscode.workspace.rootPath, '.vscode', 'launch.json'));

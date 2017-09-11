@@ -26,7 +26,7 @@ export function setDecryptionVersionChecked(value: boolean) {
  * Returns false if user has decryption permission and server version is not 5.0c or higher.
  * Because then the upload with encrypted scripts will cause problems.
  */
-export async function checkDecryptionVersion(loginData: nodeDoc.LoginData): Promise<void> {
+export async function checkDecryptionVersion(loginData: nodeDoc.ConnectionInformation): Promise<void> {
     await login.ensureLoginInformation(loginData);
 
     return new Promise<void>((resolve, reject) => {
@@ -34,7 +34,7 @@ export async function checkDecryptionVersion(loginData: nodeDoc.LoginData): Prom
             nodeDoc.serverSession(loginData, [], nodeDoc.checkDecryptionPermission).then((retval1) => {
                 const perm: nodeDoc.documentsT = retval1[0];
                 decrptionVersionChecked = true;
-                if (perm && Number(loginData.DocumentsVersion) < Number(VERSION_DECRYPT_PERM)) {
+                if (perm && Number(loginData.documentsVersion) < Number(VERSION_DECRYPT_PERM)) {
                     const info = `Please update your DOCUMENTS to 5.0c (#${VERSION_DECRYPT_PERM}) to avoid problems with encrypted scripts`;
                     vscode.window.showQuickPick(['Upload anyway', 'Cancel'], { placeHolder: info }).then((answer) => {
                         if ('Upload anyway' === answer) {
@@ -66,7 +66,7 @@ export async function checkDecryptionVersion(loginData: nodeDoc.LoginData): Prom
  * @param loginData
  * @param param
  */
-async function uploadScriptCommon(loginData: nodeDoc.LoginData, param: any): Promise<string> {
+async function uploadScriptCommon(loginData: nodeDoc.ConnectionInformation, param: any): Promise<string> {
     await login.ensureLoginInformation(loginData);
 
     return new Promise<string>((resolve, reject) => {
@@ -111,7 +111,7 @@ async function uploadScriptCommon(loginData: nodeDoc.LoginData, param: any): Pro
 /**
  * Upload script
  */
-export function uploadScript(loginData: nodeDoc.LoginData, param: any): Promise<void> {
+export function uploadScript(loginData: nodeDoc.ConnectionInformation, param: any): Promise<void> {
     return new Promise<void>((resolve, reject) => {
         uploadScriptCommon(loginData, param).then((scriptName) => {
             vscode.window.setStatusBarMessage('uploaded: ' + scriptName);
@@ -126,7 +126,7 @@ export function uploadScript(loginData: nodeDoc.LoginData, param: any): Promise<
 /**
  * Upload script on save
  */
-export function uploadScriptOnSave(loginData: nodeDoc.LoginData, fileName: string): Promise<boolean> {
+export function uploadScriptOnSave(loginData: nodeDoc.ConnectionInformation, fileName: string): Promise<boolean> {
     return new Promise<boolean>((resolve, reject) => {
         helpers.ensureUploadOnSave(fileName).then((value) => {
             if (helpers.autoUploadAnswer.yes === value) {
@@ -149,7 +149,7 @@ export function uploadScriptOnSave(loginData: nodeDoc.LoginData, fileName: strin
     });
 }
 
-export function uploadJSFromTS(loginData: nodeDoc.LoginData, textDocument: vscode.TextDocument): Promise<void> {
+export function uploadJSFromTS(loginData: nodeDoc.ConnectionInformation, textDocument: vscode.TextDocument): Promise<void> {
     return new Promise<void>((resolve, reject) => {
 
         if (!textDocument || '.ts' !== path.extname(textDocument.fileName)) {
@@ -181,7 +181,7 @@ export function uploadJSFromTS(loginData: nodeDoc.LoginData, textDocument: vscod
 /**
  * Upload and run script
  */
-export function uploadRunScript(loginData: nodeDoc.LoginData, param: any, runScriptChannel: vscode.OutputChannel) {
+export function uploadRunScript(loginData: nodeDoc.ConnectionInformation, param: any, runScriptChannel: vscode.OutputChannel) {
     uploadScriptCommon(loginData, param).then((scriptName) => {
 
         let script: nodeDoc.scriptT = new nodeDoc.scriptT(scriptName);
@@ -199,7 +199,7 @@ export function uploadRunScript(loginData: nodeDoc.LoginData, param: any, runScr
 /**
  * Upload all
  */
-export async function uploadAll(loginData: nodeDoc.LoginData, _param: any) {
+export async function uploadAll(loginData: nodeDoc.ConnectionInformation, _param: any) {
     await login.ensureLoginInformation(loginData);
 
     helpers.ensurePath(_param).then((folder) => {
@@ -244,7 +244,7 @@ export async function uploadAll(loginData: nodeDoc.LoginData, _param: any) {
  * @param contextMenuPath: If command is called from context menu, this variable should
  * contain the corresponding path. Otherwise it should be undefined.
  */
-export async function downloadScript(loginData: nodeDoc.LoginData, contextMenuPath: string | undefined) {
+export async function downloadScript(loginData: nodeDoc.ConnectionInformation, contextMenuPath: string | undefined) {
     await login.ensureLoginInformation(loginData);
 
     helpers.ensureScriptName(contextMenuPath).then((scriptName) => {
@@ -269,7 +269,7 @@ export async function downloadScript(loginData: nodeDoc.LoginData, contextMenuPa
 /**
  * Download all
  */
-export async function downloadAll(loginData: nodeDoc.LoginData, contextMenuPath: string | undefined) {
+export async function downloadAll(loginData: nodeDoc.ConnectionInformation, contextMenuPath: string | undefined) {
     await login.ensureLoginInformation(loginData);
 
     helpers.ensurePath(contextMenuPath, true).then((scriptInfo) => {
@@ -308,7 +308,7 @@ export async function downloadAll(loginData: nodeDoc.LoginData, contextMenuPath:
 /**
  * Run script
  */
-export async function runScript(loginData: nodeDoc.LoginData, param: any, runScriptChannel: vscode.OutputChannel) {
+export async function runScript(loginData: nodeDoc.ConnectionInformation, param: any, runScriptChannel: vscode.OutputChannel) {
     await login.ensureLoginInformation(loginData);
 
     helpers.ensureScriptName(param).then((scriptname) => {
@@ -326,7 +326,7 @@ export async function runScript(loginData: nodeDoc.LoginData, param: any, runScr
 /**
  * Compare script
  */
-export async function compareScript(loginData: nodeDoc.LoginData, _param: any) {
+export async function compareScript(loginData: nodeDoc.ConnectionInformation, _param: any) {
     await login.ensureLoginInformation(loginData);
 
     helpers.ensurePath(_param, false, true).then((_path) => {
@@ -355,7 +355,7 @@ export async function compareScript(loginData: nodeDoc.LoginData, _param: any) {
 /**
  * Download script names
  */
-export function getScriptnames(loginData: nodeDoc.LoginData, param: any) {
+export function getScriptnames(loginData: nodeDoc.ConnectionInformation, param: any) {
     nodeDoc.serverSession(loginData, [], nodeDoc.getScriptNamesFromServer).then((_scripts) => {
         helpers.writeScriptNamesToFile(_scripts);
         console.log('Wrote scripts to file and opened the file');
@@ -367,7 +367,7 @@ export function getScriptnames(loginData: nodeDoc.LoginData, param: any) {
 /**
  * Download script parameters
  */
-export async function getScriptParameters(loginData: nodeDoc.LoginData, param: any) {
+export async function getScriptParameters(loginData: nodeDoc.ConnectionInformation, param: any) {
     await login.ensureLoginInformation(loginData);
 
     // Check documents version
@@ -422,7 +422,7 @@ export async function getScriptParameters(loginData: nodeDoc.LoginData, param: a
 
 
 // TODO: Remove this function
-async function getDownloadScriptNames(loginData: nodeDoc.LoginData): Promise<nodeDoc.scriptT[]> {
+async function getDownloadScriptNames(loginData: nodeDoc.ConnectionInformation): Promise<nodeDoc.scriptT[]> {
     return new Promise<nodeDoc.scriptT[]>((resolve, reject) => {
 
         const scripts: nodeDoc.scriptT[] = helpers.getDownloadScriptNamesFromList();

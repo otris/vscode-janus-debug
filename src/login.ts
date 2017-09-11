@@ -10,7 +10,7 @@ import { provideInitialConfigurations } from './config';
 const stripJsonComments = require('strip-json-comments');
 
 
-export function loadConfigFile(login: nodeDoc.LoginData, configFile: string): boolean {
+export function loadConfigFile(login: nodeDoc.ConnectionInformation, configFile: string): boolean {
     console.log('loadConfigFile');
     login.configFile = configFile;
 
@@ -42,7 +42,7 @@ export function loadConfigFile(login: nodeDoc.LoginData, configFile: string): bo
 }
 
 
-export async function getLoginData(_loginData: nodeDoc.LoginData): Promise<void> {
+export async function getLoginData(_loginData: nodeDoc.ConnectionInformation): Promise<void> {
     return new Promise<void>(async (resolve, reject) => {
 
         try {
@@ -69,7 +69,7 @@ export async function getLoginData(_loginData: nodeDoc.LoginData): Promise<void>
 
 
 
-export function ensureLoginInformation(serverInfo: nodeDoc.LoginData): Promise<void> {
+export function ensureLoginInformation(serverInfo: nodeDoc.ConnectionInformation): Promise<void> {
     console.log(`ensureLoginData start: ask ${serverInfo.askForPassword} askStr ${serverInfo.askForPasswordStr} pw ${serverInfo.password}`);
     return new Promise<void>((resolve, reject) => {
 
@@ -91,7 +91,7 @@ export function ensureLoginInformation(serverInfo: nodeDoc.LoginData): Promise<v
 
 
 
-async function askForPassword(_loginData: nodeDoc.LoginData): Promise<void> {
+async function askForPassword(_loginData: nodeDoc.ConnectionInformation): Promise<void> {
     return new Promise<void>(async (resolve, reject) => {
         const password = await vscode.window.showInputBox({
             prompt: 'Please enter the password',
@@ -110,7 +110,7 @@ async function askForPassword(_loginData: nodeDoc.LoginData): Promise<void> {
     });
 }
 
-async function askForLoginData(_loginData: nodeDoc.LoginData): Promise<void> {
+async function askForLoginData(_loginData: nodeDoc.ConnectionInformation): Promise<void> {
     console.log('askForLoginData');
 
     const SERVER: string = 'localhost';
@@ -189,7 +189,7 @@ async function askForLoginData(_loginData: nodeDoc.LoginData): Promise<void> {
     });
 }
 
-async function createLaunchJson(loginData: nodeDoc.LoginData): Promise<void> {
+async function createLaunchJson(loginData: nodeDoc.ConnectionInformation): Promise<void> {
     console.log('createLaunchJson');
 
     return new Promise<void>((resolve, reject) => {
