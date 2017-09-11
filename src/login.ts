@@ -199,10 +199,15 @@ export function ensureLoginInformation(serverInfo: nodeDoc.ConnectionInformation
     console.log(`ensureLoginData start: ask ${serverInfo.askForPassword} askStr ${serverInfo.askForPasswordStr} pw ${serverInfo.password}`);
     return new Promise<void>((resolve, reject) => {
 
-        if (serverInfo.checkLoginData() && !(serverInfo.askForPassword && (serverInfo.askForPasswordStr === serverInfo.password))) {
+        // serverInfo.password contains the string from launch.json that might be
+        // '${command:extension.vscode-janus-debug.askForPassword}' (see deafault launch.json)
+        const askForPassword = serverInfo.askForPassword && (serverInfo.askForPasswordStr === serverInfo.password);
+
+        if (serverInfo.checkLoginData() && !askForPassword) {
             return resolve();
         }
 
+        // ask user for login information and write to launch.json
         getLoginData(serverInfo).then(() => {
             if (serverInfo.checkLoginData() && (serverInfo.askForPasswordStr !== serverInfo.password)) {
                 resolve();
