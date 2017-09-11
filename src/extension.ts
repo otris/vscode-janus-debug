@@ -6,12 +6,13 @@ import { LogConfiguration, Logger } from 'node-file-log';
 import * as os from 'os';
 import * as path from 'path';
 import * as vscode from 'vscode';
-import * as commands from './commands';
 import { provideInitialConfigurations } from './config';
 import { extend } from './helpers';
 import * as helpers from './helpers';
+import * as intellisense from './intellisense';
 import { VSCodeExtensionIPC } from './ipcServer';
 import * as login from './login';
+import * as serverCommands from './serverCommands';
 import { ServerConsole } from './serverConsole';
 import stripJsonComments = require('strip-json-comments');
 import { getVersion } from './version';
@@ -187,7 +188,7 @@ function initLaunchJsonWatcher(outputChannel: vscode.OutputChannel, loginData: n
         if (file) {
             login.loadConfigFile(loginData, file.fsPath);
         }
-        commands.setDecryptionVersionChecked(false);
+        serverCommands.setDecryptionVersionChecked(false);
     });
 
     launchJsonWatcher.onDidChange((file) => {
@@ -198,7 +199,7 @@ function initLaunchJsonWatcher(outputChannel: vscode.OutputChannel, loginData: n
         if (file) {
             login.loadConfigFile(loginData, file.fsPath);
         }
-        commands.setDecryptionVersionChecked(false);
+        serverCommands.setDecryptionVersionChecked(false);
     });
 
     launchJsonWatcher.onDidDelete((file) => {
@@ -268,7 +269,7 @@ export function activate(context: vscode.ExtensionContext): void {
         vscode.commands.registerCommand('extension.vscode-janus-debug.uploadScript', async (param) => {
 
             // show warning if server is too old for using encrypted scripts
-            await commands.checkDecryptionVersion(loginData);
+            await serverCommands.checkDecryptionVersion(loginData);
 
             let fsPath;
             if (param) {
@@ -277,7 +278,7 @@ export function activate(context: vscode.ExtensionContext): void {
             if (!fsPath && vscode.window.activeTextEditor) {
                 fsPath = vscode.window.activeTextEditor.document.fileName;
             }
-            await commands.uploadScript(loginData, fsPath);
+            await serverCommands.uploadScript(loginData, fsPath);
             helpers.showWarning(loginData);
         })
     );
@@ -287,11 +288,11 @@ export function activate(context: vscode.ExtensionContext): void {
         vscode.commands.registerCommand('extension.vscode-janus-debug.uploadJSFromTS', async (param) => {
 
             // show warning if server is too old
-            await commands.checkDecryptionVersion(loginData);
+            await serverCommands.checkDecryptionVersion(loginData);
 
             if (vscode.window.activeTextEditor) {
                 const doc = vscode.window.activeTextEditor.document;
-                await commands.uploadJSFromTS(loginData, doc);
+                await serverCommands.uploadJSFromTS(loginData, doc);
                 helpers.showWarning(loginData);
             }
         })
@@ -302,13 +303,13 @@ export function activate(context: vscode.ExtensionContext): void {
         vscode.commands.registerCommand('extension.vscode-janus-debug.uploadScriptsFromFolder', async (param) => {
 
             // show warning if server is too old
-            await commands.checkDecryptionVersion(loginData);
+            await serverCommands.checkDecryptionVersion(loginData);
 
             let fsPath;
             if (param) {
                 fsPath = param._fsPath;
             }
-            await commands.uploadAll(loginData, fsPath);
+            await serverCommands.uploadAll(loginData, fsPath);
             helpers.showWarning(loginData);
         })
     );
@@ -320,7 +321,7 @@ export function activate(context: vscode.ExtensionContext): void {
             if (param && typeof(param._fsPath) === 'string') {
                 fsPath = param._fsPath;
             }
-            await commands.downloadScript(loginData, fsPath);
+            await serverCommands.downloadScript(loginData, fsPath);
             helpers.showWarning(loginData);
         })
     );
@@ -332,7 +333,7 @@ export function activate(context: vscode.ExtensionContext): void {
             if (param && typeof(param._fsPath) === 'string') {
                 fsPath = param._fsPath;
             }
-            await commands.downloadAll(loginData, fsPath);
+            await serverCommands.downloadAll(loginData, fsPath);
             helpers.showWarning(loginData);
         })
     );
@@ -347,7 +348,7 @@ export function activate(context: vscode.ExtensionContext): void {
             if (!fsPath && vscode.window.activeTextEditor) {
                 fsPath = vscode.window.activeTextEditor.document.fileName;
             }
-            await commands.runScript(loginData, fsPath, scriptChannel);
+            await serverCommands.runScript(loginData, fsPath, scriptChannel);
             helpers.showWarning(loginData);
         })
     );
@@ -357,7 +358,7 @@ export function activate(context: vscode.ExtensionContext): void {
         vscode.commands.registerCommand('extension.vscode-janus-debug.uploadRunScript', async (param) => {
 
             // show warning if server is too old
-            await commands.checkDecryptionVersion(loginData);
+            await serverCommands.checkDecryptionVersion(loginData);
 
             let fsPath;
             if (param) {
@@ -366,7 +367,7 @@ export function activate(context: vscode.ExtensionContext): void {
             if (!fsPath && vscode.window.activeTextEditor) {
                 fsPath = vscode.window.activeTextEditor.document.fileName;
             }
-            await commands.uploadRunScript(loginData, fsPath, scriptChannel);
+            await serverCommands.uploadRunScript(loginData, fsPath, scriptChannel);
             helpers.showWarning(loginData);
         })
     );
@@ -381,28 +382,28 @@ export function activate(context: vscode.ExtensionContext): void {
             if (!fsPath && vscode.window.activeTextEditor) {
                 fsPath = vscode.window.activeTextEditor.document.fileName;
             }
-            commands.compareScript(loginData, fsPath);
+            serverCommands.compareScript(loginData, fsPath);
         })
     );
 
     // Get script names
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.getScriptNames', (param) => {
-            commands.getScriptnames(loginData, param);
+            serverCommands.getScriptnames(loginData, param);
         })
     );
 
     // Get script parameters
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.getScriptParameters', (param) => {
-            commands.getScriptParameters(loginData, param);
+            serverCommands.getScriptParameters(loginData, param);
         })
     );
 
     // Install intellisense files
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.installIntellisenseFiles', () => {
-            commands.installIntellisenseFiles();
+            intellisense.installIntellisenseFiles();
         })
     );
 
@@ -410,7 +411,7 @@ export function activate(context: vscode.ExtensionContext): void {
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.viewDocumentation', (file) => {
             // file is not used, use active editor...
-            commands.viewDocumentation();
+            serverCommands.viewDocumentation();
         })
     );
 
@@ -447,7 +448,7 @@ export function activate(context: vscode.ExtensionContext): void {
         if (autoUploadEnabled) {
             disposableOnSave = vscode.workspace.onDidSaveTextDocument((textDocument) => {
                 if ('.js' === path.extname(textDocument.fileName)) {
-                    commands.uploadScriptOnSave(loginData, textDocument.fileName).then((value) => {
+                    serverCommands.uploadScriptOnSave(loginData, textDocument.fileName).then((value) => {
                         if (!value && disposableOnSave) {
                             disposableOnSave.dispose();
                         }
