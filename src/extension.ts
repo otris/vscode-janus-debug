@@ -270,7 +270,11 @@ export function activate(context: vscode.ExtensionContext): void {
         vscode.commands.registerCommand('extension.vscode-janus-debug.uploadScript', async (param) => {
 
             // show warning if server is too old for using encrypted scripts
-            await serverCommands.checkDecryptionVersion(loginData);
+            try {
+                await serverCommands.checkDecryptionVersion(loginData);
+            } catch (err) {
+                return;
+            }
 
             let fsPath;
             if (param) {
@@ -293,7 +297,11 @@ export function activate(context: vscode.ExtensionContext): void {
         vscode.commands.registerCommand('extension.vscode-janus-debug.uploadJSFromTS', async (param) => {
 
             // show warning if server is too old
-            await serverCommands.checkDecryptionVersion(loginData);
+            try {
+                await serverCommands.checkDecryptionVersion(loginData);
+            } catch (err) {
+                return;
+            }
 
             if (vscode.window.activeTextEditor) {
                 const doc = vscode.window.activeTextEditor.document;
@@ -312,7 +320,11 @@ export function activate(context: vscode.ExtensionContext): void {
         vscode.commands.registerCommand('extension.vscode-janus-debug.uploadScriptsFromFolder', async (param) => {
 
             // show warning if server is too old
-            await serverCommands.checkDecryptionVersion(loginData);
+            try {
+                await serverCommands.checkDecryptionVersion(loginData);
+            } catch (err) {
+                return;
+            }
 
             let fsPath;
             if (param) {
@@ -383,7 +395,11 @@ export function activate(context: vscode.ExtensionContext): void {
         vscode.commands.registerCommand('extension.vscode-janus-debug.uploadRunScript', async (param) => {
 
             // show warning if server is too old
-            await serverCommands.checkDecryptionVersion(loginData);
+            try {
+                await serverCommands.checkDecryptionVersion(loginData);
+            } catch (err) {
+                return;
+            }
 
             let fsPath;
             if (param) {
