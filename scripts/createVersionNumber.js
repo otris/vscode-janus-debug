@@ -22,12 +22,16 @@ function determineVersion() {
             } else {
                 let tags = stdout.split("\n");
                 let newestTag = tags[tags.length - 2];
-                let numbers = newestTag.split(".");
-                return resolve({
-                    major: numbers[0],
-                    minor: numbers[1],
-                    patch: numbers[2]
-                });
+                if (newestTag) {
+                    let numbers = newestTag.split(".");
+                    return resolve({
+                        major: numbers[0],
+                        minor: numbers[1],
+                        patch: numbers[2]
+                    });
+                } else {
+                    return reject();
+                }
             }
         })
     });
