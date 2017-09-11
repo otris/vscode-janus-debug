@@ -749,7 +749,7 @@ export async function ensureScript(param?: string | vscode.TextDocument): Promis
     });
 }
 
-export function showWarning(loginData: nodeDoc.LoginData) {
+export function showWarning(loginData: nodeDoc.ConnectionInformation) {
     if (0 < loginData.lastWarning.length) {
         vscode.window.showWarningMessage(loginData.lastWarning);
         loginData.lastWarning = '';
