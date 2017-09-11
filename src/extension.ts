@@ -279,7 +279,11 @@ export function activate(context: vscode.ExtensionContext): void {
             if (!fsPath && vscode.window.activeTextEditor) {
                 fsPath = vscode.window.activeTextEditor.document.fileName;
             }
-            await serverCommands.uploadScript(loginData, fsPath);
+            try {
+                await serverCommands.uploadScript(loginData, fsPath);
+            } catch (err) {
+                //
+            }
             helpers.showWarning(loginData);
         })
     );
@@ -293,7 +297,11 @@ export function activate(context: vscode.ExtensionContext): void {
 
             if (vscode.window.activeTextEditor) {
                 const doc = vscode.window.activeTextEditor.document;
-                await serverCommands.uploadJSFromTS(loginData, doc);
+                try {
+                    await serverCommands.uploadJSFromTS(loginData, doc);
+                } catch (err) {
+                    //
+                }
                 helpers.showWarning(loginData);
             }
         })
@@ -310,7 +318,11 @@ export function activate(context: vscode.ExtensionContext): void {
             if (param) {
                 fsPath = param._fsPath;
             }
-            await serverCommands.uploadAll(loginData, fsPath);
+            try {
+                await serverCommands.uploadAll(loginData, fsPath);
+            } catch (err) {
+                //
+            }
             helpers.showWarning(loginData);
         })
     );
@@ -322,7 +334,11 @@ export function activate(context: vscode.ExtensionContext): void {
             if (param && typeof(param._fsPath) === 'string') {
                 fsPath = param._fsPath;
             }
-            await serverCommands.downloadScript(loginData, fsPath);
+            try {
+                await serverCommands.downloadScript(loginData, fsPath);
+            } catch (err) {
+                //
+            }
             helpers.showWarning(loginData);
         })
     );
@@ -334,7 +350,11 @@ export function activate(context: vscode.ExtensionContext): void {
             if (param && typeof(param._fsPath) === 'string') {
                 fsPath = param._fsPath;
             }
-            await serverCommands.downloadAll(loginData, fsPath);
+            try {
+                await serverCommands.downloadAll(loginData, fsPath);
+            } catch (err) {
+                //
+            }
             helpers.showWarning(loginData);
         })
     );
@@ -349,7 +369,11 @@ export function activate(context: vscode.ExtensionContext): void {
             if (!fsPath && vscode.window.activeTextEditor) {
                 fsPath = vscode.window.activeTextEditor.document.fileName;
             }
-            await serverCommands.runScript(loginData, fsPath, scriptChannel);
+            try {
+                await serverCommands.runScript(loginData, fsPath, scriptChannel);
+            } catch (err) {
+                //
+            }
             helpers.showWarning(loginData);
         })
     );
@@ -368,14 +392,18 @@ export function activate(context: vscode.ExtensionContext): void {
             if (!fsPath && vscode.window.activeTextEditor) {
                 fsPath = vscode.window.activeTextEditor.document.fileName;
             }
-            await serverCommands.uploadRunScript(loginData, fsPath, scriptChannel);
+            try {
+                await serverCommands.uploadRunScript(loginData, fsPath, scriptChannel);
+            } catch (err) {
+                //
+            }
             helpers.showWarning(loginData);
         })
     );
 
     // Compare script
     context.subscriptions.push(
-        vscode.commands.registerCommand('extension.vscode-janus-debug.compareScript', (param) => {
+        vscode.commands.registerCommand('extension.vscode-janus-debug.compareScript', async (param) => {
             let fsPath;
             if (param) {
                 fsPath = param._fsPath;
@@ -383,21 +411,36 @@ export function activate(context: vscode.ExtensionContext): void {
             if (!fsPath && vscode.window.activeTextEditor) {
                 fsPath = vscode.window.activeTextEditor.document.fileName;
             }
-            serverCommands.compareScript(loginData, fsPath);
+            try {
+                await serverCommands.compareScript(loginData, fsPath);
+            } catch (err) {
+                //
+            }
+            helpers.showWarning(loginData);
         })
     );
 
     // Get script names
     context.subscriptions.push(
-        vscode.commands.registerCommand('extension.vscode-janus-debug.getScriptNames', (param) => {
-            serverCommands.getScriptnames(loginData, param);
+        vscode.commands.registerCommand('extension.vscode-janus-debug.getScriptNames', async (param) => {
+            try {
+                await serverCommands.getScriptnames(loginData, param);
+            } catch (err) {
+                //
+            }
+            helpers.showWarning(loginData);
         })
     );
 
     // Get script parameters
     context.subscriptions.push(
-        vscode.commands.registerCommand('extension.vscode-janus-debug.getScriptParameters', (param) => {
-            serverCommands.getScriptParameters(loginData, param);
+        vscode.commands.registerCommand('extension.vscode-janus-debug.getScriptParameters', async (param) => {
+            try {
+                await serverCommands.getScriptParameters(loginData, param);
+            } catch (err) {
+                //
+            }
+            helpers.showWarning(loginData);
         })
     );
 
