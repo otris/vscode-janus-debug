@@ -333,6 +333,10 @@ export class JanusDebugSession extends DebugSession {
         const connection = new DebugConnection(socket);
         this.connection = connection;
 
+        this.connection.on('contextPaused', (ctxId: number) => {
+            this.sendEvent(new StoppedEvent("hit breakpoint", ctxId));
+        });
+
         this.logServerVersion();
 
         socket.on('connect', async () => {
