@@ -29,7 +29,7 @@ export function setDecryptionVersionChecked(value: boolean) {
 export async function checkDecryptionVersion(loginData: nodeDoc.LoginData): Promise<void> {
     return new Promise<void>((resolve, reject) => {
         if (!decrptionVersionChecked) {
-            nodeDoc.sdsSession(loginData, [], nodeDoc.checkDecryptionPermission).then((retval1) => {
+            nodeDoc.serverSession(loginData, [], nodeDoc.checkDecryptionPermission).then((retval1) => {
                 const perm: nodeDoc.documentsT = retval1[0];
                 decrptionVersionChecked = true;
                 if (perm && Number(loginData.DocumentsVersion) < Number(VERSION_DECRYPT_PERM)) {
@@ -73,7 +73,7 @@ function uploadScriptCommon(loginData: nodeDoc.LoginData, param: any): Promise<s
             helpers.readEncryptionFlag([_script]);
             // helpers.setCategories([_script]);
 
-            return nodeDoc.sdsSession(loginData, [_script], nodeDoc.uploadScript).then((value) => {
+            return nodeDoc.serverSession(loginData, [_script], nodeDoc.uploadScript).then((value) => {
 
                 // in case of conflict (server-script changed by someone else)
                 // returned script contains local and server code
@@ -84,7 +84,7 @@ function uploadScriptCommon(loginData: nodeDoc.LoginData, param: any): Promise<s
                 helpers.ensureForceUpload([script]).then(([noConflict, forceUpload]) => {
 
                     // if forceUpload is empty function resolves anyway
-                    nodeDoc.sdsSession(loginData, forceUpload, nodeDoc.uploadScript).then(() => {
+                    nodeDoc.serverSession(loginData, forceUpload, nodeDoc.uploadScript).then(() => {
 
                         // if script had conflict and was not force-uploaded
                         // conflict is true in this script
@@ -181,7 +181,7 @@ export function uploadRunScript(loginData: nodeDoc.LoginData, param: any, runScr
     uploadScriptCommon(loginData, param).then((scriptName) => {
 
         let script: nodeDoc.scriptT = new nodeDoc.scriptT(scriptName);
-        return nodeDoc.sdsSession(loginData, [script], nodeDoc.runScript).then((value) => {
+        return nodeDoc.serverSession(loginData, [script], nodeDoc.runScript).then((value) => {
             script = value[0];
             runScriptChannel.append(script.output + os.EOL);
             runScriptChannel.show();
@@ -205,14 +205,14 @@ export function uploadAll(loginData: nodeDoc.LoginData, _param: any) {
         helpers.readEncryptionFlag(folderScripts);
         // helpers.setCategories(folderScripts);
 
-        return nodeDoc.sdsSession(loginData, folderScripts, nodeDoc.uploadAll).then((value1) => {
+        return nodeDoc.serverSession(loginData, folderScripts, nodeDoc.uploadAll).then((value1) => {
             const retScripts: nodeDoc.scriptT[] = value1;
 
             // ask user about how to handle conflict scripts
             helpers.ensureForceUpload(retScripts).then(([noConflict, forceUpload]) => {
 
                 // forceUpload might be empty, function resolves anyway
-                nodeDoc.sdsSession(loginData, forceUpload, nodeDoc.uploadAll).then((value2) => {
+                nodeDoc.serverSession(loginData, forceUpload, nodeDoc.uploadAll).then((value2) => {
                     const retScripts2: nodeDoc.scriptT[] = value2;
 
                     // retscripts2 might be empty
@@ -247,7 +247,7 @@ export function downloadScript(loginData: nodeDoc.LoginData, contextMenuPath: st
             helpers.readConflictModes([script]);
             helpers.setCategoryRoots([script], contextMenuPath, scriptDir);
 
-            return nodeDoc.sdsSession(loginData, [script], nodeDoc.downloadScript).then((value) => {
+            return nodeDoc.serverSession(loginData, [script], nodeDoc.downloadScript).then((value) => {
                 script = value[0];
                 helpers.updateHashValues([script], loginData.server);
                 vscode.window.setStatusBarMessage('downloaded: ' + script.name);
@@ -277,7 +277,7 @@ export function downloadAll(loginData: nodeDoc.LoginData, contextMenuPath: strin
             helpers.setCategoryRoots(requestScripts, contextMenuPath, scriptDir);
 
             // download scripts
-            return nodeDoc.sdsSession(loginData, requestScripts, nodeDoc.downloadAll).then((scripts) => {
+            return nodeDoc.serverSession(loginData, requestScripts, nodeDoc.downloadAll).then((scripts) => {
                 helpers.updateHashValues(scripts, loginData.server);
                 // if a script from input list has not been downloaded but the function was resolved
                 // then the script is encrypted on server
@@ -301,7 +301,7 @@ export function downloadAll(loginData: nodeDoc.LoginData, contextMenuPath: strin
 export function runScript(loginData: nodeDoc.LoginData, param: any, runScriptChannel: vscode.OutputChannel) {
     helpers.ensureScriptName(param).then((scriptname) => {
         let script: nodeDoc.scriptT = new nodeDoc.scriptT(scriptname);
-        return nodeDoc.sdsSession(loginData, [script], nodeDoc.runScript).then((value) => {
+        return nodeDoc.serverSession(loginData, [script], nodeDoc.runScript).then((value) => {
             script = value[0];
             runScriptChannel.append(script.output + os.EOL);
             runScriptChannel.show();
@@ -327,7 +327,7 @@ export function compareScript(loginData: nodeDoc.LoginData, _param: any) {
             }
             return helpers.createFolder(comparePath, true).then(() => {
                 let script: nodeDoc.scriptT = new nodeDoc.scriptT(scriptname, comparePath, '', helpers.COMPARE_FILE_PREFIX + scriptname);
-                return nodeDoc.sdsSession(loginData, [script], nodeDoc.downloadScript).then((value) => {
+                return nodeDoc.serverSession(loginData, [script], nodeDoc.downloadScript).then((value) => {
                     script = value[0];
                     helpers.compareScript(scriptFolder, scriptname);
                 });
@@ -342,7 +342,7 @@ export function compareScript(loginData: nodeDoc.LoginData, _param: any) {
  * Download script names
  */
 export function getScriptnames(loginData: nodeDoc.LoginData, param: any) {
-    nodeDoc.sdsSession(loginData, [], nodeDoc.getScriptNamesFromServer).then((_scripts) => {
+    nodeDoc.serverSession(loginData, [], nodeDoc.getScriptNamesFromServer).then((_scripts) => {
         helpers.writeScriptNamesToFile(_scripts);
         console.log('Wrote scripts to file and opened the file');
     }).catch((reason) => {
@@ -357,7 +357,7 @@ export function getScriptParameters(loginData: nodeDoc.LoginData, param: any) {
     console.log('getScriptParameters');
 
     // Check documents version
-    nodeDoc.sdsSession(loginData, [], nodeDoc.getDocumentsVersion).then((value) => {
+    nodeDoc.serverSession(loginData, [], nodeDoc.getDocumentsVersion).then((value) => {
         const doc: nodeDoc.documentsT = value[0];
         if (!doc) {
             vscode.window.showErrorMessage(`get script parameters: get DOCUMENTS version failed`);
@@ -372,7 +372,7 @@ export function getScriptParameters(loginData: nodeDoc.LoginData, param: any) {
             return helpers.getDownloadScriptNames(loginData).then((_scripts) => {
 
                 // get parameters
-                return nodeDoc.sdsSession(loginData, _scripts, nodeDoc.getAllParameters).then((values) => {
+                return nodeDoc.serverSession(loginData, _scripts, nodeDoc.getAllParameters).then((values) => {
                     if (1 < values.length) {
                         const scriptsObject: any = {};
                         for (let idx = 0; idx < values.length; idx += 2) {
