@@ -7,6 +7,7 @@ import * as os from 'os';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import { provideInitialConfigurations } from './config';
+import * as documentation from './documentation';
 import { extend } from './helpers';
 import * as helpers from './helpers';
 import * as intellisense from './intellisense';
@@ -411,7 +412,7 @@ export function activate(context: vscode.ExtensionContext): void {
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.viewDocumentation', (file) => {
             // file is not used, use active editor...
-            serverCommands.viewDocumentation();
+            documentation.viewDocumentation();
         })
     );
 
