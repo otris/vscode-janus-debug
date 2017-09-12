@@ -280,11 +280,6 @@
           "title": "Encrypt Scripts On Upload",
           "default": false,
           "description": "If true, scripts will be encrypted on upload"
-        },
-        "vscode-janus-debug.createFoldersFromCategories": {
-          "type": "boolean",
-          "title": "Create Folders From Categories",
-          "description": "Create subfolders from categories and save script in that subfolders."
         }
       }
     },
