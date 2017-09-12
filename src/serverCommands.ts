@@ -47,7 +47,8 @@ export async function checkDecryptionVersion(loginData: nodeDoc.ConnectionInform
                     resolve();
                 }
             }).catch((reason) => {
-                reject('checkDecryptionVersion failed ' + reason);
+                vscode.window.showErrorMessage(reason);
+                reject();
             });
         } else {
             resolve();
