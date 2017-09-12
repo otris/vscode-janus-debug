@@ -48,11 +48,16 @@ export function installIntellisenseFiles() {
         }
 
         // create empty jsconfig.json
+        const ERR_FILE_EMPTY = 'File empty';
         const jsconfigPath = path.join(vscode.workspace.rootPath, 'jsconfig.json');
         try {
-            fs.readFileSync(jsconfigPath);
+            const jsconfigjson = fs.readFileSync(jsconfigPath);
+            if (jsconfigjson.length === 0) {
+                // execute catch block
+                throw new Error(ERR_FILE_EMPTY);
+            }
         } catch (err) {
-            if (err.code === 'ENOENT') {
+            if (err.code === 'ENOENT' || err.message === ERR_FILE_EMPTY) {
                 const jsconfigContent = getJsconfigJsonString();
                 try {
                     fs.writeFileSync(jsconfigPath, jsconfigContent);
