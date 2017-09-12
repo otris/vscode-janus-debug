@@ -28,13 +28,13 @@ async function askForPassword(_loginData: nodeDoc.ConnectionInformation): Promis
             return reject(new Error('input password cancelled'));
         }
 
-        _loginData.password = password;
+        _loginData.password = nodeDoc.getJanusPassword(password);
 
         resolve();
     });
 }
 
-async function askForLoginData(_loginData: nodeDoc.ConnectionInformation): Promise<void> {
+async function askForLoginData(_loginData: nodeDoc.ConnectionInformation): Promise<string | undefined> {
     console.log('askForLoginData');
 
     const SERVER: string = 'localhost';
@@ -42,7 +42,7 @@ async function askForLoginData(_loginData: nodeDoc.ConnectionInformation): Promi
     const PRINCIPAL: string = 'dopaag';
     const USERNAME: string = 'admin';
 
-    return new Promise<void>(async (resolve, reject) => {
+    return new Promise<string | undefined>(async (resolve, reject) => {
 
         const server = await vscode.window.showInputBox({
             prompt: 'Please enter the hostname',
@@ -100,20 +100,24 @@ async function askForLoginData(_loginData: nodeDoc.ConnectionInformation): Promi
             return reject(new Error('input login data cancelled'));
         }
 
-        _loginData.password = password;
+        _loginData.password = nodeDoc.getJanusPassword(password);
 
         const savePw = await vscode.window.showQuickPick(["Yes", "No"], {placeHolder: "Save password to launch.json?"});
         if ("Yes" === savePw) {
             _loginData.askForPassword = false;
-        } else if ("No" === savePw) {
-            _loginData.askForPassword = true;
-        }
+            resolve(password);
 
-        resolve();
+        } else {
+            // set to true so the string to ask for password
+            // is written to launch.json
+            _loginData.askForPassword = true;
+
+            resolve(undefined);
+        }
     });
 }
 
-async function createLaunchJson(loginData: nodeDoc.ConnectionInformation): Promise<void> {
+async function createLaunchJson(loginData: nodeDoc.ConnectionInformation, plainPassword: string | undefined): Promise<void> {
     console.log('createLaunchJson');
 
     return new Promise<void>((resolve, reject) => {
@@ -132,12 +136,11 @@ async function createLaunchJson(loginData: nodeDoc.ConnectionInformation): Promi
                     if ('ENOENT' === err.code) {
                         // launch.json doesn't exist, create one
 
-                        let pw = '';
-                        if (loginData.askForPassword) {
-                            pw = '${command:extension.vscode-janus-debug.askForPassword}';
-                        } else {
-                            pw = loginData.password;
+                        let pw = '${command:extension.vscode-janus-debug.askForPassword}';
+                        if (typeof(plainPassword) === 'string' && !loginData.askForPassword) {
+                            pw = plainPassword;
                         }
+
                         const data = config.provideInitialConfigurations(rootPath, {
                             host: loginData.server,
                             applicationPort: loginData.port,
@@ -173,9 +176,9 @@ async function getLoginInformation(serverInfo: nodeDoc.ConnectionInformation): P
 
         try {
             if (!serverInfo.checkLoginData()) {
-                await askForLoginData(serverInfo);
+                const plainPassword = await askForLoginData(serverInfo);
                 try {
-                    await createLaunchJson(serverInfo);
+                    await createLaunchJson(serverInfo, plainPassword);
                 } catch (err) {
                     // couldn't save login data,
                     // doesn't matter, just leave a warning and continue anyway
@@ -200,17 +203,16 @@ export function ensureLoginInformation(serverInfo: nodeDoc.ConnectionInformation
 
     return new Promise<void>((resolve, reject) => {
 
-        // serverInfo.password contains the string from launch.json that might be
-        // '${command:extension.vscode-janus-debug.askForPassword}' (see deafault launch.json)
-        const askForPassword = serverInfo.askForPassword && (config.commandAskForPassword === serverInfo.password);
+        // if askForPassword is true only ask once for every VS Code session
+        const askForPasswordRequired = serverInfo.askForPassword && (undefined === serverInfo.password);
 
-        if (serverInfo.checkLoginData() && !askForPassword) {
+        if (serverInfo.checkLoginData() && !askForPasswordRequired) {
             return resolve();
         }
 
         // ask user for login information and write to launch.json
         getLoginInformation(serverInfo).then(() => {
-            if (serverInfo.checkLoginData() && (config.commandAskForPassword !== serverInfo.password)) {
+            if (serverInfo.checkLoginData() && (undefined !== serverInfo.password)) {
                 resolve();
             } else {
                 reject('getting login data failed');
@@ -234,17 +236,18 @@ export function loadLoginInformation(login: nodeDoc.ConnectionInformation, confi
         const configurations = jsonObject.configurations;
 
         if (configurations) {
-            configurations.forEach((config: any) => {
-                if (config.type === 'janus' && config.request === 'launch') {
-                    login.server = config.host;
-                    login.port = config.applicationPort;
-                    login.principal = config.principal;
-                    login.username = config.username;
-                    if (config.commandAskForPassword === config.password) {
+            configurations.forEach((configuration: any) => {
+                if (configuration.type === 'janus' && configuration.request === 'launch') {
+                    login.server = configuration.host;
+                    login.port = configuration.applicationPort;
+                    login.principal = configuration.principal;
+                    login.username = configuration.username;
+                    if (config.commandAskForPassword === configuration.password) {
                         login.askForPassword = true;
+                    } else {
+                        login.password = nodeDoc.getJanusPassword(configuration.password);
                     }
-                    login.password = config.password;
-                    login.sdsTimeout = config.sdsTimeout;
+                    login.sdsTimeout = configuration.sdsTimeout;
                 }
             });
         }
