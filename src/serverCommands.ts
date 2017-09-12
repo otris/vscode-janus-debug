@@ -23,7 +23,8 @@ export function setDecryptionVersionChecked(value: boolean) {
 }
 
 /**
- * Returns false if user has decryption permission and server version is not 5.0c or higher.
+ * If user has decryption permission and server version is not 5.0c or higher,
+ * warn and ask user before upload.
  * Because then the upload with encrypted scripts will cause problems.
  */
 export async function checkDecryptionVersion(loginData: nodeDoc.ConnectionInformation): Promise<void> {
@@ -387,7 +388,7 @@ export async function getScriptParameters(loginData: nodeDoc.ConnectionInformati
             return getDownloadScriptNames(loginData).then((_scripts) => {
 
                 // get parameters
-                return nodeDoc.serverSession(loginData, _scripts, nodeDoc.getAllParameters).then((values) => {
+                return nodeDoc.serverSession(loginData, _scripts, nodeDoc.getAllParameters).then(async (values) => {
                     if (1 < values.length) {
                         const scriptsObject: any = {};
                         for (let idx = 0; idx < values.length; idx += 2) {
@@ -398,18 +399,17 @@ export async function getScriptParameters(loginData: nodeDoc.ConnectionInformati
                                 attributes: jsonObject[scriptName].attributes,
                                 parameters: jsonObject[scriptName].parameters
                             };
+                            const paramsJsonOutput = JSON.stringify(scriptsObject[scriptName], null, '\t').trim();
+                            // save json to workspace or write it to console
+                            if (vscode.workspace && vscode.workspace.rootPath) {
+                                const paramsfilename = scriptName + '.specs.json';
+                                const paramsfilepath = path.join(vscode.workspace.rootPath, '.scriptParameters', paramsfilename);
+                                await nodeDoc.writeFile(paramsJsonOutput, paramsfilepath);
+                            } else {
+                                console.log(paramsJsonOutput);
+                            }
                         }
-                        const jsonOutput = JSON.stringify(scriptsObject, null, '\t').split('\n').map(line => '\t' + line).join('\n').trim();
-                        // save json to workspace or write it to console
-                        if (vscode.workspace && vscode.workspace.rootPath) {
-                            const jsonfilename = 'jscript.specs.json';
-                            const jsonfilepath = path.join(vscode.workspace.rootPath, jsonfilename);
-                            return nodeDoc.writeFile(jsonOutput, jsonfilepath).then(() => {
-                                vscode.window.setStatusBarMessage('wrote script parameters to ' + jsonfilename);
-                            });
-                        } else {
-                            console.log(jsonOutput);
-                        }
+                        vscode.window.setStatusBarMessage('wrote script parameters to /.scriptParameters');
                     } else {
                         console.log('get script parameters failed: array.length: ' + value.length);
                     }
