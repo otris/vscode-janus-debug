@@ -146,7 +146,8 @@ async function createLaunchJson(loginData: nodeDoc.ConnectionInformation, plainP
                             applicationPort: loginData.port,
                             principal: loginData.principal,
                             username: loginData.username,
-                            password: pw
+                            password: pw,
+                            currentConfiguration: true
                         });
 
                         nodeDoc.writeFile(data, filename).then(() => {
@@ -237,7 +238,7 @@ export function loadLoginInformation(login: nodeDoc.ConnectionInformation, confi
 
         if (configurations) {
             configurations.forEach((configuration: any) => {
-                if (configuration.type === 'janus' && configuration.request === 'launch') {
+                if (configuration.type === 'janus' && configuration.request === 'launch' && configuration.currentConfiguration) {
                     login.server = configuration.host;
                     login.port = configuration.applicationPort;
                     login.principal = configuration.principal;

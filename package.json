@@ -63,7 +63,8 @@
               "host",
               "applicationPort",
               "debuggerPort",
-              "username"
+              "username",
+              "currentConfiguration"
             ],
             "properties": {
               "script": {
@@ -96,6 +97,11 @@
                 "type": "number",
                 "description": "The debug port to attach to.",
                 "default": 8089
+              },
+              "currentConfiguration": {
+                "type": "boolean",
+                "description": "Set to true, if you are currently working with this configuration.",
+                "default": true
               },
               "timeout": {
                 "type": "number",
