@@ -402,7 +402,7 @@ export async function getScriptParameters(loginData: nodeDoc.ConnectionInformati
                             const paramsJsonOutput = JSON.stringify(scriptsObject[scriptName], null, '\t').trim();
                             // save json to workspace or write it to console
                             if (vscode.workspace && vscode.workspace.rootPath) {
-                                const paramsfilename = scriptName + '.specs.json';
+                                const paramsfilename = scriptName + '.json';
                                 const paramsfilepath = path.join(vscode.workspace.rootPath, '.scriptParameters', paramsfilename);
                                 await nodeDoc.writeFile(paramsJsonOutput, paramsfilepath);
                             } else {
