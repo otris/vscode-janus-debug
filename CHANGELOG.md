@@ -8,8 +8,6 @@ New Features in this release:
 
 - The conflict mode is now the default state of all scripts, meaning every script will be checked on upload if it has been changed on server.
 
-- Creating categories from folders and folders from categories is supported (only available with DOCUMENTS #8041). ([#40](https://github.com/otris/vscode-janus-debug/issues/40)
-
 - Add ``noLib: true`` to ``compilerOptions`` part in ``jsconfig.json`` when command **Install Intellisense Files** is executed.
 
 - TypeScript 2.5 is now used to generate JavaScript.
