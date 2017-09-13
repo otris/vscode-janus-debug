@@ -14,6 +14,8 @@ New Features in this release:
 
 - The version of the remote debugging engine is now logged in the VS Code extension's log files. This way we can see what version of debugging engine the Debugger is running against.
 
+- It's possible now to have multiple configurations for different servers in ``jsconfig.json``. The extension will use the configuration where ``currentConfiguration`` is set to ``true``.
+
 Following bugs have been addressed in this release:
 
 - Download all to workspace root folder is now possible again.
