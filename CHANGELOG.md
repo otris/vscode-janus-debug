@@ -16,6 +16,8 @@ New Features in this release:
 
 - It's possible now to have multiple configurations for different servers in ``jsconfig.json``. The extension will use the configuration where ``currentConfiguration`` is set to ``true`` for uploading and downloading scripts.
 
+- **Get Script Paramaters** downloads the script parameters as JSON string into one file per script.
+
 Following bugs have been addressed in this release:
 
 - Download all to workspace root folder is now possible again.
