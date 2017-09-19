@@ -4,6 +4,8 @@ You'll find a complete list of changes at our project site on [GitHub](https://g
 
 ### 0.0.12 (2017-09-19)
 
+Only fix error `Cannot write to settings.json`
+
 ### 0.0.11 (2017-09-19)
 
 New Features in this release:
