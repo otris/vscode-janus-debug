@@ -254,7 +254,6 @@ export async function downloadScript(loginData: nodeDoc.ConnectionInformation, c
             const scriptDir: string = scriptInfo[0];
             let script: nodeDoc.scriptT = new nodeDoc.scriptT(scriptName, scriptDir);
 
-            helpers.readConflictModes([script]);
             // helpers.setCategoryRoots([script], contextMenuPath, scriptDir);
 
             return nodeDoc.serverSession(loginData, [script], nodeDoc.downloadScript).then((value) => {
@@ -285,7 +284,6 @@ export async function downloadAll(loginData: nodeDoc.ConnectionInformation, cont
                 script.path = scriptDir;
             });
 
-            helpers.readConflictModes(requestScripts);
             // helpers.setCategoryRoots(requestScripts, contextMenuPath, scriptDir);
 
             // download scripts

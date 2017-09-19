@@ -232,11 +232,6 @@
           "default": [],
           "description": "Never automatically upload scripts in this list and never ask to."
         },
-        "vscode-janus-debug.forceUpload": {
-          "type": "array",
-          "default": [],
-          "description": "Only upload script if server script has not changed."
-        },
         "vscode-janus-debug.serverConsole": {
           "type": "object",
           "title": "Server Console",
