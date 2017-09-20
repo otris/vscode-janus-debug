@@ -16,7 +16,7 @@ function determineCommit() {
 
 function determineVersion() {
     return new Promise((resolve, reject) => {
-        exec('"git" tag', function(err, stdout, stderr) {
+        exec('"git" tag --sort version:refname', function(err, stdout, stderr) {
             if (err) {
                 return reject(err);
             } else {
