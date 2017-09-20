@@ -4,6 +4,7 @@ import * as fs from 'fs';
 import { LogConfiguration } from 'node-file-log';
 import { isAbsolute, join } from 'path';
 import { DebugProtocol } from 'vscode-debugprotocol';
+import { getVersion } from './version';
 
 export interface CommonArguments {
     /** The debugger port to attach to. */
@@ -145,13 +146,14 @@ export function provideInitialConfigurations(workspaceRootPath?: string, overwri
 
     const configurations = JSON.stringify(initialConfigurations, null, '\t')
         .split('\n').map(line => '\t' + line).join('\n').trim();
+
     return [
         '{',
         '\t// Use IntelliSense to learn about possible configuration attributes.',
         '\t// Hover to view descriptions of existing attributes.',
         '\t// For more information, visit',
         '\t// https://github.com/otris/vscode-janus-debug/wiki/Launching-the-Debugger',
-        '\t"version": "0.0.12",',
+        '\t"version": "' + getVersion().toString() + '",',
         '\t"configurations": ' + configurations,
         '}',
     ].join('\n');

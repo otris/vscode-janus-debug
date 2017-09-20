@@ -152,23 +152,17 @@ function readAutoConnectServerConsole() {
     autoConnectServerConsole = extensionSettings.get('serverConsole.autoConnect', true);
 }
 
-function printVersion(outputChannel: vscode.OutputChannel): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
-        if (vscode.workspace !== undefined) {
-
-            outputChannel.appendLine('Extension activated');
-            getVersion().then(ver => {
-                outputChannel.appendLine("Version: " + ver.toString());
-
-            }).catch(err => {
-                outputChannel.appendLine('getVersion failed' + err);
-
-            }).then(() => {
-                outputChannel.show();
-                resolve();
-            });
+function printVersion(outputChannel: vscode.OutputChannel) {
+    if (vscode.workspace !== undefined) {
+        outputChannel.appendLine('Extension activated');
+        try {
+            outputChannel.appendLine("Version: " + getVersion().toString(true));
+        } catch (err) {
+            outputChannel.appendLine('getVersion() failed: ' + err.message);
+        } finally {
+            outputChannel.show();
         }
-    });
+    }
 }
 
 function initServerConsole(outputChannel: vscode.OutputChannel) {
@@ -236,10 +230,9 @@ export function activate(context: vscode.ExtensionContext): void {
     // Initialise server console and launch.json watcher.
     // Print version before server console is initialised.
     readAutoConnectServerConsole();
-    printVersion(serverChannel).then(() => {
-        initServerConsole(serverChannel);
-        initLaunchJsonWatcher(serverChannel, loginData);
-    });
+    printVersion(serverChannel);
+    initServerConsole(serverChannel);
+    initLaunchJsonWatcher(serverChannel, loginData);
 
     ipcServer = new VSCodeExtensionIPC();
 
