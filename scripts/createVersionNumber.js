@@ -12,7 +12,7 @@ function determineVersion() {
                 if (output && output.length >= 3) {
                     let newestTag = output[0];
                     let numbers = newestTag.split(".");
-                    let commit = output[2].substr(1);
+                    let commit = output[2].substr(1, output[2].length-1);
                     return resolve({
                         commit: commit,
                         major: numbers[0],
