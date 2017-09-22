@@ -1,10 +1,11 @@
 const { exec } = require('child_process');
 const fs = require('fs');
 
+const commitLength = 6;
 
 function determineVersion() {
     return new Promise((resolve, reject) => {
-        exec('"git" describe --abbrev=6 --dirty --always --tags --long', function(err, stdout, stderr) {
+        exec(`"git" describe --abbrev=${commitLength} --dirty --always --tags --long`, function(err, stdout, stderr) {
             if (err) {
                 return reject(err);
             } else {
@@ -12,7 +13,7 @@ function determineVersion() {
                 if (output && output.length >= 3) {
                     let newestTag = output[0];
                     let numbers = newestTag.split(".");
-                    let commit = output[2].substr(1, output[2].length-1);
+                    let commit = output[2].substr(1, commitLength);
                     return resolve({
                         commit: commit,
                         major: numbers[0],
