@@ -2,6 +2,12 @@
 
 You'll find a complete list of changes at our project site on [GitHub](https://github.com/otris/vscode-janus-debug).
 
+### 0.0.14 (yyyy-mm-dd)
+
+### 0.0.13 (2017-09-22)
+
+Only one fix. It's now possible again to upload scripts without checking them on server by setting `vscode-janus-debug.forceUpload` to `true`.
+
 ### 0.0.12 (2017-09-19)
 
 Only fix error `Cannot write to settings.json`
