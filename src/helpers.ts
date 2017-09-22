@@ -17,8 +17,8 @@ export const COMPARE_FILE_PREFIX = 'compare_';
 
 const FORCE_UPLOAD_YES = 'Yes';
 const FORCE_UPLOAD_NO = 'No';
-const FORCE_UPLOAD_ALL = 'Yes (remember my answer for this operation)';
-const FORCE_UPLOAD_NONE = 'No (remember my answer for this operation)';
+const FORCE_UPLOAD_ALL = 'All';
+const FORCE_UPLOAD_NONE = 'None';
 const NO_CONFLICT = 'No conflict';
 
 export const CACHE_FILE = '.vscode-janus-debug';
@@ -332,7 +332,7 @@ export function readEncryptionFlag(pscripts: nodeDoc.scriptT[]) {
 
 
 
-export function readConflictModes(pscripts: nodeDoc.scriptT[]) {
+export function setConflictModes(pscripts: nodeDoc.scriptT[]) {
     if (!pscripts || 0 === pscripts.length) {
         return;
     }
@@ -343,18 +343,11 @@ export function readConflictModes(pscripts: nodeDoc.scriptT[]) {
     // get extension-part of settings.json
     const conf = vscode.workspace.getConfiguration('vscode-janus-debug');
 
-    const _forceUpload = conf.get('forceUpload');
-    let forceUpload: string[];
-    if (_forceUpload instanceof Array) {
-        forceUpload = _forceUpload;
-    } else {
-        vscode.window.showWarningMessage('Cannot write to settings.json');
-        return;
-    }
+    const forceUpload = conf.get('forceUpload', false);
 
     // read values
     pscripts.forEach((script) => {
-        if (0 <= forceUpload.indexOf(script.name)) {
+        if (forceUpload) {
             script.conflictMode = false;
         }
     });
@@ -373,48 +366,32 @@ export function readHashValues(pscripts: nodeDoc.scriptT[], server: string) {
     }
 
     // filename of cache file CACHE_FILE
-    const _documents = path.join(vscode.workspace.rootPath, CACHE_FILE);
+    const hashValueFile = path.join(vscode.workspace.rootPath, CACHE_FILE);
 
     // get hash values from file as array
     let hashValues: string[];
     try {
-        hashValues = fs.readFileSync(_documents, 'utf8').trim().split('\n');
+        hashValues = fs.readFileSync(hashValueFile, 'utf8').trim().split('\n');
     } catch (err) {
         if (err.code === 'ENOENT') {
             hashValues = [];
-            fs.writeFileSync(_documents, '');
+            fs.writeFileSync(hashValueFile, '');
         } else {
             return;
         }
     }
 
-    // get extension-part of settings.json
-    const conf = vscode.workspace.getConfiguration('vscode-janus-debug');
-
-    // get the list of scripts in conflict mode
-    const _forceUpload = conf.get('forceUpload');
-    let forceUpload: string[];
-    if (_forceUpload instanceof Array) {
-        forceUpload = _forceUpload;
-    } else {
-        vscode.window.showWarningMessage('Cannot write to settings.json');
-        return;
-    }
 
     // read hash values of scripts in conflict mode
     pscripts.forEach((script) => {
-        if (0 <= forceUpload.indexOf(script.name)) {
-            script.conflictMode = false;
-        } else {
-            hashValues.forEach((value, idx) => {
-                const scriptpart = value.split(':')[0];
-                const scriptAtServer = script.name + '@' + server;
+        hashValues.forEach((value, idx) => {
+            const scriptpart = value.split(':')[0];
+            const scriptAtServer = script.name + '@' + server;
 
-                if (scriptpart === scriptAtServer) {
-                    script.lastSyncHash = hashValues[idx].split(':')[1];
-                }
-            });
-        }
+            if (scriptpart === scriptAtServer) {
+                script.lastSyncHash = hashValues[idx].split(':')[1];
+            }
+        });
     });
 }
 
@@ -427,41 +404,27 @@ export function updateHashValues(pscripts: nodeDoc.scriptT[], server: string) {
     }
 
     // filename of cache file CACHE_FILE
-    const _documents = path.join(vscode.workspace.rootPath, CACHE_FILE);
+    const hashValueFile = path.join(vscode.workspace.rootPath, CACHE_FILE);
 
     let hashValues: string[];
     try {
         // get hash values from file as array
-        hashValues = fs.readFileSync(_documents, 'utf8').trim().split('\n');
+        hashValues = fs.readFileSync(hashValueFile, 'utf8').trim().split('\n');
     } catch (err) {
-        // todo
-        // if (err.code === 'ENOENT') {
-        //     hashValues = [];
-        //     fs.writeFileSync(_documents, '');
-        // } else {
-        //     return;
-        // }
-
-        return;
-    }
-
-    // get extension-part of settings.json
-    const conf = vscode.workspace.getConfiguration('vscode-janus-debug');
-
-    // get the list of scripts in conflict mode
-    const _forceUpload = conf.get('forceUpload');
-    let forceUpload: string[];
-    if (_forceUpload instanceof Array) {
-        forceUpload = _forceUpload;
-    } else {
-        vscode.window.showWarningMessage('Cannot write to settings.json');
-        return;
+        if (err.code === 'ENOENT') {
+            hashValues = [];
+            fs.writeFileSync(hashValueFile, '');
+        } else {
+            return;
+        }
     }
 
     // set hash values of scripts in conflict mode
     pscripts.forEach((script) => {
-        // todo docu why (true !== script.conflict)
-        if (0 > forceUpload.indexOf(script.name) && true !== script.conflict) {
+
+        // if conflict is true, script was not force-uploaded
+        // so hash value is still the same and should not be updated
+        if (true !== script.conflict) {
             const scriptAtServer = script.name + '@' + server;
             const entry = scriptAtServer + ':' + script.lastSyncHash;
 
@@ -484,7 +447,7 @@ export function updateHashValues(pscripts: nodeDoc.scriptT[], server: string) {
 
     // write to CACHE_FILE
     const hashValStr = hashValues.join('\n').trim();
-    nodeDoc.writeFile(hashValStr, _documents);
+    nodeDoc.writeFile(hashValStr, hashValueFile);
 }
 
 export function compareScript(_path: string, scriptname: string): void {

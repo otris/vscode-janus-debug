@@ -75,6 +75,7 @@ async function uploadScriptCommon(loginData: nodeDoc.ConnectionInformation, para
         helpers.ensureScript(param).then((_script) => {
 
             // get information from settings and hash values
+            helpers.setConflictModes([_script]);
             helpers.readHashValues([_script], loginData.server);
             helpers.readEncryptionFlag([_script]);
             // helpers.setCategories([_script]);
@@ -89,19 +90,14 @@ async function uploadScriptCommon(loginData: nodeDoc.ConnectionInformation, para
                 // in case of conflict, ask if script should be force-uploaded
                 helpers.ensureForceUpload([script]).then(([noConflict, forceUpload]) => {
 
-                    // if forceUpload is empty function resolves anyway
+                    // if forceUpload is empty, function resolves
                     nodeDoc.serverSession(loginData, forceUpload, nodeDoc.uploadScript).then(() => {
-
-                        // if script had conflict and was not force-uploaded
-                        // conflict is true in this script
-                        if (true !== script.conflict) {
-                            helpers.updateHashValues([script], loginData.server);
-                            resolve(script.name);
-                        }
+                        helpers.updateHashValues([script], loginData.server);
+                        resolve(script.name);
                     }).catch((reason) => {
                         reject('force upload ' + script.name + ' failed: ' + reason);
                     });
-                }); // no reject in upload scripts
+                });
 
             });
         }).catch((reason) => {
@@ -209,6 +205,7 @@ export async function uploadAll(loginData: nodeDoc.ConnectionInformation, _param
         // get all scripts from folder and subfolders and read information
         // from .vscode\settings.json
         const folderScripts = nodeDoc.getScriptsFromFolderSync(folder[0]);
+        helpers.setConflictModes(folderScripts);
         helpers.readHashValues(folderScripts, loginData.server);
         helpers.readEncryptionFlag(folderScripts);
         // helpers.setCategories(folderScripts);

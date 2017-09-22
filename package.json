@@ -233,8 +233,9 @@
           "description": "Never automatically upload scripts in this list and never ask to."
         },
         "vscode-janus-debug.forceUpload": {
-          "type": "array",
-          "default": []
+          "type": "boolean",
+          "default": false,
+          "description": "Set to true, if the extension should upload the scripts without checking."
         },        
         "vscode-janus-debug.serverConsole": {
           "type": "object",
