@@ -386,7 +386,7 @@ export function readHashValues(pscripts: nodeDoc.scriptT[], server: string) {
         vscode.window.showWarningMessage('vscode-janus-debug missing in settings');
         return;
     }
-    if (!conf.get('vscode-janus-debug.forceUpload', false)) {
+    if (conf.get('vscode-janus-debug.forceUpload', false)) {
         return;
     }
 
@@ -434,7 +434,7 @@ export function updateHashValues(pscripts: nodeDoc.scriptT[], server: string) {
         vscode.window.showWarningMessage('vscode-janus-debug missing in settings');
         return;
     }
-    if (!conf.get('vscode-janus-debug.forceUpload', false)) {
+    if (conf.get('vscode-janus-debug.forceUpload', false)) {
         return;
     }
 
