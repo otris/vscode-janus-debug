@@ -93,7 +93,14 @@ export async function ensureForceUpload(scripts: nodeDoc.scriptT[]): Promise<[no
     return new Promise<[nodeDoc.scriptT[], nodeDoc.scriptT[]]>((resolve, reject) => {
         const forceUpload: nodeDoc.scriptT[] = [];
         const noConflict: nodeDoc.scriptT[] = [];
-        let all = false;
+
+        // get extension-part of settings.json
+        const conf = vscode.workspace.getConfiguration('vscode-janus-debug');
+        if (!conf) {
+            vscode.window.showWarningMessage('vscode-janus-debug missing in settings');
+            return;
+        }
+        let all = conf.get('forceUpload', false);
         let none = false;
         const singlescript = (1 === scripts.length);
 
@@ -138,6 +145,10 @@ export async function ensureUploadOnSave(param: string): Promise<autoUploadAnswe
 
         // get extension-part of settings.json
         const conf = vscode.workspace.getConfiguration('vscode-janus-debug');
+        if (!conf) {
+            vscode.window.showWarningMessage('vscode-janus-debug missing in settings');
+            return;
+        }
 
         if (!vscode.workspace || !param || 0 === param.length || !conf) {
             return reject('something is undefined');
@@ -250,7 +261,7 @@ export function setCategories(pscripts: nodeDoc.scriptT[]) {
     // get extension-part of settings.json
     const conf = vscode.workspace.getConfiguration('vscode-janus-debug');
     if (!conf) {
-        vscode.window.showWarningMessage('Cannot read from settings.json');
+        vscode.window.showWarningMessage('vscode-janus-debug missing in settings');
         return;
     }
     const categories = conf.get('categories', false);
@@ -286,7 +297,7 @@ export function setCategoryRoots(pscripts: nodeDoc.scriptT[], contextMenuPath: s
     // get extension-part of settings.json
     const conf = vscode.workspace.getConfiguration('vscode-janus-debug');
     if (!conf) {
-        vscode.window.showWarningMessage('Cannot read from settings.json');
+        vscode.window.showWarningMessage('vscode-janus-debug missing in settings');
         return;
     }
 
@@ -313,7 +324,7 @@ export function readEncryptionFlag(pscripts: nodeDoc.scriptT[]) {
     // get extension-part of settings.json
     const conf = vscode.workspace.getConfiguration('vscode-janus-debug');
     if (!conf) {
-        vscode.window.showWarningMessage('Cannot read from settings.json');
+        vscode.window.showWarningMessage('vscode-janus-debug missing in settings');
         return;
     }
 
@@ -342,6 +353,10 @@ export function setConflictModes(pscripts: nodeDoc.scriptT[]) {
 
     // get extension-part of settings.json
     const conf = vscode.workspace.getConfiguration('vscode-janus-debug');
+    if (!conf) {
+        vscode.window.showWarningMessage('vscode-janus-debug missing in settings');
+        return;
+    }
 
     const forceUpload = conf.get('forceUpload', false);
 
@@ -362,6 +377,16 @@ export function readHashValues(pscripts: nodeDoc.scriptT[], server: string) {
     }
 
     if (!vscode.workspace || !vscode.workspace.rootPath) {
+        return;
+    }
+
+    // get extension-part of settings.json
+    const conf = vscode.workspace.getConfiguration('vscode-janus-debug');
+    if (!conf) {
+        vscode.window.showWarningMessage('vscode-janus-debug missing in settings');
+        return;
+    }
+    if (!conf.get('vscode-janus-debug.forceUpload', false)) {
         return;
     }
 
@@ -400,6 +425,16 @@ export function updateHashValues(pscripts: nodeDoc.scriptT[], server: string) {
         return;
     }
     if (!vscode.workspace || !vscode.workspace.rootPath) {
+        return;
+    }
+
+    // get extension-part of settings.json
+    const conf = vscode.workspace.getConfiguration('vscode-janus-debug');
+    if (!conf) {
+        vscode.window.showWarningMessage('vscode-janus-debug missing in settings');
+        return;
+    }
+    if (!conf.get('vscode-janus-debug.forceUpload', false)) {
         return;
     }
 

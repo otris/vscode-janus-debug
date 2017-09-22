@@ -235,7 +235,7 @@
         "vscode-janus-debug.forceUpload": {
           "type": "boolean",
           "default": false,
-          "description": "Set to true, if the extension should upload the scripts without checking."
+          "description": "Set to true, if the extension should upload a script without checking the script on server."
         },
         "vscode-janus-debug.serverConsole": {
           "type": "object",
