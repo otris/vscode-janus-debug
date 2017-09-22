@@ -2,7 +2,7 @@
 
 You'll find a complete list of changes at our project site on [GitHub](https://github.com/otris/vscode-janus-debug).
 
-### 0.0.14 (yyyy-mm-dd)
+### 0.0.14 (2017-09-22)
 
 ### 0.0.13 (2017-09-22)
 
