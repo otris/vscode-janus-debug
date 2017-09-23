@@ -22,7 +22,14 @@ function getJsconfigJsonString() {
 }
 
 
-export function installIntellisenseFiles() {
+export function createFiletypes(): string[] {
+    //
+    return [];
+}
+
+
+
+export function installIntellisense() {
     const extension = vscode.extensions.getExtension('otris-software.vscode-janus-debug');
     if (extension && vscode.workspace && vscode.workspace.rootPath) {
         const dtsfile = path.join(extension.extensionPath, 'portalscript', 'typings', 'portalScripting.d.ts');

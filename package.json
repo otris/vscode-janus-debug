@@ -355,8 +355,8 @@
         "category": "DOCUMENTS"
       },
       {
-        "command": "extension.vscode-janus-debug.installIntellisenseFiles",
-        "title": "Install Intellisense Files",
+        "command": "extension.vscode-janus-debug.installIntellisense",
+        "title": "Install PortalScripting Intellisense",
         "category": "DOCUMENTS"
       }
     ],
@@ -434,7 +434,7 @@
           "group": "DOCUMENTS@10"
         },
         {
-          "command": "extension.vscode-janus-debug.installIntellisenseFiles",
+          "command": "extension.vscode-janus-debug.installIntellisense",
           "group": "DOCUMENTS@11"
         }
       ],

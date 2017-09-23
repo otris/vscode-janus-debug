@@ -447,8 +447,8 @@ export function activate(context: vscode.ExtensionContext): void {
 
     // Install intellisense files
     context.subscriptions.push(
-        vscode.commands.registerCommand('extension.vscode-janus-debug.installIntellisenseFiles', () => {
-            intellisense.installIntellisenseFiles();
+        vscode.commands.registerCommand('extension.vscode-janus-debug.installIntellisense', () => {
+            intellisense.installIntellisense();
         })
     );
 
