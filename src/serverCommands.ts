@@ -178,43 +178,50 @@ export function uploadJSFromTS(loginData: nodeDoc.ConnectionInformation, textDoc
 /**
  * Upload all
  */
-export async function uploadAll(loginData: nodeDoc.ConnectionInformation, _param: any) {
-    await login.ensureLoginInformation(loginData);
+export function uploadAll(loginData: nodeDoc.ConnectionInformation, paramPath: any): Promise<void> {
+    return new Promise<void>(async (resolve, reject) => {
+        try {
+            await login.ensureLoginInformation(loginData);
+        } catch (reason) {
+            return reject(reason);
+        }
 
-    helpers.ensurePath(_param).then((folder) => {
+        helpers.ensurePath(paramPath).then((folder) => {
 
-        // get all scripts from folder and subfolders and read information
-        // from .vscode\settings.json
-        const folderScripts = nodeDoc.getScriptsFromFolderSync(folder[0]);
-        helpers.setConflictModes(folderScripts);
-        helpers.readHashValues(folderScripts, loginData.server);
-        helpers.readEncryptionFlag(folderScripts);
-        // helpers.setCategories(folderScripts);
+            const folderScripts = nodeDoc.getScriptsFromFolderSync(folder);
+            helpers.setConflictModes(folderScripts);
+            helpers.readHashValues(folderScripts, loginData.server);
+            helpers.readEncryptionFlag(folderScripts);
+            // helpers.setCategories(folderScripts);
 
-        return nodeDoc.serverSession(loginData, folderScripts, nodeDoc.uploadAll).then((value1) => {
-            const retScripts: nodeDoc.scriptT[] = value1;
+            return nodeDoc.serverSession(loginData, folderScripts, nodeDoc.uploadAll).then((value1) => {
+                const retScripts: nodeDoc.scriptT[] = value1;
 
-            // ask user about how to handle conflict scripts
-            helpers.ensureForceUpload(retScripts).then(([noConflict, forceUpload]) => {
+                // ask user about how to handle conflict scripts
+                helpers.ensureForceUpload(retScripts).then(([noConflict, forceUpload]) => {
 
-                // forceUpload might be empty, function resolves anyway
-                nodeDoc.serverSession(loginData, forceUpload, nodeDoc.uploadAll).then((value2) => {
-                    const retScripts2: nodeDoc.scriptT[] = value2;
+                    // forceUpload might be empty, function resolves anyway
+                    nodeDoc.serverSession(loginData, forceUpload, nodeDoc.uploadAll).then((value2) => {
+                        const retScripts2: nodeDoc.scriptT[] = value2;
 
-                    // retscripts2 might be empty
-                    const uploaded = noConflict.concat(retScripts2);
+                        // retscripts2 might be empty
+                        const uploaded = noConflict.concat(retScripts2);
 
-                    helpers.updateHashValues(uploaded, loginData.server);
+                        helpers.updateHashValues(uploaded, loginData.server);
 
-                    vscode.window.setStatusBarMessage('uploaded ' + uploaded.length + ' scripts from ' + folder[0]);
-                }).catch((reason) => {
-                    vscode.window.showErrorMessage('force upload of conflict scripts failed: ' + reason);
+                        vscode.window.setStatusBarMessage('uploaded ' + uploaded.length + ' scripts from ' + folder);
+                        resolve();
+                    }).catch((reason) => {
+                        vscode.window.showErrorMessage('force upload of conflict scripts failed: ' + reason);
+                        reject();
+                    });
                 });
             });
-        });
 
-    }).catch((reason) => {
-        vscode.window.showErrorMessage('upload all failed: ' + reason);
+        }).catch((reason) => {
+            vscode.window.showErrorMessage('upload all failed: ' + reason);
+            reject();
+        });
     });
 }
 
@@ -298,8 +305,7 @@ export async function downloadScript(loginData: nodeDoc.ConnectionInformation, c
     const serverScriptNames = await getServerScriptNames(loginData);
 
     helpers.ensureScriptName(contextMenuPath, serverScriptNames).then((scriptName) => {
-        return helpers.ensurePath(contextMenuPath, true).then((scriptInfo) => {
-            const scriptDir: string = scriptInfo[0];
+        return helpers.ensurePath(contextMenuPath, true).then((scriptDir) => {
             let script: nodeDoc.scriptT = new nodeDoc.scriptT(scriptName, scriptDir);
 
             // helpers.setCategoryRoots([script], contextMenuPath, scriptDir);
@@ -321,8 +327,7 @@ export async function downloadScript(loginData: nodeDoc.ConnectionInformation, c
 export async function downloadAll(loginData: nodeDoc.ConnectionInformation, contextMenuPath: string | undefined) {
     await login.ensureLoginInformation(loginData);
 
-    helpers.ensurePath(contextMenuPath, true).then((scriptInfo) => {
-        const scriptDir: string = scriptInfo[0];
+    helpers.ensurePath(contextMenuPath, true).then((scriptDir) => {
 
         // get names of scripts that should be downloaded
         return getServerScripts(loginData).then((requestScripts) => {
@@ -357,29 +362,37 @@ export async function downloadAll(loginData: nodeDoc.ConnectionInformation, cont
 /**
  * Compare script
  */
-export async function compareScript(loginData: nodeDoc.ConnectionInformation, contextMenuPath: any) {
-    await login.ensureLoginInformation(loginData);
+export async function compareScript(loginData: nodeDoc.ConnectionInformation, contextMenuPath: any): Promise<void> {
+    return new Promise<void>(async (resolve, reject) => {
 
-    helpers.ensurePath(contextMenuPath, false, true).then((scriptInfo) => {
-        const scriptDir = scriptInfo[0];
-        const _scriptname = scriptInfo[1];
-        return helpers.ensureScriptName(_scriptname).then((scriptname) => {
-            let comparePath: string;
-            if (vscode.workspace && vscode.workspace.rootPath) {
-                comparePath = path.join(vscode.workspace.rootPath, helpers.COMPARE_FOLDER);
-            } else {
-                comparePath = path.join(scriptDir, helpers.COMPARE_FOLDER);
-            }
+        let comparePath: string;
+        if (vscode.workspace && vscode.workspace.rootPath) {
+            comparePath = path.join(vscode.workspace.rootPath, helpers.COMPARE_FOLDER);
+        } else {
+            return reject('First create workspace folder please');
+        }
+
+        try {
+            await login.ensureLoginInformation(loginData);
+        } catch (error) {
+            return reject(error);
+        }
+
+        helpers.ensureScriptFullName(contextMenuPath).then((scriptFullName) => {
+            const scriptDir = scriptFullName.dir;
+            const scriptName = scriptFullName.name;
             return helpers.createFolder(comparePath, true).then(() => {
-                let script: nodeDoc.scriptT = new nodeDoc.scriptT(scriptname, comparePath, '', helpers.COMPARE_FILE_PREFIX + scriptname);
+                let script: nodeDoc.scriptT = new nodeDoc.scriptT(scriptName, comparePath, '', helpers.COMPARE_FILE_PREFIX + scriptName);
                 return nodeDoc.serverSession(loginData, [script], nodeDoc.downloadScript).then((value) => {
                     script = value[0];
-                    helpers.compareScript(scriptDir, scriptname);
+                    helpers.compareScript(scriptDir, scriptName);
+                    resolve();
                 });
             });
+        }).catch((reason) => {
+            vscode.window.showErrorMessage('Compare script failed: ' + reason);
+            reject();
         });
-    }).catch((reason) => {
-        vscode.window.showErrorMessage('compare script failed: ' + reason);
     });
 }
 

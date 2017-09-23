@@ -318,7 +318,7 @@ export function activate(context: vscode.ExtensionContext): void {
             }
 
             let fsPath;
-            if (param) {
+            if (param && typeof(param._fsPath) === 'string') {
                 fsPath = param._fsPath;
             }
             try {

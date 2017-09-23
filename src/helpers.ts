@@ -544,17 +544,25 @@ export async function createFolder(_path: string, hidden = false): Promise<void>
     });
 }
 
-/**
- * Returns [folder:string], if fileOrFolder is a folder and
- * [folder:string, file:string] if fileOrFolder is a file.
- */
-export async function checkPath(fileOrFolder: string, allowCreateFolder = false): Promise<string[]> {
-    return new Promise<string[]>((resolve, reject) => {
-        fs.stat(fileOrFolder, function(err1, stats1) {
 
+
+export async function checkPath(scriptPath: string | undefined, allowCreateFolder = false): Promise<string> {
+    return new Promise<string>((resolve, reject) => {
+        if (!vscode.workspace || !vscode.workspace.rootPath) {
+            return reject('First open a workspace folder please!');
+        }
+        const workspaceFolder = vscode.workspace.rootPath;
+        if (!scriptPath) {
+            return reject('Invalid script path');
+        }
+        if (!scriptPath.toLowerCase().startsWith(workspaceFolder.toLowerCase())) {
+            return reject(`${scriptPath} is not a subfolder of ${workspaceFolder}`);
+        }
+
+        fs.stat(scriptPath, function(err1, stats1) {
             if (err1) {
-                if (allowCreateFolder && 'ENOENT' === err1.code && 'js' !== path.extname(fileOrFolder)) {
-                    const p = fileOrFolder.split(path.sep);
+                if (allowCreateFolder && 'ENOENT' === err1.code && 'js' !== path.extname(scriptPath)) {
+                    const p = scriptPath.split(path.sep);
                     const newfolder = p.pop();
                     const _path = p.join(path.sep);
                     fs.stat(_path, (err2, stats2) => {
@@ -567,7 +575,7 @@ export async function checkPath(fileOrFolder: string, allowCreateFolder = false)
                         } else {
                             if (stats2.isDirectory()) {
                                 if (newfolder) {
-                                    resolve([path.join(_path, newfolder)]);
+                                    resolve(path.join(_path, newfolder));
                                 } else {
                                     reject('path is empty');
                                 }
@@ -581,86 +589,138 @@ export async function checkPath(fileOrFolder: string, allowCreateFolder = false)
                 }
             } else {
                 if (stats1.isDirectory()) {
-                    resolve([fileOrFolder]);
-                } else if (stats1.isFile() && '.js' === path.extname(fileOrFolder)) {
-                    resolve([path.dirname(fileOrFolder), path.basename(fileOrFolder)]);
+                    resolve(scriptPath);
+                } else if (stats1.isFile()) {
+                    resolve(path.dirname(scriptPath));
                 } else {
-                    reject('unexpected error in ' + fileOrFolder);
+                    reject('Invalid path: ' + scriptPath);
                 }
             }
         });
     });
 }
 
-/**
- * Returns [folder], if fileOrFolder is a folder and [folder, file] if fileOrFolder is a file.
- */
-export async function ensurePath(fileOrFolder: string | undefined, allowSubDir = false, withBaseName = false): Promise<string[]> {
-    console.log('ensurePathInput');
 
-    if (!vscode.workspace || !vscode.workspace.rootPath) {
-        return [];
-    }
 
-    const workspaceFolder = vscode.workspace.rootPath;
 
-    return new Promise<string[]>((resolve, reject) => {
+
+export async function ensurePath(fileOrFolder: string | undefined, allowSubDir = false): Promise<string> {
+    console.log('ensurePath');
+
+    return new Promise<string>((resolve, reject) => {
+
+        if (!vscode.workspace || !vscode.workspace.rootPath) {
+            return reject('First open a workspace folder please!');
+        }
+        const workspaceFolder = vscode.workspace.rootPath;
 
         if (fileOrFolder) {
 
-            // if there's a workspace, returned path must be a subfolder of rootPath
-            if (!vscode.workspace || fileOrFolder.toLowerCase().startsWith(workspaceFolder.toLowerCase())) {
-
-                // check folder and get folder from file
-                checkPath(fileOrFolder).then((retpath) => {
-                    resolve(retpath);
-                }).catch((reason) => {
-                    reject(reason);
-                });
-
-            } else {
-                reject(fileOrFolder + ' is not a subfolder of ' + vscode.workspace.rootPath);
-            }
+            checkPath(fileOrFolder).then((retpath) => {
+                resolve(retpath);
+            }).catch((reason) => {
+                reject(reason);
+            });
         } else {
 
             // set default path
             let defaultPath = '';
             if (vscode.window.activeTextEditor) {
-                if (withBaseName) {
-                    defaultPath = vscode.window.activeTextEditor.document.fileName;
-                } else {
-                    defaultPath = path.dirname(vscode.window.activeTextEditor.document.fileName);
-                }
-            } else if (vscode.workspace && !withBaseName) {
+                defaultPath = path.dirname(vscode.window.activeTextEditor.document.fileName);
+            } else {
                 defaultPath = workspaceFolder;
             }
 
             // ask for path
-            const _promt = withBaseName ? 'Please enter the script' : 'Please enter the folder';
+            const showText = 'Enter the folder please';
             vscode.window.showInputBox({
-                prompt: _promt,
+                prompt: showText,
                 value: defaultPath,
                 ignoreFocusOut: true,
             }).then((input) => {
+                checkPath(input, allowSubDir).then((retpath) => {
+                    resolve(retpath);
+                }).catch((reason) => {
+                    reject(reason);
+                });
+            });
+        }
+    });
+}
 
-                // input path must be absolute
-                if (input) {
 
-                    // if there's a workspace, returned path must be subfolder of rootPath
-                    if (!vscode.workspace || input.toLowerCase().startsWith(workspaceFolder.toLowerCase())) {
 
-                        // check folder and get folder from file
-                        checkPath(input, allowSubDir).then((retpath) => {
-                            resolve(retpath);
-                        }).catch((reason) => {
-                            reject(reason);
-                        });
-                    } else {
-                        reject(input + ' is not a subfolder of ' + workspaceFolder);
-                    }
+
+export async function checkScriptFullName(scriptFullName: string | undefined): Promise<{dir: string, name: string}> {
+    return new Promise<{dir: string, name: string}>((resolve, reject) => {
+
+        if (!vscode.workspace || !vscode.workspace.rootPath) {
+            return reject('First open a workspace folder please!');
+        }
+        const workspaceFolder = vscode.workspace.rootPath;
+        if (!scriptFullName) {
+            return reject('Invalid full script name');
+        }
+        if (!scriptFullName.toLowerCase().startsWith(workspaceFolder.toLowerCase())) {
+            return reject(`${scriptFullName} is not a subfolder of ${workspaceFolder}`);
+        }
+        const jsFile = ('.js' === path.extname(scriptFullName));
+
+        fs.stat(scriptFullName, function(err1, stats1) {
+            if (err1) {
+                reject(err1.message);
+            } else {
+                if (stats1.isFile() && jsFile) {
+                    resolve({dir: path.dirname(scriptFullName), name: path.basename(scriptFullName, '.js')});
+                } else if (stats1.isDirectory()) {
+                    reject(`${scriptFullName} is only a directory!`);
+                } else if (!jsFile) {
+                    reject(`${scriptFullName} is not a JavaScript file!`);
                 } else {
-                    reject('no path');
+                    reject('Unexpected error in ' + scriptFullName);
                 }
+            }
+        });
+    });
+}
+
+
+export async function ensureScriptFullName(scriptFullName: string | undefined): Promise<{dir: string, name: string}> {
+    console.log('ensurePathInput');
+
+    return new Promise<{dir: string, name: string}>((resolve, reject) => {
+
+        if (!vscode.workspace || !vscode.workspace.rootPath) {
+            return reject('First open a workspace folder please!');
+        }
+        const workspaceFolder = vscode.workspace.rootPath;
+
+        if (scriptFullName) {
+            checkScriptFullName(scriptFullName).then((retpath) => {
+                resolve(retpath);
+            }).catch((reason) => {
+                reject(reason);
+            });
+        } else {
+
+            // set default script full name
+            let defaultPath = '';
+            if (vscode.window.activeTextEditor) {
+                defaultPath = vscode.window.activeTextEditor.document.fileName;
+            }
+
+            // ask for script full name
+            const showText = 'Enter the full script name please';
+            vscode.window.showInputBox({
+                prompt: showText,
+                value: defaultPath,
+                ignoreFocusOut: true,
+            }).then((input) => {
+                checkScriptFullName(input).then((retpath) => {
+                    resolve(retpath);
+                }).catch((reason) => {
+                    reject(reason);
+                });
             });
         }
     });
