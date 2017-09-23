@@ -365,12 +365,9 @@ export function activate(context: vscode.ExtensionContext): void {
     // Run script
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.runScript', async (param) => {
-            let fsPath;
-            if (param) {
+            let fsPath: string | undefined;
+            if (param && typeof(param._fsPath) === 'string') {
                 fsPath = param._fsPath;
-            }
-            if (!fsPath && vscode.window.activeTextEditor) {
-                fsPath = vscode.window.activeTextEditor.document.fileName;
             }
             try {
                 await serverCommands.runScript(loginData, fsPath, scriptChannel);
@@ -392,12 +389,9 @@ export function activate(context: vscode.ExtensionContext): void {
                 return;
             }
 
-            let fsPath;
-            if (param) {
+            let fsPath: string | undefined;
+            if (param && typeof(param._fsPath) === 'string') {
                 fsPath = param._fsPath;
-            }
-            if (!fsPath && vscode.window.activeTextEditor) {
-                fsPath = vscode.window.activeTextEditor.document.fileName;
             }
             try {
                 await serverCommands.uploadRunScript(loginData, fsPath, scriptChannel);

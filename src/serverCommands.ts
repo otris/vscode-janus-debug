@@ -175,71 +175,6 @@ export function uploadJSFromTS(loginData: nodeDoc.ConnectionInformation, textDoc
     });
 }
 
-
-
-function runScriptCommon(loginData: nodeDoc.ConnectionInformation, param: any, outputChannel: vscode.OutputChannel): Promise<string> {
-    return new Promise<string>(async (resolve, reject) => {
-
-        try {
-            await login.ensureLoginInformation(loginData);
-            const scriptName = await helpers.ensureScriptName(param);
-            const script = new nodeDoc.scriptT(scriptName);
-            await nodeDoc.serverSession(loginData, [script], nodeDoc.runScript);
-            outputChannel.append(script.output + os.EOL);
-            outputChannel.show();
-
-            resolve(scriptName);
-        } catch (reason) {
-            return reject(reason);
-        }
-    });
-}
-
-
-/**
- * Run script
- */
-export async function runScript(loginData: nodeDoc.ConnectionInformation, param: any, outputChannel: vscode.OutputChannel): Promise<void> {
-    return new Promise<void>(async (resolve, reject) => {
-        let scriptName;
-
-        try {
-            scriptName = await runScriptCommon(loginData, param, outputChannel);
-        } catch (reason) {
-            vscode.window.showErrorMessage('run script failed: ' + reason);
-            return reject();
-        }
-
-        resolve();
-    });
-}
-
-
-/**
- * Upload and run script
- */
-export function uploadRunScript(loginData: nodeDoc.ConnectionInformation, param: any, outputChannel: vscode.OutputChannel): Promise<void> {
-    return new Promise<void>(async (resolve, reject) => {
-        let scriptName;
-
-        try {
-            scriptName = await uploadScriptCommon(loginData, param);
-        } catch (reason) {
-            vscode.window.showErrorMessage('upload script failed: ' + reason);
-            return reject();
-        }
-
-        try {
-            scriptName = await runScriptCommon(loginData, param, outputChannel);
-        } catch (reason) {
-            vscode.window.showErrorMessage('run script failed: ' + reason);
-            return reject();
-        }
-
-        resolve();
-    });
-}
-
 /**
  * Upload all
  */
@@ -283,6 +218,74 @@ export async function uploadAll(loginData: nodeDoc.ConnectionInformation, _param
     });
 }
 
+
+function runScriptCommon(loginData: nodeDoc.ConnectionInformation, param: any, outputChannel: vscode.OutputChannel): Promise<string> {
+    return new Promise<string>(async (resolve, reject) => {
+
+        try {
+            await login.ensureLoginInformation(loginData);
+            const serverScriptNames = await getServerScriptNames(loginData);
+            const scriptName = await helpers.ensureScriptName(param, serverScriptNames);
+            const script = new nodeDoc.scriptT(scriptName);
+            await nodeDoc.serverSession(loginData, [script], nodeDoc.runScript);
+            outputChannel.append(script.output + os.EOL);
+            outputChannel.show();
+
+            resolve(scriptName);
+        } catch (reason) {
+            return reject(reason);
+        }
+    });
+}
+
+
+/**
+ * Run script
+ */
+export async function runScript(loginData: nodeDoc.ConnectionInformation, param: any, outputChannel: vscode.OutputChannel): Promise<void> {
+    return new Promise<void>(async (resolve, reject) => {
+        let scriptName;
+
+        try {
+            scriptName = await runScriptCommon(loginData, param, outputChannel);
+        } catch (reason) {
+            vscode.window.showErrorMessage('run script failed: ' + reason);
+            return reject();
+        }
+
+        vscode.window.setStatusBarMessage('run: ' + scriptName);
+        resolve();
+    });
+}
+
+
+/**
+ * Upload and run script
+ */
+export function uploadRunScript(loginData: nodeDoc.ConnectionInformation, param: any, outputChannel: vscode.OutputChannel): Promise<void> {
+    return new Promise<void>(async (resolve, reject) => {
+        let scriptName;
+
+        try {
+            scriptName = await uploadScriptCommon(loginData, param);
+        } catch (reason) {
+            vscode.window.showErrorMessage('upload script failed: ' + reason);
+            return reject();
+        }
+
+        try {
+            scriptName = await runScriptCommon(loginData, param, outputChannel);
+        } catch (reason) {
+            vscode.window.showErrorMessage('run script failed: ' + reason);
+            return reject();
+        }
+
+        vscode.window.setStatusBarMessage('uploaded and run: ' + scriptName);
+        resolve();
+    });
+}
+
+
 /**
  * Download script
  *
@@ -292,7 +295,9 @@ export async function uploadAll(loginData: nodeDoc.ConnectionInformation, _param
 export async function downloadScript(loginData: nodeDoc.ConnectionInformation, contextMenuPath: string | undefined) {
     await login.ensureLoginInformation(loginData);
 
-    helpers.ensureScriptName(contextMenuPath).then((scriptName) => {
+    const serverScriptNames = await getServerScriptNames(loginData);
+
+    helpers.ensureScriptName(contextMenuPath, serverScriptNames).then((scriptName) => {
         return helpers.ensurePath(contextMenuPath, true).then((scriptInfo) => {
             const scriptDir: string = scriptInfo[0];
             let script: nodeDoc.scriptT = new nodeDoc.scriptT(scriptName, scriptDir);
@@ -320,7 +325,7 @@ export async function downloadAll(loginData: nodeDoc.ConnectionInformation, cont
         const scriptDir: string = scriptInfo[0];
 
         // get names of scripts that should be downloaded
-        return getDownloadScriptNames(loginData).then((requestScripts) => {
+        return getServerScripts(loginData).then((requestScripts) => {
 
             // set download path to scripts
             requestScripts.forEach(function(script) {
@@ -352,24 +357,24 @@ export async function downloadAll(loginData: nodeDoc.ConnectionInformation, cont
 /**
  * Compare script
  */
-export async function compareScript(loginData: nodeDoc.ConnectionInformation, _param: any) {
+export async function compareScript(loginData: nodeDoc.ConnectionInformation, contextMenuPath: any) {
     await login.ensureLoginInformation(loginData);
 
-    helpers.ensurePath(_param, false, true).then((_path) => {
-        const scriptFolder = _path[0];
-        const _scriptname = _path[1];
+    helpers.ensurePath(contextMenuPath, false, true).then((scriptInfo) => {
+        const scriptDir = scriptInfo[0];
+        const _scriptname = scriptInfo[1];
         return helpers.ensureScriptName(_scriptname).then((scriptname) => {
             let comparePath: string;
             if (vscode.workspace && vscode.workspace.rootPath) {
                 comparePath = path.join(vscode.workspace.rootPath, helpers.COMPARE_FOLDER);
             } else {
-                comparePath = path.join(scriptFolder, helpers.COMPARE_FOLDER);
+                comparePath = path.join(scriptDir, helpers.COMPARE_FOLDER);
             }
             return helpers.createFolder(comparePath, true).then(() => {
                 let script: nodeDoc.scriptT = new nodeDoc.scriptT(scriptname, comparePath, '', helpers.COMPARE_FILE_PREFIX + scriptname);
                 return nodeDoc.serverSession(loginData, [script], nodeDoc.downloadScript).then((value) => {
                     script = value[0];
-                    helpers.compareScript(scriptFolder, scriptname);
+                    helpers.compareScript(scriptDir, scriptname);
                 });
             });
         });
@@ -382,7 +387,7 @@ export async function compareScript(loginData: nodeDoc.ConnectionInformation, _p
  * Download script names
  */
 export function getScriptnames(loginData: nodeDoc.ConnectionInformation, param: any) {
-    nodeDoc.serverSession(loginData, [], nodeDoc.getScriptNamesFromServer).then((_scripts) => {
+    nodeDoc.serverSession(loginData, [], nodeDoc.getScriptsFromServer).then((_scripts) => {
         helpers.writeScriptNamesToFile(_scripts);
         console.log('Wrote scripts to file and opened the file');
     }).catch((reason) => {
@@ -406,10 +411,10 @@ export async function getScriptParameters(loginData: nodeDoc.ConnectionInformati
             vscode.window.showErrorMessage(errmsg);
         } else {
             // get names of all scripts in script array
-            // return nodeDoc.sdsSession(loginData, [], nodeDoc.getScriptNamesFromServer).then((_scripts) => {
+            // return nodeDoc.sdsSession(loginData, [], nodeDoc.getScriptsFromServer).then((_scripts) => {
 
             // get names of download scripts
-            return getDownloadScriptNames(loginData).then((_scripts) => {
+            return getServerScripts(loginData).then((_scripts) => {
 
                 // get parameters
                 return nodeDoc.serverSession(loginData, _scripts, nodeDoc.getAllParameters).then(async (values) => {
@@ -446,14 +451,24 @@ export async function getScriptParameters(loginData: nodeDoc.ConnectionInformati
 }
 
 
-// TODO: Remove this function
-async function getDownloadScriptNames(loginData: nodeDoc.ConnectionInformation): Promise<nodeDoc.scriptT[]> {
+async function getServerScripts(loginData: nodeDoc.ConnectionInformation): Promise<nodeDoc.scriptT[]> {
     return new Promise<nodeDoc.scriptT[]>((resolve, reject) => {
 
         const scripts: nodeDoc.scriptT[] = helpers.getDownloadScriptNamesFromList();
         if (0 < scripts.length) {
             return resolve(scripts);
         }
+
+        nodeDoc.serverSession(loginData, [], nodeDoc.getScriptsFromServer).then((serverScripts) => {
+            resolve(serverScripts);
+        }).catch((reason) => {
+            reject(reason);
+        });
+    });
+}
+
+async function getServerScriptNames(loginData: nodeDoc.ConnectionInformation): Promise<string[]> {
+    return new Promise<string[]>((resolve, reject) => {
 
         nodeDoc.serverSession(loginData, [], nodeDoc.getScriptNamesFromServer).then((serverScripts) => {
             resolve(serverScripts);

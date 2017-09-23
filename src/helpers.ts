@@ -582,8 +582,8 @@ export async function checkPath(fileOrFolder: string, allowCreateFolder = false)
             } else {
                 if (stats1.isDirectory()) {
                     resolve([fileOrFolder]);
-                } else if (stats1.isFile()) {
-                    resolve([path.dirname(fileOrFolder), path.basename(fileOrFolder, '.js')]);
+                } else if (stats1.isFile() && '.js' === path.extname(fileOrFolder)) {
+                    resolve([path.dirname(fileOrFolder), path.basename(fileOrFolder)]);
                 } else {
                     reject('unexpected error in ' + fileOrFolder);
                 }
@@ -606,7 +606,6 @@ export async function ensurePath(fileOrFolder: string | undefined, allowSubDir =
 
     return new Promise<string[]>((resolve, reject) => {
 
-        // given path must be absolute
         if (fileOrFolder) {
 
             // if there's a workspace, returned path must be a subfolder of rootPath
@@ -667,12 +666,12 @@ export async function ensurePath(fileOrFolder: string | undefined, allowSubDir =
     });
 }
 
-export async function ensureScriptName(paramscript?: string): Promise<string> {
+export async function ensureScriptName(paramScript?: string, serverScripts: string[] = []): Promise<string> {
     console.log('ensureScriptName');
     return new Promise<string>((resolve, reject) => {
 
-        if (paramscript && '.js' === path.extname(paramscript)) {
-            resolve(path.basename(paramscript, '.js'));
+        if (paramScript && '.js' === path.extname(paramScript)) {
+            resolve(path.basename(paramScript, '.js'));
 
         } else {
             let activeScript = '';
@@ -680,17 +679,29 @@ export async function ensureScriptName(paramscript?: string): Promise<string> {
             if (editor) {
                 activeScript = path.basename(editor.document.fileName, '.js');
             }
-            vscode.window.showInputBox({
-                prompt: 'Please enter the script name or path',
-                value: activeScript,
-                ignoreFocusOut: true,
-            }).then((_scriptname) => {
-                if (_scriptname) {
-                    resolve(path.basename(_scriptname, '.js'));
-                } else {
-                    reject('no script');
-                }
-            });
+            if (0 === serverScripts.length) {
+                vscode.window.showInputBox({
+                    prompt: 'Please enter the script name or path',
+                    value: activeScript,
+                    ignoreFocusOut: true,
+                }).then((scriptName) => {
+                    if (scriptName) {
+                        resolve(path.basename(scriptName, '.js'));
+                    } else {
+                        reject('no script');
+                    }
+                });
+            } else {
+                vscode.window.showQuickPick(
+                    serverScripts
+                ).then((scriptName) => {
+                    if (scriptName) {
+                        resolve(scriptName);
+                    } else {
+                        reject('no script');
+                    }
+                });
+            }
         }
     });
 }
