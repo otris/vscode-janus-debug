@@ -2,6 +2,16 @@
 
 You'll find a complete list of changes at our project site on [GitHub](https://github.com/otris/vscode-janus-debug).
 
+### 0.0.15 (yyyy-mm-dd)
+
+New Features in this release:
+
+- For commands **Run Script** and **Download Script** it is now possible to choose the script from a list of available scripts on server.
+
+Following bugs have been addressed in this release:
+
+- **Upload All* works again, if the folders contain files that are not JavaScript files.
+
 ### 0.0.14 (2017-09-22)
 
 ### 0.0.13 (2017-09-22)
