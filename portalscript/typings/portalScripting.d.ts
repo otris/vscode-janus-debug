@@ -1060,6 +1060,7 @@ declare namespace Documents {
 	* @param {string} fileType
 	* @returns {Documents.DocFile}
 	**/
+	createFile<K extends keyof FileTypeMapper>(fileType: K): FileTypeMapper[K];
 	createFile(fileType: string): Documents.DocFile;
 	/**
 	 * Create a new folder of the specified type on the top level. 
