@@ -265,10 +265,10 @@ declare namespace Documents {
 	* @memberof ArchiveConnection
 	* @param {string} resourceIdentifier
 	* @param {string} postData
-	* @param {Array<any>} extraHeaders
+	* @param {string []} extraHeaders
 	* @returns {string}
 	**/
-	sendEbisRequest(resourceIdentifier: string, postData?: string, extraHeaders: Array<any>): string;
+	sendEbisRequest(resourceIdentifier: string, postData?: string, extraHeaders?: string []): string;
 	/**
 	 * Sends a request to the ArchiveConnection and returns the response XML. 
 	 * 
@@ -290,7 +290,7 @@ declare class ArchiveConnection implements Documents.ArchiveConnection {
 	getLastError(): string;
 	putBlob(doc: Documents.Document, blobreference: string): boolean;
 	queryRawEEx(eql: string, wantedHits?: number, maxHits?: number): string;
-	sendEbisRequest(resourceIdentifier: string, postData?: string, extraHeaders: Array<any>): string;
+	sendEbisRequest(resourceIdentifier: string, postData?: string, extraHeaders?: string []): string;
 	sendRequest(request: string): string;
 }
 
@@ -786,7 +786,7 @@ declare namespace Documents {
 	 * 
 	 * ... ... ... ... 
 	 */
-	file: Documents.DocFile;
+	file: FileTypeMapper[keyof FileTypeMapper];
 	/**
 	 * Technical name of the filetype of the file which is the execution context of the script. 
 	 * 
@@ -1665,6 +1665,9 @@ declare namespace Documents {
 }
 declare var context: Documents.Context;
 declare var searchExpression: string;
+interface FileTypeMapper {
+	"DocFile": Documents.DocFile
+}
 
 
 declare namespace Documents {
@@ -2439,7 +2442,7 @@ declare namespace Documents {
 	* @param {string} locale
 	* @returns {string}
 	**/
-	createMonitorFile(asPDF?: boolean, locale: string): string;
+	createMonitorFile(asPDF?: boolean, locale?: string): string;
 	/**
 	 * Creates a status file in the server's file system. 
 	 * 
@@ -2451,7 +2454,7 @@ declare namespace Documents {
 	* @param {string} locale
 	* @returns {string}
 	**/
-	createStatusFile(asPDF?: boolean, locale: string): string;
+	createStatusFile(asPDF?: boolean, locale?: string): string;
 	/**
 	 * Delete the DocFile object. 
 	 * 
@@ -3057,8 +3060,8 @@ declare class DocFile implements Documents.DocFile {
 	commit(): boolean;
 	connectFolder(fObj: Documents.Folder): boolean;
 	countFields(fieldName: string): number;
-	createMonitorFile(asPDF?: boolean, locale: string): string;
-	createStatusFile(asPDF?: boolean, locale: string): string;
+	createMonitorFile(asPDF?: boolean, locale?: string): string;
+	createStatusFile(asPDF?: boolean, locale?: string): string;
 	deleteFile(moveTrash?: boolean, movePool?: boolean, allVersions?: boolean): boolean;
 	disconnectArchivedFile(): boolean;
 	disconnectFolder(fObj: Documents.Folder): boolean;
@@ -4594,10 +4597,10 @@ declare namespace Documents {
 	 */
 	/**
 	* @memberof File
-	* @param {Array<any>} byteArray
+	* @param {number []} byteArray
 	* @returns {boolean}
 	**/
-	write(byteArray: Array<any>): boolean;
+	write(byteArray: number []): boolean;
 	/**
 	 * Write data to the file. 
 	 * 
@@ -4635,7 +4638,7 @@ declare class File implements Documents.File {
 	ok(): boolean;
 	read(charsNo: number): string;
 	readLine(): string;
-	write(byteArray: Array<any>): boolean;
+	write(byteArray: number []): boolean;
 	write(a: string, b: string, ...restParams: any[]): boolean;
 	writeBuffer(data: string, charsNo: number): boolean;
 }
@@ -6490,13 +6493,13 @@ declare namespace Documents {
 	* @memberof SystemUser
 	* @param {boolean} absent
 	* @param {boolean} filesDueAbsenceToInfo
-	* @param {Array<any>} agents
+	* @param {string []} agents
 	* @param {boolean} removeFromAgentInbox
 	* @param {Date} from
 	* @param {Date} until
 	* @returns {boolean}
 	**/
-	setAbsent(absent: boolean, filesDueAbsenceToInfo?: boolean, agents?: Array<any>, removeFromAgentInbox: boolean, from: Date, until: Date): boolean;
+	setAbsent(absent: boolean, filesDueAbsenceToInfo?: boolean, agents?: string [], removeFromAgentInbox?: boolean, from?: Date, until?: Date): boolean;
 	/**
 	 * Define if an absence mail for the absent user will be sent to the sender of the file. 
 	 * 
@@ -6608,7 +6611,7 @@ declare class SystemUser implements Documents.SystemUser {
 	removeFileTypeAgent(fileTypes: any): boolean;
 	removeFromAccessProfile(ap: Documents.AccessProfile): boolean;
 	resetSuperior(): boolean;
-	setAbsent(absent: boolean, filesDueAbsenceToInfo?: boolean, agents?: Array<any>, removeFromAgentInbox: boolean, from: Date, until: Date): boolean;
+	setAbsent(absent: boolean, filesDueAbsenceToInfo?: boolean, agents?: string [], removeFromAgentInbox?: boolean, from?: Date, until?: Date): boolean;
 	setAbsentMail(sendMail: boolean, message?: string): boolean;
 	setAttribute(attribute: string, value: string): boolean;
 	setOrAddCustomProperty(name: string, type: string, value: string): Documents.CustomProperty;
@@ -7731,6 +7734,17 @@ declare namespace Documents {
 	**/
 	addPortalScript(namePattern: string, format?: string): boolean;
 	/**
+	 * Defines a PortalScript, that will be executed after the XML-import. 
+	 * 
+	 * This method does not export the content of a PortalScript (see XMLExport.addPortalScript()), but executes a PortalScript at the end of the XML-Import of the whole xml file. ... ... ... ... 
+	 */
+	/**
+	* @memberof XMLExport
+	* @param {string} nameScript
+	* @returns {boolean}
+	**/
+	addPortalScriptCall(nameScript: string): boolean;
+	/**
 	 * Add all PortalScripts belonging to the desired category to the XMLExport. 
 	 * 
 	 * ... ... ... ... ... ... 
@@ -7822,6 +7836,7 @@ declare class XMLExport implements Documents.XMLExport {
 	addOutbar(outbarName: string): boolean;
 	addPartnerAccount(userAccount: any, includePrivateFolders?: boolean): boolean;
 	addPortalScript(namePattern: string, format?: string): boolean;
+	addPortalScriptCall(nameScript: string): boolean;
 	addPortalScriptsFromCategory(nameCategory: string, format?: string): boolean;
 	addSystemUser(systemUser: any, includePrivateFolders?: boolean): boolean;
 	addWorkflow(workflowName: string): boolean;
