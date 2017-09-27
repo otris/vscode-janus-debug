@@ -490,3 +490,20 @@ async function getServerScriptNames(loginData: nodeDoc.ConnectionInformation): P
         });
     });
 }
+
+
+export function getFileTypesTSD(loginData: nodeDoc.ConnectionInformation): Promise<string> {
+    return new Promise<string>((resolve, reject) => {
+
+        nodeDoc.serverSession(loginData, [], nodeDoc.getFileTypesTSD).then((fieldNames) => {
+            if (!fieldNames || !fieldNames[0] || !fieldNames[0].length) {
+                reject();
+            } else {
+                resolve(fieldNames[0]);
+            }
+        }).catch((reason) => {
+            reject(reason);
+        });
+    });
+}
+

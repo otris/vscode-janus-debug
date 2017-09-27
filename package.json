@@ -358,6 +358,11 @@
         "command": "extension.vscode-janus-debug.installIntellisense",
         "title": "Install PortalScripting Intellisense",
         "category": "DOCUMENTS"
+      },
+      {
+        "command": "extension.vscode-janus-debug.getFileTypesTSD",
+        "title": "Get fileTypes.d.ts",
+        "category": "DOCUMENTS"
       }
     ],
     "keybindings": [
@@ -436,6 +441,10 @@
         {
           "command": "extension.vscode-janus-debug.installIntellisense",
           "group": "DOCUMENTS@11"
+        },
+        {
+          "command": "extension.vscode-janus-debug.getFileTypesTSD",
+          "group": "DOCUMENTS@12"
         }
       ],
       "editor/context": [

@@ -1,7 +1,14 @@
+import * as nodeDoc from 'node-documents-scripting';
+import * as os from 'os';
 import * as path from 'path';
 import * as vscode from 'vscode';
+import * as commands from './serverCommands';
+
 // tslint:disable-next-line:no-var-requires
 const fs = require('fs-extra');
+
+const FILETYPES_FILE = 'fileTypes.d.ts';
+const PORTALSCRIPTING_FILE = 'portalScripting.d.ts';
 
 function getJsconfigJsonString() {
     // "compilerOptions": {
@@ -22,9 +29,52 @@ function getJsconfigJsonString() {
 }
 
 
-export function createFiletypes(): string[] {
-    //
-    return [];
+
+export function createFiletypesTSD(loginData: nodeDoc.ConnectionInformation): Promise<void> {
+    return new Promise<void>(async (resolve, reject) => {
+
+        if (!vscode.workspace || !vscode.workspace.rootPath) {
+            vscode.window.showErrorMessage('Create a workspace root folder please');
+            return resolve();
+        }
+
+        // get the content for fileTypes.d.ts
+        let fileTypesTSD = '';
+        try {
+            fileTypesTSD = await commands.getFileTypesTSD(loginData);
+        } catch (reason) {
+            vscode.window.showErrorMessage(reason.message);
+            return resolve();
+        }
+
+        // check typings folder
+        const projtypings = path.join(vscode.workspace.rootPath, 'typings');
+        try {
+            fs.readdirSync(projtypings);
+        } catch (err) {
+            if (err.code === 'ENOENT') {
+                fs.mkdir(projtypings);
+            }
+        }
+
+        // create fileTypes.d.ts
+        const filetypesPath = path.join(projtypings, FILETYPES_FILE);
+        try {
+            fs.writeFileSync(filetypesPath, fileTypesTSD, { flag: "wx" });
+        } catch (reason) {
+            vscode.window.showErrorMessage(reason.message);
+            return resolve();
+        }
+
+        const jsconfigPath = path.join(vscode.workspace.rootPath, 'jsconfig.json');
+        try {
+            const jsconfigjson = fs.readFileSync(jsconfigPath);
+        } catch (reason) {
+            vscode.window.showWarningMessage(`You will need a **jsconfig.json** (create by **Install portalScripting IntelliSense**)`);
+        }
+
+        resolve();
+    });
 }
 
 
@@ -32,8 +82,11 @@ export function createFiletypes(): string[] {
 export function installIntellisense() {
     const extension = vscode.extensions.getExtension('otris-software.vscode-janus-debug');
     if (extension && vscode.workspace && vscode.workspace.rootPath) {
-        const dtsfile = path.join(extension.extensionPath, 'portalscript', 'typings', 'portalScripting.d.ts');
+
+        // TODO: get from GitHub if possible
+        const extensionTSDFile = path.join(extension.extensionPath, 'portalscript', 'typings', PORTALSCRIPTING_FILE);
         const projecttypings = path.join(vscode.workspace.rootPath, 'typings');
+        const projectTSDFile = path.join(projecttypings, PORTALSCRIPTING_FILE);
 
         // check typings folder
         try {
@@ -46,10 +99,9 @@ export function installIntellisense() {
 
         // check and copy dts file
         try {
-            fs.readFileSync(dtsfile);
-            const dstfile = path.join(projecttypings, 'portalScripting.d.ts');
+            fs.readFileSync(extensionTSDFile);
             // overwrites existing on default
-            fs.copySync(dtsfile, dstfile);
+            fs.copySync(extensionTSDFile, projectTSDFile);
         } catch (err) {
             vscode.window.showErrorMessage(err);
         }
