@@ -70,8 +70,10 @@ export function createFiletypesTSD(loginData: nodeDoc.ConnectionInformation): Pr
         try {
             const jsconfigjson = fs.readFileSync(jsconfigPath);
         } catch (reason) {
-            vscode.window.showWarningMessage(`You will need a **jsconfig.json** (create by **Install portalScripting IntelliSense**)`);
+            vscode.window.showWarningMessage('You will need a **jsconfig.json** (created by **Install PortalScripting IntelliSense**)');
         }
+
+        vscode.window.showInformationMessage('Use **context.createFile("<Ctrl + Space>")** or add **/\\** @types{FileType} \\*/** to DocFile objects to get IntelliSense for file types');
 
         resolve();
     });

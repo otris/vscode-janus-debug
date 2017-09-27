@@ -455,7 +455,6 @@ export function activate(context: vscode.ExtensionContext): void {
         vscode.commands.registerCommand('extension.vscode-janus-debug.getFileTypesTSD', async () => {
             try {
                 await intellisense.createFiletypesTSD(loginData);
-                vscode.window.showInformationMessage('Use **context.createFile("Strg + Space")** or add **/\\** @types{FileType} \\*/** to DocFile objects');
             } catch (err) {
                 //
             }
