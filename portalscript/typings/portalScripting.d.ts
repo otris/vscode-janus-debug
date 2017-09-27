@@ -1667,7 +1667,7 @@ declare namespace Documents {
 declare var context: Documents.Context;
 declare var searchExpression: string;
 interface FileTypeMapper {
-	"DocFile": Documents.DocFile
+	"DocFile": Documents.DocFile;
 }
 
 
