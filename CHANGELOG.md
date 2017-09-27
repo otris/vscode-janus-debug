@@ -2,6 +2,10 @@
 
 You'll find a complete list of changes at our project site on [GitHub](https://github.com/otris/vscode-janus-debug).
 
+### 0.0.16 (2017-09-27)
+
+Fix run active script.
+
 ### 0.0.15 (2017-09-27)
 
 New Features in this release:
