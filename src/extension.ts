@@ -369,6 +369,9 @@ export function activate(context: vscode.ExtensionContext): void {
             if (param && typeof(param._fsPath) === 'string') {
                 fsPath = param._fsPath;
             }
+            if (!fsPath && vscode.window.activeTextEditor) {
+                fsPath = vscode.window.activeTextEditor.document.fileName;
+            }
             try {
                 await serverCommands.runScript(loginData, fsPath, scriptChannel);
             } catch (err) {
@@ -392,6 +395,9 @@ export function activate(context: vscode.ExtensionContext): void {
             let fsPath: string | undefined;
             if (param && typeof(param._fsPath) === 'string') {
                 fsPath = param._fsPath;
+            }
+            if (!fsPath && vscode.window.activeTextEditor) {
+                fsPath = vscode.window.activeTextEditor.document.fileName;
             }
             try {
                 await serverCommands.uploadRunScript(loginData, fsPath, scriptChannel);
