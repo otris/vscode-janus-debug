@@ -346,9 +346,9 @@ export async function downloadAll(loginData: nodeDoc.ConnectionInformation, cont
                 // then the script is encrypted on server
                 const encryptedScripts = requestScripts.length - scripts.length;
                 if (1 === encryptedScripts) {
-                    vscode.window.showWarningMessage(`1 encrypted script has not been downloaded`);
+                    vscode.window.showWarningMessage(`couldn't download 1 script (it might be encrypted)`);
                 } else if (1 < encryptedScripts) {
-                    vscode.window.showWarningMessage(`${encryptedScripts} encrypted scripts have not been downloaded`);
+                    vscode.window.showWarningMessage(`couldn't download ${encryptedScripts} scripts (they might be encrypted)`);
                 }
                 vscode.window.setStatusBarMessage(`downloaded ${scripts.length} scripts`);
             });
