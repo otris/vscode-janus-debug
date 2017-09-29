@@ -2,6 +2,14 @@
 
 You'll find a complete list of changes at our project site on [GitHub](https://github.com/otris/vscode-janus-debug).
 
+### 0.0.17 (yyyy-mm-dd)
+
+New Features in this release:
+
+- The DOCUMENTS version is written to script console on every run.
+
+- The script returnValue can now be written to a file. Just `vscode-janus-debug.scriptLog.fileName` and `vscode-janus-debug.scriptLog.returnValue` have to be set.
+
 ### 0.0.16 (2017-09-27)
 
 Fix run active script.
