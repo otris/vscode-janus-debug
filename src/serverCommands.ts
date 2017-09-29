@@ -235,6 +235,8 @@ function runScriptCommon(loginData: nodeDoc.ConnectionInformation, param: any, o
             const scriptName = await helpers.ensureScriptName(param, serverScriptNames);
             const script = new nodeDoc.scriptT(scriptName);
             await nodeDoc.serverSession(loginData, [script], nodeDoc.runScript);
+
+            outputChannel.append(`DOCUMENTS #${loginData.documentsVersion}` + os.EOL);
             outputChannel.append(script.output + os.EOL);
             outputChannel.show();
 
