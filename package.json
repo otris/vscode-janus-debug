@@ -235,7 +235,7 @@
         "vscode-janus-debug.forceUpload": {
           "type": "boolean",
           "default": false,
-          "description": "Set to true, if the extension should upload a script without checking the script on server."
+          "description": "Set to true, if the extension should upload scripts without checking the script on server."
         },
         "vscode-janus-debug.serverConsole": {
           "type": "object",
@@ -285,7 +285,33 @@
           "type": "boolean",
           "title": "Encrypt Scripts On Upload",
           "default": false,
-          "description": "If true, scripts will be encrypted on upload"
+          "description": "If set to true, scripts will be encrypted on upload"
+        },
+        "vscode-janus-debug.scriptLog": {
+          "type": "object",
+          "title": "Write Script Output To Log File",
+          "description": "For now, only the return value is written to the log file",
+          "required": [
+            "fileName",
+            "returnValue"
+          ],
+          "properties": {
+            "fileName": {
+              "type": "string",
+              "description": "Path to the script log file",
+              "default": "${workspaceRoot}/script.log"
+            },
+            "returnValue": {
+              "type": "boolean",
+              "default": true,
+              "description": "Set to true, if return value should be written to script log"
+            },
+            "append": {
+              "type": "boolean",
+              "default": false,
+              "description": "Set to true, if log should be appended to file"
+            }
+          }
         }
       }
     },

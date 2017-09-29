@@ -485,6 +485,41 @@ export function updateHashValues(pscripts: nodeDoc.scriptT[], server: string) {
     nodeDoc.writeFile(hashValStr, hashValueFile);
 }
 
+
+export function scriptLog(scriptOutput: string | undefined) {
+    if (!vscode.workspace.rootPath || !vscode.workspace.rootPath) {
+        return;
+    }
+    if (!scriptOutput || 0 >= scriptOutput.length) {
+        return;
+    }
+    const conf = vscode.workspace.getConfiguration('vscode-janus-debug');
+    if (!conf) {
+        return;
+    }
+    const log: any = conf.get('scriptLog');
+    if (!log || !log.returnValue) {
+        return;
+    }
+    let returnValue = '';
+    const lines = scriptOutput.replace('\r', '').split('\n');
+    lines.forEach(function(line) {
+        if (line.startsWith('Return-Value: ')) {
+            returnValue = line.substr(14) + os.EOL;
+        }
+    });
+    if (returnValue.length > 0 && log.fileName && vscode.workspace && vscode.workspace.rootPath) {
+        const fileName = log.fileName.replace(/[$]{workspaceRoot}/, vscode.workspace.rootPath);
+        if (conf.get('scriptLog.append', false)) {
+            fs.writeFileSync(fileName, returnValue, {flag: "a"});
+        } else {
+            fs.writeFileSync(fileName, returnValue);
+        }
+    }
+}
+
+
+
 export function compareScript(_path: string, scriptname: string): void {
     if (!vscode.workspace.rootPath || !vscode.workspace.rootPath) {
         return;

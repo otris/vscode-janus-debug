@@ -240,6 +240,8 @@ function runScriptCommon(loginData: nodeDoc.ConnectionInformation, param: any, o
             outputChannel.append(script.output + os.EOL);
             outputChannel.show();
 
+            helpers.scriptLog(script.output);
+
             resolve(scriptName);
         } catch (reason) {
             return reject(reason);
