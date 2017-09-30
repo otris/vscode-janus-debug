@@ -180,9 +180,8 @@ function initLaunchJsonWatcher(outputChannel: vscode.OutputChannel, loginData: n
             outputChannel.appendLine('launch.json created; trying to connect...');
             reconnectServerConsole(serverConsole);
         }
-        if (file) {
-            login.loadLoginInformation(loginData, file.fsPath);
-        }
+        const fspath = file ? file.fsPath : '';
+        login.loadLoginInformationOnCreate(loginData, fspath);
         serverCommands.setDecryptionVersionChecked(false);
     });
 
