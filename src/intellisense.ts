@@ -10,7 +10,7 @@ const fs = require('fs-extra');
 const FILETYPES_FILE = 'fileTypes.d.ts';
 const PORTALSCRIPTING_FILE = 'portalScripting.d.ts';
 
-function getJsconfigJsonString() {
+function getJsconfigCompilerOptions() {
     // "compilerOptions": {
     //    "noLib": true
     //  }
@@ -120,7 +120,7 @@ export function installIntellisense() {
             }
         } catch (err) {
             if (err.code === 'ENOENT' || err.message === ERR_FILE_EMPTY) {
-                const jsconfigContent = getJsconfigJsonString();
+                const jsconfigContent = ''; // getJsconfigCompilerOptions();
                 try {
                     fs.writeFileSync(jsconfigPath, jsconfigContent);
                 } catch (reason) {
