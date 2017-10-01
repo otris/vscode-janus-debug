@@ -105,7 +105,6 @@ async function askForLoginInformation(loginInfo: nodeDoc.ConnectionInformation):
             // set to true so the string to ask for password
             // is written to launch.json
             loginInfo.askForPassword = true;
-
             resolve(undefined);
         }
     });

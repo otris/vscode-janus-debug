@@ -106,6 +106,7 @@ export function installIntellisense() {
             fs.copySync(extensionTSDFile, projectTSDFile);
         } catch (err) {
             vscode.window.showErrorMessage(err);
+            return;
         }
 
         // create empty jsconfig.json
