@@ -496,7 +496,9 @@ async function getServerScriptNames(loginData: nodeDoc.ConnectionInformation): P
 }
 
 
-export function getFileTypesTSD(loginData: nodeDoc.ConnectionInformation): Promise<string> {
+export async function getFileTypesTSD(loginData: nodeDoc.ConnectionInformation): Promise<string> {
+    await login.ensureLoginInformation(loginData);
+
     return new Promise<string>((resolve, reject) => {
 
         nodeDoc.serverSession(loginData, [], nodeDoc.getFileTypesTSD).then((fieldNames) => {
