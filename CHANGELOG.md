@@ -10,6 +10,12 @@ New Features in this release:
 
 - The script returnValue can now be written to a file. Just `vscode-janus-debug.scriptLog.fileName` and `vscode-janus-debug.scriptLog.returnValue` have to be set.
 
+- Remove `noLib: true` entry in `jsconfig.json`.
+
+Following bugs have been addressed in this release:
+
+- Change password didn't work correctly when password was not written to launch.json.
+
 ### 0.0.16 (2017-09-27)
 
 Fix run active script.
