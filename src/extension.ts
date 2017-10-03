@@ -16,7 +16,7 @@ import * as login from './login';
 import * as serverCommands from './serverCommands';
 import { ServerConsole } from './serverConsole';
 import stripJsonComments = require('strip-json-comments');
-import { getVersion } from './version';
+import * as version from './version';
 
 
 let ipcServer: VSCodeExtensionIPC;
@@ -156,7 +156,7 @@ function printVersion(outputChannel: vscode.OutputChannel) {
     if (vscode.workspace !== undefined) {
         outputChannel.appendLine('Extension activated');
         try {
-            outputChannel.appendLine("Version: " + getVersion().toString(true));
+            outputChannel.appendLine("Version: " + version.getVersion().toString(true));
         } catch (err) {
             outputChannel.appendLine('getVersion() failed: ' + err.message);
         } finally {
@@ -207,6 +207,13 @@ function initLaunchJsonWatcher(outputChannel: vscode.OutputChannel, loginData: n
 export function activate(context: vscode.ExtensionContext): void {
 
     const isFolderOpen: boolean = vscode.workspace !== undefined;
+
+    // set extension path
+    // get location fo the extensions source folder
+    const thisExtension: vscode.Extension<any> | undefined = vscode.extensions.getExtension("otris-software.vscode-janus-debug");
+    if (thisExtension !== undefined) {
+        version.setExtensionPath(thisExtension.extensionPath);
+    }
 
     // set up file logging
     const extensionLoggerConf = getExtensionLogPath();

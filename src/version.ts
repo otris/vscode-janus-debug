@@ -1,7 +1,5 @@
 import * as fs from 'fs';
-import * as vscode from 'vscode';
 
-export let extensionVersion: Version;
 
 export class Version {
 
@@ -24,15 +22,17 @@ export class Version {
     }
 }
 
+
+let extensionVersion: Version;
+let extensionPath: string | undefined;
+export function setExtensionPath(path: string) {
+    extensionPath = path;
+}
 export function getVersion(): Version {
     if (extensionVersion) {
         return extensionVersion;
     } else {
-        // get location fo the extensions source folder
-        const thisExtension: vscode.Extension<any> | undefined = vscode.extensions.getExtension("otris-software.vscode-janus-debug");
-        if (thisExtension !== undefined) {
-            const extensionPath: string = thisExtension.extensionPath;
-
+        if (extensionPath !== undefined) {
             try {
                 const data = fs.readFileSync(extensionPath + "/out/src/version.json", { encoding: "utf-8", flag: "r" });
                 const obj = JSON.parse(data);
