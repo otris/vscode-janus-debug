@@ -123,6 +123,7 @@ declare class AccessProfile implements Documents.AccessProfile {
 	getLastError(): string;
 	getOID(oidLow?: boolean): string;
 	getSystemUsers(): Documents.SystemUserIterator;
+	constructor(nameAccessProfile: string);
 	setAttribute(attribute: string, value: string): boolean;
 	setOrAddCustomProperty(name: string, type: string, value: string): Documents.CustomProperty;
 }
@@ -437,21 +438,6 @@ declare namespace Documents {
 	 */
 	export interface ArchiveFileResultset {
 	/**
-	 * Create a new ArchiveFileResultset object. 
-	 * 
-	 * Like in other programming languages you create a new object with the new operator (refer to example below). ... ... ... 
-	 */
-	/**
-	* @memberof ArchiveFileResultset
-	* @param {string} archiveKey
-	* @param {string} filter
-	* @param {string} sortOrder
-	* @param {string} hitlist
-	* @param {boolean} unlimitedHits
-	* @returns {Documents.ArchiveFileResultset}
-	**/
-	ArchiveFileResultset(archiveKey: string, filter: string, sortOrder: string, hitlist: string, unlimitedHits?: boolean): Documents.ArchiveFileResultset;
-	/**
 	 * Retrieve the first DocFile object in the ArchiveFileResultset. 
 	 * 
 	 * ... ... 
@@ -506,7 +492,6 @@ declare namespace Documents {
 
 declare class ArchiveFileResultset implements Documents.ArchiveFileResultset {
 	constructor(archiveKey: string, filter: string, sortOrder: string, hitlist: string, unlimitedHits?: boolean);
-	ArchiveFileResultset(archiveKey: string, filter: string, sortOrder: string, hitlist: string, unlimitedHits?: boolean): Documents.ArchiveFileResultset;
 	first(): Documents.DocFile;
 	getLastError(): string;
 	last(): Documents.DocFile;
@@ -737,6 +722,7 @@ declare class ArchivingDescription implements Documents.ArchivingDescription {
 	targetView: string;
 	versioning: boolean;
 	addRegister(registerName: string): void;
+	constructor();
 }
 
 
@@ -2010,30 +1996,6 @@ declare namespace Documents {
 	**/
 	close(): boolean;
 	/**
-	 * The constructor is neccessary to connect to the external database. 
-	 * 
-	 * The resulting DBConnection object may only be used by ...  single DBResultSet at once, so if you need to open several DBResultSet objects at the same time, you need a separate DBConnection object for each of them. ... ... ... ... 
-	 */
-	/**
-	* @memberof DBConnection
-	* @param {string} connType
-	* @param {string} connString
-	* @param {string} user
-	* @param {string} password
-	* @returns {Documents.DBConnection}
-	**/
-	DBConnection(connType: string, connString: string, user: string, password: string): Documents.DBConnection;
-	/**
-	 * The constructor is neccessary to connect to the currently used DOCUMENTS 5 database. 
-	 * 
-	 * The resulting DBConnection object may only be used by ...  single DBResultSet at once, so if you need to open several DBResultSet objects at the same time, you need a separate DBConnection object for each of them. ... ... 
-	 */
-	/**
-	* @memberof DBConnection
-	* @returns {Documents.DBConnection}
-	**/
-	DBConnection(): Documents.DBConnection;
-	/**
 	 * Execute a SELECT statement and retrieve a DBResultSet containing the result rows found by the statement. 
 	 * 
 	 * ... ... ... ... ... ... 
@@ -2093,9 +2055,7 @@ declare namespace Documents {
 declare class DBConnection implements Documents.DBConnection {
 	close(): boolean;
 	constructor(connType: string, connString: string, user: string, password: string);
-	DBConnection(connType: string, connString: string, user: string, password: string): Documents.DBConnection;
 	constructor();
-	DBConnection(): Documents.DBConnection;
 	executeQuery(sqlStatement: string): Documents.DBResultSet;
 	executeQueryUC(sqlStatement: string): Documents.DBResultSet;
 	executeStatement(sqlStatement: string): boolean;
@@ -3813,17 +3773,6 @@ declare namespace Documents {
 	**/
 	createTextNode(data: string): Documents.DOMCharacterData;
 	/**
-	 * Create a new empty XML document structure. 
-	 * 
-	 * ... ... ... 
-	 */
-	/**
-	* @memberof DOMDocument
-	* @param {string} rootElementName
-	* @returns {any}
-	**/
-	DOMDocument(rootElementName: string): any;
-	/**
 	 * List all DOMElements in the document with a certain tag name. 
 	 * 
 	 * The order of the elements in the returned list corresponds to a preorder traversal of the DOM tree. ... ... ... ... 
@@ -3845,7 +3794,6 @@ declare class DOMDocument implements Documents.DOMDocument {
 	createElement(tagName: string): Documents.DOMElement;
 	createTextNode(data: string): Documents.DOMCharacterData;
 	constructor(rootElementName: string);
-	DOMDocument(rootElementName: string): any;
 	getElementsByTagName(tagName: string): Documents.DOMNodeList;
 }
 
@@ -4268,14 +4216,6 @@ declare namespace Documents {
 	 */
 	export interface DOMParser {
 	/**
-	 * The constructor actually takes no arguments. 
-	 */
-	/**
-	* @memberof DOMParser
-	* @returns {any}
-	**/
-	DOMParser(): any;
-	/**
 	 * This returns the root of the DOM tree after a successful call of parse(), otherwise null. 
 	 */
 	/**
@@ -4322,7 +4262,6 @@ declare namespace Documents {
 
 declare class DOMParser implements Documents.DOMParser {
 	constructor();
-	DOMParser(): any;
 	getDocument(): Documents.DOMDocument;
 	getLastError(): string;
 	parse(xml: string, fromFile: boolean): number;
@@ -4364,24 +4303,6 @@ declare namespace Documents {
 	* @returns {boolean}
 	**/
 	addAttachment(attachment: any, sourceFilePath: string): boolean;
-	/**
-	 * Create a new instance of the Email class. 
-	 * 
-	 * In case of multiple recipients for the parameters to, cc or bcc, the individual email addresses are to be separated by a comma (,). It is not allowed to send an email without any primary recipients specified by the parameter to. To send a HTML email the body must begin with the <HTML> tag. Emails in following cases are stored in the folder Administration > Sent eMails in the DOCUMENTS Manager: ... ... ... 
-	 */
-	/**
-	* @memberof Email
-	* @param {string} to
-	* @param {string} from
-	* @param {string} subject
-	* @param {string} body
-	* @param {string} cc
-	* @param {string} bcc
-	* @param {Date} sendingTime
-	* @param {boolean} deleteAfterSending
-	* @returns {Documents.Email}
-	**/
-	Email(to: string, from: string, subject: string, body: string, cc: string, bcc: string, sendingTime: Date, deleteAfterSending: boolean): Documents.Email;
 	/**
 	 * Get the description of the last error that occurred. 
 	 * 
@@ -4496,7 +4417,6 @@ declare namespace Documents {
 declare class Email implements Documents.Email {
 	addAttachment(attachment: any, sourceFilePath: string): boolean;
 	constructor(to: string, from: string, subject: string, body: string, cc: string, bcc: string, sendingTime: Date, deleteAfterSending: boolean);
-	Email(to: string, from: string, subject: string, body: string, cc: string, bcc: string, sendingTime: Date, deleteAfterSending: boolean): Documents.Email;
 	getLastError(): string;
 	send(): boolean;
 	setBCC(bcc: string): boolean;
@@ -4548,18 +4468,6 @@ declare namespace Documents {
 	* @returns {string}
 	**/
 	error(): string;
-	/**
-	 * The constructor has the purpose to open a file handle to the desired file. 
-	 * 
-	 * Once created, you cannot change the access mode of the file handle. If you need to change the access mode, you would have to close the file and reopen it. ... ... ... ... ... ... 
-	 */
-	/**
-	* @memberof File
-	* @param {string} pathFileName
-	* @param {string} mode
-	* @returns {Documents.File}
-	**/
-	File(pathFileName: string, mode: string): Documents.File;
 	/**
 	 * Report whether an error occurred while accessing the file handle. 
 	 * 
@@ -4635,7 +4543,6 @@ declare class File implements Documents.File {
 	eof(): boolean;
 	error(): string;
 	constructor(pathFileName: string, mode: string);
-	File(pathFileName: string, mode: string): Documents.File;
 	ok(): boolean;
 	read(charsNo: number): string;
 	readLine(): string;
@@ -4710,6 +4617,7 @@ declare class FileResultset implements Documents.FileResultset {
 	first(): Documents.DocFile;
 	getIds(): number;
 	last(): Documents.DocFile;
+	constructor(fileType: string, filter: string, sortOrder: string);
 	next(): Documents.DocFile;
 	size(): number;
 }
@@ -5508,24 +5416,6 @@ declare namespace Documents {
 	**/
 	getLastErrorCode(): number;
 	/**
-	 * Perform a search and create a new HitResultset object. 
-	 * 
-	 * ... ... ... 
-	 */
-	/**
-	* @memberof HitResultset
-	* @param {any} searchResources
-	* @param {string} filter
-	* @param {string} sortOrder
-	* @param {any} hitlist
-	* @param {number} pageSize
-	* @param {boolean} unlimitedHits
-	* @param {boolean} fullColumnLength
-	* @param {boolean} withBlobInfo
-	* @returns {Documents.HitResultset}
-	**/
-	HitResultset(searchResources: any, filter: string, sortOrder: string, hitlist: any, pageSize?: number, unlimitedHits?: boolean, fullColumnLength?: boolean, withBlobInfo?: boolean): Documents.HitResultset;
-	/**
 	 * Retrieve the next DocHit in the HitResultset. 
 	 * 
 	 * ... ... ... ... 
@@ -5560,7 +5450,6 @@ declare class HitResultset implements Documents.HitResultset {
 	getLastError(): string;
 	getLastErrorCode(): number;
 	constructor(searchResources: any, filter: string, sortOrder: string, hitlist: any, pageSize?: number, unlimitedHits?: boolean, fullColumnLength?: boolean, withBlobInfo?: boolean);
-	HitResultset(searchResources: any, filter: string, sortOrder: string, hitlist: any, pageSize?: number, unlimitedHits?: boolean, fullColumnLength?: boolean, withBlobInfo?: boolean): Documents.HitResultset;
 	next(): Documents.DocHit;
 	size(): number;
 }
@@ -5969,20 +5858,6 @@ declare namespace Documents {
 	**/
 	launch(): boolean;
 	/**
-	 * Create a new ScriptCall object. 
-	 * 
-	 * The following properties of the execution context of the called script are carried over from the execution context of the script where this ScriptCall object is created: ... 
-	 * You can change these context properties with the available set-methods. ... ... 
-	 */
-	/**
-	* @memberof ScriptCall
-	* @param {any} systemUser
-	* @param {string} scriptName
-	* @param {boolean} waitable
-	* @returns {Documents.ScriptCall}
-	**/
-	ScriptCall(systemUser: any, scriptName: string, waitable: boolean): Documents.ScriptCall;
-	/**
 	 * Set the execution context file of the called script. 
 	 * 
 	 * ... ... ... ... ... 
@@ -6046,7 +5921,6 @@ declare class ScriptCall implements Documents.ScriptCall {
 	isRunning(): boolean;
 	launch(): boolean;
 	constructor(systemUser: any, scriptName: string, waitable: boolean);
-	ScriptCall(systemUser: any, scriptName: string, waitable: boolean): Documents.ScriptCall;
 	setDocFile(docFile: Documents.DocFile): boolean;
 	setDocument(doc: Documents.Document): boolean;
 	setEvent(scriptEvent: string): boolean;
@@ -6825,21 +6699,6 @@ declare namespace Documents {
 	* @returns {boolean}
 	**/
 	setPosition(position: number): boolean;
-	/**
-	 * Create a new instance of the UserAction class. 
-	 * 
-	 * ... ... ... ... 
-	 */
-	/**
-	* @memberof UserAction
-	* @param {string} name
-	* @param {string} label
-	* @param {string} widget
-	* @param {string} type
-	* @param {string} scope
-	* @returns {Documents.UserAction}
-	**/
-	UserAction(name: string, label?: string, widget?: string, type?: string, scope?: string): Documents.UserAction;
 	}
 }
 
@@ -6860,7 +6719,6 @@ declare class UserAction implements Documents.UserAction {
 	setPortalScript(scriptName: string): boolean;
 	setPosition(position: number): boolean;
 	constructor(name: string, label?: string, widget?: string, type?: string, scope?: string);
-	UserAction(name: string, label?: string, widget?: string, type?: string, scope?: string): Documents.UserAction;
 }
 
 
@@ -7844,6 +7702,7 @@ declare class XMLExport implements Documents.XMLExport {
 	clearXML(): boolean;
 	getLastError(): string;
 	getXML(): string;
+	constructor(pathFileName: string, exportDocFile?: boolean);
 	saveXML(): boolean;
 }
 
@@ -7895,6 +7754,7 @@ declare class XMLExportDescription implements Documents.XMLExportDescription {
 	exportLastModifiedAt: boolean;
 	exportLastModifiedBy: boolean;
 	exportOwner: boolean;
+	constructor();
 }
 
 
@@ -8053,20 +7913,6 @@ declare namespace Documents {
 	* @returns {boolean}
 	**/
 	send(content?: string): boolean;
-	/**
-	 * Create a new XMLHTTPRequest object. 
-	 * 
-	 * ... ... ... ... 
-	 */
-	/**
-	* @memberof XMLHTTPRequest
-	* @param {string} proxy
-	* @param {number} proxyPort
-	* @param {string} proxyUser
-	* @param {string} proxyPasswd
-	* @returns {Documents.XMLHTTPRequest}
-	**/
-	XMLHTTPRequest(proxy?: string, proxyPort?: number, proxyUser?: string, proxyPasswd?: string): Documents.XMLHTTPRequest;
 	}
 }
 
@@ -8092,6 +7938,5 @@ declare class XMLHTTPRequest implements Documents.XMLHTTPRequest {
 	open(method: string, url: string, async?: boolean, user?: string, passwd?: string): boolean;
 	send(content?: string): boolean;
 	constructor(proxy?: string, proxyPort?: number, proxyUser?: string, proxyPasswd?: string);
-	XMLHTTPRequest(proxy?: string, proxyPort?: number, proxyUser?: string, proxyPasswd?: string): Documents.XMLHTTPRequest;
 }
 
