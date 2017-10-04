@@ -217,10 +217,11 @@ export function loadLoginInformation(login: nodeDoc.ConnectionInformation, confi
         const jsonContent = fs.readFileSync(login.configFile, 'utf8');
         const jsonObject = JSON.parse(stripJsonComments(jsonContent));
         const configurations = jsonObject.configurations;
+        let validConfigurations = 0;
 
         if (configurations) {
             configurations.forEach((configuration: any) => {
-                if (configuration.type === 'janus' && configuration.request === 'launch' && configuration.currentConfiguration) {
+                if (configuration.type === 'janus' && configuration.request === 'launch') {
                     login.server = configuration.host;
                     login.port = configuration.applicationPort;
                     login.principal = configuration.principal;
@@ -233,8 +234,29 @@ export function loadLoginInformation(login: nodeDoc.ConnectionInformation, confi
                         login.password = nodeDoc.getJanusPassword(configuration.password);
                     }
                     login.sdsTimeout = configuration.sdsTimeout;
+                    validConfigurations++;
                 }
             });
+
+            // if more than one valid configuration found, search for flag currentConfiguration
+            if (validConfigurations > 1) {
+                configurations.forEach((configuration: any) => {
+                    if (configuration.type === 'janus' && configuration.request === 'launch' && configuration.currentConfiguration) {
+                        login.server = configuration.host;
+                        login.port = configuration.applicationPort;
+                        login.principal = configuration.principal;
+                        login.username = configuration.username;
+                        if (config.commandAskForPassword === configuration.password) {
+                            login.askForPassword = true;
+                            login.password = undefined;
+                        } else {
+                            login.askForPassword = false;
+                            login.password = nodeDoc.getJanusPassword(configuration.password);
+                        }
+                        login.sdsTimeout = configuration.sdsTimeout;
+                    }
+                });
+            }
         }
     } catch (err) {
         return false;
