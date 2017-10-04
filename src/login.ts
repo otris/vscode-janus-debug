@@ -126,6 +126,27 @@ async function createLaunchJson(loginInfo: nodeDoc.ConnectionInformation, plainP
         if (err) {
             if ('ENOENT' === err.code) {
                 // launch.json doesn't exist, create one
+
+                let pw = '${command:extension.vscode-janus-debug.askForPassword}';
+                if (!loginInfo.askForPassword && typeof(plainPassword) === 'string') {
+                    pw = plainPassword;
+                }
+
+                const data = config.provideInitialConfigurations(rootPath, {
+                    host: loginInfo.server,
+                    applicationPort: loginInfo.port,
+                    principal: loginInfo.principal,
+                    username: loginInfo.username,
+                    password: pw,
+                    currentConfiguration: true
+                });
+
+                try {
+                    fs.writeFileSync(filename, data);
+                    launchJsonCreatedByExtension = true;
+                } catch (err) {
+                    throw new Error(err);
+                }
             } else {
                 throw new Error('Unexpexted error in checking launch.json: ' + err.message);
             }
@@ -133,29 +154,6 @@ async function createLaunchJson(loginInfo: nodeDoc.ConnectionInformation, plainP
             throw new Error('Cannot overwrite existing launch.json');
         }
     });
-
-
-    let pw = '${command:extension.vscode-janus-debug.askForPassword}';
-    if (!loginInfo.askForPassword && typeof(plainPassword) === 'string') {
-        pw = plainPassword;
-    }
-
-    const data = config.provideInitialConfigurations(rootPath, {
-        host: loginInfo.server,
-        applicationPort: loginInfo.port,
-        principal: loginInfo.principal,
-        username: loginInfo.username,
-        password: pw,
-        currentConfiguration: true
-    });
-
-    try {
-        fs.writeFileSync(filename, data);
-        launchJsonCreatedByExtension = true;
-    } catch (err) {
-        throw new Error(err);
-    }
-
 }
 
 
