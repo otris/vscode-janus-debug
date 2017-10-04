@@ -2,7 +2,19 @@
 
 You'll find a complete list of changes at our project site on [GitHub](https://github.com/otris/vscode-janus-debug).
 
-### 0.0.17 (yyyy-mm-dd)
+### 0.0.18 (2017-10-04)
+
+New Features in this release:
+
+- **View Documentation In Browser** works for `class context`.
+
+Following bugs have been addressed in this release:
+
+- Credentials are asked, if the `launch.json` doesn't contain a ``currentConfiguration`` flag, even if only one configuration was available.
+
+- `launch.json` was overwritten after entering the credentials.
+
+### 0.0.17 (2017-10-02)
 
 New Features in this release:
 
