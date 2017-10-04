@@ -3,95 +3,57 @@ import * as vscode from 'vscode';
 // tslint:disable-next-line:no-var-requires
 const open = require('open');
 // tslint:disable-next-line:no-var-requires
-const urlExists = require('url-exists');
-// tslint:disable-next-line:no-var-requires
 const fs = require('fs-extra');
 
+const availableBrowsers = [
+    "iexplore",
+    "mozilla",
+    "chrome",
+    "safari",
+    "firefox"
+];
+
+
 export function viewDocumentation() {
-    const portalScriptDocs = 'http://doku.otris.de/api/portalscript/';
-    urlExists(portalScriptDocs, function(err: any, exists: any) {
-        if (!exists) {
-            vscode.window.showInformationMessage('Documentation is not available!');
-        } else {
+    const thisExtension: vscode.Extension<any> | undefined = vscode.extensions.getExtension("otris-software.vscode-janus-debug");
+    if (thisExtension === undefined) {
+        return;
+    }
+    const extensionPath = thisExtension.extensionPath;
+    const portalScriptDocs = path.join(extensionPath, 'portalscript', 'documentation');
+    const activeFile = vscode.window.activeTextEditor;
+    const config = vscode.workspace.getConfiguration('vscode-janus-debug');
+    let browser = config.get('browser');
+    if (typeof(browser) === 'string' && 0 > availableBrowsers.indexOf(browser)) {
+        vscode.window.showWarningMessage(`The browser ${browser} is not yet supported!`);
+        browser = undefined;
+    }
 
-            // current editor
-            const editor = vscode.window.activeTextEditor;
-            if (!editor || !vscode.workspace.rootPath) {
-                return;
-            }
-
-            // skip import lines
-            let cnt = 0;
-            let currLine: string = editor.document.lineAt(cnt).text;
-            while (currLine.startsWith('import')) {
-                cnt++;
-                currLine = editor.document.lineAt(cnt).text;
-            }
-
-            // first line after import should look like "export class Context {"
-            const _words = currLine.split(' ');
-            if (_words.length !== 4 || _words[0] !== 'export' || _words[1] !== 'class' || _words[3] !== '{') {
-                return;
-            }
-
-
-            const className = _words[2];
-
-            // the Position object gives you the line and character where the cursor is
-            const pos = editor.selection.active;
-            if (!pos) {
-                return;
-            }
-            const line = editor.document.lineAt(pos.line).text;
-            const words = line.split(' ');
-            let member = '';
-
-            if (words[0].trim() === 'public') {
-                member = words[1].trim();
-                const brace = member.indexOf('(');
-                if (brace >= 0) {
-                    member = member.substr(0, brace);
-                }
-            }
-
-            const jsFileName = 'class' + className + '.js';
-            const htmlFileName = 'class' + className + '.html';
-            const jsFilePath = path.join(vscode.workspace.rootPath, 'mapping', jsFileName);
-
-            fs.readFile(jsFilePath, (error: any, data: any) => {
-
-                const browser = 'firefox';
-                if (err || !data) {
-                    const page = portalScriptDocs + htmlFileName;
-                    open(page, browser);
-
-                } else {
-                    // \r was missing in the generated files
-                    const lines = data.toString().split("\n");
-
-                    let i;
-                    for (i = 2; i < lines.length - 1; i++) {
-                        const entries = lines[i].split(',');
-                        if (entries.length < 2) {
-                            continue;
-                        }
-                        // entries[0] looks like: "     [ "clientId""
-                        const entry = entries[0].replace('[', '').replace(/"/g, '').trim();
-
-                        if (entry === member) {
-                            // entries[1] looks like: "  "classContext.html#a6d644a063ace489a2893165bb3856579""
-                            const link = entries[1].replace(/"/g, '').trim();
-                            const page = portalScriptDocs + link;
-                            open(page, browser);
-                            break;
-                        }
-                    }
-                    if (i === lines.length - 1) {
-                        const page = portalScriptDocs + htmlFileName;
-                        open(page, browser);
-                    }
-                }
-            });
+    if (portalScriptDocs && activeFile) {
+        const doc = activeFile.document;
+        const pos = activeFile.selection.active;
+        if (!pos) {
+            return;
         }
-    });
+        const range = doc.getWordRangeAtPosition(pos);
+        const word = doc.getText(range);
+        let file;
+        let anchor;
+        switch (word) {
+            case 'context':
+                file = path.join(portalScriptDocs, 'classContext.html');
+                open(`file:///${file}`, browser);
+                break;
+            case 'returnType':
+                if (!browser) {
+                    vscode.window.showWarningMessage(`To jump to **${word}** specify a browser in **vscode-janus-debug.browser**`);
+                }
+                anchor = 'adc5ff13c1317ccf80f07fb76b4dfb4da';
+                file = path.join(portalScriptDocs, 'classContext.html');
+                open(`file:///${file}#${anchor}`, browser);
+                break;
+            default:
+                vscode.window.showWarningMessage(`Documentation for ${word} not yet available! try context...`);
+        }
+    }
 }

@@ -312,6 +312,17 @@
               "description": "Set to true, if log should be appended to file"
             }
           }
+        },
+        "vscode-janus-debug.browser": {
+          "type": "string",
+          "description": "Specifies the browser for 'View Documentation In Browser'. (Based on https://github.com/pwnall/node-open)",
+          "enum": [
+            "iexplore",
+            "mozilla",
+            "chrome",
+            "safari",
+            "firefox"
+          ]
         }
       }
     },
@@ -367,7 +378,7 @@
       },
       {
         "command": "extension.vscode-janus-debug.viewDocumentation",
-        "title": "View Documentation",
+        "title": "View Documentation In Browser",
         "category": "DOCUMENTS"
       },
       {
@@ -508,6 +519,11 @@
           "command": "extension.vscode-janus-debug.getScriptNames",
           "when": "resourceFilename == .documents-script-names",
           "group": "DOCUMENTS@6"
+        },
+        {
+          "command": "extension.vscode-janus-debug.viewDocumentation",
+          "when": "resourceLangId == javascript",
+          "group": "DOCUMENTS@7"
         },
         {
           "command": "extension.vscode-janus-debug.viewDocumentation",
