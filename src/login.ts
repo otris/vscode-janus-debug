@@ -111,7 +111,7 @@ async function askForLoginInformation(loginInfo: nodeDoc.ConnectionInformation):
 }
 
 
-async function createLaunchJson(loginInfo: nodeDoc.ConnectionInformation, plainPassword: string | undefined) {
+function createLaunchJson(loginInfo: nodeDoc.ConnectionInformation, plainPassword: string | undefined) {
     console.log('createLaunchJson');
 
     if (!vscode.workspace || !vscode.workspace.rootPath) {
@@ -121,39 +121,27 @@ async function createLaunchJson(loginInfo: nodeDoc.ConnectionInformation, plainP
     const rootPath = vscode.workspace.rootPath;
     const filename = path.join(rootPath, '.vscode', 'launch.json');
 
-    // only create launch.json if it doesn't exist
-    fs.stat(filename, function(err, stats) {
-        if (err) {
-            if ('ENOENT' === err.code) {
-                // launch.json doesn't exist, create one
+    let pw = '${command:extension.vscode-janus-debug.askForPassword}';
+    if (!loginInfo.askForPassword && typeof(plainPassword) === 'string') {
+        pw = plainPassword;
+    }
 
-                let pw = '${command:extension.vscode-janus-debug.askForPassword}';
-                if (!loginInfo.askForPassword && typeof(plainPassword) === 'string') {
-                    pw = plainPassword;
-                }
-
-                const data = config.provideInitialConfigurations(rootPath, {
-                    host: loginInfo.server,
-                    applicationPort: loginInfo.port,
-                    principal: loginInfo.principal,
-                    username: loginInfo.username,
-                    password: pw,
-                    currentConfiguration: true
-                });
-
-                try {
-                    fs.writeFileSync(filename, data);
-                    launchJsonCreatedByExtension = true;
-                } catch (err) {
-                    throw new Error(err);
-                }
-            } else {
-                throw new Error('Unexpexted error in checking launch.json: ' + err.message);
-            }
-        } else {
-            throw new Error('Cannot overwrite existing launch.json');
-        }
+    const data = config.provideInitialConfigurations(rootPath, {
+        host: loginInfo.server,
+        applicationPort: loginInfo.port,
+        principal: loginInfo.principal,
+        username: loginInfo.username,
+        password: pw,
+        currentConfiguration: true
     });
+
+    try {
+        // only create launch.json if it doesn't exist
+        fs.writeFileSync(filename, data, { flag: "wx" });
+        launchJsonCreatedByExtension = true;
+    } catch (err) {
+        throw err;
+    }
 }
 
 
@@ -178,7 +166,7 @@ export async function ensureLoginInformation(serverInfo: nodeDoc.ConnectionInfor
                 createLaunchJson(serverInfo, plainPassword);
             } catch (err) {
                 // couldn't create launch.json, probably because it already exists
-                vscode.window.showWarningMessage(err);
+                vscode.window.showWarningMessage(err.message);
             }
         } else if (askForPasswordRequired) {
             try {
@@ -198,9 +186,7 @@ export async function ensureLoginInformation(serverInfo: nodeDoc.ConnectionInfor
 
 
 
-
 let launchJsonCreatedByExtension = false;
-
 export function loadLoginInformationOnCreate(login: nodeDoc.ConnectionInformation, configFile: string) {
     if (launchJsonCreatedByExtension) {
         launchJsonCreatedByExtension = false;
@@ -208,7 +194,20 @@ export function loadLoginInformationOnCreate(login: nodeDoc.ConnectionInformatio
         loadLoginInformation(login, configFile);
     }
 }
-
+function loadConfiguration(login: nodeDoc.ConnectionInformation, configuration: any) {
+    login.server = configuration.host;
+    login.port = configuration.applicationPort;
+    login.principal = configuration.principal;
+    login.username = configuration.username;
+    if (config.commandAskForPassword === configuration.password) {
+        login.askForPassword = true;
+        login.password = undefined;
+    } else {
+        login.askForPassword = false;
+        login.password = nodeDoc.getJanusPassword(configuration.password);
+    }
+    login.sdsTimeout = configuration.sdsTimeout;
+}
 export function loadLoginInformation(login: nodeDoc.ConnectionInformation, configFile: string): boolean {
     console.log('loadLoginInformation');
     login.configFile = configFile;
@@ -222,38 +221,19 @@ export function loadLoginInformation(login: nodeDoc.ConnectionInformation, confi
         if (configurations) {
             configurations.forEach((configuration: any) => {
                 if (configuration.type === 'janus' && configuration.request === 'launch') {
-                    login.server = configuration.host;
-                    login.port = configuration.applicationPort;
-                    login.principal = configuration.principal;
-                    login.username = configuration.username;
-                    if (config.commandAskForPassword === configuration.password) {
-                        login.askForPassword = true;
-                        login.password = undefined;
-                    } else {
-                        login.askForPassword = false;
-                        login.password = nodeDoc.getJanusPassword(configuration.password);
+                    if (validConfigurations === 0) {
+                        loadConfiguration(login, configuration);
                     }
-                    login.sdsTimeout = configuration.sdsTimeout;
                     validConfigurations++;
                 }
             });
 
             // if more than one valid configuration found, search for flag currentConfiguration
             if (validConfigurations > 1) {
-                configurations.forEach((configuration: any) => {
+                configurations.some((configuration: any) => {
                     if (configuration.type === 'janus' && configuration.request === 'launch' && configuration.currentConfiguration) {
-                        login.server = configuration.host;
-                        login.port = configuration.applicationPort;
-                        login.principal = configuration.principal;
-                        login.username = configuration.username;
-                        if (config.commandAskForPassword === configuration.password) {
-                            login.askForPassword = true;
-                            login.password = undefined;
-                        } else {
-                            login.askForPassword = false;
-                            login.password = nodeDoc.getJanusPassword(configuration.password);
-                        }
-                        login.sdsTimeout = configuration.sdsTimeout;
+                        loadConfiguration(login, configuration);
+                        return true;
                     }
                 });
             }
@@ -261,6 +241,5 @@ export function loadLoginInformation(login: nodeDoc.ConnectionInformation, confi
     } catch (err) {
         return false;
     }
-
     return true;
 }
