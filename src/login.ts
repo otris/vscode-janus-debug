@@ -1,6 +1,5 @@
 ﻿'use strict';
 
-import * as fs from 'fs';
 import * as nodeDoc from 'node-documents-scripting';
 import * as path from 'path';
 import * as vscode from 'vscode';
@@ -8,6 +7,8 @@ import * as config from './config';
 
 // tslint:disable-next-line:no-var-requires
 const stripJsonComments = require('strip-json-comments');
+// tslint:disable-next-line:no-var-requires
+const fs = require('fs-extra');
 
 
 
@@ -136,6 +137,7 @@ function createLaunchJson(loginInfo: nodeDoc.ConnectionInformation, plainPasswor
     });
 
     try {
+        fs.ensureDir(path.join(rootPath, '.vscode'));
         // only create launch.json if it doesn't exist
         fs.writeFileSync(filename, data, { flag: "wx" });
         launchJsonCreatedByExtension = true;
