@@ -23,8 +23,8 @@ export function viewDocumentation() {
     const portalScriptDocs = path.join(extensionPath, 'portalscript', 'documentation');
     const activeFile = vscode.window.activeTextEditor;
     const config = vscode.workspace.getConfiguration('vscode-janus-debug');
-    let browser = config.get('browser');
-    if (typeof(browser) === 'string' && 0 > availableBrowsers.indexOf(browser)) {
+    let browser: string | undefined = config.get('browser', '');
+    if (browser.length > 0 && 0 > availableBrowsers.indexOf(browser)) {
         vscode.window.showWarningMessage(`The browser ${browser} is not yet supported!`);
         browser = undefined;
     }
@@ -46,7 +46,7 @@ export function viewDocumentation() {
                 break;
             case 'returnType':
                 if (!browser) {
-                    vscode.window.showWarningMessage(`To jump to **${word}** specify a browser in **vscode-janus-debug.browser**`);
+                    vscode.window.showWarningMessage(`Jump to **${word}**: pecify a browser in **vscode-janus-debug.browser**`);
                 }
                 anchor = 'adc5ff13c1317ccf80f07fb76b4dfb4da';
                 file = path.join(portalScriptDocs, 'classContext.html');
