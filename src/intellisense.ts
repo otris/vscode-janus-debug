@@ -36,7 +36,7 @@ export function createFiletypesTSD(loginData: nodeDoc.ConnectionInformation): Pr
             fs.readdirSync(projtypings);
         } catch (err) {
             if (err.code === 'ENOENT') {
-                fs.mkdir(projtypings);
+                fs.mkdirSync(projtypings);
             }
         }
 

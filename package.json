@@ -42,6 +42,8 @@
     "onCommand:extension.vscode-janus-debug.downloadScriptsToFolder",
     "onCommand:extension.vscode-janus-debug.getScriptParameters",
     "onCommand:extension.vscode-janus-debug.getScriptNames",
+    "onCommand:extension.vscode-janus-debug.getPortalScriptingTSD",
+    "onCommand:extension.vscode-janus-debug.getFileTypesTSD",
     "onDebug:janus"
   ],
   "main": "./out/src/extension",
