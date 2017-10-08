@@ -393,13 +393,13 @@
         "category": "DOCUMENTS"
       },
       {
-        "command": "extension.vscode-janus-debug.installIntellisense",
-        "title": "Install PortalScripting Intellisense",
+        "command": "extension.vscode-janus-debug.getPortalScriptingTSD",
+        "title": "Install IntelliSense: PortalScripting",
         "category": "DOCUMENTS"
       },
       {
         "command": "extension.vscode-janus-debug.getFileTypesTSD",
-        "title": "Get fileTypes.d.ts",
+        "title": "Install IntelliSense: FileTypes",
         "category": "DOCUMENTS"
       }
     ],
@@ -482,7 +482,7 @@
           "group": "DOCUMENTS@10"
         },
         {
-          "command": "extension.vscode-janus-debug.installIntellisense",
+          "command": "extension.vscode-janus-debug.getPortalScriptingTSD",
           "group": "DOCUMENTS@11"
         },
         {

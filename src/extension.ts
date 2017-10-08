@@ -459,14 +459,17 @@ export function activate(context: vscode.ExtensionContext): void {
 
     // Install intellisense files
     context.subscriptions.push(
-        vscode.commands.registerCommand('extension.vscode-janus-debug.installIntellisense', () => {
-            intellisense.installIntellisense();
+        vscode.commands.registerCommand('extension.vscode-janus-debug.getPortalScriptingTSD', () => {
+            intellisense.copyPortalScriptingTSD();
+            intellisense.createJsconfigJson();
         })
     );
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.getFileTypesTSD', async () => {
             try {
                 await intellisense.createFiletypesTSD(loginData);
+                intellisense.copyPortalScriptingTSD();
+                intellisense.createJsconfigJson();
             } catch (err) {
                 //
             }
