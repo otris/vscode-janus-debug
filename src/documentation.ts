@@ -33,9 +33,14 @@ export function viewDocumentation() {
         const doc = activeFile.document;
         const pos = activeFile.selection.active;
         if (!pos) {
+            vscode.window.showWarningMessage(`Right click on a word (e.g. **context** or **util**) to get the documentation`);
             return;
         }
         const range = doc.getWordRangeAtPosition(pos);
+        if (!range) {
+            vscode.window.showWarningMessage(`Right click on a word (e.g. **context** or **util**) to get the documentation`);
+            return;
+        }
         const word = doc.getText(range);
         let file;
         let anchor;
@@ -73,7 +78,7 @@ export function viewDocumentation() {
                 open(`file:///${file}#${anchor}`, browser);
                 break;
             default:
-                vscode.window.showWarningMessage(`Documentation for ${word} not yet available! try **util** or **returnType** in **context**...`);
+                vscode.window.showWarningMessage(`Documentation for ${word} not yet available! try **context**, **util**, **returnType** or **convertDateToString**`);
         }
     }
 }
