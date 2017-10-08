@@ -40,6 +40,26 @@ export function viewDocumentation() {
         let file;
         let anchor;
         switch (word) {
+            case 'util':
+                file = path.join(portalScriptDocs, 'classUtil.html');
+                open(`file:///${file}`, browser);
+                break;
+            case 'convertDateToString':
+                if (!browser) {
+                    vscode.window.showWarningMessage(`Jump to **${word}**: pecify a browser in **vscode-janus-debug.browser**`);
+                }
+                anchor = 'adf2adb3ae40357ec636ff66cf2261f43';
+                file = path.join(portalScriptDocs, 'classUtil.html');
+                open(`file:///${file}#${anchor}`, browser);
+                break;
+            case 'convertStringToDate':
+                if (!browser) {
+                    vscode.window.showWarningMessage(`Jump to **${word}**: pecify a browser in **vscode-janus-debug.browser**`);
+                }
+                anchor = 'a77906d2baa7d7c2a2c9ddc36c0f36538';
+                file = path.join(portalScriptDocs, 'classUtil.html');
+                open(`file:///${file}#${anchor}`, browser);
+                break;
             case 'context':
                 file = path.join(portalScriptDocs, 'classContext.html');
                 open(`file:///${file}`, browser);
@@ -53,7 +73,7 @@ export function viewDocumentation() {
                 open(`file:///${file}#${anchor}`, browser);
                 break;
             default:
-                vscode.window.showWarningMessage(`Documentation for ${word} not yet available! try context...`);
+                vscode.window.showWarningMessage(`Documentation for ${word} not yet available! try **util** or **returnType** in **context**...`);
         }
     }
 }
