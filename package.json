@@ -21,6 +21,7 @@
   },
   "categories": [
     "Debuggers",
+    "Snippets",
     "Other"
   ],
   "icon": "img/extension-icon.png",
@@ -536,7 +537,13 @@
           "group": "DOCUMENTS@7"
         }
       ]
-    }
+    },
+    "snippets": [
+      {
+        "language": "javascript",
+        "path": "./snippets/javascript.json"
+      }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",

@@ -1,0 +1,11 @@
+{
+    "Insert FileType" : {
+        "prefix": "var ${1:docFile} = ${2:context.file};",
+        "body": [
+            "/**",
+            " * @type {$3}",
+            " */",
+            "var ${1:docFile} = ${2:context.file};"
+        ]
+    }
+}
