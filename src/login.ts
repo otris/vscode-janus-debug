@@ -137,7 +137,7 @@ function createLaunchJson(loginInfo: nodeDoc.ConnectionInformation, plainPasswor
     });
 
     try {
-        fs.ensureDir(path.join(rootPath, '.vscode'));
+        fs.ensureDirSync(path.join(rootPath, '.vscode'));
         // only create launch.json if it doesn't exist
         fs.writeFileSync(filename, data, { flag: "wx" });
         launchJsonCreatedByExtension = true;
