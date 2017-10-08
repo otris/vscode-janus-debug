@@ -2,6 +2,24 @@
 
 You'll find a complete list of changes at our project site on [GitHub](https://github.com/otris/vscode-janus-debug).
 
+### 0.0.21 (2017-10-06)
+
+New Features in this release:
+
+- IntelliSense for parameter values in `setFieldValue` and `getFieldValue` is available (with ctrl + space inside quotes).
+
+- IntelliSense for adding jsDoc with `@types{}` was added to variables.
+
+- `class util` and functions `convertDateToString` and `convertStringToDate` was added to command **View Documentation In Browser**.
+
+- Command **Download Script** in explorer context menu is available in workspace folder.
+
+Following bugs have been addressed in this release:
+
+- Create `launch.json` in empty project has been fixed.
+
+- *Install Intellisense: FileTypes* in empty project has been fixed.
+
 ### 0.0.20 (2017-10-06)
 
 ### 0.0.19 (2017-10-06)
