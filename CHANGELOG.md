@@ -14,6 +14,8 @@ New Features in this release:
 
 - Command **Download Script** in explorer context menu is available in workspace folder.
 
+- Command **Show DOCUMENTS Version** inserted.
+
 Following bugs have been addressed in this release:
 
 - Create `launch.json` in empty project has been fixed.

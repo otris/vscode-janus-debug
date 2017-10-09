@@ -44,6 +44,7 @@
     "onCommand:extension.vscode-janus-debug.getScriptNames",
     "onCommand:extension.vscode-janus-debug.getPortalScriptingTSD",
     "onCommand:extension.vscode-janus-debug.getFileTypesTSD",
+    "onCommand:extension.vscode-janus-debug.showDocumentsVersion",
     "onDebug:janus"
   ],
   "main": "./out/src/extension",
@@ -402,6 +403,11 @@
       {
         "command": "extension.vscode-janus-debug.getFileTypesTSD",
         "title": "Install IntelliSense: FileTypes",
+        "category": "DOCUMENTS"
+      },
+      {
+        "command": "extension.vscode-janus-debug.showDocumentsVersion",
+        "title": "Show DOCUMENTS Version",
         "category": "DOCUMENTS"
       }
     ],
