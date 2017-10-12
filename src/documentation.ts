@@ -41,44 +41,56 @@ export function viewDocumentation() {
             vscode.window.showWarningMessage(`Right click on a word (e.g. **context** or **util**) to get the documentation`);
             return;
         }
-        const word = doc.getText(range);
+        const word = doc.getText(range).toLocaleLowerCase();
         let file;
         let anchor;
         switch (word) {
-            case 'util':
-                file = path.join(portalScriptDocs, 'classUtil.html');
-                open(`file:///${file}`, browser);
-                break;
-            case 'convertDateToString':
-                if (!browser) {
-                    vscode.window.showWarningMessage(`Jump to **${word}**: pecify a browser in **vscode-janus-debug.browser**`);
-                }
-                anchor = 'adf2adb3ae40357ec636ff66cf2261f43';
-                file = path.join(portalScriptDocs, 'classUtil.html');
-                open(`file:///${file}#${anchor}`, browser);
-                break;
-            case 'convertStringToDate':
-                if (!browser) {
-                    vscode.window.showWarningMessage(`Jump to **${word}**: pecify a browser in **vscode-janus-debug.browser**`);
-                }
-                anchor = 'a77906d2baa7d7c2a2c9ddc36c0f36538';
-                file = path.join(portalScriptDocs, 'classUtil.html');
-                open(`file:///${file}#${anchor}`, browser);
-                break;
             case 'context':
                 file = path.join(portalScriptDocs, 'classContext.html');
-                open(`file:///${file}`, browser);
                 break;
-            case 'returnType':
+            case 'util':
+                file = path.join(portalScriptDocs, 'classUtil.html');
+                break;
+            case 'docfile':
+                file = path.join(portalScriptDocs, 'classDocFile.html');
+                break;
+            case 'systemuser':
+                file = path.join(portalScriptDocs, 'classSystemUser.html');
+                break;
+            case 'systemuseriterator':
+                file = path.join(portalScriptDocs, 'classSystemUserIterator.html');
+                break;
+            case 'dochit':
+                file = path.join(portalScriptDocs, 'classDocHit.html');
+                break;
+            case 'hitresultset':
+                file = path.join(portalScriptDocs, 'classHitResultset.html');
+                break;
+            case 'returntype':
+                anchor = 'adc5ff13c1317ccf80f07fb76b4dfb4da';
+                file = path.join(portalScriptDocs, 'classContext.html');
+                break;
+            case 'convertdatetostring':
+                anchor = 'adf2adb3ae40357ec636ff66cf2261f43';
+                file = path.join(portalScriptDocs, 'classUtil.html');
+                break;
+            case 'convertstringtodate':
+                anchor = 'a77906d2baa7d7c2a2c9ddc36c0f36538';
+                file = path.join(portalScriptDocs, 'classUtil.html');
+                break;
+            default:
+                // todo: quickpick
+                vscode.window.showWarningMessage(`Documentation available for context, returnType, util, DocFile, SystemUser, HitResultset, ...`);
+        }
+        if (file) {
+            if (anchor) {
                 if (!browser) {
                     vscode.window.showWarningMessage(`Jump to **${word}**: pecify a browser in **vscode-janus-debug.browser**`);
                 }
-                anchor = 'adc5ff13c1317ccf80f07fb76b4dfb4da';
-                file = path.join(portalScriptDocs, 'classContext.html');
                 open(`file:///${file}#${anchor}`, browser);
-                break;
-            default:
-                vscode.window.showWarningMessage(`Documentation for ${word} not yet available! try **context**, **util**, **returnType** or **convertDateToString**`);
+            } else {
+                open(`file:///${file}`, browser);
+            }
         }
     }
 }
