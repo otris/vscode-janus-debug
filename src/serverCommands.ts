@@ -112,7 +112,8 @@ async function uploadScriptCommon(loginData: nodeDoc.ConnectionInformation, para
 export function uploadScript(loginData: nodeDoc.ConnectionInformation, param: any): Promise<void> {
     return new Promise<void>((resolve, reject) => {
         uploadScriptCommon(loginData, param).then((scriptName) => {
-            vscode.window.setStatusBarMessage('uploaded: ' + scriptName);
+            const now = new Date();
+            vscode.window.setStatusBarMessage(`uploaded ${scriptName} at ${now.getHours()}:${now.getMinutes()}`);
             resolve();
         }).catch((reason) => {
             vscode.window.showErrorMessage(reason);
@@ -130,7 +131,8 @@ export function uploadScriptOnSave(loginData: nodeDoc.ConnectionInformation, fil
             if (helpers.autoUploadAnswer.yes === value) {
 
                 uploadScriptCommon(loginData, fileName).then((scriptName) => {
-                    vscode.window.setStatusBarMessage('uploaded: ' + scriptName);
+                    const now = new Date();
+                    vscode.window.setStatusBarMessage(`uploaded ${scriptName} at ${now.getHours()}:${now.getMinutes()}`);
                 }).catch((reason) => {
                     vscode.window.showErrorMessage(reason);
                 });
