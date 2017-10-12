@@ -209,6 +209,7 @@ function loadConfiguration(login: nodeDoc.ConnectionInformation, configuration: 
         login.password = nodeDoc.getJanusPassword(configuration.password);
     }
     login.sdsTimeout = configuration.sdsTimeout;
+    login.documentsVersion = 'unknown';
 }
 export function loadLoginInformation(login: nodeDoc.ConnectionInformation, configFile: string): boolean {
     console.log('loadLoginInformation');
