@@ -234,10 +234,14 @@ function runScriptCommon(loginData: nodeDoc.ConnectionInformation, param: any, o
             const serverScriptNames = await getServerScriptNames(loginData);
             const scriptName = await helpers.ensureScriptName(param, serverScriptNames);
             const script = new nodeDoc.scriptT(scriptName);
+
+            outputChannel.append('Run script:' + os.EOL);
+            outputChannel.show();
+
             await nodeDoc.serverSession(loginData, [script], nodeDoc.runScript);
 
-            outputChannel.append(`DOCUMENTS #${loginData.documentsVersion}` + os.EOL);
             outputChannel.append(script.output + os.EOL);
+            outputChannel.append(`Run script finished on DOCUMENTS #${loginData.documentsVersion}` + os.EOL);
             outputChannel.show();
 
             helpers.scriptLog(script.output);
