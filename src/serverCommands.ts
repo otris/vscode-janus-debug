@@ -106,13 +106,15 @@ async function uploadScriptCommon(loginData: nodeDoc.ConnectionInformation, para
     });
 }
 
-function getHoursMinutes(): string {
+function getTime(): string {
     const now = new Date();
     const hours = now.getHours();
     const minutes = now.getMinutes();
+    const seconds = now.getSeconds();
     const hours2 = hours < 10 ? '0' + hours : hours;
     const minutes2 = minutes < 10 ? '0' + minutes : minutes;
-    return `${hours2}:${minutes2}`;
+    const seconds2 = seconds < 10 ? '0' + seconds : seconds;
+    return `${hours2}:${minutes2}:${seconds2}`;
 }
 
 
@@ -122,7 +124,7 @@ function getHoursMinutes(): string {
 export function uploadScript(loginData: nodeDoc.ConnectionInformation, param: any): Promise<void> {
     return new Promise<void>((resolve, reject) => {
         uploadScriptCommon(loginData, param).then((scriptName) => {
-            vscode.window.setStatusBarMessage(`uploaded ${scriptName} at ` + getHoursMinutes());
+            vscode.window.setStatusBarMessage(`uploaded ${scriptName} at ` + getTime());
             resolve();
         }).catch((reason) => {
             vscode.window.showErrorMessage(reason);
@@ -140,7 +142,7 @@ export function uploadScriptOnSave(loginData: nodeDoc.ConnectionInformation, fil
             if (helpers.autoUploadAnswer.yes === value) {
 
                 uploadScriptCommon(loginData, fileName).then((scriptName) => {
-                    vscode.window.setStatusBarMessage(`uploaded ${scriptName} at ` + getHoursMinutes());
+                    vscode.window.setStatusBarMessage(`uploaded ${scriptName} at ` + getTime());
                 }).catch((reason) => {
                     vscode.window.showErrorMessage(reason);
                 });
