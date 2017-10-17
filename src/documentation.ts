@@ -62,10 +62,6 @@ export function viewDocumentation() {
         }
         const word = doc.getText(range).toLocaleLowerCase();
         let file = '';
-        const anchor = '';
-
-
-
 
         if (htmlFileNames.hasOwnProperty(word)) {
             file = path.join(portalScriptDocs, htmlFileNames[word]);
