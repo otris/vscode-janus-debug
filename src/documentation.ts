@@ -4,6 +4,8 @@ import * as vscode from 'vscode';
 const open = require('open');
 // tslint:disable-next-line:no-var-requires
 const fs = require('fs-extra');
+// tslint:disable-next-line:no-var-requires
+const classContext = require('../portalscript/documentation/classContext').classContext;
 
 const availableBrowsers = [
     "iexplore",
@@ -12,6 +14,23 @@ const availableBrowsers = [
     "safari",
     "firefox"
 ];
+
+
+
+interface HtmlFileNames {
+    [key: string]: string;
+}
+
+const htmlFileNames: HtmlFileNames = {
+    context: 'classContext.html',
+    util: 'classUtil.html',
+    docfile: 'classDocFile.html',
+    systemuser: 'classSystemUser.html',
+    systemuseriterator: 'classSystemUserIterator.html',
+    dochit: 'classDocHit.html',
+    hitresultset: 'classHitResultset.html',
+    fileresultset: 'classFileResultset.html'
+};
 
 
 export function viewDocumentation() {
@@ -42,55 +61,28 @@ export function viewDocumentation() {
             return;
         }
         const word = doc.getText(range).toLocaleLowerCase();
-        let file;
-        let anchor;
-        switch (word) {
-            case 'context':
-                file = path.join(portalScriptDocs, 'classContext.html');
-                break;
-            case 'util':
-                file = path.join(portalScriptDocs, 'classUtil.html');
-                break;
-            case 'docfile':
-                file = path.join(portalScriptDocs, 'classDocFile.html');
-                break;
-            case 'systemuser':
-                file = path.join(portalScriptDocs, 'classSystemUser.html');
-                break;
-            case 'systemuseriterator':
-                file = path.join(portalScriptDocs, 'classSystemUserIterator.html');
-                break;
-            case 'dochit':
-                file = path.join(portalScriptDocs, 'classDocHit.html');
-                break;
-            case 'hitresultset':
-                file = path.join(portalScriptDocs, 'classHitResultset.html');
-                break;
-            case 'returntype':
-                anchor = 'adc5ff13c1317ccf80f07fb76b4dfb4da';
-                file = path.join(portalScriptDocs, 'classContext.html');
-                break;
-            case 'convertdatetostring':
-                anchor = 'adf2adb3ae40357ec636ff66cf2261f43';
-                file = path.join(portalScriptDocs, 'classUtil.html');
-                break;
-            case 'convertstringtodate':
-                anchor = 'a77906d2baa7d7c2a2c9ddc36c0f36538';
-                file = path.join(portalScriptDocs, 'classUtil.html');
-                break;
-            default:
-                // todo: quickpick
-                vscode.window.showWarningMessage(`Documentation available for context, returnType, util, DocFile, SystemUser, HitResultset, ...`);
-        }
-        if (file) {
-            if (anchor) {
-                if (!browser) {
-                    vscode.window.showWarningMessage(`Jump to **${word}**: pecify a browser in **vscode-janus-debug.browser**`);
-                }
-                open(`file:///${file}#${anchor}`, browser);
-            } else {
-                open(`file:///${file}`, browser);
+        let file = '';
+        const anchor = '';
+
+
+
+
+        if (htmlFileNames.hasOwnProperty(word)) {
+            file = path.join(portalScriptDocs, htmlFileNames[word]);
+        } else {
+            if (!browser) {
+                vscode.window.showWarningMessage(`Jump to **${word}**: pecify a browser in **vscode-janus-debug.browser**`);
             }
+            classContext.forEach((line: string[]) => {
+                if (line[0].toLocaleLowerCase() === word) {
+                    // tslint:disable-next-line:no-string-literal
+                    file = path.join(portalScriptDocs, line[1]);
+                }
+            });
+        }
+
+        if (file) {
+            open(`file:///${file}`, browser);
         }
     }
 }
