@@ -1,5 +1,4 @@
-// tslint:disable-next-line:no-var-keyword
-export var classContext =
+export const classContext =
 [
     [ "addCustomProperty", "classContext.html#aa63b69842869c2783c411987369fc3a1", null ],
     [ "addTimeInterval", "classContext.html#a6c2adc5d744316520e1c57bf4410d499", null ],

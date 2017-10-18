@@ -4,18 +4,17 @@ import * as vscode from 'vscode';
 const open = require('open');
 // tslint:disable-next-line:no-var-requires
 const fs = require('fs-extra');
+
+
 // tslint:disable-next-line:no-var-requires
 const classContext = require('../portalscript/documentation/classContext').classContext;
+// tslint:disable-next-line:no-var-requires
+const classUtil = require('../portalscript/documentation/classUtil').classUtil;
 
-const availableBrowsers = [
-    "iexplore",
-    "mozilla",
-    "chrome",
-    "safari",
-    "firefox"
+const memberAchorMappings = [
+    classContext,
+    classUtil
 ];
-
-
 
 interface HtmlFileNames {
     [key: string]: string;
@@ -31,6 +30,15 @@ const htmlFileNames: HtmlFileNames = {
     hitresultset: 'classHitResultset.html',
     fileresultset: 'classFileResultset.html'
 };
+
+
+const availableBrowsers = [
+    "iexplore",
+    "mozilla",
+    "chrome",
+    "safari",
+    "firefox"
+];
 
 
 export function viewDocumentation() {
@@ -60,21 +68,26 @@ export function viewDocumentation() {
             vscode.window.showWarningMessage(`Right click on a word (e.g. **context** or **util**) to get the documentation`);
             return;
         }
-        const word = doc.getText(range).toLocaleLowerCase();
+        const selectedWord = doc.getText(range).toLocaleLowerCase();
         let file = '';
 
-        if (htmlFileNames.hasOwnProperty(word)) {
-            file = path.join(portalScriptDocs, htmlFileNames[word]);
+        if (htmlFileNames.hasOwnProperty(selectedWord)) {
+            file = path.join(portalScriptDocs, htmlFileNames[selectedWord]);
         } else {
             if (!browser) {
-                vscode.window.showWarningMessage(`Jump to **${word}**: pecify a browser in **vscode-janus-debug.browser**`);
+                vscode.window.showWarningMessage(`Jump to **${selectedWord}**: pecify a browser in **vscode-janus-debug.browser**`);
             }
-            classContext.forEach((line: string[]) => {
-                if (line[0].toLocaleLowerCase() === word) {
-                    // tslint:disable-next-line:no-string-literal
-                    file = path.join(portalScriptDocs, line[1]);
+            for (const classMapping of memberAchorMappings) {
+                for (const member of classMapping) {
+                    if (member.length === 3) {
+                        const memberName = member[0];
+                        const fileWithAnchor = member[1];
+                        if (memberName.toLocaleLowerCase() === selectedWord) {
+                            file = path.join(portalScriptDocs, fileWithAnchor);
+                        }
+                    }
                 }
-            });
+            }
         }
 
         if (file) {
