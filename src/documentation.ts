@@ -15,14 +15,14 @@ interface HtmlFileNames {
  * of portalScript classes.
  */
 const htmlFileNames: HtmlFileNames = {
-    context: 'classContext',
-    util: 'classUtil',
-    docfile: 'classDocFile',
-    systemuser: 'classSystemUser',
-    systemuseriterator: 'classSystemUserIterator',
-    dochit: 'classDocHit',
-    hitresultset: 'classHitResultset',
-    fileresultset: 'classFileResultset'
+    context: 'classContext.html',
+    util: 'classUtil.html',
+    docfile: 'classDocFile.html',
+    systemuser: 'classSystemUser.html',
+    systemuseriterator: 'classSystemUserIterator.html',
+    dochit: 'classDocHit.html',
+    hitresultset: 'classHitResultset.html',
+    fileresultset: 'classFileResultset.html'
 };
 
 /**
@@ -78,7 +78,7 @@ export function viewDocumentation() {
         let file = '';
 
         if (htmlFileNames.hasOwnProperty(selectedWord)) {
-            file = path.join(portalScriptDocs, htmlFileNames[selectedWord] + '.html');
+            file = path.join(portalScriptDocs, htmlFileNames[selectedWord]);
         } else {
             if (!browser) {
                 vscode.window.showWarningMessage(`Jump to **${selectedWord}**: pecify a browser in **vscode-janus-debug.browser**`);
