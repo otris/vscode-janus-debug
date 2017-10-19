@@ -6,35 +6,33 @@ const open = require('open');
 const fs = require('fs-extra');
 
 
-interface HtmlFileNames {
+
+interface MemberAnchorMappings {
     [key: string]: string;
 }
-
-/**
- * List of all available documentation html files
- * of portalScript classes.
- */
-const htmlFileNames: HtmlFileNames = {
-    context: 'classContext.html',
-    util: 'classUtil.html',
-    docfile: 'classDocFile.html',
-    systemuser: 'classSystemUser.html',
-    systemuseriterator: 'classSystemUserIterator.html',
-    dochit: 'classDocHit.html',
-    hitresultset: 'classHitResultset.html',
-    fileresultset: 'classFileResultset.html'
-};
 
 /**
  * List of all available member-anchor mappings
  * of portalScript classes.
  */
-const memberAchorMappings = [
+const memberAnchorMappings: MemberAnchorMappings = {
     // tslint:disable-next-line:no-var-requires
-    require('../portalscript/documentation/classContext').classContext,
+    context: require('../portalscript/documentation/classContext').classContext,
     // tslint:disable-next-line:no-var-requires
-    require('../portalscript/documentation/classUtil').classUtil
-];
+    docfile: require('../portalscript/documentation/classDocFile').classDocFile,
+    // tslint:disable-next-line:no-var-requires
+    dochit: require('../portalscript/documentation/classDocHit').classDocHit,
+    // tslint:disable-next-line:no-var-requires
+    fileresultset: require('../portalscript/documentation/classFileResultset').classFileResultset,
+    // tslint:disable-next-line:no-var-requires
+    hitresultset: require('../portalscript/documentation/classHitResultset').classHitResultset,
+    // tslint:disable-next-line:no-var-requires
+    systemuser: require('../portalscript/documentation/classSystemUser').classSystemUser,
+    // tslint:disable-next-line:no-var-requires
+    systemuseriterator: require('../portalscript/documentation/classSystemUserIterator').classSystemUserIterator,
+    // tslint:disable-next-line:no-var-requires
+    util: require('../portalscript/documentation/classUtil').classUtil
+};
 
 
 
@@ -47,7 +45,7 @@ const availableBrowsers = [
 ];
 
 
-export function viewDocumentation() {
+export async function viewDocumentation() {
     const thisExtension: vscode.Extension<any> | undefined = vscode.extensions.getExtension("otris-software.vscode-janus-debug");
     if (thisExtension === undefined) {
         return;
@@ -77,20 +75,35 @@ export function viewDocumentation() {
         const selectedWord = doc.getText(range).toLocaleLowerCase();
         let file = '';
 
-        if (htmlFileNames.hasOwnProperty(selectedWord)) {
-            file = path.join(portalScriptDocs, htmlFileNames[selectedWord]);
+        if (memberAnchorMappings.hasOwnProperty(selectedWord)) {
+            const fileWithAnchor = memberAnchorMappings[selectedWord][0][1];
+            const endOfFileNamePos = fileWithAnchor.indexOf('#');
+            file = path.join(portalScriptDocs, fileWithAnchor.substr(0, endOfFileNamePos));
         } else {
             if (!browser) {
                 vscode.window.showWarningMessage(`Jump to **${selectedWord}**: pecify a browser in **vscode-janus-debug.browser**`);
             }
-            for (const classMapping of memberAchorMappings) {
+            const results = [];
+            for (const key of Object.keys(memberAnchorMappings)) {
+                const classMapping = memberAnchorMappings[key];
                 for (const member of classMapping) {
                     if (member.length === 3) {
                         const memberName = member[0];
                         const fileWithAnchor = member[1];
                         if (memberName.toLocaleLowerCase() === selectedWord) {
-                            file = path.join(portalScriptDocs, fileWithAnchor);
+                            results.push(fileWithAnchor);
                         }
+                    }
+                }
+            }
+            if (results.length > 0) {
+                if (results.length === 1) {
+                    file = path.join(portalScriptDocs, results[0]);
+                } else {
+                    const question = `Found ${selectedWord} in several classes, select one class please!`;
+                    const result = await vscode.window.showQuickPick(results, {placeHolder: question});
+                    if (result) {
+                        file = path.join(portalScriptDocs, result);
                     }
                 }
             }

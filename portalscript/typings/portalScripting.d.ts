@@ -912,6 +912,17 @@ declare namespace Documents {
 	**/
 	changeScriptUser(login: string): boolean;
 	/**
+	 * Clears the cached enumval at the specified PortalScript. 
+	 * 
+	 * ... ... ... ... ... 
+	 */
+	/**
+	* @memberof Context
+	* @param {string} scriptName
+	* @returns {boolean}
+	**/
+	clearEnumvalCache(scriptName: string): boolean;
+	/**
 	 * Convert a Date object representing a date into a String. 
 	 * 
 	 * The output String is in the date format of the specified locale. If you leave the locale parameter away the current locale of the script context will be used. ... ... ... ... 
@@ -1039,7 +1050,7 @@ declare namespace Documents {
 	 * 
 	 * This function creates a new file of the given filetype. Since the script is executed in the context of a particular user, it is mandatory that user possesses sufficient access privileges to create new instances of the desired filetype, otherwise the method will fail. 
 	 * 
-	 * If an error occurs during creation of the file the return value will be null and you can access an error message describing the error with getLastError(). ... ... ... ... 
+	 * If an error occurs during creation of the file the return value will be null and you can access an error message describing the error with getLastError(). ... ... ... ... ... ... 
 	 */
 	/**
 	* @memberof Context
@@ -2069,7 +2080,8 @@ declare namespace Documents {
 	/**
 	 * The DBResultSet class contains a list of resultset rows. 
 	 * 
-	 * You need an active DBConnection object to execute an SQL query which is used to create a DBResultSet. ... ... ... ... 
+	 * You need an active DBConnection object to execute an SQL query which is used to create a DBResultSet. ... 
+	 * The following data types for database columns will be supported: ... ... ... ... ... 
 	 */
 	export interface DBResultSet {
 	/**
@@ -4577,9 +4589,9 @@ declare namespace Documents {
 	 */
 	/**
 	* @memberof FileResultset
-	* @returns {number}
+	* @returns {string []}
 	**/
-	getIds(): number;
+	getIds(): string [];
 	/**
 	 * Retrieve the last DocFile object in the FileResultset. 
 	 * 
@@ -4615,7 +4627,7 @@ declare namespace Documents {
 
 declare class FileResultset implements Documents.FileResultset {
 	first(): Documents.DocFile;
-	getIds(): number;
+	getIds(): string [];
 	last(): Documents.DocFile;
 	constructor(fileType: string, filter: string, sortOrder: string);
 	next(): Documents.DocFile;
