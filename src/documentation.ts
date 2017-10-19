@@ -6,30 +6,36 @@ const open = require('open');
 const fs = require('fs-extra');
 
 
-// tslint:disable-next-line:no-var-requires
-const classContext = require('../portalscript/documentation/classContext').classContext;
-// tslint:disable-next-line:no-var-requires
-const classUtil = require('../portalscript/documentation/classUtil').classUtil;
-
-const memberAchorMappings = [
-    classContext,
-    classUtil
-];
-
 interface HtmlFileNames {
     [key: string]: string;
 }
 
+/**
+ * List of all available documentation html files
+ * of portalScript classes.
+ */
 const htmlFileNames: HtmlFileNames = {
-    context: 'classContext.html',
-    util: 'classUtil.html',
-    docfile: 'classDocFile.html',
-    systemuser: 'classSystemUser.html',
-    systemuseriterator: 'classSystemUserIterator.html',
-    dochit: 'classDocHit.html',
-    hitresultset: 'classHitResultset.html',
-    fileresultset: 'classFileResultset.html'
+    context: 'classContext',
+    util: 'classUtil',
+    docfile: 'classDocFile',
+    systemuser: 'classSystemUser',
+    systemuseriterator: 'classSystemUserIterator',
+    dochit: 'classDocHit',
+    hitresultset: 'classHitResultset',
+    fileresultset: 'classFileResultset'
 };
+
+/**
+ * List of all available member-anchor mappings
+ * of portalScript classes.
+ */
+const memberAchorMappings = [
+    // tslint:disable-next-line:no-var-requires
+    require('../portalscript/documentation/classContext').classContext,
+    // tslint:disable-next-line:no-var-requires
+    require('../portalscript/documentation/classUtil').classUtil
+];
+
 
 
 const availableBrowsers = [
@@ -72,7 +78,7 @@ export function viewDocumentation() {
         let file = '';
 
         if (htmlFileNames.hasOwnProperty(selectedWord)) {
-            file = path.join(portalScriptDocs, htmlFileNames[selectedWord]);
+            file = path.join(portalScriptDocs, htmlFileNames[selectedWord] + '.html');
         } else {
             if (!browser) {
                 vscode.window.showWarningMessage(`Jump to **${selectedWord}**: pecify a browser in **vscode-janus-debug.browser**`);
