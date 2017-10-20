@@ -46,6 +46,28 @@ interface MemberAnchorMappings {
     [key: string]: string;
 }
 
+/**
+ * If selected class or member not found, show
+ * this list, so user can select a class
+ */
+const availableDocumentation = [
+    'AccessProfileIterator',
+    'Context',
+    'AccessProfile',
+    'DocFile',
+    'DocHit',
+    'FileResultset',
+    'Folder',
+    'FolderIterator',
+    'HitResultset',
+    'Register',
+    'RegisterIterator',
+    'SystemUser',
+    'SystemUserIterator',
+    'Util'
+];
+
+
 
 
 const availableBrowsers = [
@@ -118,6 +140,14 @@ export async function viewDocumentation() {
                         file = path.join(portalScriptDocs, result);
                     }
                 }
+            }
+        }
+
+        if (!file) {
+            const question = `Selected text not found in documentation, select an available documentation please!`;
+            const result = await vscode.window.showQuickPick(availableDocumentation, {placeHolder: question});
+            if (result) {
+                file = path.join(portalScriptDocs, 'class' + result + '.html');
             }
         }
 
