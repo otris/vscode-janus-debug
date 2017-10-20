@@ -2,6 +2,13 @@
 
 You'll find a complete list of changes at our project site on [GitHub](https://github.com/otris/vscode-janus-debug).
 
+### 0.0.22 (2017-10-20)
+
+New Features in this release:
+
+- Tho command *Show Documentation In Browser* was improved.
+
+
 ### 0.0.21 (2017-10-06)
 
 New Features in this release:
