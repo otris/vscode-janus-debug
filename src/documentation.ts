@@ -7,15 +7,16 @@ const fs = require('fs-extra');
 
 
 
-interface MemberAnchorMappings {
-    [key: string]: string;
-}
 
 /**
  * List of all available member-anchor mappings
  * of portalScript classes.
  */
 const memberAnchorMappings: MemberAnchorMappings = {
+    // tslint:disable-next-line:no-var-requires
+    accessprofile: require('../portalscript/documentation/classAccessProfile').classAccessProfile,
+    // tslint:disable-next-line:no-var-requires
+    accessprofileiterator: require('../portalscript/documentation/classAccessProfileIterator').classAccessProfileIterator,
     // tslint:disable-next-line:no-var-requires
     context: require('../portalscript/documentation/classContext').classContext,
     // tslint:disable-next-line:no-var-requires
@@ -25,7 +26,15 @@ const memberAnchorMappings: MemberAnchorMappings = {
     // tslint:disable-next-line:no-var-requires
     fileresultset: require('../portalscript/documentation/classFileResultset').classFileResultset,
     // tslint:disable-next-line:no-var-requires
+    folder: require('../portalscript/documentation/classFolder').classFolder,
+    // tslint:disable-next-line:no-var-requires
+    folderiterator: require('../portalscript/documentation/classFolderIterator').classFolderIterator,
+    // tslint:disable-next-line:no-var-requires
     hitresultset: require('../portalscript/documentation/classHitResultset').classHitResultset,
+    // tslint:disable-next-line:no-var-requires
+    register: require('../portalscript/documentation/classRegister').classRegister,
+    // tslint:disable-next-line:no-var-requires
+    registeriterator: require('../portalscript/documentation/classRegisterIterator').classRegisterIterator,
     // tslint:disable-next-line:no-var-requires
     systemuser: require('../portalscript/documentation/classSystemUser').classSystemUser,
     // tslint:disable-next-line:no-var-requires
@@ -33,6 +42,9 @@ const memberAnchorMappings: MemberAnchorMappings = {
     // tslint:disable-next-line:no-var-requires
     util: require('../portalscript/documentation/classUtil').classUtil
 };
+interface MemberAnchorMappings {
+    [key: string]: string;
+}
 
 
 
