@@ -459,26 +459,22 @@ export function updateHashValues(pscripts: nodeDoc.scriptT[], server: string) {
     // set hash values of scripts in conflict mode
     pscripts.forEach((script) => {
 
-        // if conflict is true, script was not force-uploaded
-        // so hash value is still the same and should not be updated
-        if (true !== script.conflict) {
-            const scriptAtServer = script.name + '@' + server;
-            const entry = scriptAtServer + ':' + script.lastSyncHash;
+        const scriptAtServer = script.name + '@' + server;
+        const entry = scriptAtServer + ':' + script.lastSyncHash;
 
-            // search entry
-            let updated = false;
-            hashValues.forEach((value, idx) => {
-                const scriptpart = value.split(':')[0];
-                if (scriptpart === scriptAtServer) {
-                    hashValues[idx] = entry;
-                    updated = true;
-                }
-            });
-
-            // create new entry
-            if (!updated) {
-                hashValues.push(entry);
+        // search entry
+        let updated = false;
+        hashValues.forEach((value, idx) => {
+            const scriptpart = value.split(':')[0];
+            if (scriptpart === scriptAtServer) {
+                hashValues[idx] = entry;
+                updated = true;
             }
+        });
+
+        // create new entry
+        if (!updated) {
+            hashValues.push(entry);
         }
     });
 
