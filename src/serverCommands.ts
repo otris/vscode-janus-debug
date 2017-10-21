@@ -59,6 +59,17 @@ export async function checkDecryptionVersion(loginData: nodeDoc.ConnectionInform
 }
 
 
+function getTime(): string {
+    const now = new Date();
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+    const seconds = now.getSeconds();
+    const hours2 = hours < 10 ? '0' + hours : hours;
+    const minutes2 = minutes < 10 ? '0' + minutes : minutes;
+    const seconds2 = seconds < 10 ? '0' + seconds : seconds;
+    return `${hours2}:${minutes2}:${seconds2}`;
+}
+
 
 
 /**
@@ -68,10 +79,10 @@ export async function checkDecryptionVersion(loginData: nodeDoc.ConnectionInform
  * @param loginData
  * @param param
  */
-async function uploadScriptCommon(loginData: nodeDoc.ConnectionInformation, param: any): Promise<string> {
+async function uploadScriptCommon(loginData: nodeDoc.ConnectionInformation, param: any): Promise<void> {
     await login.ensureLoginInformation(loginData);
 
-    return new Promise<string>((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
         helpers.ensureScript(param).then((_script) => {
 
             // get information from settings and hash values
@@ -93,29 +104,28 @@ async function uploadScriptCommon(loginData: nodeDoc.ConnectionInformation, para
                     // if forceUpload is empty, function resolves
                     nodeDoc.serverSession(loginData, forceUpload, nodeDoc.uploadScript).then(() => {
                         helpers.updateHashValues([script], loginData.server);
-                        resolve(script.name);
+
+                        // script not uploaded, if conflict is true
+                        if (script.conflict === true) {
+                            return resolve();
+                        }
+
+                        vscode.window.setStatusBarMessage(`uploaded ${script.name} at ` + getTime());
+                        return resolve();
                     }).catch((reason) => {
-                        reject('force upload ' + script.name + ' failed: ' + reason);
+                        vscode.window.showErrorMessage('force upload ' + script.name + ' failed: ' + reason);
+                        reject();
                     });
                 });
 
             });
         }).catch((reason) => {
-            reject('upload script failed: ' + reason);
+            vscode.window.showErrorMessage('upload script failed: ' + reason);
+            reject();
         });
     });
 }
 
-function getTime(): string {
-    const now = new Date();
-    const hours = now.getHours();
-    const minutes = now.getMinutes();
-    const seconds = now.getSeconds();
-    const hours2 = hours < 10 ? '0' + hours : hours;
-    const minutes2 = minutes < 10 ? '0' + minutes : minutes;
-    const seconds2 = seconds < 10 ? '0' + seconds : seconds;
-    return `${hours2}:${minutes2}:${seconds2}`;
-}
 
 
 /**
@@ -123,11 +133,9 @@ function getTime(): string {
  */
 export function uploadScript(loginData: nodeDoc.ConnectionInformation, param: any): Promise<void> {
     return new Promise<void>((resolve, reject) => {
-        uploadScriptCommon(loginData, param).then((scriptName) => {
-            vscode.window.setStatusBarMessage(`uploaded ${scriptName} at ` + getTime());
+        uploadScriptCommon(loginData, param).then(() => {
             resolve();
         }).catch((reason) => {
-            vscode.window.showErrorMessage(reason);
             reject();
         });
     });
@@ -139,21 +147,19 @@ export function uploadScript(loginData: nodeDoc.ConnectionInformation, param: an
 export function uploadScriptOnSave(loginData: nodeDoc.ConnectionInformation, fileName: string): Promise<boolean> {
     return new Promise<boolean>((resolve, reject) => {
         helpers.ensureUploadOnSave(fileName).then((value) => {
-            if (helpers.autoUploadAnswer.yes === value) {
 
-                uploadScriptCommon(loginData, fileName).then((scriptName) => {
-                    vscode.window.setStatusBarMessage(`uploaded ${scriptName} at ` + getTime());
+            if (helpers.autoUpload.yes === value) {
+                uploadScriptCommon(loginData, fileName).then(() => {
+                    resolve(true);
                 }).catch((reason) => {
-                    vscode.window.showErrorMessage(reason);
+                    reject();
                 });
+            } else if (helpers.autoUpload.no === value) {
                 resolve(true);
-            } else if (helpers.autoUploadAnswer.never === value) {
+            } else if (helpers.autoUpload.neverAsk === value) {
                 resolve(false);
-            } else {
-                resolve(true);
             }
         }).catch((reason) => {
-            vscode.window.showErrorMessage('upload script failed: ' + reason);
             reject();
         });
     });
@@ -164,26 +170,24 @@ export function uploadJSFromTS(loginData: nodeDoc.ConnectionInformation, textDoc
 
         if (!textDocument || '.ts' !== path.extname(textDocument.fileName)) {
             vscode.window.showErrorMessage('No active TypeScript file');
-            resolve();
-        } else {
-
-            const tsname: string = textDocument.fileName;
-            const jsname: string = tsname.substr(0, tsname.length - 3) + ".js";
-            const tscargs = ['-t', 'ES5', '--out', jsname];
-            const retval = tsc.compile([textDocument.fileName], tscargs);
-            const scriptSource = retval.sources[jsname];
-            if (scriptSource) {
-                console.log("scriptSource:\n" + scriptSource);
-            }
-
-            uploadScriptCommon(loginData, jsname).then((scriptname) => {
-                vscode.window.setStatusBarMessage('uploaded: ' + scriptname);
-                resolve();
-            }).catch((reason) => {
-                vscode.window.showErrorMessage(reason);
-                resolve();
-            });
+            return resolve();
         }
+
+        const tsname: string = textDocument.fileName;
+        const jsname: string = tsname.substr(0, tsname.length - 3) + ".js";
+        const tscargs = ['-t', 'ES5', '--out', jsname];
+        const retval = tsc.compile([textDocument.fileName], tscargs);
+        const scriptSource = retval.sources[jsname];
+        if (scriptSource) {
+            console.log("scriptSource:\n" + scriptSource);
+        }
+
+        uploadScriptCommon(loginData, jsname).then(() => {
+            resolve();
+        }).catch((reason) => {
+            reject();
+        });
+
     });
 }
 
@@ -296,7 +300,6 @@ export function uploadRunScript(loginData: nodeDoc.ConnectionInformation, param:
         try {
             scriptName = await uploadScriptCommon(loginData, param);
         } catch (reason) {
-            vscode.window.showErrorMessage('upload script failed: ' + reason);
             return reject();
         }
 

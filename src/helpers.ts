@@ -24,10 +24,10 @@ const NO_CONFLICT = 'No conflict';
 export const CACHE_FILE = '.vscode-janus-debug';
 const SCRIPT_NAMES_FILE = '.documents-script-names';
 
-export enum autoUploadAnswer {
+export enum autoUpload {
     yes,
     no,
-    never
+    neverAsk
 }
 
 /**
@@ -140,8 +140,8 @@ export async function ensureForceUpload(scripts: nodeDoc.scriptT[]): Promise<[no
  *
  * @param param script-name or -path
  */
-export async function ensureUploadOnSave(param: string): Promise<autoUploadAnswer> {
-    return new Promise<autoUploadAnswer>((resolve, reject) => {
+export async function ensureUploadOnSave(param: string): Promise<autoUpload> {
+    return new Promise<autoUpload>((resolve, reject) => {
         let always: string[] = [];
         let never: string[] = [];
 
@@ -168,9 +168,9 @@ export async function ensureUploadOnSave(param: string): Promise<autoUploadAnswe
             return reject();
         }
         if (0 <= never.indexOf(scriptname)) {
-            resolve(autoUploadAnswer.no);
+            resolve(autoUpload.no);
         } else if (0 <= always.indexOf(scriptname)) {
-            resolve(autoUploadAnswer.yes);
+            resolve(autoUpload.yes);
         } else {
             const QUESTION: string = `Upload script ${scriptname}?`;
             const YES: string = `Yes`;
@@ -180,20 +180,20 @@ export async function ensureUploadOnSave(param: string): Promise<autoUploadAnswe
             const NEVERASK: string = `Never upload automatically`;
             vscode.window.showQuickPick([YES, NO, ALWAYS, NEVER, NEVERASK], { placeHolder: QUESTION }).then((answer) => {
                 if (YES === answer) {
-                    resolve(autoUploadAnswer.yes);
+                    resolve(autoUpload.yes);
                 } else if (NO === answer) {
-                    resolve(autoUploadAnswer.no);
+                    resolve(autoUpload.no);
                 } else if (ALWAYS === answer) {
                     always.push(scriptname);
                     conf.update('uploadOnSave', always);
-                    resolve(autoUploadAnswer.yes);
+                    resolve(autoUpload.yes);
                 } else if (NEVER === answer) {
                     never.push(scriptname);
                     conf.update('uploadManually', never);
-                    resolve(autoUploadAnswer.no);
+                    resolve(autoUpload.no);
                 } else if (NEVERASK === answer) {
                     conf.update('uploadOnSaveGlobal', false, true);
-                    resolve(autoUploadAnswer.never);
+                    resolve(autoUpload.neverAsk);
                 }
             });
         }
