@@ -61,7 +61,9 @@ export async function askForUpload(script: nodeDoc.scriptT, all: boolean, none: 
                 resolve(FORCE_UPLOAD_NONE);
             } else {
                 let question;
-                if (script.lastSyncHash) {
+                if (script.encrypted === 'true') {
+                    question = `${script.name} cannot be decrypted, it might have been changed on server, upload anyway?`;
+                } else if (script.lastSyncHash) {
                     question = `${script.name} has been changed on server, upload anyway?`;
                 } else {
                     question = `${script.name} might have been changed on server, upload anyway?`;
