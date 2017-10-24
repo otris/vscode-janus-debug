@@ -139,7 +139,7 @@ export class JanusDebugSession extends DebugSession {
         const username: string = args.username || '';
         const principal: string = args.principal || '';
         const password = args.password.length > 0 ? crypt_md5(args.password, 'o3') : '';
-        const stopOnEntry = args.stopOnEntry || true;
+        const stopOnEntry = args.stopOnEntry;
 
         let scriptIdentifier: string | undefined;
 
