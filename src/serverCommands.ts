@@ -36,7 +36,7 @@ export async function checkDecryptionVersion(loginData: nodeDoc.ConnectionInform
                 const perm: nodeDoc.documentsT = retval1[0];
                 decrptionVersionChecked = true;
                 if (perm && Number(loginData.documentsVersion) < Number(VERSION_DECRYPT_PERM)) {
-                    const info = `Please update your DOCUMENTS to 5.0c (#${VERSION_DECRYPT_PERM}) to avoid problems with encrypted scripts`;
+                    const info = `You should update your DOCUMENTS to 5.0c (#${VERSION_DECRYPT_PERM}) to avoid problems with encrypted scripts`;
                     vscode.window.showQuickPick(['Upload anyway', 'Cancel'], { placeHolder: info }).then((answer) => {
                         if ('Upload anyway' === answer) {
                             resolve();
@@ -48,7 +48,7 @@ export async function checkDecryptionVersion(loginData: nodeDoc.ConnectionInform
                     resolve();
                 }
             }).catch((reason) => {
-                vscode.window.showErrorMessage(reason);
+                vscode.window.showErrorMessage(reason.message);
                 reject();
             });
         } else {
@@ -90,6 +90,19 @@ async function uploadScriptCommon(loginData: nodeDoc.ConnectionInformation, para
             helpers.readHashValues([_script], loginData.server);
             helpers.readEncryptionFlag([_script]);
             // helpers.setCategories([_script]);
+
+            // _script.parameters = [
+            //     {
+            //         name: 'Parameter1',
+            //         type: 'Numerisch',
+            //         value: '42'
+            //     },
+            //     {
+            //         name: 'Parameter2',
+            //         type: 'Numerisch',
+            //         value: '200'
+            //     }
+            // ];
 
             return nodeDoc.serverSession(loginData, [_script], nodeDoc.uploadScript).then((value) => {
 
@@ -520,12 +533,14 @@ export async function getFileTypesTSD(loginData: nodeDoc.ConnectionInformation):
 
     return new Promise<string>((resolve, reject) => {
 
-        nodeDoc.serverSession(loginData, [], nodeDoc.getFileTypesTSD).then((fieldNames) => {
-            if (!fieldNames || !fieldNames[0] || !fieldNames[0].length) {
-                reject();
-            } else {
-                resolve(fieldNames[0]);
+        nodeDoc.serverSession(loginData, [], nodeDoc.getFileTypesTSD).then((result) => {
+            if (!result || result.length === 0) {
+                return reject('TSD file was not created');
             }
+            if (result[0].length === 0) {
+                return reject('TSD file is empty');
+            }
+            resolve(result[0]);
         }).catch((reason) => {
             reject(reason);
         });
