@@ -224,7 +224,7 @@ export function getDownloadScriptNamesFromList(): nodeDoc.scriptT[] {
     scripts = [];
     if (scriptnames instanceof Array && 0 < scriptnames.length) {
         scriptnames.forEach((scriptname) => {
-            scripts.push(new nodeDoc.scriptT(scriptname.trim()));
+            scripts.push(new nodeDoc.scriptT(scriptname.trim(), ''));
         });
     }
 
@@ -480,7 +480,7 @@ export function updateHashValues(pscripts: nodeDoc.scriptT[], server: string) {
 
     // write to CACHE_FILE
     const hashValStr = hashValues.join('\n').trim();
-    nodeDoc.writeFile(hashValStr, hashValueFile);
+    fs.writeFileSync(hashValueFile, hashValStr);
 }
 
 
@@ -541,7 +541,7 @@ export function compareScript(_path: string, scriptname: string): void {
     }
 }
 
-export async function createFolder(_path: string, hidden = false): Promise<void> {
+export async function ensureHiddenFolder(_path: string): Promise<void> {
     return new Promise<void>((resolve, reject) => {
         fs.stat(_path, (err, stats) => {
             if (err) {
@@ -550,17 +550,13 @@ export async function createFolder(_path: string, hidden = false): Promise<void>
                         if (error) {
                             reject(error);
                         } else {
-                            if (hidden) {
-                                winattr.set(_path, { hidden: true }, (reason: any) => {
-                                    if (reason) {
-                                        reject(reason);
-                                    } else {
-                                        resolve();
-                                    }
-                                });
-                            } else {
-                                resolve();
-                            }
+                            winattr.set(_path, { hidden: true }, (reason: any) => {
+                                if (reason) {
+                                    reject(reason);
+                                } else {
+                                    resolve();
+                                }
+                            });
                         }
                     });
                 } else {
@@ -718,7 +714,7 @@ export async function checkScriptFullName(scriptFullName: string | undefined): P
 }
 
 
-export async function ensureScriptFullName(scriptFullName: string | undefined): Promise<{dir: string, name: string}> {
+export async function ensureCompareScript(scriptFullName: string | undefined): Promise<{dir: string, name: string}> {
     console.log('ensurePathInput');
 
     return new Promise<{dir: string, name: string}>((resolve, reject) => {
@@ -830,14 +826,13 @@ export async function ensureScript(param?: string | vscode.TextDocument): Promis
                 activeScript = editor.document.fileName;
             }
             vscode.window.showInputBox({
-                prompt: 'Please enter the script name or path',
+                prompt: 'Please enter the script path',
                 value: activeScript,
                 ignoreFocusOut: true,
             }).then((_scriptname) => {
                 if (_scriptname) {
                     const retscript = nodeDoc.getScript(_scriptname);
                     if (retscript instanceof nodeDoc.scriptT) {
-                        retscript.path = param;
                         resolve(retscript);
                     } else {
                         reject(retscript);

@@ -32,10 +32,9 @@ export async function checkDecryptionVersion(loginData: nodeDoc.ConnectionInform
 
     return new Promise<void>((resolve, reject) => {
         if (!decrptionVersionChecked) {
-            nodeDoc.serverSession(loginData, [], nodeDoc.checkDecryptionPermission).then((retval1) => {
-                const perm: nodeDoc.documentsT = retval1[0];
+            nodeDoc.serverSession(loginData, [], nodeDoc.checkDecryptionPermission).then(() => {
                 decrptionVersionChecked = true;
-                if (perm && Number(loginData.documentsVersion) < Number(VERSION_DECRYPT_PERM)) {
+                if (loginData.decryptionPermission && Number(loginData.documentsVersion) < Number(VERSION_DECRYPT_PERM)) {
                     const info = `You should update your DOCUMENTS to 5.0c (#${VERSION_DECRYPT_PERM}) to avoid problems with encrypted scripts`;
                     vscode.window.showQuickPick(['Upload anyway', 'Cancel'], { placeHolder: info }).then((answer) => {
                         if ('Upload anyway' === answer) {
@@ -262,7 +261,7 @@ function runScriptCommon(loginData: nodeDoc.ConnectionInformation, param: any, o
             await login.ensureLoginInformation(loginData);
             const serverScriptNames = await getServerScriptNames(loginData);
             const scriptName = await helpers.ensureScriptName(param, serverScriptNames);
-            const script = new nodeDoc.scriptT(scriptName);
+            const script = new nodeDoc.scriptT(scriptName, '');
 
             outputChannel.append('Run script:' + os.EOL);
             outputChannel.show();
@@ -348,8 +347,10 @@ export async function downloadScript(loginData: nodeDoc.ConnectionInformation, c
 
             return nodeDoc.serverSession(loginData, [script], nodeDoc.downloadScript).then((value) => {
                 script = value[0];
-                helpers.updateHashValues([script], loginData.server);
-                vscode.window.setStatusBarMessage('downloaded: ' + script.name);
+                return nodeDoc.saveScriptUpdateSyncHash([script]).then(() => {
+                    helpers.updateHashValues([script], loginData.server);
+                    vscode.window.setStatusBarMessage('downloaded: ' + script.name);
+                });
             });
         });
     }).catch((reason) => {
@@ -366,7 +367,7 @@ export async function downloadAll(loginData: nodeDoc.ConnectionInformation, cont
     helpers.ensurePath(contextMenuPath, true).then((scriptDir) => {
 
         // get names of scripts that should be downloaded
-        return getServerScripts(loginData).then((requestScripts) => {
+        return getSelectedScriptNames(loginData).then((requestScripts) => {
 
             // set download path to scripts
             requestScripts.forEach(function(script) {
@@ -377,16 +378,18 @@ export async function downloadAll(loginData: nodeDoc.ConnectionInformation, cont
 
             // download scripts
             return nodeDoc.serverSession(loginData, requestScripts, nodeDoc.downloadAll).then((scripts) => {
-                helpers.updateHashValues(scripts, loginData.server);
-                // if a script from input list has not been downloaded but the function was resolved
-                // then the script is encrypted on server
-                const encryptedScripts = requestScripts.length - scripts.length;
-                if (1 === encryptedScripts) {
-                    vscode.window.showWarningMessage(`couldn't download 1 script (it might be encrypted)`);
-                } else if (1 < encryptedScripts) {
-                    vscode.window.showWarningMessage(`couldn't download ${encryptedScripts} scripts (they might be encrypted)`);
-                }
-                vscode.window.setStatusBarMessage(`downloaded ${scripts.length} scripts`);
+                return nodeDoc.saveScriptUpdateSyncHash(scripts).then(() => {
+                    helpers.updateHashValues(scripts, loginData.server);
+                    // if a script from input list has not been downloaded but the function was resolved
+                    // then the script is encrypted on server
+                    const encryptedScripts = requestScripts.length - scripts.length;
+                    if (1 === encryptedScripts) {
+                        vscode.window.showWarningMessage(`couldn't download 1 script (it might be encrypted)`);
+                    } else if (1 < encryptedScripts) {
+                        vscode.window.showWarningMessage(`couldn't download ${encryptedScripts} scripts (they might be encrypted)`);
+                    }
+                    vscode.window.setStatusBarMessage(`downloaded ${scripts.length} scripts`);
+                });
             });
         });
     }).catch((reason) => {
@@ -410,18 +413,20 @@ export async function compareScript(loginData: nodeDoc.ConnectionInformation, co
 
         try {
             await login.ensureLoginInformation(loginData);
+            await helpers.ensureHiddenFolder(comparePath);
         } catch (error) {
             return reject(error);
         }
 
-        helpers.ensureScriptFullName(contextMenuPath).then((scriptFullName) => {
-            const scriptDir = scriptFullName.dir;
-            const scriptName = scriptFullName.name;
-            return helpers.createFolder(comparePath, true).then(() => {
-                let script: nodeDoc.scriptT = new nodeDoc.scriptT(scriptName, comparePath, '', helpers.COMPARE_FILE_PREFIX + scriptName);
-                return nodeDoc.serverSession(loginData, [script], nodeDoc.downloadScript).then((value) => {
-                    script = value[0];
-                    helpers.compareScript(scriptDir, scriptName);
+        helpers.ensureCompareScript(contextMenuPath).then((compareScript) => {
+            let script: nodeDoc.scriptT = new nodeDoc.scriptT(compareScript.name, comparePath, '', helpers.COMPARE_FILE_PREFIX + compareScript.name);
+            return nodeDoc.serverSession(loginData, [script], nodeDoc.downloadScript).then((value) => {
+                script = value[0];
+                if (!script.path) {
+                    return reject('script path missing');
+                }
+                return nodeDoc.writeFileEnsureDir(script.sourceCode, script.path).then(() => {
+                    helpers.compareScript(compareScript.dir, compareScript.name);
                     resolve();
                 });
             });
@@ -451,19 +456,18 @@ export async function getScriptParameters(loginData: nodeDoc.ConnectionInformati
     await login.ensureLoginInformation(loginData);
 
     // Check documents version
-    nodeDoc.serverSession(loginData, [], nodeDoc.getDocumentsVersion).then((value) => {
-        const doc: nodeDoc.documentsT = value[0];
-        if (!doc) {
+    nodeDoc.serverSession(loginData, [], nodeDoc.getDocumentsVersion).then(() => {
+        if (!loginData.documentsVersion) {
             vscode.window.showErrorMessage(`get script parameters: get DOCUMENTS version failed`);
-        } else if (doc.version && (Number(VERSION_SCRIPT_PARAMS) > Number(doc.version))) {
-            const errmsg = `Get Script Parameters: required DOCUMENTS version is ${VERSION_SCRIPT_PARAMS}, you are using ${doc.version}`;
+        } else if (loginData.documentsVersion && (Number(VERSION_SCRIPT_PARAMS) > Number(loginData.documentsVersion))) {
+            const errmsg = `Get Script Parameters: required DOCUMENTS version is ${VERSION_SCRIPT_PARAMS}, you are using ${loginData.documentsVersion}`;
             vscode.window.showErrorMessage(errmsg);
         } else {
             // get names of all scripts in script array
             // return nodeDoc.sdsSession(loginData, [], nodeDoc.getScriptsFromServer).then((_scripts) => {
 
             // get names of download scripts
-            return getServerScripts(loginData).then((_scripts) => {
+            return getSelectedScriptNames(loginData).then((_scripts) => {
 
                 // get parameters
                 return nodeDoc.serverSession(loginData, _scripts, nodeDoc.getAllParameters).then(async (values) => {
@@ -482,14 +486,14 @@ export async function getScriptParameters(loginData: nodeDoc.ConnectionInformati
                             if (vscode.workspace && vscode.workspace.rootPath) {
                                 const paramsfilename = scriptName + '.json';
                                 const paramsfilepath = path.join(vscode.workspace.rootPath, '.scriptParameters', paramsfilename);
-                                await nodeDoc.writeFile(paramsJsonOutput, paramsfilepath);
+                                await nodeDoc.writeFileEnsureDir(paramsJsonOutput, paramsfilepath);
                             } else {
                                 console.log(paramsJsonOutput);
                             }
                         }
                         vscode.window.setStatusBarMessage('wrote script parameters to /.scriptParameters');
                     } else {
-                        console.log('get script parameters failed: array.length: ' + value.length);
+                        console.log('get script parameters failed: array.length: ' + values.length);
                     }
                 });
             });
@@ -500,7 +504,7 @@ export async function getScriptParameters(loginData: nodeDoc.ConnectionInformati
 }
 
 
-async function getServerScripts(loginData: nodeDoc.ConnectionInformation): Promise<nodeDoc.scriptT[]> {
+async function getSelectedScriptNames(loginData: nodeDoc.ConnectionInformation): Promise<nodeDoc.scriptT[]> {
     return new Promise<nodeDoc.scriptT[]>((resolve, reject) => {
 
         const scripts: nodeDoc.scriptT[] = helpers.getDownloadScriptNamesFromList();
