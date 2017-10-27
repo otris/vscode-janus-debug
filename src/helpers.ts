@@ -518,28 +518,6 @@ export function scriptLog(scriptOutput: string | undefined) {
 
 
 
-export function compareScript(_path: string, scriptname: string): void {
-    if (!vscode.workspace.rootPath || !vscode.workspace.rootPath) {
-        return;
-    }
-
-    if (!_path || !scriptname) {
-        vscode.window.showErrorMessage('Select or open a file to compare');
-        return;
-    } else {
-        const leftfile = path.join(vscode.workspace.rootPath, COMPARE_FOLDER, COMPARE_FILE_PREFIX + scriptname + '.js');
-        const rightfile = path.join(_path, scriptname + '.js');
-        const lefturi = vscode.Uri.file(leftfile);
-        const righturi = vscode.Uri.file(rightfile);
-        const title = scriptname + '.js' + ' (DOCUMENTS Server)';
-
-        vscode.commands.executeCommand('vscode.diff', lefturi, righturi, title).then(() => {
-            /* ... */
-        }, (reason) => {
-            vscode.window.showErrorMessage('Compare script failed ' + reason);
-        });
-    }
-}
 
 export async function ensureHiddenFolder(_path: string): Promise<void> {
     return new Promise<void>((resolve, reject) => {
@@ -680,80 +658,6 @@ export async function ensurePath(fileOrFolder: string | undefined, allowSubDir =
 
 
 
-export async function checkScriptFullName(scriptFullName: string | undefined): Promise<{dir: string, name: string}> {
-    return new Promise<{dir: string, name: string}>((resolve, reject) => {
-
-        if (!vscode.workspace || !vscode.workspace.rootPath) {
-            return reject('First open a workspace folder please!');
-        }
-        const workspaceFolder = vscode.workspace.rootPath;
-        if (!scriptFullName) {
-            return reject('Invalid full script name');
-        }
-        if (!scriptFullName.toLowerCase().startsWith(workspaceFolder.toLowerCase())) {
-            return reject(`${scriptFullName} is not a subfolder of ${workspaceFolder}`);
-        }
-        const jsFile = ('.js' === path.extname(scriptFullName));
-
-        fs.stat(scriptFullName, function(err1, stats1) {
-            if (err1) {
-                reject(err1.message);
-            } else {
-                if (stats1.isFile() && jsFile) {
-                    resolve({dir: path.dirname(scriptFullName), name: path.basename(scriptFullName, '.js')});
-                } else if (stats1.isDirectory()) {
-                    reject(`${scriptFullName} is only a directory!`);
-                } else if (!jsFile) {
-                    reject(`${scriptFullName} is not a JavaScript file!`);
-                } else {
-                    reject('Unexpected error in ' + scriptFullName);
-                }
-            }
-        });
-    });
-}
-
-
-export async function ensureCompareScript(scriptFullName: string | undefined): Promise<{dir: string, name: string}> {
-    console.log('ensurePathInput');
-
-    return new Promise<{dir: string, name: string}>((resolve, reject) => {
-
-        if (!vscode.workspace || !vscode.workspace.rootPath) {
-            return reject('First open a workspace folder please!');
-        }
-        const workspaceFolder = vscode.workspace.rootPath;
-
-        if (scriptFullName) {
-            checkScriptFullName(scriptFullName).then((retpath) => {
-                resolve(retpath);
-            }).catch((reason) => {
-                reject(reason);
-            });
-        } else {
-
-            // set default script full name
-            let defaultPath = '';
-            if (vscode.window.activeTextEditor) {
-                defaultPath = vscode.window.activeTextEditor.document.fileName;
-            }
-
-            // ask for script full name
-            const showText = 'Enter the full script name please';
-            vscode.window.showInputBox({
-                prompt: showText,
-                value: defaultPath,
-                ignoreFocusOut: true,
-            }).then((input) => {
-                checkScriptFullName(input).then((retpath) => {
-                    resolve(retpath);
-                }).catch((reason) => {
-                    reject(reason);
-                });
-            });
-        }
-    });
-}
 
 export async function ensureScriptName(paramScript?: string, serverScripts: string[] = []): Promise<string> {
     console.log('ensureScriptName');
@@ -796,6 +700,29 @@ export async function ensureScriptName(paramScript?: string, serverScripts: stri
 }
 
 /**
+ * Create script-type with name and sourceCode from file.
+ *
+ * @param file Scriptname, full path.
+ */
+export function getScript(file: string): nodeDoc.scriptT | string {
+    if (file && '.js' === path.extname(file)) {
+        try {
+            // todo check with fs.stat because if file looks relative readFileSync
+            // tries to read it from C:\Program Files (x86)\Microsoft VS Code\file
+            const name = path.basename(file, '.js');
+            const scriptpath = file;
+            const sourceCode = fs.readFileSync(file, 'utf8');
+            return new nodeDoc.scriptT(name, scriptpath, sourceCode);
+        } catch (err) {
+            return err;
+        }
+    } else {
+        return 'only javascript files allowed';
+    }
+}
+
+
+/**
  * Return script of type scriptT containing name and source code of given path or textdocument.
  *
  * @param param path to script or textdocument of script
@@ -807,9 +734,8 @@ export async function ensureScript(param?: string | vscode.TextDocument): Promis
         if (param) {
             if (typeof param === 'string') {
                 // param: path to script
-                const retscript = nodeDoc.getScript(param);
+                const retscript = getScript(param);
                 if (retscript instanceof nodeDoc.scriptT) {
-                    retscript.path = param;
                     resolve(retscript);
                 } else {
                     reject(retscript);
@@ -831,7 +757,7 @@ export async function ensureScript(param?: string | vscode.TextDocument): Promis
                 ignoreFocusOut: true,
             }).then((_scriptname) => {
                 if (_scriptname) {
-                    const retscript = nodeDoc.getScript(_scriptname);
+                    const retscript = getScript(_scriptname);
                     if (retscript instanceof nodeDoc.scriptT) {
                         resolve(retscript);
                     } else {

@@ -2,6 +2,13 @@
 
 You'll find a complete list of changes at our project site on [GitHub](https://github.com/otris/vscode-janus-debug).
 
+### 0.0.23 (yyyy-mm-dd)
+
+
+Following bugs have been addressed in this release:
+
+- In command **Compare Script**, the script is not synchronized anymore (hash value of source code is not set, so changes on server will still be recognized on next upload after **Compare Script**).
+
 ### 0.0.22 (2017-10-20)
 
 New Features in this release:

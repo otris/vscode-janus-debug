@@ -341,7 +341,8 @@ export async function downloadScript(loginData: nodeDoc.ConnectionInformation, c
 
     helpers.ensureScriptName(contextMenuPath, serverScriptNames).then((scriptName) => {
         return helpers.ensurePath(contextMenuPath, true).then((scriptDir) => {
-            let script: nodeDoc.scriptT = new nodeDoc.scriptT(scriptName, scriptDir);
+            const scriptPath = path.join(scriptDir, scriptName + '.js');
+            let script: nodeDoc.scriptT = new nodeDoc.scriptT(scriptName, scriptPath);
 
             // helpers.setCategoryRoots([script], contextMenuPath, scriptDir);
 
@@ -371,7 +372,7 @@ export async function downloadAll(loginData: nodeDoc.ConnectionInformation, cont
 
             // set download path to scripts
             requestScripts.forEach(function(script) {
-                script.path = scriptDir;
+                script.path = path.join(scriptDir, script.name + '.js');
             });
 
             // helpers.setCategoryRoots(requestScripts, contextMenuPath, scriptDir);
@@ -404,31 +405,39 @@ export async function downloadAll(loginData: nodeDoc.ConnectionInformation, cont
 export async function compareScript(loginData: nodeDoc.ConnectionInformation, contextMenuPath: any): Promise<void> {
     return new Promise<void>(async (resolve, reject) => {
 
-        let comparePath: string;
+        let compareDir: string;
         if (vscode.workspace && vscode.workspace.rootPath) {
-            comparePath = path.join(vscode.workspace.rootPath, helpers.COMPARE_FOLDER);
+            compareDir = path.join(vscode.workspace.rootPath, helpers.COMPARE_FOLDER);
         } else {
             return reject('First create workspace folder please');
         }
 
         try {
             await login.ensureLoginInformation(loginData);
-            await helpers.ensureHiddenFolder(comparePath);
+            await helpers.ensureHiddenFolder(compareDir);
         } catch (error) {
             return reject(error);
         }
 
-        helpers.ensureCompareScript(contextMenuPath).then((compareScript) => {
-            let script: nodeDoc.scriptT = new nodeDoc.scriptT(compareScript.name, comparePath, '', helpers.COMPARE_FILE_PREFIX + compareScript.name);
-            return nodeDoc.serverSession(loginData, [script], nodeDoc.downloadScript).then((value) => {
-                script = value[0];
-                if (!script.path) {
-                    return reject('script path missing');
+        helpers.ensureScript(contextMenuPath).then((serverScript) => {
+            return nodeDoc.serverSession(loginData, [serverScript], nodeDoc.downloadScript).then((value) => {
+
+                try {
+                    const compareScriptPath = path.join(compareDir, helpers.COMPARE_FILE_PREFIX + serverScript.name + '.js');
+                    fs.writeFileSync(compareScriptPath, serverScript.serverCode);
+                    const title = serverScript.name + '.js' + ' (DOCUMENTS Server)';
+                    const lefturi = vscode.Uri.file(compareScriptPath);
+                    const righturi = vscode.Uri.file(serverScript.path);
+                    vscode.commands.executeCommand('vscode.diff', lefturi, righturi, title).then(() => {
+                        resolve();
+                    }, (reason) => {
+                        vscode.window.showErrorMessage('Compare script failed ' + reason);
+                        resolve();
+                    });
+                } catch (err) {
+                    reject(err);
                 }
-                return nodeDoc.writeFileEnsureDir(script.sourceCode, script.path).then(() => {
-                    helpers.compareScript(compareScript.dir, compareScript.name);
-                    resolve();
-                });
+
             });
         }).catch((reason) => {
             vscode.window.showErrorMessage('Compare script failed: ' + reason);
