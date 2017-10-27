@@ -283,39 +283,6 @@ export function setCategories(pscripts: nodeDoc.scriptT[]) {
     }
 }
 
-export function setCategoryRoots(pscripts: nodeDoc.scriptT[], contextMenuPath: string | undefined, scriptDir: string) {
-    console.log('setCategoryRoots');
-
-    if (!pscripts || 0 === pscripts.length || !vscode.workspace) {
-        return;
-    }
-
-    // no folders from category should be created, if command
-    // 'downloadScript' is called on file context menu
-    if (contextMenuPath && fs.statSync(contextMenuPath).isFile()) {
-        return;
-    }
-
-    // get extension-part of settings.json
-    const conf = vscode.workspace.getConfiguration('vscode-janus-debug');
-    if (!conf) {
-        vscode.window.showWarningMessage('vscode-janus-debug missing in settings');
-        return;
-    }
-
-    // get category flag
-    const categories = conf.get('createFoldersFromCategories', false);
-
-    if (categories) {
-        pscripts.forEach((script) => {
-            if (fs.statSync(scriptDir).isDirectory()) {
-                script.categoryRoot = path.normalize(scriptDir);
-            } else if (fs.statSync(scriptDir).isFile()) {
-                script.categoryRoot = path.dirname(path.normalize(scriptDir));
-            }
-        });
-    }
-}
 
 
 export function readEncryptionFlag(pscripts: nodeDoc.scriptT[]) {
@@ -711,8 +678,8 @@ export function getScript(file: string): nodeDoc.scriptT | string {
             // tries to read it from C:\Program Files (x86)\Microsoft VS Code\file
             const name = path.basename(file, '.js');
             const scriptpath = file;
-            const sourceCode = fs.readFileSync(file, 'utf8');
-            return new nodeDoc.scriptT(name, scriptpath, sourceCode);
+            const localCode = fs.readFileSync(file, 'utf8');
+            return new nodeDoc.scriptT(name, scriptpath, localCode);
         } catch (err) {
             return err;
         }

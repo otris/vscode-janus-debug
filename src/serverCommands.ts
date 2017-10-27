@@ -344,10 +344,10 @@ export async function downloadScript(loginData: nodeDoc.ConnectionInformation, c
             const scriptPath = path.join(scriptDir, scriptName + '.js');
             let script: nodeDoc.scriptT = new nodeDoc.scriptT(scriptName, scriptPath);
 
-            // helpers.setCategoryRoots([script], contextMenuPath, scriptDir);
-
             return nodeDoc.serverSession(loginData, [script], nodeDoc.downloadScript).then((value) => {
                 script = value[0];
+                // TODO
+                // ask user if folder from category (script.category) should be created
                 return nodeDoc.saveScriptUpdateSyncHash([script]).then(() => {
                     helpers.updateHashValues([script], loginData.server);
                     vscode.window.setStatusBarMessage('downloaded: ' + script.name);
@@ -375,10 +375,10 @@ export async function downloadAll(loginData: nodeDoc.ConnectionInformation, cont
                 script.path = path.join(scriptDir, script.name + '.js');
             });
 
-            // helpers.setCategoryRoots(requestScripts, contextMenuPath, scriptDir);
-
             // download scripts
             return nodeDoc.serverSession(loginData, requestScripts, nodeDoc.downloadAll).then((scripts) => {
+                // TODO
+                // ask user if folder from category (script.category) should be created
                 return nodeDoc.saveScriptUpdateSyncHash(scripts).then(() => {
                     helpers.updateHashValues(scripts, loginData.server);
                     // if a script from input list has not been downloaded but the function was resolved
