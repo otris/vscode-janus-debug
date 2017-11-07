@@ -2,8 +2,14 @@
 
 You'll find a complete list of changes at our project site on [GitHub](https://github.com/otris/vscode-janus-debug).
 
-### 0.0.23 (yyyy-mm-dd)
+### 0.0.23 (2017-11-07)
 
+
+Following bugs have been addressed in this release:
+
+- Improved fileTypes.d.ts: fields have types now (available in DOCUMENTS 5.0c HF1 or #8044).
+
+- Some improved error messages.
 
 Following bugs have been addressed in this release:
 
