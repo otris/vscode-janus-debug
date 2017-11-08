@@ -4,7 +4,7 @@ declare namespace Documents {
 /**
 * @interface AccessProfile
 * @summary The AccessProfile class has been added to the DOCUMENTS PortalScripting API to gain full access to the DOCUMENTS access profiles by scripting means. 
-* @description A SystemUser can be assigned to an AccessProfile. At the filetype it is possible to define several rights depending on the AccessProfile. You can get an AccessProfile object by different methods like Context::findAccessProfile(String ProfileName) or from the AccessProfileIterator. 
+* @description A SystemUser can be assigned to an AccessProfile. At the filetype it is possible to define several rights depending on the AccessProfile. You can get an AccessProfile object by different methods like Context.findAccessProfile(String ProfileName) or from the AccessProfileIterator. 
 **/
 export interface AccessProfile {
 /**
@@ -31,8 +31,8 @@ propCache: Documents.PropertyCache;
 * @param {string} value String value defining the value 
 * @returns {Documents.CustomProperty} CustomProperty
 * @since DOCUMENTS 5.0
-* @see AccessProfile.setOrAddCustomProperty(String name, String type, String value)
-* @see AccessProfile.getCustomProperties(String nameFilter, String typeFilter)
+* @see AccessProfile.setOrAddCustomProperty
+* @see AccessProfile.getCustomProperties
 * @example
 * var office = context.findAccessProfile("office");
 * if (!office) throw "office is null";
@@ -62,9 +62,9 @@ getAttribute(attribute: string): string;
 * @param {string} typeFilter String value defining an optional filter depending on the type 
 * @returns {Documents.CustomPropertyIterator} CustomPropertyIterator
 * @since DOCUMENTS 5.0
-* @see Context.findCustomProperties(String filter)
-* @see AccessProfile.setOrAddCustomProperty(String name, String type, String value)
-* @see AccessProfile.addCustomProperty(String name, String type, String value)
+* @see Context.findCustomProperties
+* @see AccessProfile.setOrAddCustomProperty
+* @see AccessProfile.addCustomProperty
 * @example
 * var office = context.findAccessProfile("office");
 * if (!office) throw "office is null";
@@ -83,7 +83,7 @@ getCustomProperties(nameFilter?: string, typeFilter?: string): Documents.CustomP
 * @summary If you call a method at an AccessProfile object and an error occurred, you can get the error description with this function. 
 * @returns {string} Text of the last error as String 
 * @since ELC 3.50b / otrisPORTAL 5.0b 
-* @see DocFile::getLastError()
+* @see DocFile.getLastError
 **/
 getLastError(): string;
 /**
@@ -142,8 +142,8 @@ setAttribute(attribute: string, value: string): boolean;
 * @param {string} value String value defining the value 
 * @returns {Documents.CustomProperty} CustomProperty
 * @since DOCUMENTS 5.0
-* @see AccessProfile.getCustomProperties(String nameFilter, String typeFilter)
-* @see AccessProfile.addCustomProperty(String name, String type, String value)
+* @see AccessProfile.getCustomProperties
+* @see AccessProfile.addCustomProperty
 * @example
 * var office = context.findAccessProfile("office");
 * if (!office) throw "office is null";
@@ -176,7 +176,7 @@ declare namespace Documents {
 /**
 * @interface AccessProfileIterator
 * @summary The AccessProfileIterator class has been added to the DOCUMENTS PortalScripting API to gain full access to the DOCUMENTS access profiles by scripting means. 
-* @description The objects of this class represent lists of AccessProfile objects and allow to loop through such a list of profiles. The following methods return an AccessProfileIterator: Context::getAccessProfiles(), SystemUser::getAccessProfiles(). 
+* @description The objects of this class represent lists of AccessProfile objects and allow to loop through such a list of profiles. The following methods return an AccessProfileIterator: Context.getAccessProfiles(), SystemUser.getAccessProfiles(). 
 **/
 export interface AccessProfileIterator {
 /**
@@ -195,7 +195,7 @@ first(): Documents.AccessProfile;
 * @summary Function to get the description of the last error that occurred. 
 * @returns {string} Text of the last error as String 
 * @since ELC 3.50b / otrisPORTAL 5.0b 
-* @see DocFile::getLastError()
+* @see DocFile.getLastError
 **/
 getLastError(): string;
 /**
@@ -319,7 +319,7 @@ getLastError(): string;
 * @function putBlob
 * @instance
 * @summary Upload an attachment to the XML-Server. 
-* @param {any} doc 
+* @param {Document} doc 
 * @param {string} blobreference 
 * @returns {boolean} 
 **/
@@ -633,7 +633,7 @@ first(): Documents.DocFile;
 * @summary Function to get the description of the last error that occurred. 
 * @returns {string} Text of the last error as String 
 * @since ELC 3.60i / otrisPORTAL 6.0i 
-* @see DocFile::getLastError()
+* @see DocFile.getLastError
 **/
 getLastError(): string;
 /**
@@ -827,7 +827,7 @@ declare namespace Documents {
 /**
 * @interface ArchivingDescription
 * @summary The ArchivingDescription class has been added to the DOCUMENTS PortalScripting API to improve the archiving process of DOCUMENTS files by scripting means. 
-* @description For instance this allows to use different target archives for each file as well as to influence the archiving process by the file's contents itself. The ArchivingDescription object can only be used as parameter for the method DocFile::archive(ArchivingDescription)
+* @description For instance this allows to use different target archives for each file as well as to influence the archiving process by the file's contents itself. The ArchivingDescription object can only be used as parameter for the method DocFile.archive(ArchivingDescription)
 * Note: By default, archiving with an ArchivingDescription does not include any attachments. To archive some attachments, the script needs to call addRegister() on this object. 
 **/
 export interface ArchivingDescription {
@@ -1171,8 +1171,8 @@ workflowStep: string;
 * @param {string} value String value defining the value 
 * @returns {Documents.CustomProperty} CustomProperty
 * @since DOCUMENTS 5.0
-* @see Context.setOrAddCustomProperty(String name, String type, String value)
-* @see Context.getCustomProperties(String nameFilter, String typeFilter)
+* @see Context.setOrAddCustomProperty
+* @see Context.getCustomProperties
 * @example
 * var custProp = context.addCustomProperty("favorites", "string", "peachit");
 * if (!custProp)
@@ -1191,7 +1191,7 @@ addCustomProperty(name: string, type: string, value: string): Documents.CustomPr
 * @param {boolean} useWorkCalendar true if work calendar should be taken into account, false if not. The work calendar has to be defined at Documents->Settings 
 * @returns {Date} Date object with the new date. 
 * @since ELC 3.50e / otrisPORTAL 5.0e
-* @see Context::getDatesDiff(Date earlierDate, Date laterDate, String unit, boolean useWorkCalendar)Util::convertDateToString(Date timeStamp, String format)Util::convertStringToDate(String dateOrTimeStamp, String format)
+* @see Context.getDatesDiff
 * @example
 * var actDate = new Date();  // actDate contains now the current date
 * var newDate = context.addTimeInterval(actDate, 14, "days", false);
@@ -1241,7 +1241,7 @@ clearEnumvalCache(scriptName: string): boolean;
 * @param {string} locale 
 * @returns {string} 
 * @since DOCUMENTS 4.0c HF1
-* @see Util::convertDateToString(Date timeStamp, String format)
+* @see Util.convertDateToString
 * @example
 * var date1 = new Date(2014, 1, 14);
 * util.out(context.convertDateToString(date1, "de"));
@@ -1267,7 +1267,7 @@ convertDateToString(dateOrTimeStamp: Date, locale?: string): string;
 * @param {number} precision Precision as number (default=2) 
 * @returns {string} String representing the desired number 
 * @since ELC 3.60c / otrisPORTAL 6.0c
-* @see Context::convertNumericToString(Numeric value, String locale = user locale, int precision = 2) 
+* @see Context.convertNumericToString 
 * @example
 * var numVal = 1000 * Math.PI;
 * context.out(context.convertNumericToString(numVal, ",", ".", 2));
@@ -1285,7 +1285,7 @@ convertNumericToString(value: number, decimalSep: string, thousandSep: string, p
 * @param {number} precision 
 * @returns {string} String representing the desired number 
 * @since ELC 3.60c / otrisPORTAL 6.0c
-* @see Context::convertNumericToString(Numeric value, String decimalSep, String thousandSep, int precision = 2) 
+* @see Context.convertNumericToString 
 * @example
 * var numVal = 1000 * Math.PI;
 * context.out(context.convertNumericToString(numVal, "en", 2));
@@ -1302,7 +1302,7 @@ convertNumericToString(value: number, locale?: string, precision?: number): stri
 * @param {string} locale 
 * @returns {Date} 
 * @since DOCUMENTS 5.0a HF2
-* @see Util::convertStringToDate(Date timeStamp, String format) 
+* @see Util.convertStringToDate 
 * @example
 * var dateString = "19.09.1974";
 * var birthDay = context.convertStringToDate(dateString, "en");
@@ -1319,7 +1319,7 @@ convertStringToDate(dateOrTimeStamp: string, locale: string): Date;
 * @param {string} thousandSep Thousend-Separator as String 
 * @returns {number} the numeric number (float) or NULL if fail 
 * @since ELC 3.60c / otrisPORTAL 6.0c
-* @see Context::convertStringToNumeric(String numericValue, String locale = user locale) 
+* @see Context.convertStringToNumeric 
 * @example
 * var numString = "1.000,99";
 * var floatVal = context.convertStringToNumeric(numString, ",", ".");
@@ -1335,7 +1335,7 @@ convertStringToNumeric(numericValue: string, decimalSep: string, thousandSep: st
 * @param {string} locale Locale as String 
 * @returns {number} the numeric number (float) or NULL if fail 
 * @since ELC 3.60c / otrisPORTAL 6.0c
-* @see Context::convertStringToNumeric(String numericValue, String decimalSep, String thousandSep)
+* @see Context.convertStringToNumeric
 * @example
 * var numString = "1,000.99";
 * var floatVal = context.convertStringToNumeric(numString, "en");
@@ -1350,7 +1350,7 @@ convertStringToNumeric(numericValue: string, locale?: string): number;
 * @param {string} fileType the technical name of the desired filetype 
 * @returns {number} Integer amount of pool files 
 * @since ELC 3.50j / otrisPORTAL 5.0j
-* @see Context::createPoolFile(String fileType)
+* @see Context.createPoolFile
 * @example
 * var fileType = "Standard"; // filetype
 * var poolSize = context.countPoolFiles(fileType); // amount of pool files
@@ -1411,7 +1411,7 @@ createArchiveServer(name: string, type: string): Documents.ArchiveServer;
 * @returns {Documents.SystemUser} SystemUser object as a representation of the newly created fellow; if the creation fails (e.g. due to a lack of appropriate licenses), the method returns null
 * @since ELC 3.60f / otrisPORTAL 6.0f 
 * @since DOCUMENTS 4.0d HF3 / DOCUMENTS 5.0 (new licenseType "concurrent_standard", "concurrent_open")
-* @see Context::deleteSystemUser(String loginName)
+* @see Context.deleteSystemUser
 * @example
 * var schreiber = context.createFellow("schreiber", true, "named"); // this will create a named user with DOCUMENTS access
 **/
@@ -1469,7 +1469,7 @@ createFolder(name: string, type: string): Documents.Folder;
 * @param {string} fileType the technical name of the desired filetype 
 * @returns {boolean} true if successful, false in case of any error 
 * @since ELC 3.50j / otrisPORTAL 5.0j 
-* @see Context::countPoolFiles(String fileType)
+* @see Context.countPoolFiles
 **/
 createPoolFile(fileType: string): boolean;
 /**
@@ -1484,7 +1484,7 @@ createPoolFile(fileType: string): boolean;
 * @returns {Documents.SystemUser} SystemUser object as a representation of the newly created user; if the creation fails (e.g. due to a lack of appropriate licenses), the method returns null
 * @since ELC 3.51e / otrisPORTAL 5.1e 
 * @since DOCUMENTS 4.0d HF3 / DOCUMENTS 5.0 (new licenseType "concurrent_standard", "concurrent_open")
-* @see Context::deleteSystemUser(String loginName)
+* @see Context.deleteSystemUser
 * @example
 * var schreiber = context.createSystemUser("schreiber", true, "concurrent"); // this will create a concurrent user with DOCUMENTS access
 **/
@@ -1511,7 +1511,7 @@ deleteAccessProfile(profileName: string): boolean;
 * @function deleteFolder
 * @instance
 * @summary Delete a folder in DOCUMENTS. 
-* @param {any} folderObj an object of the Class Folder which represents the according folder in DOCUMENTS 
+* @param {Folder} folderObj an object of the Class Folder which represents the according folder in DOCUMENTS 
 * @returns {boolean} true if successful, false in case of any error 
 * @since ELC 3.50l01 / otrisPORTAL 5.0l01
 * @example
@@ -1531,7 +1531,7 @@ deleteFolder(folderObj: Documents.Folder): boolean;
 * @param {string} loginName login of the user 
 * @returns {boolean} true if the deletion was successful, false in case of any error 
 * @since ELC 3.50e / otrisPORTAL 5.0e
-* @see Context::createSystemUser(String loginName, boolean isDlcUser, String licenseType); 
+* @see Context.createSystemUser; 
 * @example
 * var login = "schreiber";
 * var success = context.deleteSystemUser(login);
@@ -1608,9 +1608,9 @@ findAccessProfile(profileName: string): Documents.AccessProfile;
 * @param {string} filter Optional String value defining the search filter (specification see example) 
 * @returns {Documents.CustomPropertyIterator} CustomPropertyIterator
 * @since DOCUMENTS 5.0 
-* @see Context.getCustomProperties(String nameFilter, String typeFilter)
-* @see AccessProfile.getCustomProperties(String nameFilter, String typeFilter)
-* @see SystemUser.getCustomProperties(String nameFilter, String typeFilter)
+* @see Context.getCustomProperties
+* @see AccessProfile.getCustomProperties
+* @see SystemUser.getCustomProperties
 * @example
 * // Specification of the filter:
 * // ----------------------------
@@ -1651,8 +1651,8 @@ findCustomProperties(filter: string): Documents.CustomPropertyIterator;
 * @param {string} login name of the user 
 * @returns {Documents.SystemUser} User as SystemUser object 
 * @since ELC 3.50b / otrisPORTAL 5.0b
-* @see Context::findSystemUserByAlias(String alias)Context::getSystemUser()
-* Context::getSystemUsers()AccessProfile::getSystemUsers()
+* @see Context.findSystemUserByAlias
+* Context.getSystemUsers
 * @example
 * var myUser = context.findSystemUser("schreiber");
 **/
@@ -1666,8 +1666,8 @@ findSystemUser(login: string): Documents.SystemUser;
 * @param {string} alias technical name of the desired alias 
 * @returns {Documents.SystemUser} User as SystemUser object 
 * @since ELC 3.51c / otrisPORTAL 5.1c
-* @see Context::findSystemUser(String login)Context::getSystemUser()
-* Context::getSystemUsers() 
+* @see Context.findSystemUser
+* Context.getSystemUsers 
 * @example
 * var myUser = context.findSystemUserByAlias("CEO");
 **/
@@ -1699,7 +1699,7 @@ getAccessProfiles(includeInvisibleProfiles?: boolean): Documents.AccessProfileIt
 * @param {string} archiveServerName Optional string containing the archive server name; If the archive server is not defined, then the main archive server will be used 
 * @returns {Documents.ArchiveConnection} ArchiveConnection-Object or NULL, if failed 
 * @since DOCUMENTS 5.0a
-* @see ArchiveServer.getArchiveConnection()
+* @see ArchiveServer.getArchiveConnection
 * @example
 * var xmlserver = context.getArchiveConnection("myeex")
 * if (!xmlserver) // failed
@@ -1779,7 +1779,7 @@ getAutoText(autoText: string): string;
 * @description If you want to return output messages through scripting, taking into account that your users might use different portal languages, this function is useful to gain knowledge about the portal language used by the current user, who is part of the script's runtime context. This function returns the current language as the two letter abbreviation as defined in the principal's settings in the Windows Portal Client (e.g. "de" for German). 
 * @returns {string} String containing the abbreviation of the current user's portal language 
 * @since ELC 3.51 / otrisPORTAL 5.1
-* @see Context::setClientLang(String locale)Context::getEnumErgValue(String fileType, String field, String techEnumValue, String locale)Context::getFieldErgName(String fileType, String field, String locale)Context::getFileTypeErgName(String fileType, String locale)Context::getEnumValues(String fileType, String field)Context::getFromSystemTable(String identifier)
+* @see Context.setClientLang
 * @example
 * util.out(context.getClientLang());
 **/
@@ -1791,7 +1791,7 @@ getClientLang(): string;
 * @summary Get the script's execution context portal language index. 
 * @returns {number} integer value of the index of the current system language 
 * @since ELC 3.51g / otrisPORTAL 5.1g
-* @see Context::getEnumErgValue(String fileType, String field, String techEnumValue, String locale)Context::getFieldErgName(String fileType, String field, String locale)Context::getFileTypeErgName(String fileType, String locale)Context::getEnumValues(String fileType, String field)Context::getFromSystemTable(String identifier)
+* @see Context.getEnumErgValue
 * @example
 * util.out(context.getClientSystemLang());
 * var erg = context.setClientSystemLang(0); // first portal language
@@ -1818,7 +1818,7 @@ getClientType(): string;
 * @param {string} attributeName the technical name of the desired attribute 
 * @returns {string} String containing the value of the attribute 
 * @since ELC 3.50f / otrisPORTAL 5.0f
-* @see Context::getPrincipalAttribute(String attributeName)Context::setPrincipalAttribute(String attributeName, String value)
+* @see Context.getPrincipalAttribute
 * @example
 * util.out(context.getCurrentUserAttribute("particulars.lastName"));
 **/
@@ -1832,9 +1832,9 @@ getCurrentUserAttribute(attributeName: string): string;
 * @param {string} typeFilter String value defining an optional filter depending on the type 
 * @returns {Documents.CustomPropertyIterator} CustomPropertyIterator
 * @since DOCUMENTS 5.0
-* @see Context.findCustomProperties(String filter)
-* @see Context.setOrAddCustomProperty(String name, String type, String value)
-* @see Context.addCustomProperty(String name, String type, String value)
+* @see Context.findCustomProperties
+* @see Context.setOrAddCustomProperty
+* @see Context.addCustomProperty
 * @example
 * var itProp = context.getCustomProperties();
 * for (var prop = itProp.first(); prop; prop = itProp.next())
@@ -1893,7 +1893,7 @@ getEnumAutoText(autoText: string): string[];
 * @param {string} locale optional String value with the locale abbreviation (according to the principal's configuration); if omitted, the current user's portal language is used automatically 
 * @returns {string} String containing the ergonomic value of the enumeration value in the appropriate portal language 
 * @since ELC 3.51 / otrisPORTAL 5.1
-* @see Context::getEnumErgValue(String fileType, String field, String techEnumValue, String locale)Context::getFieldErgName(String fileType, String field, String locale)Context::getFileTypeErgName(String fileType, String locale)Context::getEnumValues(String fileType, String field)Context::getFromSystemTable(String identifier)
+* @see Context.getEnumErgValue
 * @example
 * util.out(context.getEnumErgValue("Standard", "Priority", "1", "de"));
 **/
@@ -1908,7 +1908,7 @@ getEnumErgValue(fileType: string, field: string, techEnumValue: string, locale: 
 * @param {string} field String value containing the technical name of the desired enumeration field 
 * @returns {string} Array containing all possible values of the enumeration field 
 * @since ELC 3.51 / otrisPORTAL 5.1
-* @see Context::getEnumErgValue(String fileType, String field, String techEnumValue, String locale)Context::getFieldErgName(String fileType, String field, String locale)Context::getFileTypeErgName(String fileType, String locale)Context::getEnumValues(String fileType, String field)Context::getFromSystemTable(String identifier)
+* @see Context.getEnumErgValue
 * @example
 * var valueList = context.getEnumValues("Standard", "Priority");
 * if (valueList.length > 0)
@@ -1931,7 +1931,7 @@ getEnumValues(fileType: string, field: string): string;
 * @param {string} locale optional String value with the locale abbreviation (according to the principal's configuration); if omitted, the current user's portal language is used automatically 
 * @returns {string} String containing the ergonomic description of the file field in the appropriate portal language 
 * @since ELC 3.51 / otrisPORTAL 5.1
-* @see Context::getEnumErgValue(String fileType, String field, String techEnumValue, String locale)Context::getFieldErgName(String fileType, String field, String locale)Context::getFileTypeErgName(String fileType, String locale)Context::getEnumValues(String fileType, String field)Context::getFromSystemTable(String identifier)
+* @see Context.getEnumErgValue
 * @example
 * util.out(context.getFieldErgName("Standard", "Prioritaet", "de"));
 **/
@@ -1945,7 +1945,7 @@ getFieldErgName(fileType: string, field: string, locale: string): string;
 * @param {string} idFile Unique id of the file 
 * @returns {Documents.DocFile} File as DocFile object. 
 * @since ELC 3.51b / otrisPORTAL 5.1b
-* @see Context::file
+* @see Context.file
 * @example
 * var file = context.getFileById("toastupfi_20070000002081");
 * if (file)
@@ -1964,7 +1964,7 @@ getFileById(idFile: string): Documents.DocFile;
 * @param {string} locale optional String value with the locale abbreviation (according to the principal's configuration); if omitted, the current user's portal language is used automatically 
 * @returns {string} String containing the ergonomic description of the filetype in the appropriate portal language 
 * @since ELC 3.51 / otrisPORTAL 5.1
-* @see Context::getEnumErgValue(String fileType, String field, String techEnumValue, String locale)Context::getFieldErgName(String fileType, String field, String locale)Context::getFileTypeErgName(String fileType, String locale)Context::getEnumValues(String fileType, String field)Context::getFromSystemTable(String identifier)
+* @see Context.getEnumErgValue
 * @example
 * util.out(context.getFileTypeErgName("Standard", "de"));
 **/
@@ -1989,10 +1989,10 @@ getFileTypeOID(nameFiletype: string, oidLow?: boolean): string;
 * @instance
 * @summary Retrieve the position of a top level folder in the global context. 
 * @description This method can be used to get the position of a top level folder (public, public dynamic or only subfolders folder with no parent) in the global context. 
-* @param {any} folder Folder object whose position to be retrieved. 
+* @param {Folder} folder Folder object whose position to be retrieved. 
 * @returns {number} internal position number of the folder as integer or -1 in case of any error. 
 * @since DOCUMENTS 5.0a
-* @see Context::setFolderPosition(Folder folder, int position)Folder::getPosition(Folder subFolder)Folder::setPosition(Folder subFolder, int position); 
+* @see Context.setFolderPosition; 
 * @example
 * var folder = context.getFoldersByName("MyPublicFolder").first();
 * var pos = context.getFolderPosition(folder);
@@ -2023,7 +2023,7 @@ getFoldersByName(folderPattern: string, type: string): Documents.FolderIterator;
 * @param {string} identifier String value containing the technical identifer of a certain system message table entry 
 * @returns {string} String containing the value of the desired entry in the current user's portal language 
 * @since ELC 3.50o / otrisPORTAL 5.0o
-* @see Context::getEnumErgValue(String fileType, String field, String techEnumValue, String locale)Context::getFieldErgName(String fileType, String field, String locale)Context::getFileTypeErgName(String fileType, String locale)Context::getEnumValues(String fileType, String field)Context::getFromSystemTable(String identifier)
+* @see Context.getEnumErgValue
 * @example
 * // requires an entry with that name in your system message table
 * util.out(context.getFromSystemTable("myOwnTableEntry"));
@@ -2055,7 +2055,7 @@ getJSObject(oid: string): object;
 * @returns {string} Text of the last error as String 
 * @since ELC 3.50 / otrisPORTAL 5.0 
 * @since ELC 3.60i / otrisPORTAL 6.0i available for archive files 
-* @see DocFile::getLastError()
+* @see DocFile.getLastError
 * @example
 * util.out(context.getLastError());
 **/
@@ -2068,7 +2068,7 @@ getLastError(): string;
 * @param {string} attributeName the technical name of the desired attribute 
 * @returns {string} String containing the value of the attribute 
 * @since ELC 3.50f / otrisPORTAL 5.0f
-* @see Context::getCurrentUserAttribute(String attributeName)Context::setPrincipalAttribute(String attributeName, String value)
+* @see Context.getCurrentUserAttribute
 * @example
 * util.out(context.getPrincipalAttribute("executive.eMail"));
 **/
@@ -2080,8 +2080,8 @@ getPrincipalAttribute(attributeName: string): string;
 * @summary Gets the current progress value in % of the progress bar in the Documents-Manager during the PortalScript execution. 
 * @returns {number} progress as float (value >= 0 and value <= 100) 
 * @since DOCUMENTS 5.0c
-* @see Context::setProgressBarText(String text)
-*Context::setProgressBar(Float value)
+* @see Context.setProgressBarText
+*Context.setProgressBar
 * @example
 * context.setProgressBarText("Calculating...");
 * context.setProgressBar(0.0);  // set progress bar to 0.0%
@@ -2113,7 +2113,7 @@ getQueryParams(): Documents.DocQueryParams;
 * @param {string} locale optional String value with the locale abbreviation (according to the principal's configuration); if omitted, the current user's portal language is used automatically 
 * @returns {string} String containing the ergonomic description of the register in the appropriate portal language 
 * @since DOCUMENTS 4.0d HF1
-* @see Context::getFieldErgName(String fileType, String field, String locale)Context::getFileTypeErgName(String fileType, String locale)
+* @see Context.getFieldErgName
 * @example
 * util.out(context.getRegisterErgName("Standard", "Reg1", "de"));
 **/
@@ -2137,8 +2137,8 @@ getServerInstallPath(): string;
 * @summary Get the current user as a SystemUser object. 
 * @returns {Documents.SystemUser} SystemUser object representing the current user. 
 * @since ELC 3.51b / otrisPORTAL 5.1b
-* @see Context::findSystemUser(String)Context::findSystemUserByAlias(String alias)
-* Context::getSystemUsers() 
+* @see Context.findSystemUser
+* Context.getSystemUsers 
 * @example
 * var su = context.getSystemUser();
 * if (su)
@@ -2155,7 +2155,7 @@ getSystemUser(): Documents.SystemUser;
 * @returns {Documents.SystemUserIterator} SystemUserIterator object containing a list of all (visible) users created in the system. 
 * @since ELC 3.50b / otrisPORTAL 5.0b 
 * @since DOCUMENTS 4.0c new optional parameter includeLockedUsers
-* @see Context::findSystemUser(String login)Context::getSystemUser()Context::findSystemUserByAlias(String alias)
+* @see Context.findSystemUser
 * @example
 * var itSU = context.getSystemUsers();
 * for (var su = itSU.first(); su; su = itSU.next())
@@ -2219,7 +2219,7 @@ sendTCPStringRequest(server: string, port: number, request: string, responseTime
 * @param {string} locale String containing the two letter abbreviation for the locale 
 * @returns {string} true if successful, false in case of any error 
 * @since DOCUMENTS 4.0c
-* @see Context::getClientLang()
+* @see Context.getClientLang
 * @example
 * context.setClientLang("en"));
 **/
@@ -2241,11 +2241,11 @@ setClientSystemLang(langIndex: number): boolean;
 * @instance
 * @summary Place a top level folder a at given position in the global context. 
 * @description This method can be used to set the position of a top level folder (public, public dynamic or only subfolders folder with no parent) in the global context. 
-* @param {any} folder Folder object whose position to be set. 
+* @param {Folder} folder Folder object whose position to be set. 
 * @param {number} position new internal position number of folder. 
 * @returns {boolean} true if successful, false in case of any error. 
 * @since DOCUMENTS 5.0a
-* @see Context::getFolderPosition(Folder folder)Folder::getPosition(Folder subFolder)Folder::setPosition(Folder subFolder, int position); 
+* @see Context.getFolderPosition; 
 * @example
 * // Create a folder B and place it before a folder A
 * var folderA = context.getFoldersByName("folderA").first();
@@ -2266,8 +2266,8 @@ setFolderPosition(folder: Documents.Folder, position: number): boolean;
 * @param {string} value String value defining the value 
 * @returns {Documents.CustomProperty} CustomProperty
 * @since DOCUMENTS 5.0
-* @see Context.getCustomProperties(String nameFilter, String typeFilter)
-* @see Context.addCustomProperty(String name, String type, String value)
+* @see Context.getCustomProperties
+* @see Context.addCustomProperty
 * @example
 * var custProp = context.setOrAddCustomProperty("favorites", "string", "peachit");
 * if (!custProp)
@@ -2283,7 +2283,7 @@ setOrAddCustomProperty(name: string, type: string, value: string): Documents.Cus
 * @param {string} value the value that should be assigned 
 * @returns {boolean} true if successful, false in case of any error 
 * @since ELC 3.51b / otrisPORTAL 5.1b
-* @see Context::getCurrentUserAttribute(String attributeName)Context::getPrincipalAttribute(String attributeName)
+* @see Context.getCurrentUserAttribute
 * @example
 * context.setPrincipalAttribute("executive.eMail", "test@mail.de");
 * util.out(context.getPrincipalAttribute("executive.eMail"));
@@ -2297,7 +2297,7 @@ setPrincipalAttribute(attributeName: string, value: string): boolean;
 * @param {number} value Float with in % of the execution (value >= 0 and value <= 100) 
 * @returns {void} 
 * @since DOCUMENTS 5.0c
-* @see Context::setProgressBarText(String text)Context::getProgressBar()
+* @see Context.setProgressBarText
 * @example
 * context.setProgressBarText("Calculating...");
 * context.setProgressBar(0.0);  // set progress bar to 0.0%
@@ -2315,7 +2315,7 @@ setProgressBar(value: number): void;
 * @param {string} text String with the text to displayed in the progress bar 
 * @returns {void} 
 * @since DOCUMENTS 5.0c
-* @see Context::setProgressBar(float value)Context::getProgressBar()
+* @see Context.setProgressBar
 * @example
 * context.setProgressBarText("Calculating...");
 * context.setProgressBar(0.0);  // set progress bar to 0.0%
@@ -2386,7 +2386,7 @@ getAttribute(attribute: string): string;
 * @description Note: This function requires a full workflow engine license, it does not work with pure submission lists. 
 * @returns {string} Text of the last error as String 
 * @since ELC 3.51e / otrisPORTAL 5.1e 
-* @see DocFile::getLastError()
+* @see DocFile.getLastError
 **/
 getLastError(): string;
 /**
@@ -2507,8 +2507,8 @@ value: string;
 * @param {string} value String value defining the value 
 * @returns {Documents.CustomProperty} CustomProperty
 * @since DOCUMENTS 5.0
-* @see CustomProperty.setOrAddSubProperty(String name, String type, String value)
-* @see CustomProperty.getSubProperties(String nameFilter, String typeFilter)
+* @see CustomProperty.setOrAddSubProperty
+* @see CustomProperty.getSubProperties
 * @example
 * var currentUser = context.getSystemUser();
 * if (!currentUser) throw "currentUser is NULL";
@@ -2558,8 +2558,8 @@ getLastError(): string;
 * @param {string} typeFilter String value defining an optional filter depending on the type 
 * @returns {Documents.CustomPropertyIterator} CustomPropertyIterator
 * @since DOCUMENTS 5.0
-* @see CustomProperty.setOrAddSubProperty(String name, String type, String value)
-* @see CustomProperty.addSubProperty(String name, String type, String value)
+* @see CustomProperty.setOrAddSubProperty
+* @see CustomProperty.addSubProperty
 * @example
 * var currentUser = context.getSystemUser();
 * if (!currentUser) throw "currentUser is NULL";
@@ -2618,8 +2618,8 @@ setFiletype(nameFiletype?: string): boolean;
 * @param {string} value String value defining the value 
 * @returns {Documents.CustomProperty} CustomProperty
 * @since DOCUMENTS 5.0
-* @see CustomProperty.getSubProperties(String nameFilter, String typeFilter)
-* @see CustomProperty.addSubProperty(String name, String type, String value)
+* @see CustomProperty.getSubProperties
+* @see CustomProperty.addSubProperty
 * @example
 * var currentUser = context.getSystemUser();
 * if (!currentUser) throw "currentUser is NULL";
@@ -2722,7 +2722,7 @@ export interface DBConnection {
 * @description Note: It is strongly recommanded to close each DBConnection object you have created, since database connections are so-called expensive ressources and should be used carefully. 
 * @returns {boolean} true if successful, false in case of any error 
 * @since ELC 3.50 / otrisPORTAL 5.0 
-* @see DBResultSet.close()
+* @see DBResultSet.close
 **/
 close(): boolean;
 /**
@@ -2735,7 +2735,7 @@ close(): boolean;
 * @param {string} sqlStatement String containing the SELECT statement you want to execute in the database 
 * @returns {Documents.DBResultSet} DBResultSet containing the result rows generated by the SELECT instruction 
 * @since ELC 3.50 / otrisPORTAL 5.0 
-* @see DBConnection.executeStatement(String sqlStatement)
+* @see DBConnection.executeStatement
 **/
 executeQuery(sqlStatement: string): Documents.DBResultSet;
 /**
@@ -2747,7 +2747,7 @@ executeQuery(sqlStatement: string): Documents.DBResultSet;
 * @param {string} sqlStatement String containing the SELECT statement you want to execute in the database 
 * @returns {Documents.DBResultSet} DBResultSet containing the result rows generated by the SELECT instruction 
 * @since DOCUMENTS 4.0 
-* @see DBConnection.executeStatementUC()
+* @see DBConnection.executeStatementUC
 * @deprecated since DOCUMENTS 4.0a HF2 use DBConnection.executeQuery() instead 
 **/
 executeQueryUC(sqlStatement: string): Documents.DBResultSet;
@@ -2761,7 +2761,7 @@ executeQueryUC(sqlStatement: string): Documents.DBResultSet;
 * @param {string} sqlStatement 
 * @returns {boolean} true if successful, false in case of any error 
 * @since ELC 3.50 / otrisPORTAL 5.0 
-* @see DBConnection.executeQuery(String sqlStatement)
+* @see DBConnection.executeQuery
 **/
 executeStatement(sqlStatement: string): boolean;
 /**
@@ -2773,7 +2773,7 @@ executeStatement(sqlStatement: string): boolean;
 * @param {string} sqlStatement 
 * @returns {boolean} true if successful, false in case of any error 
 * @since DOCUMENTS 4.0 
-* @see DBConnection.executeQueryUC()
+* @see DBConnection.executeQueryUC
 * @deprecated since DOCUMENTS 4.0a HF2 use DBConnection.executeStatement() instead 
 **/
 executeStatementUC(sqlStatement: string): boolean;
@@ -2784,7 +2784,7 @@ executeStatementUC(sqlStatement: string): boolean;
 * @summary Function to get the description of the last error that occurred. 
 * @returns {string} Text of the last error as String 
 * @since ELC 3.50 / otrisPORTAL 5.0 
-* @see DocFile::getLastError()
+* @see DocFile.getLastError
 **/
 getLastError(): string;
 }
@@ -2821,7 +2821,7 @@ export interface DBResultSet {
 * @description Note: It is strongly recommanded to close each DBResultSet object you have created, since database connections and resultsets are so-called expensive ressources and should be used carefully. 
 * @returns {boolean} true if successful, false in case of any error 
 * @since ELC 3.50 / otrisPORTAL 5.0 
-* @see DBConnection.close()
+* @see DBConnection.close
 **/
 close(): boolean;
 /**
@@ -2887,7 +2887,7 @@ getInt(colNo: number): number;
 * @summary Function to get the description of the last error that occurred. 
 * @returns {string} Text of the last error as String 
 * @since ELC 3.50 / otrisPORTAL 5.0 
-* @see DocFile::getLastError()
+* @see DocFile.getLastError
 **/
 getLastError(): string;
 /**
@@ -2996,7 +2996,7 @@ fieldName: any;
 * @description If you switched a file to edit mode with the startEdit() method and if you want to cancel this (e.g. due to some error that has occurred in the mean time) this function should be used to destroy the scratch copy which has been created by the startEdit() instruction. 
 * @returns {boolean} true if successful, false in case of any error 
 * @since ELC 3.50 / otrisPORTAL 5.0
-* @see DocFile::startEdit()DocFile::commit()
+* @see DocFile.startEdit
 * @example
 * var myFile = context.file;
 * myFile.startEdit();
@@ -3015,7 +3015,7 @@ abort(): boolean;
 * @param {string} targetFileName String value containing the desired filename of the uploaded Document
 * @param {boolean} deleteDocumentAtFileSystem optional boolean value to decide whether to delete the source file on the server's filesystem 
 * @param {boolean} parseAutoText optional boolean value to decide whether to parse the AutoText values inside the source file. Note: if you want to make use of AutoTexts in this kind of template files, you need to use double percentage signs instead of single ones, e.g. %%Field1%% instead of %Field1%! 
-* @param {any} referencFileToParse optional DocFile object to be used to parse the AutoTexts inside the template. If you omit this parameter, the current DocFile object is used as the data source. 
+* @param {DocFile} referencFileToParse optional DocFile object to be used to parse the AutoTexts inside the template. If you omit this parameter, the current DocFile object is used as the data source. 
 * @returns {Documents.Document} Document if successful, null in case of any error 
 * @since ELC 3.51f / otrisPORTAL 5.1f 
 * @since ELC 3.60i / otrisPORTAL 6.0i available for archive files
@@ -3106,7 +3106,7 @@ archive(archiveKey: string): boolean;
 * @instance
 * @summary Archive the DocFile object according to the given ArchivingDescription object. 
 * @description This is the most powerful way to archive a file through scripting, since the ArchivingDescription object supports a convenient way to influence which parts of the DocFile should be archived. 
-* @param {any} desc ArchivingDescription object that configures several archiving options 
+* @param {ArchivingDescription} desc ArchivingDescription object that configures several archiving options 
 * @returns {boolean} true if successful, false in case of any error 
 * @since EE.i: ELC 3.51c / otrisPORTAL 5.1c 
 * @since EE.x: ELC 3.60a / otrisPORTAL 6.0a 
@@ -3219,10 +3219,10 @@ checkWorkflowReceiveSignal(): boolean;
 * @function clearFollowUpDate
 * @instance
 * @summary Clear a followup date for a desired user. 
-* @param {any} pUser SystemUser object of the desired user 
+* @param {SystemUser} pUser SystemUser object of the desired user 
 * @returns {boolean} true if successful, false in case of any error 
 * @since ELC 3.51b / otrisPORTAL 5.1b
-* @see DocFile::setFollowUpDate(SystemUser pUser, Date followUpDate, String comment)
+* @see DocFile.setFollowUpDate
 * @example
 * var docFile = context.file;
 * var su = context.getSystemUser();
@@ -3237,8 +3237,8 @@ clearFollowUpDate(pUser: Documents.SystemUser): boolean;
 * @description This method is mandatory to apply changes to a file that has been switched to edit mode with the startEdit() method. It is strictly prohibited to execute the commit() method in a script which is attached to the onSave scripting hook. 
 * @returns {boolean} true if successful, false in case of any error 
 * @since ELC 3.50 / otrisPORTAL 5.0
-* @see DocFile::startEdit()
-* DocFile::sync()DocFile::abort()
+* @see DocFile.startEdit
+* DocFile.sync
 * @example
 * var myFile = context.file;
 * myFile.startEdit();
@@ -3252,10 +3252,10 @@ commit(): boolean;
 * @instance
 * @summary Store a reference to the current file in the desired target folder. 
 * @description The (public) folder must be a real folder, it must not be a dynamic filter, nor a "only subfolder" object. 
-* @param {any} fObj Folder object representing the desired target public folder 
+* @param {Folder} fObj Folder object representing the desired target public folder 
 * @returns {boolean} true if successful, false in case of any error. 
 * @since ELC 3.51h / otrisPORTAL 5.1h
-* @see DocFile::disconnectFolder(Folder fObj)
+* @see DocFile.disconnectFolder
 * @example
 * var f = context.file;
 * var fObj = context.getFoldersByName("Invoices").first();
@@ -3332,7 +3332,7 @@ deleteFile(moveTrash?: boolean, movePool?: boolean, allVersions?: boolean): bool
 * @summary Uncouple an active file from the archived version. 
 * @returns {boolean} true if successful, false in case of any error. 
 * @since DOCUMENTS 4.0d
-* @see DocFile::archive(), DocFile::getArchiveKey(boolean withServer)
+* @see DocFile.archive
 * @example
 * var f = context.file;
 * var f.archive();
@@ -3345,10 +3345,10 @@ disconnectArchivedFile(): boolean;
 * @instance
 * @summary Remove a reference to the current file out of the desired target folder. 
 * @description The (public) folder must be a real folder, it must not be a dynamic filter, nor a "only subfolder" object. 
-* @param {any} fObj Folder object representing the desired target public folder 
+* @param {Folder} fObj Folder object representing the desired target public folder 
 * @returns {boolean} true if successful, false in case of any error. 
 * @since ELC 3.51h / otrisPORTAL 5.1h
-* @see DocFile::connectFolder(String folderName) 
+* @see DocFile.connectFolder 
 * @example
 * var f = context.file;
 * var fObj = context.getFoldersByName("Invoices").first();
@@ -3399,7 +3399,7 @@ forwardFile(controlFlowId: string, comment: string): boolean;
 * Note: This function requires a full workflow engine license, it does not work with pure submission lists. 
 * @returns {Documents.WorkflowStepIterator} WorkflowStepIterator object which represents a list of all locking workflow steps for the file 
 * @since ELC 3.51e / otrisPORTAL 5.1e
-* @see DocFile::getCurrentWorkflowStep()DocFile::getFirstLockingWorkflowStep()
+* @see DocFile.getCurrentWorkflowStep
 * @example
 * var f = context.file;
 * var stepIter = f.getAllLockingWorkflowSteps();
@@ -3416,7 +3416,7 @@ getAllLockingWorkflowSteps(): Documents.WorkflowStepIterator;
 * Note: This function requires a full workflow engine license, it does not work with pure submission lists. 
 * @returns {Documents.WorkflowStepIterator} WorkflowStepIterator object which represents a list of all workflow steps for the file 
 * @since DOCUMENTS 5.0b
-* @see DocFile::getCurrentWorkflowStep()DocFile::getFirstLockingWorkflowStep()
+* @see DocFile.getCurrentWorkflowStep
 * @example
 * var f = context.file;
 * var stepIter = f.getAllWorkflowSteps();
@@ -3432,7 +3432,7 @@ getAllWorkflowSteps(): Documents.WorkflowStepIterator;
 * @returns {string} String containing the key. 
 * @since ELC 3.60a / otrisPORTAL 6.0a 
 * @since ELC 3.60i / otrisPORTAL 6.0i available for archive files
-* @see DocFile::archive(), DocFile::disconnectArchivedFile()
+* @see DocFile.archive
 * @example
 * var f = context.file;
 * if (f.archive())
@@ -3515,8 +3515,8 @@ getCopy(copyMode: string): Documents.DocFile;
 * @summary Returns the creation date (timestamp) of a DocFile. 
 * @returns {Date} Date object, if the date is valid, null for an invalid data. 
 * @since DOCUMENTS 5.0c
-* @see DocFile.getCreator(boolean asObject)
-* @see DocFile.getLastModificationDate()
+* @see DocFile.getCreator
+* @see DocFile.getLastModificationDate
 * @example
 * var file = context.file;
 * var c_ts = file.getCreationDate();
@@ -3532,8 +3532,8 @@ getCreationDate(): Date;
 * @param {boolean} asObject optional boolean value, that specifies, if the SystemUser object or the fullname should be returned. 
 * @returns {any} asObject=true:SystemUser object or null (if user does not exist anymore) 
 * @since DOCUMENTS 5.0c
-* @see DocFile.getLastModifier()
-* @see DocFile.getCreationDate()
+* @see DocFile.getLastModifier
+* @see DocFile.getCreationDate
 * @example
 * var file = context.file;
 * var su = file.getCreator(true);
@@ -3552,7 +3552,7 @@ getCreator(asObject?: boolean): any;
 * Note: This function requires a full workflow engine license, it does not work with pure submission lists.
 * @returns {Documents.WorkflowStep} WorkflowStep object 
 * @since ELC 3.51e / otrisPORTAL 5.1e
-* @see DocFile::getFirstLockingWorkflowStep()
+* @see DocFile.getFirstLockingWorkflowStep
 * @example
 * var f = context.file;
 * var step = f.getCurrentWorkflowStep();
@@ -3697,7 +3697,7 @@ getFileOwner(): Documents.SystemUser;
 * Note: This function requires a full workflow engine license, it does not work with pure submission lists. 
 * @returns {Documents.WorkflowStep} WorkflowStep object 
 * @since ELC 3.50e / otrisPORTAL 5.0e
-* @see DocFile::getCurrentWorkflowStep()
+* @see DocFile.getCurrentWorkflowStep
 * @example
 * var f = context.file;
 * var step = f.getCurrentWorkflowStep();
@@ -3747,8 +3747,8 @@ getLastError(): string;
 * @summary Returns the last modification date (timestamp) of a DocFile. 
 * @returns {Date} Date object, if the date is valid, null for an invalid data. 
 * @since DOCUMENTS 5.0c
-* @see DocFile.getLastModifier()
-* @see DocFile.getCreationDate()
+* @see DocFile.getLastModifier
+* @see DocFile.getCreationDate
 * @example
 * var file = context.file;
 * var c_ts = file.getLastModificationDate();
@@ -3763,8 +3763,8 @@ getLastModificationDate(): Date;
 * @summary Returns the fullname as String of the last editor of the DocFile. 
 * @returns {string} String with the fullname. 
 * @since DOCUMENTS 5.0c
-* @see DocFile.getCreator(boolean asObject)
-* @see DocFile.getLastModificationDate()
+* @see DocFile.getCreator
+* @see DocFile.getLastModificationDate
 * @example
 * var file = context.file;
 * util.out(file.getLastModifier());
@@ -3834,7 +3834,7 @@ getReferenceFile(referenceFileField: string): Documents.DocFile;
 * @since ELC 3.50n / otrisPORTAL 5.0n 
 * @since ELC 3.60i / otrisPORTAL 6.0i available for archive files 
 * @since DOCUMENTS 5.0c (new optional parameter checkAccessRight) 
-* @see DocFile::getRegisters(String type, boolean checkAccessRight)
+* @see DocFile.getRegisters
 * @example
 * var docFile = context.file;
 * var reg = docFile.getRegisterByName("Documents");
@@ -3853,7 +3853,7 @@ getRegisterByName(registerName: string, checkAccessRight?: boolean): Documents.R
 * @since ELC 3.50n / otrisPORTAL 5.0n 
 * @since ELC 3.60i / otrisPORTAL 6.0i available for archive files 
 * @since DOCUMENTS 5.0c (new optional parameter checkAccessRight) 
-* @see RegisterIteratorDocFile::getRegisterByName(String registerName, boolean checkAccessRight)
+* @see RegisterIteratorDocFile.getRegisterByName
 * @example
 * var docFile = context.file;
 * var regIter = docFile.getRegisters("documents");
@@ -3881,7 +3881,7 @@ getTitle(locale?: string): string;
 * @param {string} login String containing the login name of the desired user 
 * @returns {string} String with the status. Possible values: standardnewfromFollowuptoForwardforInfotaskworkflowCanceledbackFromDistributionconsultation
 * @since DOCUMENTS 4.0c HF1
-* @see DocFile::setUserStatus(String login, String status)
+* @see DocFile.setUserStatus
 * @example
 * var docFile = context.file;
 * util.out(docFile.getUserStatus("schreiber"));
@@ -4087,7 +4087,7 @@ setFieldValue(fieldName: string, value: any): boolean;
 * @function setFileOwner
 * @instance
 * @summary Set the file owner of the file to the desired user. 
-* @param {any} owner SystemUser object representing the desired new file owner 
+* @param {SystemUser} owner SystemUser object representing the desired new file owner 
 * @returns {boolean} true if successful, false in case of any error 
 * @since ELC 3.51d / otrisPORTAL 5.1d
 * @example
@@ -4101,12 +4101,12 @@ setFileOwner(owner: Documents.SystemUser): boolean;
 * @function setFollowUpDate
 * @instance
 * @summary Set a followup date for a desired user. 
-* @param {any} pUser SystemUser object of the desired user 
+* @param {SystemUser} pUser SystemUser object of the desired user 
 * @param {Date} followUpDate Date object representing the desired followup date 
 * @param {string} comment optional String value containing a comment that is displayed as a task as soon as the followup is triggered 
 * @returns {boolean} true if successful, false in case of any error 
 * @since ELC 3.51b / otrisPORTAL 5.1b
-* @see DocFile::clearFollowUpDate(SystemUser pUser)
+* @see DocFile.clearFollowUpDate
 * @example
 * var docFile = context.file;
 * var su = context.getSystemUser();
@@ -4141,7 +4141,7 @@ setUserRead(login: string, fileRead: boolean): boolean;
 * @returns {boolean} true if successful, false in case of any error 
 * @since ELC 3.50b / otrisPORTAL 5.0b 
 * @since DOCUMENTS 4.0c (status values extended)
-* @see DocFile::getUserStatus(String login)
+* @see DocFile.getUserStatus
 * @example
 * var docFile = context.file;
 * docFile.setUserStatus("schreiber", "new");
@@ -4159,7 +4159,7 @@ setUserStatus(login: string, status: string): boolean;
 * You should avoid using this function in scripts that are executed inside a workflow (signal exits, decisions etc.). 
 * @returns {boolean} true if successful, false in case of any error 
 * @since ELC 3.50 / otrisPORTAL 5.0
-* @see DocFile::abort(), DocFile::commit()
+* @see DocFile.abort
 * @example
 * var myFile = context.file;
 * myFile.startEdit();
@@ -4196,7 +4196,7 @@ startWorkflow(workflowName: string): boolean;
 * @since ELC 3.50 / otrisPORTAL 5.0 (checkHistoryFields parameter since ELC 3.60i / otrisPORTAL 6.0i) 
 * @since DOCUMENTS 5.0a (new parameter updateRefFields) 
 * @since DOCUMENTS 5.0a HF2 (new parameter updateModifiedDate)
-* @see DocFile::startEdit()DocFile::commit()
+* @see DocFile.startEdit
 * @example
 * var myFile = context.file;
 * myFile.Field = "value";
@@ -4330,7 +4330,7 @@ columnName: any;
 * Remark: This function creates a complete DOCUMENTS image of the archived file, except for the content of attachments. This is a time-consuming workstep. If a script calls this function for each hit in the set, it will not run any faster than a script, which uses a conventional ArchiveFileResultset instead of this class. 
 * @returns {Documents.DocFile} DocFile or NULL, if failed. 
 * @since DOCUMENTS 4.0b 
-* @see getFile()
+* @see getFile
 **/
 getArchiveFile(): Documents.DocFile;
 /**
@@ -4341,7 +4341,7 @@ getArchiveFile(): Documents.DocFile;
 * @param {boolean} withServer optional boolean value to indicate, if the key should include an "@archiveServerName" appendix 
 * @returns {string} The archive file's key as a String, but an empty String, if the hit does not refer to an archive file. 
 * @since DOCUMENTS 4.0b 
-* @see getFileId()
+* @see getFileId
 **/
 getArchiveKey(withServer?: boolean): string;
 /**
@@ -4361,7 +4361,7 @@ getBlobInfo(): string;
 * @description If the file does not exist or the user in whose context the script is executed is not allowed to access the file, then the return value will be NULL. 
 * @returns {Documents.DocFile} DocFile or NULL, if failed. 
 * @since DOCUMENTS 4.0b 
-* @see getArchiveFile()
+* @see getArchiveFile
 **/
 getFile(): Documents.DocFile;
 /**
@@ -4371,7 +4371,7 @@ getFile(): Documents.DocFile;
 * @summary Get the file id of the associated file object. 
 * @returns {string} The file id as String, if the associated file is an active file, but an empty String otherwise. 
 * @since DOCUMENTS 4.0b 
-* @see getArchiveKey(boolean withServer=true) 
+* @see getArchiveKey 
 **/
 getFileId(): string;
 /**
@@ -4391,7 +4391,7 @@ getLastError(): string;
 * @param {number} colIndex The zero-based index of the column. 
 * @returns {string} The local value of the given column as String. 
 * @since DOCUMENTS 4.0b 
-* @see getLocalValueByName(String colName)
+* @see getLocalValueByName
 **/
 getLocalValue(colIndex: number): string;
 /**
@@ -4403,7 +4403,7 @@ getLocalValue(colIndex: number): string;
 * @param {string} colName The name of the column. 
 * @returns {string} The local value of the given column as String. 
 * @since DOCUMENTS 4.0b 
-* @see getLocalValue(int colIndex)
+* @see getLocalValue
 **/
 getLocalValueByName(colName: string): string;
 /**
@@ -4425,7 +4425,7 @@ getSchema(): string;
 * @param {number} colIndex The zero-based index of the column. 
 * @returns {string} The technical value of the given column as a String. 
 * @since DOCUMENTS 4.0b 
-* @see getTechValueByName(String colName)
+* @see getTechValueByName
 **/
 getTechValue(colIndex: number): string;
 /**
@@ -4438,7 +4438,7 @@ getTechValue(colIndex: number): string;
 * @param {string} colName The name of the column. 
 * @returns {string} The technical value of the given column as String. 
 * @since DOCUMENTS 4.0b 
-* @see getTechValue(int colIndex), DocHit.columnName
+* @see getTechValue, DocHit.columnName
 **/
 getTechValueByName(colName: string): string;
 /**
@@ -4772,7 +4772,7 @@ getAttribute(attribute: string): string;
 * @returns {string} Text of the last error as String 
 * @since ELC 3.50n / otrisPORTAL 5.0n 
 * @since ELC 3.60i / otrisPORTAL 6.0i available for archive files 
-* @see DocFile::getLastError()
+* @see DocFile.getLastError
 **/
 getLastError(): string;
 /**
@@ -4797,7 +4797,7 @@ getOID(oidLow?: boolean): string;
 * @summary Move the Document to another document Register of the file. 
 * @description With the necessary rights you can move the Document to another document Register of the file. 
 * Note: This operation is not available for a Document located in an archive file. 
-* @param {any} regObj The Register this Document will be moved to. 
+* @param {Register} regObj The Register this Document will be moved to. 
 * @returns {boolean} true if successful, false in case of any error 
 * @since DOCUMENTS 4.0c
 * @example
@@ -4896,7 +4896,7 @@ first(): Documents.Document;
 * @summary Function to get the description of the last error that occurred. 
 * @returns {string} Text of the last error as String 
 * @since ELC 3.50n / otrisPORTAL 5.0n 
-* @see DocFile::getLastError()
+* @see DocFile.getLastError
 **/
 getLastError(): string;
 /**
@@ -5100,7 +5100,7 @@ documentElement: Documents.DOMElement;
 * @param {string} name The name of the attribute. 
 * @returns {Documents.DOMAttr} A new DOMAttr object, which may initially appear anywhere or nowhere in the DOM tree. 
 * @since DOCUMENTS 4.0c 
-* @see DOMElement.setAttributeNode() to place the node within the tree. 
+* @see DOMElement.setAttributeNode to place the node within the tree. 
 **/
 createAttribute(name: string): Documents.DOMAttr;
 /**
@@ -5114,7 +5114,7 @@ createAttribute(name: string): Documents.DOMAttr;
 * @param {string} data The data for the node 
 * @returns {Documents.DOMCharacterData} A new DOMCharacterData object, which may initially appear anywhere or nowhere in the DOM tree. 
 * @since DOCUMENTS 4.0c 
-* @see DOMNode.appendChild() and DOMNode.insertBefore() to place the node within the tree.
+* @see DOMNode.appendChild to place the node within the tree.
 **/
 createCDATASection(data: string): Documents.DOMCharacterData;
 /**
@@ -5128,7 +5128,7 @@ createCDATASection(data: string): Documents.DOMCharacterData;
 * @param {string} data The data for the node 
 * @returns {Documents.DOMCharacterData} A new DOMCharacterData object, which may initially appear anywhere or nowhere in the DOM tree. 
 * @since DOCUMENTS 4.0c 
-* @see DOMNode.appendChild( and DOMNode.insertBefore() to place the node within the tree.
+* @see DOMNode.appendChild to place the node within the tree.
 **/
 createComment(data: string): Documents.DOMCharacterData;
 /**
@@ -5139,7 +5139,7 @@ createComment(data: string): Documents.DOMCharacterData;
 * @param {string} tagName The name of the element. 
 * @returns {Documents.DOMElement} A new DOMElement, which may initially appear anywhere or nowhere in the DOM tree. 
 * @since DOCUMENTS 4.0c 
-* @see DOMNode.appendChild() and DOMNode.insertBefore() to place the element within the tree. 
+* @see DOMNode.appendChild to place the element within the tree. 
 **/
 createElement(tagName: string): Documents.DOMElement;
 /**
@@ -5153,7 +5153,7 @@ createElement(tagName: string): Documents.DOMElement;
 * @param {string} data The data for the node 
 * @returns {Documents.DOMCharacterData} A new DOMCharacterData object, which may initially appear anywhere or nowhere in the DOM tree. 
 * @since DOCUMENTS 4.0c 
-* @see DOMNode.appendChild( and DOMNode.insertBefore() to place the node within the tree.
+* @see DOMNode.appendChild to place the node within the tree.
 **/
 createTextNode(data: string): Documents.DOMCharacterData;
 /**
@@ -5244,7 +5244,7 @@ removeAttribute(name: string): void;
 * @function removeAttributeNode
 * @instance
 * @summary Remove an attribute node from this element. 
-* @param {any} oldAttr The attribute object to remove 
+* @param {DOMAttr} oldAttr The attribute object to remove 
 * @returns {Documents.DOMAttr} The removed attribute node. 
 * @since DOCUMENTS 4.0c 
 **/
@@ -5266,7 +5266,7 @@ setAttribute(name: string, value: string): void;
 * @function setAttributeNode
 * @instance
 * @summary Attach an attribute node to this element. 
-* @param {any} newAttr The DOMAttr object, which defines the attribute to add or replace. 
+* @param {DOMAttr} newAttr The DOMAttr object, which defines the attribute to add or replace. 
 * @returns {Documents.DOMAttr} The formerly attached DOMAttr, if the call has replaced an attribute with the same name. Otherwise the method returns null. 
 * @since DOCUMENTS 4.0c 
 **/
@@ -5373,7 +5373,7 @@ removeNamedItem(name: string): Documents.DOMNode;
 * @function setNamedItem
 * @instance
 * @summary Add a node to the map or replace an existing one. 
-* @param {any} arg The node to add. The name for indexing is the value of the attribute DOMNode.nodeName, 
+* @param {DOMNode} arg The node to add. The name for indexing is the value of the attribute DOMNode.nodeName, 
 * @returns {Documents.DOMNode} If a node with the same name has already been added, the method removes that node and returns it. Otherwise it returns null. 
 * @since DOCUMENTS 4.0c 
 **/
@@ -5484,7 +5484,7 @@ previousSibling: Documents.DOMNode;
 * @function appendChild
 * @instance
 * @summary Append a new node to the list of child nodes. 
-* @param {any} newChild The DOMNode to append. 
+* @param {DOMNode} newChild The DOMNode to append. 
 * @returns {Documents.DOMNode} The node added. 
 * @since DOCUMENTS 4.0c 
 **/
@@ -5523,8 +5523,8 @@ hasChildNodes(): boolean;
 * @function insertBefore
 * @instance
 * @summary Insert a new node into the list of child nodes. 
-* @param {any} newChild The DOMNode to insert. 
-* @param {any} refChild An existing DOMNode, which already is a child of this, and which shall become the next sibling of newChild. 
+* @param {DOMNode DOMNode} newChild The DOMNode to insert. 
+* @param {DOMNode DOMNode} refChild An existing DOMNode, which already is a child of this, and which shall become the next sibling of newChild. 
 * @returns {Documents.DOMNode} The node inserted. 
 * @since DOCUMENTS 4.0c 
 **/
@@ -5544,7 +5544,7 @@ normalize(): void;
 * @function removeChild
 * @instance
 * @summary Remove a node from the list of child nodes. 
-* @param {any} oldChild The child DOMNode being removed. 
+* @param {DOMNode} oldChild The child DOMNode being removed. 
 * @returns {Documents.DOMNode} The node removed. 
 * @since DOCUMENTS 4.0c 
 **/
@@ -5554,8 +5554,8 @@ removeChild(oldChild: Documents.DOMNode): Documents.DOMNode;
 * @function replaceChild
 * @instance
 * @summary Replace a node in the list of child nodes. 
-* @param {any} newChild The DOMNode to insert. 
-* @param {any} oldChild The child DOMNode being replaced. 
+* @param {DOMNode DOMNode} newChild The DOMNode to insert. 
+* @param {DOMNode DOMNode} oldChild The child DOMNode being replaced. 
 * @returns {Documents.DOMNode} The node replaced. 
 * @since DOCUMENTS 4.0c 
 **/
@@ -5665,7 +5665,7 @@ parse(xml: string, fromFile: boolean): number;
 * @description Note: Saving to a local file is not supported on all platforms. If a script tries it while the version of the native DOM library is too old, the method just throws a JavaScript error. 
 * Remark: To obtain an error message use getLastError(). When the message is just "NULL pointer", the native DOM library may have failed to open the output file for writing. When the method writes to a string, the encoding is always the server application's internal encoding. 
 *  The encapsulated native DOM library supports the following character encodings: ASCII, UTF-8, UTF-16, UCS4, EBCDIC code pages IBM037, IBM1047 and IBM1140, ISO-8859-1 (aka Latin1) and Windows-1252. (no guarantee)
-* @param {any} node The root node to build the document from. Though the interface accepts any DOMNode, only a DOMDocument should be passed. Otherwise the output may be a fragment which is not a valid XML. 
+* @param {DOMNode} node The root node to build the document from. Though the interface accepts any DOMNode, only a DOMDocument should be passed. Otherwise the output may be a fragment which is not a valid XML. 
 * @param {string} path Optional path and filename to save the XML in the local file system. 
 * @param {string} encoding Optional encoding specification for the file. Only used when path is also specified. 
 * @param {boolean} prettyPrint Optional boolean value. 
@@ -5874,7 +5874,7 @@ export interface File {
 * @description Note: Since file handles are so-called expensive ressources it is strongly recommanded to close each file handle you prior created in your scripts as soon as possible. 
 * @returns {boolean} true if successful, false in case of any error 
 * @since ELC 3.50 / otrisPORTAL 5.0 
-* @see File::File(String pathFileName, String mode)
+* @see File.File
 **/
 close(): boolean;
 /**
@@ -5935,7 +5935,7 @@ readLine(): string;
 * @param {number[]} byteArray Array of integers containing any data you want to write to the file 
 * @returns {boolean} true if successful, false in case of any error 
 * @since DOCUMENTS 4.0 
-* @see File::close()
+* @see File.close
 * @example
 * // Binary-Sample with Byte-Array
 * var fso = new File("c:\\tmp\\test.txt", "w+b");
@@ -5970,7 +5970,7 @@ write(byteArray: number[]): boolean;
 * @returns {boolean} true if successful, false in case of any error 
 * @since ELC 3.50 / otrisPORTAL 5.0 
 **/
-write(a: string, b: string, string...restParams: any[]): boolean;
+write(a: string, b: string, ...restParams: any[]): boolean;
 /**
 * @memberof File
 * @function writeBuffer
@@ -5995,7 +5995,7 @@ ok(): boolean;
 read(charsNo: number): string;
 readLine(): string;
 write(byteArray: number[]): boolean;
-write(a: string, b: string, string...restParams: any[]): boolean;
+write(a: string, b: string, ...restParams: any[]): boolean;
 writeBuffer(data: string, charsNo: number): boolean;
 }
 
@@ -6331,7 +6331,7 @@ addAccessProfile(accessProfileName: string, allowInsertFiles: boolean, allowRemo
 * @instance
 * @summary Store a reference to a desired DocFile object in the current Folder. 
 * @description Note: This only works in case the Folder is a real public Folder. The Folder must not represent a dynamic folder, since a dynamic folder is sort of a hardcoded search, not a "real" folder. 
-* @param {any} docFile DocFile object which shall be available in the given Folder
+* @param {DocFile} docFile DocFile object which shall be available in the given Folder
 * @returns {boolean} true if successful, false in case of any error 
 * @since ELC 3.51h / otrisPORTAL 5.1h 
 **/
@@ -6457,7 +6457,7 @@ copyFolder(includeSubFolders: boolean, copyRights: boolean, copyActions: boolean
 * @param {string} type The desired type of the subfolder. 
 * @returns {Documents.Folder} New created subfolder as Folder object or null if failed. 
 * @since DOCUMENTS 4.0c
-* @see Context::createFolder(String name, String type); 
+* @see Context.createFolder; 
 * @example
 * var parentFolder = context.createFolder("parentFolder", "public");
 * if (parentFolder)
@@ -6478,7 +6478,7 @@ createSubFolder(name: string, type: string): Documents.Folder;
 * @description Note: All subfolders are also deleted recursively. 
 * @returns {boolean} true if successful, false in case of any error. 
 * @since DOCUMENTS 4.0c
-* @see Context::deleteFolder(Folder folderObj)
+* @see Context.deleteFolder
 * @example
 * var folder = context.createFolder("testFolder", "onlysubfolder");
 * if (folder)
@@ -6571,7 +6571,7 @@ getFilterFileTypes(): Array<any>;
 * Remark: Reading from a lean HitResultset with only a few columns can be faster than reading from a FileResultset. Sometimes this effect outweighs the time-related costs of a search. If the folder addresses an archive, the time needed to create temporary DocFiles can be saved with this function. On a failed search request the function does not throw errors. To detect this kind of errors scripts should read the returned object's properties lastErrorCode and lastError. 
 * @returns {Documents.HitResultset} A HitResultset, which contains column headers and a list of DocHit objects. 
 * @since DOCUMENTS 5.0c 
-* @see getFiles()
+* @see getFiles
 **/
 getHitResultset(): Documents.HitResultset;
 /**
@@ -6581,7 +6581,7 @@ getHitResultset(): Documents.HitResultset;
 * @summary Function to get the description of the last error that occurred. 
 * @returns {string} Text of the last error as String 
 * @since ELC 3.50l01 / otrisPORTAL 5.0l01 
-* @see DocFile::getLastError()
+* @see DocFile.getLastError
 **/
 getLastError(): string;
 /**
@@ -6613,10 +6613,10 @@ getOID(oidLow?: boolean): string;
 * @function getPosition
 * @instance
 * @summary Retrieve the position of a subfolder within the subfolder list. 
-* @param {any} subFolder Folder object whose position to be retrieved. 
+* @param {Folder} subFolder Folder object whose position to be retrieved. 
 * @returns {number} The zero-based position of the subfolder as integer or -1 in case of any error. 
 * @since DOCUMENTS 4.0c
-* @see Folder::setPosition(Folder subFolder, int position)Context::getFolderPosition(Folder folder)Context::setFolderPosition(Folder folder, int position)
+* @see Folder.setPosition
 * @example
 * var parentFolder = context.createFolder("parentFolder", "public");
 * if (parentFolder)
@@ -6674,7 +6674,7 @@ removeAccessProfile(accessProfileName: string): boolean;
 * @instance
 * @summary Remove the reference to a desired DocFile object out of the current Folder. 
 * @description Note: This only works in case the Folder is a real public Folder. The Folder must not represent a dynamic folder, since a dynamic folder is sort of a hardcoded search, not a "real" folder. 
-* @param {any} docFile DocFile object which shall be removed from the given Folder
+* @param {DocFile} docFile DocFile object which shall be removed from the given Folder
 * @returns {boolean} true if successful, false in case of any error 
 * @since ELC 3.51h / otrisPORTAL 5.1h 
 **/
@@ -6833,7 +6833,7 @@ setAttribute(attribute: string, value: string): boolean;
 * @function setParentFolder
 * @instance
 * @summary Set the parent folder of the current folder. 
-* @param {any} parentFolder optional Folder object being the parent folder of the current folder. If no parent folder is defined, the current folder will be moved to the top level. 
+* @param {Folder} parentFolder optional Folder object being the parent folder of the current folder. If no parent folder is defined, the current folder will be moved to the top level. 
 * @returns {boolean} true if successful, false in case of any error 
 * @since DOCUMENTS 4.0c
 * @example
@@ -6859,11 +6859,11 @@ setParentFolder(parentFolder: Documents.Folder): boolean;
 * @instance
 * @summary Place a subfolder at the given position in the subfolder list. 
 * @description Note: 0 at the beginning and -1 at the end. 
-* @param {any} subFolder Folder object to be placed at the given position. 
+* @param {Folder} subFolder Folder object to be placed at the given position. 
 * @param {number} position The 0-based position for the subfolder. 
 * @returns {boolean} true if successful, false in case of any error. 
 * @since DOCUMENTS 4.0c
-* @see Folder::getPosition(Folder subFolder)Context::getFolderPosition(Folder folder)Context::setFolderPosition(Folder folder, int position)
+* @see Folder.getPosition
 * @example
 * var parentFolder = context.createFolder("parentFolder", "public");
 * if (parentFolder)
@@ -6973,7 +6973,7 @@ first(): Documents.Folder;
 * @summary Function to get the description of the last error that occurred. 
 * @returns {string} Text of the last error as String 
 * @since ELC 3.50l01 / otrisPORTAL 5.0l01 
-* @see DocFile::getLastError()
+* @see DocFile.getLastError
 **/
 getLastError(): string;
 /**
@@ -7035,7 +7035,7 @@ dispose(): any;
 * @description Remark: If the object has been created with a non-zero page size, this value is often smaller than the total amount of hits. 
 * @returns {number} integer value with the number of hits, which can actually be read from the resultset. 
 * @since DOCUMENTS 4.0b 
-* @see size(), fetchNextPage()
+* @see size
 **/
 fetchedSize(): number;
 /**
@@ -7055,7 +7055,7 @@ fetchNextPage(): boolean;
 * @summary Retrieve the first DocHit in the HitResultset. 
 * @returns {Documents.DocHit} DocHit object, null in case of an empty HitResultset
 * @since DOCUMENTS 4.0b 
-* @see next()
+* @see next
 **/
 first(): Documents.DocHit;
 /**
@@ -7108,7 +7108,7 @@ getColumnNames(local?: boolean): Array<any>;
 * @summary Function to get the description of the last error that occurred. 
 * @returns {string} Text of the last error as String 
 * @since DOCUMENTS 4.0b 
-* @see getLastErrorCode()
+* @see getLastErrorCode
 **/
 getLastError(): string;
 /**
@@ -7119,7 +7119,7 @@ getLastError(): string;
 * @description Remark: The value 0 means "no error". Positive values indicate warnings or minor errors, while negative values indicate serious errors. After a serious error no hits should be processed. After a minor error, the resultset may be unsorted or truncated, but the contained data is still valid. 
 * @returns {number} Integer error code. 
 * @since DOCUMENTS 4.0b 
-* @see getLastError()
+* @see getLastError
 **/
 getLastErrorCode(): number;
 /**
@@ -7130,7 +7130,7 @@ getLastErrorCode(): number;
 * @description Remark: Calls of getAt() do not affect the internal cursor of next(). 
 * @returns {Documents.DocHit} DocHit object, null if either the end of the resultset or the end of the loaded pages is reached. 
 * @since DOCUMENTS 4.0b 
-* @see first()
+* @see first
 **/
 next(): Documents.DocHit;
 /**
@@ -7141,7 +7141,7 @@ next(): Documents.DocHit;
 * @description Remark: If the object has been created with a non-zero page size, this value is often greater than the amount of already accessible hits. 
 * @returns {number} integer value with the total amount of hits. The value -1 may be returned to indicate, that the search continues in the background, and the final number is not yet known. 
 * @since DOCUMENTS 4.0b 
-* @see fetchedSize(), fetchNextPage()
+* @see fetchedSize
 **/
 size(): number;
 }
@@ -7246,7 +7246,7 @@ type: string;
 * @instance
 * @summary Delete a Document at the Register. 
 * @description With the necessary access rights the user can delete a Document at the Register. 
-* @param {any} doc Document to delete 
+* @param {Document} doc Document to delete 
 * @returns {boolean} true if successful, false in case of any error 
 * @since ELC 3.60d / otrisPORTAL 6.0d
 * @example
@@ -7317,7 +7317,7 @@ getFiles(): Documents.FileResultset;
 * @returns {string} Text of the last error as String 
 * @since ELC 3.50n / otrisPORTAL 5.0n 
 * @since ELC 3.60i / otrisPORTAL 6.0i available for archive files 
-* @see DocFile::getLastError()
+* @see DocFile.getLastError
 **/
 getLastError(): string;
 /**
@@ -7412,7 +7412,7 @@ first(): Documents.Register;
 * @returns {string} Text of the last error as String 
 * @since ELC 3.50n / otrisPORTAL 5.0n 
 * @since ELC 3.60i / otrisPORTAL 6.0i available for archive files 
-* @see DocFile::getLastError()
+* @see DocFile.getLastError
 **/
 getLastError(): string;
 /**
@@ -7668,7 +7668,7 @@ launch(): boolean;
 * @function setDocFile
 * @instance
 * @summary Set the execution context file of the called script. 
-* @param {any} docFile DocFile object representing the desired execution context file. 
+* @param {DocFile} docFile DocFile object representing the desired execution context file. 
 * @returns {boolean} true if successful, false in case of any error 
 * @since DOCUMENTS 4.0d
 * @see Context.file
@@ -7685,7 +7685,7 @@ setDocFile(docFile: Documents.DocFile): boolean;
 * @function setDocument
 * @instance
 * @summary Set the execution context document of the called script. 
-* @param {any} doc Document object representing the desired execution context document. 
+* @param {Document} doc Document object representing the desired execution context document. 
 * @returns {boolean} true if successful, false in case of any error 
 * @since DOCUMENTS 4.0d
 * @see Context.document
@@ -7723,7 +7723,7 @@ setEvent(scriptEvent: string): boolean;
 * @function setRegister
 * @instance
 * @summary Set the execution context register of the called script. 
-* @param {any} register Register object representing the desired execution context register. 
+* @param {Register} register Register object representing the desired execution context register. 
 * @returns {boolean} true if successful, false in case of any error 
 * @since DOCUMENTS 4.0d
 * @see Context.register
@@ -7787,7 +7787,7 @@ export interface SystemUser {
 /**
 * @memberof SystemUser
 * @summary Annotations right flag in the access mask. 
-* @description Note: The access mask is returned by SystemUser::getAccess(DocFile)
+* @description Note: The access mask is returned by SystemUser.getAccess(DocFile)
 * @member {number} ANNOTATIONS
 * @instance
 **/
@@ -7796,7 +7796,7 @@ ANNOTATIONS: number;
 * @memberof SystemUser
 * @summary Archive right flag in the access mask. 
 * @description The bit that specifies the right to archive files. 
-* Note: The access mask is returned by SystemUser::getAccess(DocFile)
+* Note: The access mask is returned by SystemUser.getAccess(DocFile)
 * @member {number} ARCHIVE
 * @instance
 **/
@@ -7805,7 +7805,7 @@ ARCHIVE: number;
 * @memberof SystemUser
 * @summary Change filetype right flag in the access mask. 
 * @description The bit that specifies the right to change the filetype of a file. 
-* Note: The access mask is returned by SystemUser::getAccess(DocFile)
+* Note: The access mask is returned by SystemUser.getAccess(DocFile)
 * @member {number} CHANGE_TYPE
 * @instance
 **/
@@ -7814,7 +7814,7 @@ CHANGE_TYPE: number;
 * @memberof SystemUser
 * @summary Change workflow right flag in the access mask. 
 * @description The bit that specifies the right to change a workflow assigned to a file. 
-* Note: The access mask is returned by SystemUser::getAccess(DocFile)
+* Note: The access mask is returned by SystemUser.getAccess(DocFile)
 * @member {number} CHANGE_WORKFLOW
 * @instance
 **/
@@ -7823,7 +7823,7 @@ CHANGE_WORKFLOW: number;
 * @memberof SystemUser
 * @summary Copy right flag in the access mask. 
 * @description The bit that specifies the right to copy files to a personal or public folder. 
-* Note: The access mask is returned by SystemUser::getAccess(DocFile)
+* Note: The access mask is returned by SystemUser.getAccess(DocFile)
 * @member {number} COPY
 * @instance
 **/
@@ -7832,7 +7832,7 @@ COPY: number;
 * @memberof SystemUser
 * @summary Create right flag in the access mask. 
 * @description The bit that specifies the right to create new files. 
-* Note: The access mask is returned by SystemUser::getAccess(DocFile)
+* Note: The access mask is returned by SystemUser.getAccess(DocFile)
 * @member {number} CREATE
 * @instance
 **/
@@ -7840,7 +7840,7 @@ CREATE: number;
 /**
 * @memberof SystemUser
 * @summary Create workflow right flag in the access mask. 
-* @description Note: The access mask is returned by SystemUser::getAccess(DocFile)
+* @description Note: The access mask is returned by SystemUser.getAccess(DocFile)
 * @member {number} CREATE_WORKFLOW
 * @instance
 **/
@@ -7877,7 +7877,7 @@ login: string;
 * @memberof SystemUser
 * @summary Mail right flag in the access mask. 
 * @description The bit that specifies the right to send files via an e-mail system. 
-* Note: The access mask is returned by SystemUser::getAccess(DocFile)
+* Note: The access mask is returned by SystemUser.getAccess(DocFile)
 * @member {number} MAIL
 * @instance
 **/
@@ -7886,7 +7886,7 @@ MAIL: number;
 * @memberof SystemUser
 * @summary Move right flag in the access mask. 
 * @description The bit that specifies the right to move files to a personal or public folder. 
-* Note: The access mask is returned by SystemUser::getAccess(DocFile)
+* Note: The access mask is returned by SystemUser.getAccess(DocFile)
 * @member {number} MOVE
 * @instance
 **/
@@ -7895,7 +7895,7 @@ MOVE: number;
 * @memberof SystemUser
 * @summary Create PDF right flag in the access mask. 
 * @description The bit that specifies the right to create a PDF of a file. 
-* Note: The access mask is returned by SystemUser::getAccess(DocFile)
+* Note: The access mask is returned by SystemUser.getAccess(DocFile)
 * @member {number} PDF
 * @instance
 **/
@@ -7919,7 +7919,7 @@ propCache: Documents.PropertyCache;
 * @memberof SystemUser
 * @summary Read right flag in the access mask. 
 * @description The bit that specifies the right to see files. 
-* Note: the access mask is returned by SystemUser::getAccess(DocFile)
+* Note: the access mask is returned by SystemUser.getAccess(DocFile)
 * @member {number} READ
 * @instance
 **/
@@ -7928,7 +7928,7 @@ READ: number;
 * @memberof SystemUser
 * @summary Remove right flag in the access mask. 
 * @description The bit that specifies the right to delete files. 
-* Note: the access mask is returned by SystemUser::getAccess(DocFile)
+* Note: the access mask is returned by SystemUser.getAccess(DocFile)
 * @member {number} REMOVE
 * @instance
 **/
@@ -7936,7 +7936,7 @@ REMOVE: number;
 /**
 * @memberof SystemUser
 * @summary Start workflow flag in the access mask. 
-* @description Note: The access mask is returned by SystemUser::getAccess(DocFile)
+* @description Note: The access mask is returned by SystemUser.getAccess(DocFile)
 * @member {number} START_WORKFLOW
 * @instance
 **/
@@ -7944,7 +7944,7 @@ START_WORKFLOW: number;
 /**
 * @memberof SystemUser
 * @summary Versioning right flag in the access mask. 
-* @description Note: The access mask is returned by SystemUser::getAccess(DocFile)
+* @description Note: The access mask is returned by SystemUser.getAccess(DocFile)
 * @member {number} VERSION
 * @instance
 **/
@@ -7953,7 +7953,7 @@ VERSION: number;
 * @memberof SystemUser
 * @summary Write right flag in the access mask. 
 * @description The bit that specifies the right for changing index fields or documents in files. 
-* Note: the access mask is returned by SystemUser::getAccess(DocFile)
+* Note: the access mask is returned by SystemUser.getAccess(DocFile)
 * @member {number} WRITE
 * @instance
 **/
@@ -7968,8 +7968,8 @@ WRITE: number;
 * @param {string} value String value defining the value 
 * @returns {Documents.CustomProperty} CustomProperty
 * @since DOCUMENTS 4a
-* @see SystemUser.setOrAddCustomProperty(String name, String type, String value)
-* @see SystemUser.getCustomProperties(String nameFilter, String typeFilter)
+* @see SystemUser.setOrAddCustomProperty
+* @see SystemUser.getCustomProperties
 * @example
 * var currentUser = context.getSystemUser();
 * if (!currentUser) throw "currentUser is NULL";
@@ -8025,7 +8025,7 @@ addFileTypeAgentScript(fileTypes: any, scriptName: string): boolean;
 * @function addToAccessProfile
 * @instance
 * @summary Make the SystemUser a member of the desired AccessProfile. 
-* @param {any} ap AccessProfile the user should be a member of 
+* @param {AccessProfile} ap AccessProfile the user should be a member of 
 * @returns {boolean} true if successful, false in case of any error 
 * @since ELC 3.50b / otrisPORTAL 5.0b for PartnerAccounts 
 * @since DOCUMENTS 4.0b HF1 for Fellows 
@@ -8049,8 +8049,8 @@ checkPassword(passwd: string): boolean;
 * @description If a Systemuser is set to absent, then all new files are redirected to his agent. The currently existing files (that came into the inbox before the was absent) can be moved to the agent with this method. If the user is not absent this method returns an error. 
 * @returns {boolean} true if succeeded, otherwise false - an error message describing the error with getLastError(). 
 * @since ELC 3.60g / otrisPORTAL 6.0g
-* @see boolean setAbsent(boolean absent, boolean filesDueAbsenceToInfo, Array agents, boolean removeFromAgentInbox, Date from, Date until);
-* boolean setAbsentMail(boolean sendMail, String message)SystemUserIteratorgetAgents()
+* @see boolean setAbsent;
+* boolean setAbsentMail
 * @example
 * var currentUser = context.getSystemUser();
 * if (!currentUser) throw "currentUser is NULL";
@@ -8067,7 +8067,7 @@ delegateFilesOfAbsentUser(): boolean;
 * @instance
 * @summary Retrieve an access mask whose bits correspond to the user's access rights supported by the given DocFile or filetype. 
 * @description Note: There is a constant for any right flag in the access mask (e.g. SystemUser.READ specifies the read right). 
-* @param {any} docFile DocFile object to which the access rights should be retrieved. 
+* @param {DocFile} docFile DocFile object to which the access rights should be retrieved. 
 * @returns {number} 32-bit value whose bits correspond to the user's access rights. 
 * @since DOCUMENTS 5.0a HF2
 * @see e.g. SystemUser.READ
@@ -8098,9 +8098,9 @@ getAccessProfiles(): Documents.AccessProfileIterator;
 * @description This method returns a SystemUserIterator with the agents of the user, if the user is absent. 
 * @returns {Documents.SystemUserIterator} SystemUserIterator
 * @since ELC 3.60g / otrisPORTAL 6.0g
-* @see boolean setAbsent(boolean absent, boolean filesDueAbsenceToInfo, Array agents, boolean removeFromAgentInbox, Date from, Date until);
-* boolean setAbsentMail(boolean sendMail, String message)
-* boolean delegateFilesOfAbsentUser()
+* @see boolean setAbsent;
+* boolean setAbsentMail
+* boolean delegateFilesOfAbsentUser
 * @example
 * var currentUser = context.getSystemUser();
 * if (!currentUser) throw "currentUser is NULL";
@@ -8119,7 +8119,7 @@ getAgents(): Documents.SystemUserIterator;
 * @summary Retrieve a list of private and public Folders of the Systemuser. 
 * @returns {Documents.FolderIterator} FolderIterator containing a list of the folders. 
 * @since DOCUMENTS 5.0c
-* @see SystemUser.getAllFolders()
+* @see SystemUser.getAllFolders
 * @example
 * var currentUser = context.getSystemUser();
 * if (!currentUser) 
@@ -8147,8 +8147,8 @@ getAttribute(attribute: string): string;
 * @param {boolean} removeFromAgentInbox Optional boolean indicating whether the files are removed from agent inbox after getting back by the user. If this parameter is not specified, the value from the user settings in the absent dialog on the web is used. 
 * @returns {boolean} true if successful, false in case of any error. 
 * @since DOCUMENTS 4.0d
-* @see boolean setAbsent(boolean absent, boolean filesDueAbsenceToInfo, Array agents, boolean removeFromAgentInbox, Date from, Date until);
-* boolean delegateFilesOfAbsentUser()
+* @see boolean setAbsent;
+* boolean delegateFilesOfAbsentUser
 * @example
 * var currentUser = context.getSystemUser();
 * if (!currentUser) throw "currentUser is NULL";
@@ -8169,9 +8169,9 @@ getBackDelegatedFiles(removeFromAgentInbox: boolean): boolean;
 * @param {string} typeFilter String value defining an optional filter depending on the type 
 * @returns {Documents.CustomPropertyIterator} CustomPropertyIterator
 * @since DOCUMENTS 4a
-* @see Context.findCustomProperties(String filter)
-* @see SystemUser.setOrAddCustomProperty(String name, String type, String value)
-* @see SystemUser.addCustomProperty(String name, String type, String value)
+* @see Context.findCustomProperties
+* @see SystemUser.setOrAddCustomProperty
+* @see SystemUser.addCustomProperty
 * @example
 * var currentUser = context.getSystemUser();
 * if (!currentUser) throw "currentUser is NULL";
@@ -8190,7 +8190,7 @@ getCustomProperties(nameFilter?: string, typeFilter?: string): Documents.CustomP
 * @summary Retrieve a list of individual Folders of the Systemuser. 
 * @returns {Documents.FolderIterator} FolderIterator containing a list of all individual folders. 
 * @since DOCUMENTS 4.0d
-* @see SystemUser.getPrivateFolder(String folderType)
+* @see SystemUser.getPrivateFolder
 * @example
 * var currentUser = context.getSystemUser();
 * if (!currentUser) 
@@ -8206,7 +8206,7 @@ getIndividualFolders(): Documents.FolderIterator;
 * @summary Function to get the description of the last error that occurred. 
 * @returns {string} Text of the last error as String 
 * @since ELC 3.50b / otrisPORTAL 5.0b 
-* @see DocFile::getLastError()
+* @see DocFile.getLastError
 **/
 getLastError(): string;
 /**
@@ -8233,7 +8233,7 @@ getOID(oidLow?: boolean): string;
 *You may choose between "individual" individual folder Note: This function returns only the first individual folder on the top level. Using SystemUser.getIndividualFolders() to retrieve all individual folders. "favorites" favorites folder "inbox" the user's inbox "sent" the user's sent folder "sendingfinished" user's folder containing files which finished their workflow "inwork" folder containing the files the SystemUser created himself "resubmission" folder containing files with a resubmission defined for the SystemUser"trash" folder containing files the user has deleted "tasks" folder containing all files the user has a task to perform to "lastused" folder containing the files the SystemUser accessed latest, sorted in descending chronological order "introuble" folder containing files which ran into some workflow error. This folder is only available for editors and only if it has been added manually by the administrator. 
 * @returns {Documents.Folder} Folder object representing the desired folder, null in case of any error 
 * @since ELC 3.51b / otrisPORTAL 5.1b
-* @see SystemUser.getIndividualFolders(), SystemUser.getUserdefinedInboxFolders()
+* @see SystemUser.getIndividualFolders
 **/
 getPrivateFolder(folderType: string): Documents.Folder;
 /**
@@ -8252,7 +8252,7 @@ getSuperior(): Documents.SystemUser;
 * @summary Retrieve a list of userdefined inbox Folders of the Systemuser. 
 * @returns {Documents.FolderIterator} FolderIterator containing a list of all userdefined inbox folders. 
 * @since DOCUMENTS 4.0d
-* @see SystemUser.getPrivateFolder(String folderType)
+* @see SystemUser.getPrivateFolder
 * @example
 * var currentUser = context.getSystemUser();
 * if (!currentUser) 
@@ -8390,7 +8390,7 @@ removeFileTypeAgent(fileTypes: any): boolean;
 * @function removeFromAccessProfile
 * @instance
 * @summary Clear the SystemUser's membership in the given AccessProfile. 
-* @param {any} ap 
+* @param {AccessProfile} ap 
 * @returns {boolean} true if successful, false in case of any error 
 * @since ELC 3.50b / otrisPORTAL 5.0b for PartnerAccounts 
 * @since DOCUMENTS 4.0b HF1 for Fellows 
@@ -8421,9 +8421,9 @@ resetSuperior(): boolean;
 * @since ELC 3.60g / otrisPORTAL 6.0g 
 * @since DOCUMENTS 4.0d (Option: removeFromAgentInbox) 
 * @since DOCUMENTS 5.0a (Option: from and until)
-* @see boolean setAbsentMail(boolean sendMail, String message)
-* boolean delegateFilesOfAbsentUser()
-* boolean getBackDelegatedFiles(boolean removeFromAgentInbox)SystemUserIteratorgetAgents()
+* @see boolean setAbsentMail
+* boolean delegateFilesOfAbsentUser
+* boolean getBackDelegatedFiles
 * @example
 * var currentUser = context.getSystemUser();
 * if (!currentUser) throw "currentUser is NULL";
@@ -8457,8 +8457,8 @@ setAbsent(absent: boolean, filesDueAbsenceToInfo?: boolean, agents?: string[], r
 * @param {string} message String with an additional e-mail message from the absent user 
 * @returns {boolean} true if succeeded, otherwise false - an error message describing the error with getLastError(). 
 * @since ELC 3.60g / otrisPORTAL 6.0g
-* @see boolean setAbsent(boolean absent, boolean filesDueAbsenceToInfo, Array agents, boolean removeFromAgentInbox, Date from, Date until);
-* boolean delegateFilesOfAbsentUser()SystemUserIteratorgetAgents()
+* @see boolean setAbsent;
+* boolean delegateFilesOfAbsentUser
 * @example
 * var currentUser = context.getSystemUser();
 * if (!currentUser) throw "currentUser is NULL";
@@ -8491,8 +8491,8 @@ setAttribute(attribute: string, value: string): boolean;
 * @param {string} value String value defining the value 
 * @returns {Documents.CustomProperty} CustomProperty
 * @since DOCUMENTS 4a
-* @see SystemUser.getCustomProperties(String nameFilter, String typeFilter)
-* @see SystemUser.addCustomProperty(String name, String type, String value)
+* @see SystemUser.getCustomProperties
+* @see SystemUser.addCustomProperty
 * @example
 * var currentUser = context.getSystemUser();
 * if (!currentUser) throw "currentUser is NULL";
@@ -8517,7 +8517,7 @@ setPassword(newPwd: string): boolean;
 * @function setSuperior
 * @instance
 * @summary Set the SystemUser object representing the superior of the user to the desired object. 
-* @param {any} sup Systemuser object representing the new superior of the user 
+* @param {SystemUser} sup Systemuser object representing the new superior of the user 
 * @returns {boolean} true if successful, false in case of any error 
 * @since ELC 3.50b / otrisPORTAL 5.0b 
 **/
@@ -8607,7 +8607,7 @@ first(): Documents.SystemUser;
 * @summary Function to get the description of the last error that occurred. 
 * @returns {string} Text of the last error as String 
 * @since ELC 3.50b / otrisPORTAL 5.0b 
-* @see DocFile::getLastError()
+* @see DocFile.getLastError
 **/
 getLastError(): string;
 /**
@@ -8686,7 +8686,7 @@ widget: string;
 * @function addToFolder
 * @instance
 * @summary Add the user action to a Folder. 
-* @param {any} folder Folder object representing the desired Folder. 
+* @param {Folder} folder Folder object representing the desired Folder. 
 * @returns {boolean} true if successful, false in case of any error 
 * @since DOCUMENTS 4.0d
 * @example
@@ -9025,8 +9025,8 @@ convertBlobToPDF(sourceFilePath: string): string;
 * @returns {string} String representing the desired date 
 * @since ELC 3.50e / otrisPORTAL 5.0e 
 * @since DOCUMENTS 5.0a (new: Special formats @date and @timestamp)
-* @see Util::convertStringToDate(String dateOrTimeStamp, String format)
-* @see Context::convertDateToString(String dateOrTimeStamp, String locale) 
+* @see Util.convertStringToDate
+* @see Context.convertDateToString 
 * @example
 * var format = "dd.mm.yyyy HH:MM";
 * var now = new Date();
@@ -9046,7 +9046,7 @@ convertDateToString(timeStamp: Date, format: string): string;
 * @returns {Date} Date object representing the desired date 
 * @since ELC 3.50e / otrisPORTAL 5.0e 
 * @since DOCUMENTS 5.0a (new: Special formats @date and @timestamp)
-* @see Util::convertDateToString(Date timeStamp, String format)
+* @see Util.convertDateToString
 * @example
 * var format = "dd.mm.yyyy HH:MM";
 * var dateString = "19.09.1974";
@@ -9074,7 +9074,7 @@ cryptPassword(pwPlain: string): string;
 * @param {string} encodedParam String containing the encoded URL param 
 * @returns {string} String with decoded URL param. 
 * @since DOCUMENTS 5.0a 
-* @see Util.encodeUrlCompatible(String param)
+* @see Util.encodeUrlCompatible
 * @example
 * // URL with an archive key
 * var encUrl = "http://localhost:8080/documents/UserLoginSuccessAction.act;cnvid=n0RIshUTRnOH3qAn?
@@ -9100,7 +9100,7 @@ decodeUrlCompatible(encodedParam: string): string;
 * @param {string} input The string that will be decrypted 
 * @returns {string} String decrypted value 
 * @since DOCUMENTS 5.0b
-* @see Util.encryptString(String input); 
+* @see Util.encryptString; 
 * @example
 * var text = "I'm a secret password";
 * 
@@ -9137,7 +9137,7 @@ deleteFile(filePath: string): string;
 * @param {string} param String containing the value to encode 
 * @returns {string} String with encoded value. 
 * @since DOCUMENTS 5.0a 
-* @see Util.decodeUrlCompatible(String encodedParam)
+* @see Util.decodeUrlCompatible
 * @example
 * // URL with an archive key
 * var url = "http://localhost:8080/documents/UserLoginSuccessAction.act;cnvid=n0RIshUTRnOH3qAn?
@@ -9180,7 +9180,7 @@ encodeUrlCompatible(param: string): string;
 * @param {string} input The string that will be encrypted 
 * @returns {string} String encrypted value 
 * @since DOCUMENTS 5.0b
-* @see Util.decryptString(String input); 
+* @see Util.decryptString; 
 * @example
 * var text = "I'm a secret password";
 * 
@@ -9201,7 +9201,7 @@ encryptString(input: string): string;
 * @param {string} targetFilePath String with the target file path 
 * @returns {string} empty String if successful, the error message in case of any error 
 * @since ELC 3.60e / otrisPORTAL 6.0e 
-* @see Util.fileMove(String sourceFilePath, String targetFilePath)
+* @see Util.fileMove
 * @example
 * var errMsg = util.fileCopy("c:\\Test.log", "d:\\Test.log");
 * if (errMsg.length > 0)
@@ -9220,7 +9220,7 @@ fileCopy(sourceFilePath: string, targetFilePath: string): string;
 * @param {string} targetFilePath String with the target file path 
 * @returns {string} empty String if successful, the error message in case of any error 
 * @since ELC 3.60e / otrisPORTAL 6.0e 
-* @see Util.fileCopy(String sourceFilePath, String targetFilePath)
+* @see Util.fileCopy
 * @example
 * var errMsg = util.fileMove("c:\\Test.log", "d:\\Test.log");
 * if (errMsg.length > 0)
@@ -9676,7 +9676,7 @@ getControlFlows(): Documents.ControlFlowIterator;
 * @description Note: This function requires a full workflow engine license, it does not work with pure submission lists. 
 * @returns {string} Text of the last error as String 
 * @since ELC 3.50 / otrisPORTAL 5.0 
-* @see DocFile::getLastError()
+* @see DocFile.getLastError
 **/
 getLastError(): string;
 /**
@@ -9701,7 +9701,7 @@ getOID(oidLow?: boolean): string;
 * @description Note: This function is only available for workflows, but not submission lists. 
 * @returns {string} String containing the workflow name 
 * @since ELC 3.60d / otrisPORTAL 6.0d 
-* @see WorkflowStep::getWorkflowVersion()
+* @see WorkflowStep.getWorkflowVersion
 **/
 getWorkflowName(): string;
 /**
@@ -9723,7 +9723,7 @@ getWorkflowProperty(propertyName: string): string;
 * @description Note: This function is only available for workflows, but not submission lists. 
 * @returns {string} String containing the workflow version number 
 * @since ELC 3.60d / otrisPORTAL 6.0d 
-* @see WorkflowStep::getWorkflowName()
+* @see WorkflowStep.getWorkflowName
 **/
 getWorkflowVersion(): string;
 /**
@@ -9951,7 +9951,7 @@ addFellow(editor: any, includePrivateFolders?: boolean): boolean;
 * @function addFile
 * @instance
 * @summary Add the desired DocFile object to the XMLExport. 
-* @param {any} docFile An object of the DocFile class which should be added to the XML output 
+* @param {DocFile} docFile An object of the DocFile class which should be added to the XML output 
 * @param {any} exportCondition Optional export conditions specified as follows: boolean value indicating whether the file id should be exported as update key. XMLExportDescription object defining serveral conditions for the exporting process of the DocFile object. 
 *The default value is true. 
 * @returns {boolean} true if successful, false in case of any error 
@@ -10010,7 +10010,7 @@ addFilingPlan(filingPlanName: string): boolean;
 * @instance
 * @summary Add the desired Folder object to the XMLExport. 
 * @description This function is able to add the folder structure or the files in the folder to the XMLExport. 
-* @param {any} folder The Folder object to be added to the XML output. 
+* @param {Folder} folder The Folder object to be added to the XML output. 
 * @param {boolean} exportStructure boolean value indicating whether to export the folder structure or the files in the folder, on which the current user has read rights. If you want to export the files in the folder, an XMLExport instance being able to export DocFile should be used. 
 * @param {any} exportCondition The export conditions can be specified as follows: boolean value indicating whether the file id should be exported as update key in case of exporting files in the folder; indicating whether the subfolders should be exported in case of exporting the folder structure. XMLExportDescription object defining serveral conditions for the exporting process of the files in the folder. 
 * @returns {boolean} true if successful, false in case of any error 
@@ -10196,7 +10196,7 @@ clearXML(): boolean;
 * @summary Function to get the description of the last error that occurred. 
 * @returns {string} Text of the last error as String 
 * @since ELC 3.51b / otrisPORTAL 5.1b 
-* @see DocFile::getLastError()
+* @see DocFile.getLastError
 **/
 getLastError(): string;
 /**
@@ -10253,7 +10253,7 @@ declare namespace Documents {
 /**
 * @interface XMLExportDescription
 * @summary The XMLExportDescription class has been added to the DOCUMENTS PortalScripting API to improve the XML Export process of DOCUMENTS files by scripting means. 
-* @description For instance this allows to use different target archives for each file as well as to influence the archiving process by the file's contents itself. The XMLExportDescription object can only be used as parameter for the method XMLExport::addFile(XMLExportDescription) 
+* @description For instance this allows to use different target archives for each file as well as to influence the archiving process by the file's contents itself. The XMLExportDescription object can only be used as parameter for the method XMLExport.addFile(XMLExportDescription) 
 **/
 export interface XMLExportDescription {
 /**
@@ -10515,7 +10515,7 @@ getResponseHeader(name: string): string;
 * @param {string} passwd Optional password must also be specified only if the HTTP server requires authentication. 
 * @returns {boolean} true if the request was successfully initialized, false in case of any error. 
 * @since DOCUMENTS 4.0
-* @see XMLHTTPRequest.send(String content), XMLHTTPRequest.canAsync
+* @see XMLHTTPRequest.send, XMLHTTPRequest.canAsync
 * @example
 * var xmlHttp = new XMLHTTPRequest();
 * var async = false;
