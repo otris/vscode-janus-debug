@@ -591,7 +591,7 @@
     "mocha": "^2.4.5",
     "nyc": "^11.0.3",
     "tslint": "5.3.2",
-    "typescript": "2.5.2",
+    "typescript": "^2.6.1",
     "vscode": "^1.1.0",
     "vscode-debugadapter-testsupport": "^1.19.0"
   }
