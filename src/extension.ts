@@ -204,6 +204,46 @@ function initLaunchJsonWatcher(outputChannel: vscode.OutputChannel, loginData: n
     });
 }
 
+class JanusDebugConfigurationProvider implements vscode.DebugConfigurationProvider {
+    /**
+     * Massage a debug configuration just before a debug session is being launched,
+     * e.g. add all missing attributes to the debug configuration.
+     */
+    public resolveDebugConfiguration(folder: vscode.WorkspaceFolder | undefined,
+                                     config: vscode.DebugConfiguration,
+                                     token?: vscode.CancellationToken): vscode.ProviderResult<vscode.DebugConfiguration> {
+
+        // if launch.json is missing or empty allow quick access to
+        // debugging by providing this config
+        if (!config.type && !config.request && !config.name) {
+            const editor = vscode.window.activeTextEditor;
+            if (editor && editor.document.languageId === 'javascript') {
+                config.type = 'janus';
+                config.name = 'Launch';
+                config.request = 'launch';
+                config.program = '${file}';
+                config.stopOnEntry = true;
+            }
+        }
+
+        if (!config.program) {
+            return vscode.window.showInformationMessage("Cannot find a script to debug").then(_ => {
+                return undefined;   // abort launch
+            });
+        }
+
+        return config;
+    }
+
+    /**
+     * Returns initial debug configurations.
+     */
+    public provideDebugConfigurations?(folder: vscode.WorkspaceFolder | undefined,
+                                       token?: vscode.CancellationToken): vscode.ProviderResult<vscode.DebugConfiguration[]> {
+        return provideInitialConfigurations(vscode.workspace.rootPath);
+    }
+}
+
 export function activate(context: vscode.ExtensionContext): void {
 
     const isFolderOpen: boolean = vscode.workspace !== undefined;
@@ -233,8 +273,8 @@ export function activate(context: vscode.ExtensionContext): void {
     const serverChannel = vscode.window.createOutputChannel('Server Console');
     scriptChannel = vscode.window.createOutputChannel('Script Console');
 
-    // Initialise server console and launch.json watcher.
-    // Print version before server console is initialised.
+    // Initialize server console and launch.json watcher.
+    // Print version before server console is initialized.
     readAutoConnectServerConsole();
     printVersion(serverChannel);
     initServerConsole(serverChannel);
@@ -242,25 +282,19 @@ export function activate(context: vscode.ExtensionContext): void {
 
     ipcServer = new VSCodeExtensionIPC();
 
-
+    // Register configuration provider
+    context.subscriptions.push(vscode.debug.registerDebugConfigurationProvider('janus',
+        new JanusDebugConfigurationProvider()));
 
     // Register commands
-
-
     context.subscriptions.push(
-    vscode.commands.registerCommand('extension.vscode-janus-debug.askForPassword', () => {
-        return vscode.window.showInputBox({
-            prompt: 'Please enter the password',
-            password: true,
-            ignoreFocusOut: true,
-        });
-    }));
-
-    context.subscriptions.push(
-        vscode.commands.registerCommand('extension.vscode-janus-debug.provideInitialConfigurations', () => {
-            return provideInitialConfigurations(vscode.workspace.rootPath);
+        vscode.commands.registerCommand('extension.vscode-janus-debug.askForPassword', () => {
+            return vscode.window.showInputBox({
+                prompt: 'Please enter the password',
+                password: true,
+                ignoreFocusOut: true,
+            });
         }));
-
 
     // Upload script
     context.subscriptions.push(
@@ -324,7 +358,7 @@ export function activate(context: vscode.ExtensionContext): void {
             }
 
             let fsPath;
-            if (param && typeof(param._fsPath) === 'string') {
+            if (param && (typeof param._fsPath === 'string')) {
                 fsPath = param._fsPath;
             }
             try {
@@ -340,7 +374,7 @@ export function activate(context: vscode.ExtensionContext): void {
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.downloadScript', async (param) => {
             let fsPath: string | undefined;
-            if (param && typeof(param._fsPath) === 'string') {
+            if (param && (typeof param._fsPath === 'string')) {
                 fsPath = param._fsPath;
             }
             try {
@@ -356,7 +390,7 @@ export function activate(context: vscode.ExtensionContext): void {
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.downloadScriptsToFolder', async (param) => {
             let fsPath: string | undefined;
-            if (param && typeof(param._fsPath) === 'string') {
+            if (param && (typeof param._fsPath === 'string')) {
                 fsPath = param._fsPath;
             }
             try {
@@ -372,7 +406,7 @@ export function activate(context: vscode.ExtensionContext): void {
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.runScript', async (param) => {
             let fsPath: string | undefined;
-            if (param && typeof(param._fsPath) === 'string') {
+            if (param && (typeof param._fsPath === 'string')) {
                 fsPath = param._fsPath;
             }
             if (!fsPath && vscode.window.activeTextEditor) {
@@ -399,7 +433,7 @@ export function activate(context: vscode.ExtensionContext): void {
             }
 
             let fsPath: string | undefined;
-            if (param && typeof(param._fsPath) === 'string') {
+            if (param && (typeof param._fsPath === 'string')) {
                 fsPath = param._fsPath;
             }
             if (!fsPath && vscode.window.activeTextEditor) {

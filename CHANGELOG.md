@@ -2,15 +2,17 @@
 
 You'll find a complete list of changes at our project site on [GitHub](https://github.com/otris/vscode-janus-debug).
 
+### 0.0.24 (YYYY-MM-DD)
+
+- Fixed creating a new launch.json with new VS Code 1.18.0 release.
+
 ### 0.0.23 (2017-11-08)
 
-Following bugs have been addressed in this release:
+Following features and bugs have been addressed in this release:
 
 - Improved fileTypes.d.ts: fields have types now (available in DOCUMENTS 5.0c HF1 or #8044).
 
 - Some improved error messages.
-
-Following bugs have been addressed in this release:
 
 - In command **Compare Script**, the script is not synchronized anymore (hash value of source code is not set, so changes on server will still be recognized on next upload after **Compare Script**).
 

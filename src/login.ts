@@ -127,7 +127,7 @@ function createLaunchJson(loginInfo: nodeDoc.ConnectionInformation, plainPasswor
         pw = plainPassword;
     }
 
-    const data = config.provideInitialConfigurations(rootPath, {
+    const data = config.launchJsonString(rootPath, {
         host: loginInfo.server,
         applicationPort: loginInfo.port,
         principal: loginInfo.principal,

@@ -17,7 +17,7 @@
     "url": "https://github.com/otris/vscode-janus-debug/issues"
   },
   "engines": {
-    "vscode": "^1.8.0"
+    "vscode": "^1.17.0"
   },
   "categories": [
     "Debuggers",
@@ -45,7 +45,7 @@
     "onCommand:extension.vscode-janus-debug.getPortalScriptingTSD",
     "onCommand:extension.vscode-janus-debug.getFileTypesTSD",
     "onCommand:extension.vscode-janus-debug.showDocumentsVersion",
-    "onDebug:janus"
+    "onDebug"
   ],
   "main": "./out/src/extension",
   "contributes": {
@@ -220,8 +220,7 @@
               }
             }
           }
-        },
-        "initialConfigurations": "extension.vscode-janus-debug.provideInitialConfigurations"
+        }
       }
     ],
     "configuration": {

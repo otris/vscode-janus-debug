@@ -3,6 +3,7 @@
 import * as fs from 'fs';
 import { LogConfiguration } from 'node-file-log';
 import { isAbsolute, join } from 'path';
+import * as vscode from 'vscode';
 import { DebugProtocol } from 'vscode-debugprotocol';
 import { getVersion } from './version';
 
@@ -87,7 +88,7 @@ const initialConfigurations = [
  *
  * @param packageJsonPath {string} The absolute path to the package.json file
  */
-export /* meh */ function parseEntryPoint(packageJsonPath: string): string | undefined {
+export function parseEntryPoint(packageJsonPath: string): string | undefined {
     let entryPoint: string | undefined;
 
     try {
@@ -111,13 +112,14 @@ export /* meh */ function parseEntryPoint(packageJsonPath: string): string | und
 }
 
 /**
- * Returns a complete new launch.json as string.
+ * Creates and returns the initial debugger configurations.
  *
  * @param {string} [workspaceRootPath] The folder that is open in VS Code. Optional.
- * @param {*} [overwrites] An optional set of properties that get used in the resulting config.
- * @returns {string} The contents of the launch.json file.
+ * @param {*} [overwrites] An optional set of properties to include in the resulting config.
+ * @returns {vscode.DebugConfiguration[]} The configurations.
  */
-export function provideInitialConfigurations(workspaceRootPath?: string, overwrites?: any): string {
+export function provideInitialConfigurations(workspaceRootPath?: string,
+                                             overwrites?: any): vscode.DebugConfiguration[] {
     // Get 'main' property from package.json iff there is a package.json. This is probably the primary entry
     // point for the program and we use it to set the "script" property in our initial configurations.
 
@@ -144,7 +146,19 @@ export function provideInitialConfigurations(workspaceRootPath?: string, overwri
         });
     }
 
-    const configurations = JSON.stringify(initialConfigurations, null, '\t')
+    return initialConfigurations;
+}
+
+/**
+ * Returns a complete new launch.json as string.
+ *
+ * @param {string} [workspaceRootPath] The folder that is open in VS Code. Optional.
+ * @param {*} [overwrites] An optional set of properties to include in the resulting config.
+ * @returns {string} The contents of the launch.json file.
+ */
+export function launchJsonString(workspaceRootPath?: string, overwrites?: any): string {
+    const configurations = JSON.stringify(
+        provideInitialConfigurations(workspaceRootPath, overwrites), null, '\t')
         .split('\n').map(line => '\t' + line).join('\n').trim();
 
     return [
