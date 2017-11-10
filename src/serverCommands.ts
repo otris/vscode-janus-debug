@@ -88,20 +88,8 @@ async function uploadScriptCommon(loginData: nodeDoc.ConnectionInformation, para
             helpers.setConflictModes([_script]);
             helpers.readHashValues([_script], loginData.server);
             helpers.readEncryptionFlag([_script]);
+            helpers.setScriptInfoJson([_script]);
             // helpers.setCategories([_script]);
-
-            // _script.parameters = [
-            //     {
-            //         name: 'Parameter1',
-            //         type: 'Numerisch',
-            //         value: '42'
-            //     },
-            //     {
-            //         name: 'Parameter2',
-            //         type: 'Numerisch',
-            //         value: '200'
-            //     }
-            // ];
 
             return nodeDoc.serverSession(loginData, [_script], nodeDoc.uploadScript).then((value) => {
 
@@ -220,6 +208,7 @@ export function uploadAll(loginData: nodeDoc.ConnectionInformation, paramPath: a
             helpers.setConflictModes(folderScripts);
             helpers.readHashValues(folderScripts, loginData.server);
             helpers.readEncryptionFlag(folderScripts);
+            helpers.setScriptInfoJson(folderScripts);
             // helpers.setCategories(folderScripts);
 
             return nodeDoc.serverSession(loginData, folderScripts, nodeDoc.uploadAll).then((value1) => {

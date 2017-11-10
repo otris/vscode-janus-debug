@@ -255,6 +255,35 @@ export function writeScriptNamesToFile(scripts: nodeDoc.scriptT[]) {
 }
 
 
+
+export function setScriptInfoJson(scripts: nodeDoc.scriptT[]) {
+    if (!vscode.workspace || !vscode.workspace.rootPath) {
+        return;
+    }
+    // get extension-part of settings.json
+    const conf = vscode.workspace.getConfiguration('vscode-janus-debug');
+    if (!conf) {
+        vscode.window.showWarningMessage('vscode-janus-debug missing in settings');
+        return;
+    }
+    const scriptParameters = conf.get('scriptParameters', false);
+    if (!scriptParameters) {
+        return;
+    }
+
+    const rootPath = vscode.workspace.rootPath;
+    scripts.forEach((script) => {
+        const infoFile = path.join(rootPath, '.scriptParameters', script.name + '.json');
+        try {
+            script.parameters = fs.readFileSync(infoFile, 'utf8');
+        } catch (err) {
+            //
+        }
+    });
+}
+
+
+
 export function setCategories(pscripts: nodeDoc.scriptT[]) {
     if (!pscripts || 0 === pscripts.length || !vscode.workspace) {
         return;
