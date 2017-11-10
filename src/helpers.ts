@@ -282,7 +282,47 @@ export function setScriptInfoJson(scripts: nodeDoc.scriptT[]) {
     });
 }
 
+export function getScriptInfoJson(scripts: nodeDoc.scriptT[]) {
+    if (!vscode.workspace || !vscode.workspace.rootPath) {
+        return;
+    }
+    // get extension-part of settings.json
+    const conf = vscode.workspace.getConfiguration('vscode-janus-debug');
+    if (!conf) {
+        vscode.window.showWarningMessage('vscode-janus-debug missing in settings');
+        return;
+    }
+    const scriptParameters = conf.get('scriptParameters', false);
+    if (!scriptParameters) {
+        return;
+    }
+    scripts.forEach((script) => {
+        script.downloadParameters = true;
+    });
+}
 
+export async function writeScriptInfoJson(scripts: nodeDoc.scriptT[]) {
+    if (!vscode.workspace || !vscode.workspace.rootPath) {
+        return;
+    }
+    // get extension-part of settings.json
+    const conf = vscode.workspace.getConfiguration('vscode-janus-debug');
+    if (!conf) {
+        vscode.window.showWarningMessage('vscode-janus-debug missing in settings');
+        return;
+    }
+    const scriptParameters = conf.get('scriptParameters', false);
+    if (!scriptParameters) {
+        return;
+    }
+    const wsRoot = vscode.workspace.rootPath;
+    scripts.forEach(async (script) => {
+        if (script.parameters) {
+            const parpath = path.join(wsRoot, '.scriptParameters', script.name + '.json');
+            await nodeDoc.writeFileEnsureDir(script.parameters, parpath);
+        }
+    });
+}
 
 export function setCategories(pscripts: nodeDoc.scriptT[]) {
     if (!pscripts || 0 === pscripts.length || !vscode.workspace) {

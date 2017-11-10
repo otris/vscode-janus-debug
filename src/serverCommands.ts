@@ -333,12 +333,16 @@ export async function downloadScript(loginData: nodeDoc.ConnectionInformation, c
             const scriptPath = path.join(scriptDir, scriptName + '.js');
             let script: nodeDoc.scriptT = new nodeDoc.scriptT(scriptName, scriptPath);
 
+            helpers.getScriptInfoJson([script]);
+
             return nodeDoc.serverSession(loginData, [script], nodeDoc.downloadScript).then((value) => {
                 script = value[0];
-                // TODO
-                // ask user if folder from category (script.category) should be created
+
+                // TODO: ask user if folder from category (script.category) should be created
+
                 return nodeDoc.saveScriptUpdateSyncHash([script]).then(() => {
                     helpers.updateHashValues([script], loginData.server);
+                    helpers.writeScriptInfoJson([script]);
                     vscode.window.setStatusBarMessage('downloaded: ' + script.name);
                 });
             });
@@ -364,12 +368,16 @@ export async function downloadAll(loginData: nodeDoc.ConnectionInformation, cont
                 script.path = path.join(scriptDir, script.name + '.js');
             });
 
+            helpers.getScriptInfoJson(requestScripts);
+
             // download scripts
             return nodeDoc.serverSession(loginData, requestScripts, nodeDoc.downloadAll).then((scripts) => {
-                // TODO
-                // ask user if folder from category (script.category) should be created
+
+                // TODO: ask user if folder from category (script.category) should be created
+
                 return nodeDoc.saveScriptUpdateSyncHash(scripts).then(() => {
                     helpers.updateHashValues(scripts, loginData.server);
+                    helpers.writeScriptInfoJson(scripts);
                     // if a script from input list has not been downloaded but the function was resolved
                     // then the script is encrypted on server
                     const encryptedScripts = requestScripts.length - scripts.length;
@@ -468,25 +476,15 @@ export async function getScriptParameters(loginData: nodeDoc.ConnectionInformati
             return getSelectedScriptNames(loginData).then((_scripts) => {
 
                 // get parameters
-                return nodeDoc.serverSession(loginData, _scripts, nodeDoc.getAllParameters).then(async (values) => {
+                return nodeDoc.serverSession(loginData, _scripts, nodeDoc.getScriptInfoAsJSONAll).then(async (values) => {
                     if (1 < values.length) {
-                        const scriptsObject: any = {};
                         for (let idx = 0; idx < values.length; idx += 2) {
                             const scriptName = values[idx + 0];
                             const scriptJson = values[idx + 1];
-                            const jsonObject = JSON.parse(stripJsonComments(scriptJson));
-                            scriptsObject[scriptName] = {
-                                attributes: jsonObject[scriptName].attributes,
-                                parameters: jsonObject[scriptName].parameters
-                            };
-                            const paramsJsonOutput = JSON.stringify(scriptsObject[scriptName], null, '\t').trim();
-                            // save json to workspace or write it to console
+
                             if (vscode.workspace && vscode.workspace.rootPath) {
-                                const paramsfilename = scriptName + '.json';
-                                const paramsfilepath = path.join(vscode.workspace.rootPath, '.scriptParameters', paramsfilename);
-                                await nodeDoc.writeFileEnsureDir(paramsJsonOutput, paramsfilepath);
-                            } else {
-                                console.log(paramsJsonOutput);
+                                const parpath = path.join(vscode.workspace.rootPath, '.scriptParameters', scriptName + '.json');
+                                await nodeDoc.writeFileEnsureDir(scriptJson, parpath);
                             }
                         }
                         vscode.window.setStatusBarMessage('wrote script parameters to /.scriptParameters');
