@@ -40,7 +40,6 @@
     "onCommand:extension.vscode-janus-debug.compareScript",
     "onCommand:extension.vscode-janus-debug.uploadScriptsFromFolder",
     "onCommand:extension.vscode-janus-debug.downloadScriptsToFolder",
-    "onCommand:extension.vscode-janus-debug.getScriptParameters",
     "onCommand:extension.vscode-janus-debug.getScriptNames",
     "onCommand:extension.vscode-janus-debug.getPortalScriptingTSD",
     "onCommand:extension.vscode-janus-debug.getFileTypesTSD",
@@ -381,11 +380,6 @@
         "title": "Get Script Names"
       },
       {
-        "command": "extension.vscode-janus-debug.getScriptParameters",
-        "title": "Get Script Parameters",
-        "category": "DOCUMENTS"
-      },
-      {
         "command": "extension.vscode-janus-debug.viewDocumentation",
         "title": "View Documentation In Browser",
         "category": "DOCUMENTS"
@@ -486,21 +480,17 @@
           "group": "DOCUMENTS@8"
         },
         {
-          "command": "extension.vscode-janus-debug.getScriptParameters",
+          "command": "extension.vscode-janus-debug.getScriptNames",
+          "when": "resourceFilename == .documents-script-names",
           "group": "DOCUMENTS@9"
         },
         {
-          "command": "extension.vscode-janus-debug.getScriptNames",
-          "when": "resourceFilename == .documents-script-names",
+          "command": "extension.vscode-janus-debug.getPortalScriptingTSD",
           "group": "DOCUMENTS@10"
         },
         {
-          "command": "extension.vscode-janus-debug.getPortalScriptingTSD",
-          "group": "DOCUMENTS@11"
-        },
-        {
           "command": "extension.vscode-janus-debug.getFileTypesTSD",
-          "group": "DOCUMENTS@12"
+          "group": "DOCUMENTS@11"
         }
       ],
       "editor/context": [

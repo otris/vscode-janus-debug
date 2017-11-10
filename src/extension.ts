@@ -479,18 +479,6 @@ export function activate(context: vscode.ExtensionContext): void {
         })
     );
 
-    // Get script parameters
-    context.subscriptions.push(
-        vscode.commands.registerCommand('extension.vscode-janus-debug.getScriptParameters', async (param) => {
-            try {
-                await serverCommands.getScriptParameters(loginData, param);
-            } catch (err) {
-                //
-            }
-            helpers.showWarning(loginData);
-        })
-    );
-
     // Install intellisense files
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.getPortalScriptingTSD', () => {

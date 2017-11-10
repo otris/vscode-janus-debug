@@ -455,49 +455,6 @@ export function getScriptnames(loginData: nodeDoc.ConnectionInformation, param: 
     });
 }
 
-/**
- * Download script parameters
- */
-export async function getScriptParameters(loginData: nodeDoc.ConnectionInformation, param: any) {
-    await login.ensureLoginInformation(loginData);
-
-    // Check documents version
-    nodeDoc.serverSession(loginData, [], nodeDoc.getDocumentsVersion).then(() => {
-        if (!loginData.documentsVersion) {
-            vscode.window.showErrorMessage(`get script parameters: get DOCUMENTS version failed`);
-        } else if (loginData.documentsVersion && (Number(VERSION_SCRIPT_PARAMS) > Number(loginData.documentsVersion))) {
-            const errmsg = `Get Script Parameters: required DOCUMENTS version is ${VERSION_SCRIPT_PARAMS}, you are using ${loginData.documentsVersion}`;
-            vscode.window.showErrorMessage(errmsg);
-        } else {
-            // get names of all scripts in script array
-            // return nodeDoc.sdsSession(loginData, [], nodeDoc.getScriptsFromServer).then((_scripts) => {
-
-            // get names of download scripts
-            return getSelectedScriptNames(loginData).then((_scripts) => {
-
-                // get parameters
-                return nodeDoc.serverSession(loginData, _scripts, nodeDoc.getScriptInfoAsJSONAll).then(async (values) => {
-                    if (1 < values.length) {
-                        for (let idx = 0; idx < values.length; idx += 2) {
-                            const scriptName = values[idx + 0];
-                            const scriptJson = values[idx + 1];
-
-                            if (vscode.workspace && vscode.workspace.rootPath) {
-                                const parpath = path.join(vscode.workspace.rootPath, '.scriptParameters', scriptName + '.json');
-                                await nodeDoc.writeFileEnsureDir(scriptJson, parpath);
-                            }
-                        }
-                        vscode.window.setStatusBarMessage('wrote script parameters to /.scriptParameters');
-                    } else {
-                        console.log('get script parameters failed: array.length: ' + values.length);
-                    }
-                });
-            });
-        }
-    }).catch((error) => {
-        vscode.window.showErrorMessage('get script parameters failed: ' + error);
-    });
-}
 
 
 async function getSelectedScriptNames(loginData: nodeDoc.ConnectionInformation): Promise<nodeDoc.scriptT[]> {
