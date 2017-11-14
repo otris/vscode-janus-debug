@@ -2,9 +2,16 @@
 
 You'll find a complete list of changes at our project site on [GitHub](https://github.com/otris/vscode-janus-debug).
 
-### 0.0.24 (YYYY-MM-DD)
+### 0.0.24 (2017-11-14)
+
+Following features and bugs have been addressed in this release:
+
+- Parameters are uploaded and downloaded together with script, if flag `vscode-janus-debug.scriptParameters` is set (DOCUMENTS 5.0c HF1 required).
+
+Following bugs have been addressed in this release:
 
 - Fixed creating a new launch.json with new VS Code 1.18.0 release.
+- Fix warning showing up on any up- or download
 
 ### 0.0.23 (2017-11-08)
 
