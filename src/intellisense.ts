@@ -2,6 +2,7 @@ import * as nodeDoc from 'node-documents-scripting';
 import * as os from 'os';
 import * as path from 'path';
 import * as vscode from 'vscode';
+import { window } from 'vscode';
 import * as commands from './serverCommands';
 
 // tslint:disable-next-line:no-var-requires
@@ -9,6 +10,7 @@ const fs = require('fs-extra');
 
 const FILETYPES_FILE = 'fileTypes.d.ts';
 const PORTALSCRIPTING_FILE = 'portalScripting.d.ts';
+const PORTALSCRIPTING_FILE_NEW = 'portalScriptingNew.d.ts';
 
 
 
@@ -82,32 +84,43 @@ export function createJsconfigJson() {
 }
 
 
-export function copyPortalScriptingTSD() {
+export async function copyPortalScriptingTSD() {
     const extension = vscode.extensions.getExtension('otris-software.vscode-janus-debug');
     if (!extension || !vscode.workspace || !vscode.workspace.rootPath) {
         return;
     }
 
-    // TODO: get from GitHub if possible
-    const extensionTSDFile = path.join(extension.extensionPath, 'portalscript', 'typings', PORTALSCRIPTING_FILE);
+    let extensionTSDFile = path.join(extension.extensionPath, 'portalscript', 'typings', PORTALSCRIPTING_FILE);
+    const extensionTSDFileNew = path.join(extension.extensionPath, 'portalscript', 'typings', PORTALSCRIPTING_FILE_NEW);
     const projecttypings = path.join(vscode.workspace.rootPath, 'typings');
     const projectTSDFile = path.join(projecttypings, PORTALSCRIPTING_FILE);
 
-    // check typings folder
-    try {
-        fs.readdirSync(projecttypings);
-    } catch (err) {
-        if (err.code === 'ENOENT') {
-            fs.mkdir(projecttypings);
-        }
-    }
+    const question = `There is an improved portalScripting.d.ts without 'Documents' namespace available`;
+    const newFile = 'Get new portalScripting.d.ts (you may have to change some types in your jsDoc)';
+    const oldFile = 'Get usual portalScripting.d.ts';
+    const answer = await vscode.window.showQuickPick([newFile, oldFile], {placeHolder: question});
 
-    // check and copy dts file
-    try {
-        fs.readFileSync(extensionTSDFile);
-        fs.copySync(extensionTSDFile, projectTSDFile);
-    } catch (err) {
-        vscode.window.showErrorMessage(err);
-        return;
+    if (answer) {
+        if (answer === newFile) {
+            extensionTSDFile = extensionTSDFileNew;
+        }
+
+        // check typings folder
+        try {
+            fs.readdirSync(projecttypings);
+        } catch (err) {
+            if (err.code === 'ENOENT') {
+                fs.mkdir(projecttypings);
+            }
+        }
+
+        // check and copy dts file
+        try {
+            fs.readFileSync(extensionTSDFile);
+            fs.copySync(extensionTSDFile, projectTSDFile);
+        } catch (err) {
+            vscode.window.showErrorMessage(err);
+            return;
+        }
     }
 }
