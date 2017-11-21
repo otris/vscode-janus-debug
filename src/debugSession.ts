@@ -165,6 +165,7 @@ export class JanusDebugSession extends DebugSession {
 
         const sdsSocket = connect(sdsPort, host);
         const sdsConnection = new SDSConnection(sdsSocket);
+        sdsConnection.timeout = args.timeout || 6000;
 
         sdsSocket.on('connect', () => {
             log.info(`connected to ${host}:${sdsPort}`);
