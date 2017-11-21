@@ -192,6 +192,7 @@ export class JanusDebugSession extends DebugSession {
 
                 // fill identifier
                 scriptIdentifier = uuidV4();
+                log.debug("launching script with identifier: " + scriptIdentifier);
                 sdsConnection.runScriptOnServer(scriptSource, scriptIdentifier).then(returnedString => {
 
                     // Important: this block is reached after the script returned and the debug session has ended. So
