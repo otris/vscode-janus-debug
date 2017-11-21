@@ -2,15 +2,23 @@
 
 You'll find a complete list of changes at our project site on [GitHub](https://github.com/otris/vscode-janus-debug).
 
+### 0.0.TBD (YYYY-MM-DD)
+
+Following features have been added:
+
+Following bugs have been addressed in this release:
+
+- Debugger: launching scripts on a remote server got exactly 3 seconds faster because we could remove a now unnecessary synchronization point (``).
+
 ### 0.0.24 (2017-11-14)
 
-Following features and bugs have been addressed in this release:
+Following features have been added:
 
 - Parameters are uploaded and downloaded together with script, if flag `vscode-janus-debug.scriptParameters` is set (DOCUMENTS 5.0c HF1 required).
 
 Following bugs have been addressed in this release:
 
-- Fixed creating a new launch.json with new VS Code 1.18.0 release.
+- Debugger: fixed creating a new `launch.json` with VS Code 1.18.0. The way how initial configurations where constructed was deprecated with 1.17.0 and removed in 1.18.0, making it impossible to create a `launch.json` file in a new project. This works again now (`576daf8`).
 - Fix warning showing up on any up- or download
 
 ### 0.0.23 (2017-11-08)
