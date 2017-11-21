@@ -221,14 +221,14 @@ class JanusDebugConfigurationProvider implements vscode.DebugConfigurationProvid
                 config.type = 'janus';
                 config.name = 'Launch';
                 config.request = 'launch';
-                config.program = '${file}';
+                config.script = '${file}';
                 config.stopOnEntry = true;
             }
         }
 
-        if (!config.program) {
+        if (!config.script) {
             return vscode.window.showInformationMessage("Cannot find a script to debug").then(_ => {
-                return undefined;   // abort launch
+                return undefined;   // Abort launch
             });
         }
 
