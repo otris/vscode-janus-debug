@@ -8,6 +8,7 @@
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
     <script src="scripts/jquery.min.js"></script>
+    <script src="scripts/ua-parser.min.js"></script>
     <!--[if lt IE 9]>
       <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
@@ -17,7 +18,7 @@
     
     
     <script>
-    var config = {"monospaceLinks":false,"cleverLinks":false,"applicationName":"Portalscript API","navigation":{"showAbstractElements":false},"overview":{"title":"Portalscript API","showDeprecated":false,"showNamespace":false,"showTutorial":false},"default":{}};
+    var config = {"monospaceLinks":false,"cleverLinks":false,"allInOne":true,"applicationName":"Portalscript API","memberOverview":true,"navigation":{"showAbstractElements":false},"overview":{"title":"Portalscript API","showDeprecated":false,"showNamespace":false,"showTutorial":false},"default":{}};
     </script>
     
 
@@ -3138,7 +3139,7 @@
 
 
 <section>
-    
+
 <header>
     <h2>
     DocFile
@@ -3149,7 +3150,7 @@
 <article>
     <div class="container-overview">
     
-    
+
     
         
             <div class="description"><p>You may access a single DocFile with the help of the attribute context.file or by creating a FileResultset. There are no special properties available, but each field of a file is mapped to an according property. You can access the different field values with their technical names.</p>
@@ -3186,11 +3187,1125 @@
     
 </ul>
 
-        
+
         
     
+
+
+    
+        
+            <h3 class="subsection-title">Member Overview</h3>
+            <dl>
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#fieldName">fieldName</a> <span class="type-signature type any">any</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>The technical name of a field.</p>
+        </div>
+    
+</dd>
+
+            </dl>
+        
+
+        
+            <h3 class="subsection-title">Function Overview</h3>
+            <dl>
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#abort">abort</a><span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{boolean}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Cancel edit mode for a file.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#addDocumentFromFileSystem">addDocumentFromFileSystem</a><span class="signature">(pathDocument, targetRegister, targetFileName, deleteDocumentAtFileSystem, parseAutoText, referencFileToParse)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{<a href="Document.html">Document</a>}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Add a file as a new Document from the server's filesystem to a given Register.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#addPDF">addPDF</a><span class="signature">(pathCoverXML, createCover, pdfFileName, targetRegister, sourceRegisterNames)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{boolean}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Create a PDF file containing the current DocFile's contents and store it on a given document register.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#archive">archive</a><span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{boolean}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Archive the DocFile object.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#archive">archive</a><span class="signature">(archiveKey)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{boolean}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Archive the DocFile object to the desired archive.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#archive">archive</a><span class="signature">(desc)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{boolean}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Archive the DocFile object according to the given ArchivingDescription object.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#archiveAndDelete">archiveAndDelete</a><span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{boolean}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Archive the DocFile object and remove the DOCUMENTS file.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#cancelWorkflow">cancelWorkflow</a><span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{boolean}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Cancel the current workflow for the file.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#changeFiletype">changeFiletype</a><span class="signature">(nameFiletype)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{boolean}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Change the filetype of this file.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#checkWorkflowReceiveSignal">checkWorkflowReceiveSignal</a><span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{boolean}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Checks the receive signals of the workflow for the DocFile object.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#clearFollowUpDate">clearFollowUpDate</a><span class="signature">(pUser)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{boolean}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Clear a followup date for a desired user.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#commit">commit</a><span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{boolean}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Commit any changes to the DocFile object.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#connectFolder">connectFolder</a><span class="signature">(fObj)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{boolean}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Store a reference to the current file in the desired target folder.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#countFields">countFields</a><span class="signature">(fieldName)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{number}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Count fields with a desired name in the file.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#createMonitorFile">createMonitorFile</a><span class="signature">(asPDF, locale)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{string}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Creates a workflow monitor file in the server's file system.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#createStatusFile">createStatusFile</a><span class="signature">(asPDF, locale)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{string}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Creates a status file in the server's file system.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#deleteFile">deleteFile</a><span class="signature">(moveTrash, movePool, allVersions)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{boolean}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Delete the DocFile object.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#disconnectArchivedFile">disconnectArchivedFile</a><span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{boolean}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Uncouple an active file from the archived version.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#disconnectFolder">disconnectFolder</a><span class="signature">(fObj)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{boolean}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Remove a reference to the current file out of the desired target folder.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#exportXML">exportXML</a><span class="signature">(pathXML, withDocuments, withStatus, withMonitor)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{boolean}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Export the file as an XML file.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#forwardFile">forwardFile</a><span class="signature">(controlFlowId, comment)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{boolean}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Forward file in its workflow via the given control flow.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#getAllLockingWorkflowSteps">getAllLockingWorkflowSteps</a><span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{<a href="WorkflowStepIterator.html">WorkflowStepIterator</a>}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Get a list of all locking workflow step that currently lock the file.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#getAllWorkflowSteps">getAllWorkflowSteps</a><span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{<a href="WorkflowStepIterator.html">WorkflowStepIterator</a>}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Get a list of all workflow step of the file.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#getArchiveKey">getArchiveKey</a><span class="signature">(withServer)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{string}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>After archiving of a file this method returns the key of the file in the archive.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#getAsPDF">getAsPDF</a><span class="signature">(nameCoverTemplate, createCover, sourceRegisterNames)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{string}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Create a PDF file containing the current DocFile's contents and returns the path in the file system.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#getAttribute">getAttribute</a><span class="signature">(attribute)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{string}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Get the String value of an attribute of the file.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#getAutoText">getAutoText</a><span class="signature">(autoText)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{string}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Get the String value of a DOCUMENTS autotext.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#getCopy">getCopy</a><span class="signature">(copyMode)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{<a href="DocFile.html">DocFile</a>}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Duplicate a file.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#getCreationDate">getCreationDate</a><span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{Date}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Returns the creation date (timestamp) of a DocFile.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#getCreator">getCreator</a><span class="signature">(asObject)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{any}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Returns the SystemUser object or fullname as String of the creator of the DocFile.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#getCurrentWorkflowStep">getCurrentWorkflowStep</a><span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{<a href="WorkflowStep.html">WorkflowStep</a>}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Get the current workflow step of the current user locking the file.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#getEnumAutoText">getEnumAutoText</a><span class="signature">(autoText)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{Array.&lt;any>}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Get an array with the values of an enumeration autotext.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#getFieldAttribute">getFieldAttribute</a><span class="signature">(fieldName, attrName)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{string}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Get the String value of an attribute of the desired file field.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#getFieldAutoText">getFieldAutoText</a><span class="signature">(fieldName, autoText)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{string}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Returns an AutoText value of a specified field of the DocFile.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#getFieldName">getFieldName</a><span class="signature">(index)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{string}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Get the technical name of the n-th field of the file.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#getFieldValue">getFieldValue</a><span class="signature">(fieldName)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{any}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Get the value of the desired file field.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#getFileOwner">getFileOwner</a><span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{<a href="SystemUser.html">SystemUser</a>}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Get the file owner of the file.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#getFirstLockingWorkflowStep">getFirstLockingWorkflowStep</a><span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{<a href="WorkflowStep.html">WorkflowStep</a>}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Get the first locking workflow step that currently locks the file.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#getid">getid</a><span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{string}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Returns the file id of the DocFile.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#getLastError">getLastError</a><span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{string}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Function to get the description of the last error that occurred.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#getLastModificationDate">getLastModificationDate</a><span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{Date}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Returns the last modification date (timestamp) of a DocFile.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#getLastModifier">getLastModifier</a><span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{string}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Returns the fullname as String of the last editor of the DocFile.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#getOID">getOID</a><span class="signature">(oidLow)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{string}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Returns the object-id.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#getOriginal">getOriginal</a><span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{<a href="DocFile.html">DocFile</a>}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Get the orginal file for a scratch copy.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#getReferenceFile">getReferenceFile</a><span class="signature">(referenceFileField)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{<a href="DocFile.html">DocFile</a>}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Get the file referred by a reference field in the current file.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#getRegisterByName">getRegisterByName</a><span class="signature">(registerName, checkAccessRight)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{<a href="Register.html">Register</a>}</span>
+    </h5>
+</dt>
+<dd>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#getRegisters">getRegisters</a><span class="signature">(type, checkAccessRight)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{<a href="RegisterIterator.html">RegisterIterator</a>}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Get an iterator with the registers of the file for the specified type.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#getTitle">getTitle</a><span class="signature">(locale)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{string}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Returns the title of the DocFile.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#getUserStatus">getUserStatus</a><span class="signature">(login)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{string}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Get the status of the file for a desired user.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#hasField">hasField</a><span class="signature">(fieldName)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{boolean}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Gather information whether the current file has the field with the desired name.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#insertStatusEntry">insertStatusEntry</a><span class="signature">(action, comment)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{boolean}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Add an entry to the status tab of the file.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#isArchiveFile">isArchiveFile</a><span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{boolean}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Gather information whether the current file is an archive file.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#isDeletedFile">isDeletedFile</a><span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{boolean}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Gather information whether the current file is a deleted file of a trash folder.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#isNewFile">isNewFile</a><span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{boolean}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Gather information whether the current file is a new file.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#reactivate">reactivate</a><span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{boolean}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Reactivate an archive file to a file of the correspondending filetype.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#sendFileAdHoc">sendFileAdHoc</a><span class="signature">(receivers, sendMode, task, backWhenFinished)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{boolean}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Send the DocFile directly.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#sendMail">sendMail</a><span class="signature">(from, templateName, to, cc, addDocs, bcc)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{boolean}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Send the file as email to somebody.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#setAttribute">setAttribute</a><span class="signature">(attribute, value)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{boolean}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Set the String value of an attribute of the file to the desired value.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#setFieldAttribute">setFieldAttribute</a><span class="signature">(fieldName, attrName, value)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{boolean}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Set the value of an attribute of the desired file field.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#setFieldValue">setFieldValue</a><span class="signature">(fieldName, value)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{boolean}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Set the value of the desired file field.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#setFileOwner">setFileOwner</a><span class="signature">(owner)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{boolean}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Set the file owner of the file to the desired user.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#setFollowUpDate">setFollowUpDate</a><span class="signature">(pUser, followUpDate, comment)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{boolean}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Set a followup date for a desired user.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#setUserRead">setUserRead</a><span class="signature">(login, fileRead)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{boolean}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Mark the file as read or unread for the desired user.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#setUserStatus">setUserStatus</a><span class="signature">(login, status)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{boolean}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Set the status of the file for a desired user to a desired value.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#startEdit">startEdit</a><span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{boolean}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Switch a DocFile to edit mode.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#startWorkflow">startWorkflow</a><span class="signature">(workflowName)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{boolean}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Start a workflow for the DocFile object.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#sync">sync</a><span class="signature">(checkHistoryFields, notifyHitlistChange, updateRefFields, updateModifiedDate)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{boolean}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Synchronize any changes to the DocFile object back to the real file.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DocFile.html#undeleteFile">undeleteFile</a><span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{boolean}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Relive a deleted file.</p>
+        </div>
+    
+</dd>
+
+            </dl>
+        
+    
+
     </div>
-    
+
     
     
     
@@ -14099,7 +15214,7 @@
 
         <footer>
             Copyright &#169; 2016-2017 otris software AG - Documentation generated by <a target="_blank" href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a>
-            <!-- build date: Wed Nov 15 2017 11:59:57 GMT+0100 (Mitteleuropäische Zeit) -->
+            <!-- build date: Fri Nov 24 2017 12:01:01 GMT+0100 (Mitteleuropäische Zeit) -->
         </footer>
     </div>
 </div>

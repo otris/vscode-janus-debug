@@ -8,6 +8,7 @@
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
     <script src="scripts/jquery.min.js"></script>
+    <script src="scripts/ua-parser.min.js"></script>
     <!--[if lt IE 9]>
       <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
@@ -17,7 +18,7 @@
     
     
     <script>
-    var config = {"monospaceLinks":false,"cleverLinks":false,"applicationName":"Portalscript API","navigation":{"showAbstractElements":false},"overview":{"title":"Portalscript API","showDeprecated":false,"showNamespace":false,"showTutorial":false},"default":{}};
+    var config = {"monospaceLinks":false,"cleverLinks":false,"allInOne":true,"applicationName":"Portalscript API","memberOverview":true,"navigation":{"showAbstractElements":false},"overview":{"title":"Portalscript API","showDeprecated":false,"showNamespace":false,"showTutorial":false},"default":{}};
     </script>
     
 
@@ -3138,7 +3139,7 @@
 
 
 <section>
-    
+
 <header>
     <h2>
     util
@@ -3149,7 +3150,7 @@
 <article>
     <div class="container-overview">
     
-    
+
     
         
             <div class="description"><p>These functions allow customizable Date/String conversions and other useful stuff. There is exactly ONE implicit object of the class Util which is named util.<br>Note: It is not possible to create objects of the class Util. There are no properties in this class, it supports only the help functions as documented below.</p></div>
@@ -3184,11 +3185,697 @@
     
 </ul>
 
-        
+
         
     
+
+
+    
+        
+            <h3 class="subsection-title">Member Overview</h3>
+            <dl>
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="module-util.html#buildNo">buildNo</a> <span class="type-signature type number">number</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Build version number of the PortalServer.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="module-util.html#DB">DB</a> <span class="type-signature type string">string</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Database using by the PortalServer.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="module-util.html#memoryModel">memoryModel</a> <span class="type-signature type string">string</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Memory model of the PortalServer.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="module-util.html#version">version</a> <span class="type-signature type number">number</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Main version number of the PortalServer.</p>
+        </div>
+    
+</dd>
+
+            </dl>
+        
+
+        
+            <h3 class="subsection-title">Function Overview</h3>
+            <dl>
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="module-util.html#base64Decode">base64Decode</a><span class="signature">(value, returnArray)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{any}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Decodes a base64 string and returns a string or byte-array.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="module-util.html#base64Encode">base64Encode</a><span class="signature">(value, returnArray)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{string}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Encodes a byte-array or string to base64 and returns the base 64 string.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="module-util.html#beep">beep</a><span class="signature">(frequency, duration)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{void}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Plays a beep sound at the PortalServer's system.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="module-util.html#concatPDF">concatPDF</a><span class="signature">(pdfFilePaths, deleteSinglePdfs)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{string}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Concatenate the given PDFs together into one PDF.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="module-util.html#convertBlobToPDF">convertBlobToPDF</a><span class="signature">(sourceFilePath)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{string}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Convert a file to a PDF file and return the path in the file system.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="module-util.html#convertDateToString">convertDateToString</a><span class="signature">(timeStamp, format)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{string}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Convert a Date object representing a date into a String.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="module-util.html#convertStringToDate">convertStringToDate</a><span class="signature">(dateOrTimeStamp, format)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{Date}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Convert a String representing a date into a Date object.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="module-util.html#cryptPassword">cryptPassword</a><span class="signature">(pwPlain)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{string}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Encrypt a plain password into an MD5 hash.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="module-util.html#decodeUrlCompatible">decodeUrlCompatible</a><span class="signature">(encodedParam)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{string}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Decode URL parameter from DOCUMENTS Urls.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="module-util.html#decryptString">decryptString</a><span class="signature">(input)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{string}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Decrypts a String value hat was encrypted with the method Util.encryptString(String input)</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="module-util.html#deleteFile">deleteFile</a><span class="signature">(filePath)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{string}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Delete a file (file system object) at the PortalServer's system.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="module-util.html#encodeUrlCompatible">encodeUrlCompatible</a><span class="signature">(param)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{string}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Encode URL parameter for DOCUMENTS Urls.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="module-util.html#encryptString">encryptString</a><span class="signature">(input)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{string}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Encrypts a String value with the AES 256 CBC algorithm for symmetric encryption/decryption.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="module-util.html#fileCopy">fileCopy</a><span class="signature">(sourceFilePath, targetFilePath)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{string}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Copy a file (file system object) at the PortalServer's system.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="module-util.html#fileMove">fileMove</a><span class="signature">(sourceFilePath, targetFilePath)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{string}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Move a file (file system object) at the PortalServer's system from a source file path to the target file path.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="module-util.html#fileSize">fileSize</a><span class="signature">(filePath)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{number}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Retrieve the filesize of a file (file system object) at the PortalServer's system.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="module-util.html#generateChecksum">generateChecksum</a><span class="signature">(input)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{string}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Creates a MD5 checksum for the String value.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="module-util.html#getDir">getDir</a><span class="signature">(dirname, files, subDirs)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{string}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Retrieving files and subdirectories of a specified directory.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="module-util.html#getEnvironment">getEnvironment</a><span class="signature">(variableName)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{string}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Reads an environment variable of the PortalServer's system.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="module-util.html#getFileContentAsString">getFileContentAsString</a><span class="signature">(filePath)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{string}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Get the content of a file at the PortalServer's system as string in base64 format.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="module-util.html#getQuoted">getQuoted</a><span class="signature">(input)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{string}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Returns the input string enclosed in either double or single quotation marks.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="module-util.html#getSourceLineInfo">getSourceLineInfo</a><span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{string}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Retrieve the scriptName with the current line no of this methed.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="module-util.html#getTmpPath">getTmpPath</a><span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{string}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Get the path to the temporary directory on the Portalserver.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="module-util.html#getUniqueId">getUniqueId</a><span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{string}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Get a unique id from the system.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="module-util.html#getUsedPrivateBytes">getUsedPrivateBytes</a><span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{number}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Returns the current usage of private bytes memory of the documensserver process.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="module-util.html#hmac">hmac</a><span class="signature">(hashfunction, key, message, rawOutput)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{string}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Generates a hash-based message authentication code (hmac) of a message string using a secret key.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="module-util.html#isEncryptedBlob">isEncryptedBlob</a><span class="signature">(blobFilePath)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{boolean}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Checks, if the current blob is encrypted (Repository encryption) or not.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="module-util.html#length_u">length_u</a><span class="signature">(value)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{number}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Returns the number of characters of a UTF-8 string.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="module-util.html#log">log</a><span class="signature">(output)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{any}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Log a String to the DOCUMENTS server window.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="module-util.html#makeFullDir">makeFullDir</a><span class="signature">(dirPath)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{string}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Creates a directory with subdirectories at the PortalServer's file system.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="module-util.html#makeHTML">makeHTML</a><span class="signature">(val, isUTF8)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{string}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Masks all HTML-elements of a String.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="module-util.html#out">out</a><span class="signature">(output)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{any}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Output a String to the Portalserver window.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="module-util.html#searchInArray">searchInArray</a><span class="signature">(theArray, searchedString, occurence)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{number}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Search for a String in an Array.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="module-util.html#sha256">sha256</a><span class="signature">(message)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{string}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Generates the SHA256 hash of any string.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="module-util.html#sleep">sleep</a><span class="signature">(duration)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{void}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Let the PortalScript sleep for a defined duration.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="module-util.html#substr_u">substr_u</a><span class="signature">(value, startIndex, length)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{string}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Returns a substring of a UTF-8 string.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="module-util.html#transcode">transcode</a><span class="signature">(nameSourceEncoding, text, nameTargetEncoding)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{string}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Transcode a String from encoding a to encoding b.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="module-util.html#unlinkFile">unlinkFile</a><span class="signature">(filePath)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{boolean}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Delete a physical file on the server's file system.</p>
+        </div>
+    
+</dd>
+
+            </dl>
+        
+    
+
     </div>
-    
+
     
     
     
@@ -9702,7 +10389,7 @@
 
         <footer>
             Copyright &#169; 2016-2017 otris software AG - Documentation generated by <a target="_blank" href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a>
-            <!-- build date: Wed Nov 15 2017 11:59:58 GMT+0100 (Mitteleuropäische Zeit) -->
+            <!-- build date: Fri Nov 24 2017 12:01:02 GMT+0100 (Mitteleuropäische Zeit) -->
         </footer>
     </div>
 </div>

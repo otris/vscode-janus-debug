@@ -8,6 +8,7 @@
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
     <script src="scripts/jquery.min.js"></script>
+    <script src="scripts/ua-parser.min.js"></script>
     <!--[if lt IE 9]>
       <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
@@ -17,7 +18,7 @@
     
     
     <script>
-    var config = {"monospaceLinks":false,"cleverLinks":false,"applicationName":"Portalscript API","navigation":{"showAbstractElements":false},"overview":{"title":"Portalscript API","showDeprecated":false,"showNamespace":false,"showTutorial":false},"default":{}};
+    var config = {"monospaceLinks":false,"cleverLinks":false,"allInOne":true,"applicationName":"Portalscript API","memberOverview":true,"navigation":{"showAbstractElements":false},"overview":{"title":"Portalscript API","showDeprecated":false,"showNamespace":false,"showTutorial":false},"default":{}};
     </script>
     
 
@@ -3138,7 +3139,7 @@
 
 
 <section>
-    
+
 <header>
     <h2>
     DBResultSet
@@ -3149,7 +3150,7 @@
 <article>
     <div class="container-overview">
     
-    
+
     
         
 <dt>
@@ -3224,8 +3225,211 @@
 </dd>
 
     
-    </div>
+
+
     
+        
+
+        
+            <h3 class="subsection-title">Function Overview</h3>
+            <dl>
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DBResultSet.html#close">close</a><span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{boolean}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Close the DBResultSet and free the server ressources.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DBResultSet.html#getBool">getBool</a><span class="signature">(colNo)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{boolean}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Read the indicated column of the current row of the DBResultSet as a boolean value.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DBResultSet.html#getColName">getColName</a><span class="signature">(colNo)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{string}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Function returns the name of a column.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DBResultSet.html#getDate">getDate</a><span class="signature">(colNo)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{Date}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Read the indicated column of the current row of the DBResultSet as a Date object.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DBResultSet.html#getFloat">getFloat</a><span class="signature">(colNo)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{number}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Read the indicated column of the current row of the DBResultSet as a float value.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DBResultSet.html#getInt">getInt</a><span class="signature">(colNo)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{number}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Read the indicated column of the current row of the DBResultSet as an integer value.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DBResultSet.html#getLastError">getLastError</a><span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{string}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Function to get the description of the last error that occurred.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DBResultSet.html#getNumCols">getNumCols</a><span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{number}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Function returns the amount of columns of the DBResultSet.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DBResultSet.html#getString">getString</a><span class="signature">(colNo)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{string}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Read the indicated column of the current row of the DBResultSet as a String.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DBResultSet.html#getTimestamp">getTimestamp</a><span class="signature">(colNo)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{Date}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Read the indicated column of the current row of the DBResultSet as a Date object including the time.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DBResultSet.html#getUCString">getUCString</a><span class="signature">(colNo)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{string}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Read the indicated column of the current row of the DBResultSet on a x64/UTF-8 DOCUMENTS as a String.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DBResultSet.html#next">next</a><span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{boolean}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Move the resultset pointer to the next row of the DBResultSet.</p>
+        </div>
+    
+</dd>
+
+            </dl>
+        
+    
+
+    </div>
+
     
     
     
@@ -4900,7 +5104,7 @@
 
         <footer>
             Copyright &#169; 2016-2017 otris software AG - Documentation generated by <a target="_blank" href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a>
-            <!-- build date: Wed Nov 15 2017 11:59:57 GMT+0100 (Mitteleuropäische Zeit) -->
+            <!-- build date: Fri Nov 24 2017 12:01:01 GMT+0100 (Mitteleuropäische Zeit) -->
         </footer>
     </div>
 </div>

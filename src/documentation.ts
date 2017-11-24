@@ -84,7 +84,6 @@ export async function viewDocumentation() {
 
         // no portal script member selected, open main documentation
         if (!file || file.length === 0) {
-            const question = 'Selected text not found in documentation, open main documentation';
             file = path.join(portalScriptDocs, 'index.html');
         }
 

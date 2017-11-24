@@ -8,6 +8,7 @@
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
     <script src="scripts/jquery.min.js"></script>
+    <script src="scripts/ua-parser.min.js"></script>
     <!--[if lt IE 9]>
       <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
@@ -17,7 +18,7 @@
     
     
     <script>
-    var config = {"monospaceLinks":false,"cleverLinks":false,"applicationName":"Portalscript API","navigation":{"showAbstractElements":false},"overview":{"title":"Portalscript API","showDeprecated":false,"showNamespace":false,"showTutorial":false},"default":{}};
+    var config = {"monospaceLinks":false,"cleverLinks":false,"allInOne":true,"applicationName":"Portalscript API","memberOverview":true,"navigation":{"showAbstractElements":false},"overview":{"title":"Portalscript API","showDeprecated":false,"showNamespace":false,"showTutorial":false},"default":{}};
     </script>
     
 
@@ -3138,7 +3139,7 @@
 
 
 <section>
-    
+
 <header>
     <h2>
     DOMNode
@@ -3149,7 +3150,7 @@
 <article>
     <div class="container-overview">
     
-    
+
     
         
             <div class="description"><p>DOMNodes cannot be created with new. Different create methods of DOMDocument can be used to create different types of nodes.<br>Note: Accessing any node may generate a JavaScript error, when the owning document has been deleted or &quot;garbage collected&quot;. See the negative example at class DOMDocument.Remarks about W3C conformity</p>
@@ -3185,11 +3186,341 @@
     
 </ul>
 
-        
+
         
     
+
+
+    
+        
+            <h3 class="subsection-title">Member Overview</h3>
+            <dl>
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DOMNode.html#attributes">attributes</a> <span class="type-signature type domnamednodemap"><a href="DOMNamedNodeMap.html">DOMNamedNodeMap</a></span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>A map of DOM attributes. If this node is not a DOMElement, the value is null. The property is readonly.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DOMNode.html#childNodes">childNodes</a> <span class="type-signature type domnodelist"><a href="DOMNodeList.html">DOMNodeList</a></span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>A list of all children of this node. The property is readonly.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DOMNode.html#firstChild">firstChild</a> <span class="type-signature type domnode"><a href="DOMNode.html">DOMNode</a></span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>The first child node, otherwise null. The property is readonly.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DOMNode.html#lastChild">lastChild</a> <span class="type-signature type domnode"><a href="DOMNode.html">DOMNode</a></span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>The last child node, otherwise null. The property is readonly.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DOMNode.html#nextSibling">nextSibling</a> <span class="type-signature type domnode"><a href="DOMNode.html">DOMNode</a></span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>The next sibling node, otherwise null. The property is readonly.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DOMNode.html#nodeName">nodeName</a> <span class="type-signature type string">string</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>The name of this node. The property is readonly.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DOMNode.html#nodeType">nodeType</a> <span class="type-signature type number">number</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>The type or subclass of a this node, encoded as an integer. The property is readonly.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DOMNode.html#NodeTypeConstants">NodeTypeConstants</a>
+    </h5>
+</dt>
+<dd>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DOMNode.html#nodeValue">nodeValue</a> <span class="type-signature type string">string</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>The value of the node, which depends on the type.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DOMNode.html#ownerDocument">ownerDocument</a> <span class="type-signature type domdocument"><a href="DOMDocument.html">DOMDocument</a></span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>The document, which owns this node. The property is readonly.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DOMNode.html#parentNode">parentNode</a> <span class="type-signature type domnode"><a href="DOMNode.html">DOMNode</a></span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>The parent node or null. The property is readonly.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DOMNode.html#previousSibling">previousSibling</a> <span class="type-signature type domnode"><a href="DOMNode.html">DOMNode</a></span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>The previous sibling node, otherwise null. The property is readonly.</p>
+        </div>
+    
+</dd>
+
+            </dl>
+        
+
+        
+            <h3 class="subsection-title">Function Overview</h3>
+            <dl>
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DOMNode.html#appendChild">appendChild</a><span class="signature">(newChild)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{<a href="DOMNode.html">DOMNode</a>}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Append a new node to the list of child nodes.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DOMNode.html#cloneNode">cloneNode</a><span class="signature">(deep)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{<a href="DOMNode.html">DOMNode</a>}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Create a duplicate of this node.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DOMNode.html#hasAttributes">hasAttributes</a><span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{boolean}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Test, whether a node has got any associated attributes.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DOMNode.html#hasChildNodes">hasChildNodes</a><span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{boolean}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Test, whether a node has got any associated child nodes.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DOMNode.html#insertBefore">insertBefore</a><span class="signature">(newChild, refChild)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{<a href="DOMNode.html">DOMNode</a>}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Insert a new node into the list of child nodes.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DOMNode.html#normalize">normalize</a><span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{void}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Normalize the node ans its subtree.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DOMNode.html#removeChild">removeChild</a><span class="signature">(oldChild)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{<a href="DOMNode.html">DOMNode</a>}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Remove a node from the list of child nodes.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="DOMNode.html#replaceChild">replaceChild</a><span class="signature">(newChild, oldChild)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{<a href="DOMNode.html">DOMNode</a>}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Replace a node in the list of child nodes.</p>
+        </div>
+    
+</dd>
+
+            </dl>
+        
+    
+
     </div>
-    
+
     
     
     
@@ -5196,7 +5527,7 @@
 
         <footer>
             Copyright &#169; 2016-2017 otris software AG - Documentation generated by <a target="_blank" href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a>
-            <!-- build date: Wed Nov 15 2017 11:59:57 GMT+0100 (Mitteleuropäische Zeit) -->
+            <!-- build date: Fri Nov 24 2017 12:01:01 GMT+0100 (Mitteleuropäische Zeit) -->
         </footer>
     </div>
 </div>

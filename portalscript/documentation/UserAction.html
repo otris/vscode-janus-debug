@@ -8,6 +8,7 @@
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
     <script src="scripts/jquery.min.js"></script>
+    <script src="scripts/ua-parser.min.js"></script>
     <!--[if lt IE 9]>
       <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
@@ -17,7 +18,7 @@
     
     
     <script>
-    var config = {"monospaceLinks":false,"cleverLinks":false,"applicationName":"Portalscript API","navigation":{"showAbstractElements":false},"overview":{"title":"Portalscript API","showDeprecated":false,"showNamespace":false,"showTutorial":false},"default":{}};
+    var config = {"monospaceLinks":false,"cleverLinks":false,"allInOne":true,"applicationName":"Portalscript API","memberOverview":true,"navigation":{"showAbstractElements":false},"overview":{"title":"Portalscript API","showDeprecated":false,"showNamespace":false,"showTutorial":false},"default":{}};
     </script>
     
 
@@ -3138,7 +3139,7 @@
 
 
 <section>
-    
+
 <header>
     <h2>
     UserAction
@@ -3149,7 +3150,7 @@
 <article>
     <div class="container-overview">
     
-    
+
     
         
 <dt>
@@ -3219,8 +3220,262 @@
 </dd>
 
     
-    </div>
+
+
     
+        
+            <h3 class="subsection-title">Member Overview</h3>
+            <dl>
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="UserAction.html#label">label</a> <span class="type-signature type string">string</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>The entire label defined for the UserAction object.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="UserAction.html#name">name</a> <span class="type-signature type string">string</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>The technical name of the UserAction object.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="UserAction.html#scope">scope</a> <span class="type-signature type string">string</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>The scope of the UserAction object.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="UserAction.html#type">type</a> <span class="type-signature type string">string</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>The type of the UserAction object.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="UserAction.html#widget">widget</a> <span class="type-signature type string">string</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>The widget identifier of the UserAction object.</p>
+        </div>
+    
+</dd>
+
+            </dl>
+        
+
+        
+            <h3 class="subsection-title">Function Overview</h3>
+            <dl>
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="UserAction.html#addToFolder">addToFolder</a><span class="signature">(folder)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{boolean}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Add the user action to a Folder.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="UserAction.html#getLastError">getLastError</a><span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{string}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Get the description of the last error that occurred.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="UserAction.html#getOID">getOID</a><span class="signature">(oidLow)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{string}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Returns the object-id.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="UserAction.html#getPosition">getPosition</a><span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{number}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Retrieve the position of the user action within the user-defined action list of the parent object.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="UserAction.html#remove">remove</a><span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{boolean}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Remove the user action from the parent object.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="UserAction.html#setContext">setContext</a><span class="signature">(context)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{boolean}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Set the context for a user action of type JSP.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="UserAction.html#setCreateDefaultWorkflow">setCreateDefaultWorkflow</a><span class="signature">(createDefaultWorkflow)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{boolean}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Set the flag whether to create the default workflow for a user action of type NewFile.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="UserAction.html#setFileTypeForNewFile">setFileTypeForNewFile</a><span class="signature">(fileType)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{boolean}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Set the file type for a user action of type NewFile.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="UserAction.html#setPortalScript">setPortalScript</a><span class="signature">(scriptName)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{boolean}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Set the portal script for a user action of type PortalScript.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="UserAction.html#setPosition">setPosition</a><span class="signature">(position)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{boolean}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Place the user action at the given position in the user-defined action list of the parent object.</p>
+        </div>
+    
+</dd>
+
+            </dl>
+        
+    
+
+    </div>
+
     
     
     
@@ -4928,7 +5183,7 @@
 
         <footer>
             Copyright &#169; 2016-2017 otris software AG - Documentation generated by <a target="_blank" href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a>
-            <!-- build date: Wed Nov 15 2017 11:59:58 GMT+0100 (Mitteleuropäische Zeit) -->
+            <!-- build date: Fri Nov 24 2017 12:01:02 GMT+0100 (Mitteleuropäische Zeit) -->
         </footer>
     </div>
 </div>

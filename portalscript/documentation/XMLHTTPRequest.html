@@ -8,6 +8,7 @@
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
     <script src="scripts/jquery.min.js"></script>
+    <script src="scripts/ua-parser.min.js"></script>
     <!--[if lt IE 9]>
       <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
@@ -17,7 +18,7 @@
     
     
     <script>
-    var config = {"monospaceLinks":false,"cleverLinks":false,"applicationName":"Portalscript API","navigation":{"showAbstractElements":false},"overview":{"title":"Portalscript API","showDeprecated":false,"showNamespace":false,"showTutorial":false},"default":{}};
+    var config = {"monospaceLinks":false,"cleverLinks":false,"allInOne":true,"applicationName":"Portalscript API","memberOverview":true,"navigation":{"showAbstractElements":false},"overview":{"title":"Portalscript API","showDeprecated":false,"showNamespace":false,"showTutorial":false},"default":{}};
     </script>
     
 
@@ -3138,7 +3139,7 @@
 
 
 <section>
-    
+
 <header>
     <h2>
     XMLHTTPRequest
@@ -3149,7 +3150,7 @@
 <article>
     <div class="container-overview">
     
-    
+
     
         
 <dt>
@@ -3224,8 +3225,342 @@
 </dd>
 
     
-    </div>
+
+
     
+        
+            <h3 class="subsection-title">Member Overview</h3>
+            <dl>
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="XMLHTTPRequest.html#canAsync">canAsync</a> <span class="type-signature type boolean">boolean</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Flag indicating whether asynchronous requests are possible on the used plattform.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="XMLHTTPRequest.html#canProxy">canProxy</a> <span class="type-signature type boolean">boolean</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Flag indicating whether the implementation on the used plattform allows the direct specifying of a proxy server.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="XMLHTTPRequest.html#COMPLETED">COMPLETED</a> <span class="type-signature type number">number</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>The constant 4 for XMLHTTPRequest.readyState.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="XMLHTTPRequest.html#FileSizeHint">FileSizeHint</a> <span class="type-signature type number">number</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Optional File size indicator for sending pure sequential files.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="XMLHTTPRequest.html#INTERACTIVE">INTERACTIVE</a> <span class="type-signature type number">number</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>The constant 3 for XMLHTTPRequest.readyState.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="XMLHTTPRequest.html#NOTSENT">NOTSENT</a> <span class="type-signature type number">number</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>The constant 1 for XMLHTTPRequest.readyState.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="XMLHTTPRequest.html#readyState">readyState</a> <span class="type-signature type number">number</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>The current state of the asynchronous request.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="XMLHTTPRequest.html#response">response</a> <span class="type-signature type any">any</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>The response received from the HTTP server or null if no response is received.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="XMLHTTPRequest.html#responseFile">responseFile</a> <span class="type-signature type file"><a href="File.html">File</a></span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>An optional writable file for streaming a large response.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="XMLHTTPRequest.html#responseType">responseType</a> <span class="type-signature type string">string</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Preferred output format of the response property (optional).</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="XMLHTTPRequest.html#SENT">SENT</a> <span class="type-signature type number">number</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>The constant 2 for XMLHTTPRequest.readyState.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="XMLHTTPRequest.html#status">status</a> <span class="type-signature type number">number</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>The HTTP status code of the request.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="XMLHTTPRequest.html#statusText">statusText</a> <span class="type-signature type string">string</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>The HTTP status text of the request.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="XMLHTTPRequest.html#UNINITIALIZED">UNINITIALIZED</a> <span class="type-signature type number">number</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>The constant 0 for XMLHTTPRequest.readyState.</p>
+        </div>
+    
+</dd>
+
+            </dl>
+        
+
+        
+            <h3 class="subsection-title">Function Overview</h3>
+            <dl>
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="XMLHTTPRequest.html#abort">abort</a><span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{boolean}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Abort an asynchronous request if it already has been sent.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="XMLHTTPRequest.html#addRequestHeader">addRequestHeader</a><span class="signature">(name, value)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{boolean}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Add a HTTP header to the request to be sent.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="XMLHTTPRequest.html#getAllResponseHeaders">getAllResponseHeaders</a><span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{string}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Get all response headers as a string.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="XMLHTTPRequest.html#getResponseHeader">getResponseHeader</a><span class="signature">(name)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{string}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Get the value of the specified response header.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="XMLHTTPRequest.html#open">open</a><span class="signature">(method, url, async, user, passwd)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{boolean}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Initialize a HTTP request.</p>
+        </div>
+    
+</dd>
+
+            
+                
+
+<dt class="name-overview">
+    <h5 class="name">
+        <a href="XMLHTTPRequest.html#send">send</a><span class="signature">(content)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{boolean}</span>
+    </h5>
+</dt>
+<dd>
+    
+        <div class="summary-overview">
+            <p>Send the request to the HTTP server.</p>
+        </div>
+    
+</dd>
+
+            </dl>
+        
+    
+
+    </div>
+
     
     
     
@@ -4923,7 +5258,7 @@
 
         <footer>
             Copyright &#169; 2016-2017 otris software AG - Documentation generated by <a target="_blank" href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a>
-            <!-- build date: Wed Nov 15 2017 11:59:59 GMT+0100 (Mitteleuropäische Zeit) -->
+            <!-- build date: Fri Nov 24 2017 12:01:02 GMT+0100 (Mitteleuropäische Zeit) -->
         </footer>
     </div>
 </div>

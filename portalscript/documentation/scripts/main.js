@@ -1,5 +1,9 @@
 $(function() {
-	$navigation = $('.navigation');
+	var $navigation = $('.navigation');
+
+	var browser = new UAParser().getBrowser();
+	var browserName = browser.name.toLowerCase();
+	$('body').addClass(browserName + " "+ browserName + browser.major);
 
 	// Search Items
 	$('#search').on('keyup', function(e) {
