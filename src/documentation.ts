@@ -4,68 +4,11 @@ import * as vscode from 'vscode';
 const open = require('open');
 // tslint:disable-next-line:no-var-requires
 const fs = require('fs-extra');
+// tslint:disable-next-line:no-var-requires
+const mapping = require('../portalscript/documentation/methodMapping').mapping;
 
 
 
-
-/**
- * List of all available member-anchor mappings
- * of portalScript classes.
- */
-const memberAnchorMappings: MemberAnchorMappings = {
-    // tslint:disable-next-line:no-var-requires
-    accessprofile: require('../portalscript/documentation/classAccessProfile').classAccessProfile,
-    // tslint:disable-next-line:no-var-requires
-    accessprofileiterator: require('../portalscript/documentation/classAccessProfileIterator').classAccessProfileIterator,
-    // tslint:disable-next-line:no-var-requires
-    context: require('../portalscript/documentation/classContext').classContext,
-    // tslint:disable-next-line:no-var-requires
-    docfile: require('../portalscript/documentation/classDocFile').classDocFile,
-    // tslint:disable-next-line:no-var-requires
-    dochit: require('../portalscript/documentation/classDocHit').classDocHit,
-    // tslint:disable-next-line:no-var-requires
-    fileresultset: require('../portalscript/documentation/classFileResultset').classFileResultset,
-    // tslint:disable-next-line:no-var-requires
-    folder: require('../portalscript/documentation/classFolder').classFolder,
-    // tslint:disable-next-line:no-var-requires
-    folderiterator: require('../portalscript/documentation/classFolderIterator').classFolderIterator,
-    // tslint:disable-next-line:no-var-requires
-    hitresultset: require('../portalscript/documentation/classHitResultset').classHitResultset,
-    // tslint:disable-next-line:no-var-requires
-    register: require('../portalscript/documentation/classRegister').classRegister,
-    // tslint:disable-next-line:no-var-requires
-    registeriterator: require('../portalscript/documentation/classRegisterIterator').classRegisterIterator,
-    // tslint:disable-next-line:no-var-requires
-    systemuser: require('../portalscript/documentation/classSystemUser').classSystemUser,
-    // tslint:disable-next-line:no-var-requires
-    systemuseriterator: require('../portalscript/documentation/classSystemUserIterator').classSystemUserIterator,
-    // tslint:disable-next-line:no-var-requires
-    util: require('../portalscript/documentation/classUtil').classUtil
-};
-interface MemberAnchorMappings {
-    [key: string]: string;
-}
-
-/**
- * If selected class or member not found, show
- * this list, so user can select a class
- */
-const availableDocumentation = [
-    'AccessProfileIterator',
-    'Context',
-    'AccessProfile',
-    'DocFile',
-    'DocHit',
-    'FileResultset',
-    'Folder',
-    'FolderIterator',
-    'HitResultset',
-    'Register',
-    'RegisterIterator',
-    'SystemUser',
-    'SystemUserIterator',
-    'Util'
-];
 
 
 
@@ -106,49 +49,43 @@ export async function viewDocumentation() {
             vscode.window.showWarningMessage(`Right click on a word (e.g. **context** or **util**) to get the documentation`);
             return;
         }
-        const selectedWord = doc.getText(range).toLocaleLowerCase();
+        const selectedWordU = doc.getText(range);
+        const selectedWord = selectedWordU.toLocaleLowerCase();
+        const moduleHtml = path.join(portalScriptDocs, 'module-' + selectedWord + '.html');
+        const classHtml = path.join(portalScriptDocs, selectedWordU + '.html');
+        const mappingMember = mapping[selectedWordU];
         let file = '';
 
-        if (memberAnchorMappings.hasOwnProperty(selectedWord)) {
-            const fileWithAnchor = memberAnchorMappings[selectedWord][0][1];
-            const endOfFileNamePos = fileWithAnchor.indexOf('#');
-            file = path.join(portalScriptDocs, fileWithAnchor.substr(0, endOfFileNamePos));
-        } else {
+        // function or member selected?
+        if (mappingMember && mappingMember.length > 0) {
             if (!browser) {
                 vscode.window.showWarningMessage(`Jump to **${selectedWord}**: pecify a browser in **vscode-janus-debug.browser**`);
             }
-            const results = [];
-            for (const key of Object.keys(memberAnchorMappings)) {
-                const classMapping = memberAnchorMappings[key];
-                for (const member of classMapping) {
-                    if (member.length === 3) {
-                        const memberName = member[0];
-                        const fileWithAnchor = member[1];
-                        if (memberName.toLocaleLowerCase() === selectedWord) {
-                            results.push(fileWithAnchor);
-                        }
-                    }
+            if (mappingMember.length === 1) {
+                const className = mappingMember[0].replace(':', '-') + '.html';
+                file = path.join(portalScriptDocs, className + '#' + selectedWordU);
+            } else {
+                const question = `Found ${selectedWordU} in several classes, select one class please!`;
+                let result = await vscode.window.showQuickPick(mappingMember, {placeHolder: question});
+                if (result) {
+                    result = result.replace(':', '-') + '.html';
+                    file = path.join(portalScriptDocs, result + '#' + selectedWordU);
                 }
             }
-            if (results.length > 0) {
-                if (results.length === 1) {
-                    file = path.join(portalScriptDocs, results[0]);
-                } else {
-                    const question = `Found ${selectedWord} in several classes, select one class please!`;
-                    const result = await vscode.window.showQuickPick(results, {placeHolder: question});
-                    if (result) {
-                        file = path.join(portalScriptDocs, result);
-                    }
-                }
-            }
+
+        // module selected?
+        } else if (fs.existsSync(classHtml)) {
+            file = classHtml;
+
+        // class or interface selected?
+        } else if (fs.existsSync(moduleHtml)) {
+            file = moduleHtml;
         }
 
-        if (!file) {
-            const question = `Selected text not found in documentation, select an available documentation please!`;
-            const result = await vscode.window.showQuickPick(availableDocumentation, {placeHolder: question});
-            if (result) {
-                file = path.join(portalScriptDocs, 'class' + result + '.html');
-            }
+        // no portal script member selected, open main documentation
+        if (!file || file.length === 0) {
+            const question = 'Selected text not found in documentation, open main documentation';
+            file = path.join(portalScriptDocs, 'index.html');
         }
 
         if (file) {
