@@ -287,6 +287,8 @@ export function activate(context: vscode.ExtensionContext): void {
         new JanusDebugConfigurationProvider()));
 
     // Register commands
+
+    // this command is used for the default password entry in launch.json
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.askForPassword', () => {
             return vscode.window.showInputBox({
