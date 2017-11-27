@@ -28,7 +28,7 @@ export async function viewDocumentation() {
         return;
     }
     const extensionPath = thisExtension.extensionPath;
-    const portalScriptDocs = path.join(extensionPath, 'portalscript', 'documentation');
+    const portalScriptDocs = path.join(extensionPath, 'portalscript', 'documentation', 'portalscript-api.html');
     const activeFile = vscode.window.activeTextEditor;
     const config = vscode.workspace.getConfiguration('vscode-janus-debug');
     let browser: string | undefined = config.get('browser', '');
@@ -38,53 +38,51 @@ export async function viewDocumentation() {
     }
 
     if (portalScriptDocs && activeFile) {
+        let file = '';
         const doc = activeFile.document;
         const pos = activeFile.selection.active;
-        if (!pos) {
-            vscode.window.showWarningMessage(`Right click on a word (e.g. **context** or **util**) to get the documentation`);
-            return;
-        }
-        const range = doc.getWordRangeAtPosition(pos);
-        if (!range) {
-            vscode.window.showWarningMessage(`Right click on a word (e.g. **context** or **util**) to get the documentation`);
-            return;
-        }
-        const selectedWordU = doc.getText(range);
-        const selectedWord = selectedWordU.toLocaleLowerCase();
-        const moduleHtml = path.join(portalScriptDocs, 'module-' + selectedWord + '.html');
-        const classHtml = path.join(portalScriptDocs, selectedWordU + '.html');
-        const mappingMember = mapping[selectedWordU];
-        let file = '';
+        if (doc && pos) {
+            const range = doc.getWordRangeAtPosition(pos);
+            if (range) {
+                const selectedWord = doc.getText(range);
+                const selectedWordL = selectedWord.toLocaleLowerCase();
+                const moduleName: string = (mapping['class-names'].indexOf('module:' + selectedWordL) >= 0) ? 'module:' + selectedWordL : '';
+                const className: string = (mapping['class-names'].indexOf(selectedWord) >= 0) ? selectedWord : '';
+                const functionOrMember: string[] = mapping[selectedWord];
 
-        // function or member selected?
-        if (mappingMember && mappingMember.length > 0) {
-            if (!browser) {
-                vscode.window.showWarningMessage(`Jump to **${selectedWord}**: pecify a browser in **vscode-janus-debug.browser**`);
-            }
-            if (mappingMember.length === 1) {
-                const className = mappingMember[0].replace(':', '-') + '.html';
-                file = path.join(portalScriptDocs, className + '#' + selectedWordU);
-            } else {
-                const question = `Found ${selectedWordU} in several classes, select one class please!`;
-                let result = await vscode.window.showQuickPick(mappingMember, {placeHolder: question});
-                if (result) {
-                    result = result.replace(':', '-') + '.html';
-                    file = path.join(portalScriptDocs, result + '#' + selectedWordU);
+                // function or member selected?
+                if (functionOrMember && functionOrMember.length > 0) {
+                    if (!browser) {
+                        vscode.window.showWarningMessage(`Jump to **${selectedWordL}**: pecify a browser in **vscode-janus-debug.browser**`);
+                    }
+                    if (functionOrMember.length === 1) {
+                        const classNameHtml = functionOrMember[0].replace(':', '-') + '.html';
+                        file = path.join(portalScriptDocs, '#' + classNameHtml + '&' + selectedWord);
+                    } else {
+                        const question = `Found ${selectedWord} in several classes, select one class please!`;
+                        let result = await vscode.window.showQuickPick(functionOrMember, {placeHolder: question});
+                        if (result) {
+                            result = result.replace(':', '-') + '.html';
+                            file = path.join(portalScriptDocs, '#' + result + '&' + selectedWord);
+                        }
+                    }
+
+                // module selected?
+                } else if (moduleName.length > 0) {
+                    const moduleNameHtml = moduleName.replace(':', '-') + '.html';
+                    file = portalScriptDocs + '#' + moduleNameHtml;
+
+                // class or interface selected?
+                } else if (className.length > 0) {
+                    const classNameHtml = className + '.html';
+                    file = portalScriptDocs + '#' + classNameHtml;
                 }
             }
-
-        // module selected?
-        } else if (fs.existsSync(classHtml)) {
-            file = classHtml;
-
-        // class or interface selected?
-        } else if (fs.existsSync(moduleHtml)) {
-            file = moduleHtml;
         }
 
         // no portal script member selected, open main documentation
         if (!file || file.length === 0) {
-            file = path.join(portalScriptDocs, 'index.html');
+            file = portalScriptDocs;
         }
 
         if (file) {
