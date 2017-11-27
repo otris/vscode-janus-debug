@@ -58,8 +58,8 @@ getAttribute(attribute: string): string;
 * @function getCustomProperties
 * @instance
 * @summary Get a CustomPropertyIterator with custom properties of the current AccessProfile. 
-* @param {string} nameFilter String value defining an optional filter depending on the name 
-* @param {string} typeFilter String value defining an optional filter depending on the type 
+* @param {string} [nameFilter] String value defining an optional filter depending on the name 
+* @param {string} [typeFilter] String value defining an optional filter depending on the type 
 * @returns {CustomPropertyIterator} CustomPropertyIterator
 * @since DOCUMENTS 5.0
 * @see [Context.findCustomProperties]{@link Context#findCustomProperties} 
@@ -91,7 +91,7 @@ getLastError(): string;
 * @function getOID
 * @instance
 * @summary Returns the object-id. 
-* @param {boolean} oidLow Optional flag: 
+* @param {boolean} [oidLow] Optional flag: 
 * If true only the id of the filetype object (m_oid) will be returned. 
 * If false the id of the filetype object will be returned together with the id of the corresponding class in the form class-id:m_oid. 
 * The default value is false. 
@@ -305,8 +305,8 @@ putBlob(doc: Document, blobreference: string): boolean;
 * @description With this method you can send a query EQL to the XML-Server of EASY ENTERPRISE.x If the method succeed the return value is the response-xml, otherwise it returns NULL. If the value is NULL you can retrieve the error message by executing ArchiveConnection.getLastError()
 * Note: Method is only available for EE.x using XML-Server 
 * @param {string} eql String containing the EQL 
-* @param {number} wantedHits Int with the number of currently wanted hits (optional) 
-* @param {number} maxHits Int with the max. number of hits, that the ArchiveConnection should respond (optional) 
+* @param {number} [wantedHits] Int with the number of currently wanted hits (optional) 
+* @param {number} [maxHits] Int with the max. number of hits, that the ArchiveConnection should respond (optional) 
 * @returns {string} String with the response (xml) or NULL in case of any error 
 * @since ELC 3.60h / otrisPORTAL 6.0h
 * @example
@@ -331,8 +331,8 @@ queryRawEEx(eql: string, wantedHits?: number, maxHits?: number): string;
 * Remark: The function is unable to handle a response with binary data. The function does not check the parameters for illegal characters, such as linefeeds in the extraHeaders, for example. 
 * Note: Method is only available for EBIS 
 * @param {string} resourceIdentifier String containing the REST resource identifier (in other words: the back part of the URL). 
-* @param {string} postData A optional String with content data of a HTTP-POST request. If the parameter is missing or empty, the function generates a GET request. 
-* @param {string[]} extraHeaders A optional Array of Strings with an even number of elements. The first element of each pair must contain the name, the second one the value of an additional HTTP header element. 
+* @param {string} [postData] A optional String with content data of a HTTP-POST request. If the parameter is missing or empty, the function generates a GET request. 
+* @param {string[]} [extraHeaders] A optional Array of Strings with an even number of elements. The first element of each pair must contain the name, the second one the value of an additional HTTP header element. 
 * @returns {string} A String with the response. This may be an XML or plain text. It depends on the request. 
 * @since DOCUMENTS 5.0a
 * @example
@@ -648,7 +648,7 @@ getLastError(): string;
 * @function getOID
 * @instance
 * @summary Returns the object-id. 
-* @param {boolean} oidLow Optional flag: 
+* @param {boolean} [oidLow] Optional flag: 
 * If true only the id of the filetype object (m_oid) will be returned. 
 * If false the id of the filetype object will be returned together with the id of the corresponding class in the form class-id:m_oid. 
 * The default value is false. 
@@ -1077,8 +1077,8 @@ export function addCustomProperty(name: string, type: string, value: string): Cu
 * @description Since date manipulation in Javascript is odd sometimes, this useful function allows to conveniently add a given period of time to a given date, e.g. to calculate a due date based upon the current date plus xx days 
 * @param {Date} ts Date object to which the period of time should be added 
 * @param {number} amount integer value of the period of time to be added 
-* @param {string} unit String value representing the time unit of the period of time. You may use one of the following unit values: "minutes""hours""days""weeks"
-* @param {boolean} useWorkCalendar true if work calendar should be taken into account, false if not. The work calendar has to be defined at Documents->Settings 
+* @param {string} [unit] String value representing the time unit of the period of time. You may use one of the following unit values: "minutes""hours""days""weeks"
+* @param {boolean} [useWorkCalendar] true if work calendar should be taken into account, false if not. The work calendar has to be defined at Documents->Settings 
 * @returns {Date} Date object with the new date. 
 * @since ELC 3.50e / otrisPORTAL 5.0e
 * @see [Context.getDatesDiff]{@link Context#getDatesDiff} 
@@ -1128,7 +1128,7 @@ export function clearEnumvalCache(scriptName: string): boolean;
 * @summary Convert a Date object representing a date into a String. 
 * @description The output String is in the date format of the specified locale. If you leave the locale parameter away the current locale of the script context will be used. 
 * @param {Date} dateOrTimeStamp Date/Timestamp object representing the desired date 
-* @param {string} locale 
+* @param {string} [locale] 
 * @returns {string} 
 * @since DOCUMENTS 4.0c HF1
 * @see [Util.convertDateToString]{@link Util#convertDateToString} 
@@ -1154,7 +1154,7 @@ export function convertDateToString(dateOrTimeStamp: Date, locale?: string): str
 * @param {number} value Numeric object representing the number 
 * @param {string} decimalSep Decimal-Separator as String 
 * @param {string} thousandSep Thousend-Separator as String 
-* @param {number} precision Precision as number (default=2) 
+* @param {number} [precision] Precision as number (default=2) 
 * @returns {string} String representing the desired number 
 * @since ELC 3.60c / otrisPORTAL 6.0c
 * @see [Context.convertNumericToString]{@link Context#convertNumericToString} 
@@ -1171,8 +1171,8 @@ export function convertNumericToString(value: number, decimalSep: string, thousa
 * @summary Converts a Number into a formatted String. 
 * @description The output String is formatted like the definition in the locale. If the locale is not defined by parameter, the locale of the current user will be used. 
 * @param {number} value Numeric object representing the number 
-* @param {string} locale Locale as String 
-* @param {number} precision 
+* @param {string} [locale] Locale as String 
+* @param {number} [precision] 
 * @returns {string} String representing the desired number 
 * @since ELC 3.60c / otrisPORTAL 6.0c
 * @see [Context.convertNumericToString]{@link Context#convertNumericToString} 
@@ -1222,7 +1222,7 @@ export function convertStringToNumeric(numericValue: string, decimalSep: string,
 * @summary Converts a formated String into a number. 
 * @description The input String has to be formatted like the definition in the locale. If the locale is not defined by parameter, the locale of the current user will be used. 
 * @param {string} numericValue Formatted numeric String 
-* @param {string} locale Locale as String 
+* @param {string} [locale] Locale as String 
 * @returns {number} the numeric number (float) or NULL if fail 
 * @since ELC 3.60c / otrisPORTAL 6.0c
 * @see [Context.convertStringToNumeric]{@link Context#convertStringToNumeric} 
@@ -1299,7 +1299,7 @@ export function createArchiveServer(name: string, type: string): ArchiveServer;
 * @description Note: The license type "shared" is only available for pure archive retrieval users. It is not possible to create a shared user with DOCUMENTS access! 
 * @param {string} loginName login of the fellow 
 * @param {boolean} isDlcUser automatically grant DOCUMENTS access (true/false) 
-* @param {string} licenseType optional definition of the license type for that user (allowed values are "named", "concurrent_standard", "concurrent_open" and "shared" (deprecated: "concurrent") 
+* @param {string} [licenseType] optional definition of the license type for that user (allowed values are "named", "concurrent_standard", "concurrent_open" and "shared" (deprecated: "concurrent") 
 * @returns {SystemUser} SystemUser object as a representation of the newly created fellow; if the creation fails (e.g. due to a lack of appropriate licenses), the method returns null
 * @since ELC 3.60f / otrisPORTAL 6.0f 
 * @since DOCUMENTS 4.0d HF3 / DOCUMENTS 5.0 (new licenseType "concurrent_standard", "concurrent_open")
@@ -1374,7 +1374,7 @@ export function createPoolFile(fileType: string): boolean;
 * @description Note: The license type "shared" is only available for pure archive retrieval users. It is not possible to create a shared user with DOCUMENTS access! 
 * @param {string} loginName login of the user 
 * @param {boolean} isDlcUser automatically grant DOCUMENTS access (true/false) 
-* @param {string} licenseType optional definition of the license type for that user (allowed values are "named", "concurrent" and "shared") 
+* @param {string} [licenseType] optional definition of the license type for that user (allowed values are "named", "concurrent" and "shared") 
 * @returns {SystemUser} SystemUser object as a representation of the newly created user; if the creation fails (e.g. due to a lack of appropriate licenses), the method returns null
 * @since ELC 3.51e / otrisPORTAL 5.1e 
 * @since DOCUMENTS 4.0d HF3 / DOCUMENTS 5.0 (new licenseType "concurrent_standard", "concurrent_open")
@@ -1570,7 +1570,7 @@ export function findSystemUserByAlias(alias: string): SystemUser;
 * @instance
 * @summary Get an iterator with all access profiles of in the DOCUMENTS environment. 
 * @description Note: This method can only return access profiles which are checkmarked as being visible in DOCUMENTS lists. 
-* @param {boolean} includeInvisibleProfiles optional boolean value to define, if access profiles that are not checkmarked as being visible in DOCUMENTS lists should be included 
+* @param {boolean} [includeInvisibleProfiles] optional boolean value to define, if access profiles that are not checkmarked as being visible in DOCUMENTS lists should be included 
 * @returns {AccessProfileIterator} AccessProfileIterator object with all AccessProfile in DOCUMENTS 
 * @since ELC 3.51g / otrisPORTAL 5.1g 
 * @since ELC 3.60e / otrisPORTAL 6.0e (new parameter includeInvisibleProfiles)
@@ -1720,8 +1720,8 @@ export function getCurrentUserAttribute(attributeName: string): string;
 * @function getCustomProperties
 * @instance
 * @summary Get a CustomPropertyIterator with global custom properties. 
-* @param {string} nameFilter String value defining an optional filter depending on the name 
-* @param {string} typeFilter String value defining an optional filter depending on the type 
+* @param {string} [nameFilter] String value defining an optional filter depending on the name 
+* @param {string} [typeFilter] String value defining an optional filter depending on the type 
 * @returns {CustomPropertyIterator} CustomPropertyIterator
 * @since DOCUMENTS 5.0
 * @see [Context.findCustomProperties]{@link Context#findCustomProperties} 
@@ -1743,8 +1743,8 @@ export function getCustomProperties(nameFilter?: string, typeFilter?: string): C
 * @description This function calculates the time difference between two Date objects, for example if you need to know how many days a business trip takes. By default this function takes the work calendar into account if it is configured and enabled for the principal. 
 * @param {Date} earlierDate Date object representing the earlier date 
 * @param {Date} laterDate Date object representing the later date 
-* @param {string} unit optional String value defining the unit, allowed values are "minutes", "hours" and "days" (default) 
-* @param {boolean} useWorkCalendar optional boolean to take office hours into account or not (requires enabled and configured work calendar) 
+* @param {string} [unit] optional String value defining the unit, allowed values are "minutes", "hours" and "days" (default) 
+* @param {boolean} [useWorkCalendar] optional boolean to take office hours into account or not (requires enabled and configured work calendar) 
 * @returns {number} integer value representing the difference between the two dates 
 * @since ELC 3.51b / otrisPORTAL 5.1b
 * @example
@@ -1867,7 +1867,7 @@ export function getFileTypeErgName(fileType: string, locale: string): string;
 * @instance
 * @summary Returns the object-id of a filetype. 
 * @param {string} nameFiletype String value containing the technical name of the filetype.
-* @param {boolean} oidLow Optional flag: 
+* @param {boolean} [oidLow] Optional flag: 
 * If true only the id of the filetype object (m_oid) will be returned. 
 * If false the id of the filetype object will be returned together with the id of the corresponding class in the form class-id:m_oid. 
 * The default value is false. 
@@ -2041,7 +2041,7 @@ export function getSystemUser(): SystemUser;
 * @instance
 * @summary Get a list of all users created in the system. 
 * @description Note: The method can only return users which are checkmarked as being visible in DOCUMENTS lists. 
-* @param {boolean} includeLockedUsers optional defnition, if locked users also should be returned 
+* @param {boolean} [includeLockedUsers] optional defnition, if locked users also should be returned 
 * @returns {SystemUserIterator} SystemUserIterator object containing a list of all (visible) users created in the system. 
 * @since ELC 3.50b / otrisPORTAL 5.0b 
 * @since DOCUMENTS 4.0c new optional parameter includeLockedUsers
@@ -2089,7 +2089,7 @@ export function getXMLServer(archiveServerName: string): ArchiveConnection;
 * @param {string} server String containing the IP address or server host 
 * @param {number} port int containing the port on which the server is listening 
 * @param {string} request String with the request that should be sent to the server 
-* @param {number} responseTimeout int with the timeout for the response in ms. Default value is 3000ms 
+* @param {number} [responseTimeout] int with the timeout for the response in ms. Default value is 3000ms 
 * @returns {string} String containing the response and NULL on error 
 * @since ELC 3.60b / otrisPORTAL 6.0b
 * @example
@@ -2421,8 +2421,8 @@ getLastError(): string;
 * @function getSubProperties
 * @instance
 * @summary Get a CustomPropertyIterator with subproperties of the custom property. 
-* @param {string} nameFilter String value defining an optional filter depending on the name 
-* @param {string} typeFilter String value defining an optional filter depending on the type 
+* @param {string} [nameFilter] String value defining an optional filter depending on the name 
+* @param {string} [typeFilter] String value defining an optional filter depending on the type 
 * @returns {CustomPropertyIterator} CustomPropertyIterator
 * @since DOCUMENTS 5.0
 * @see [CustomProperty.setOrAddSubProperty]{@link CustomProperty#setOrAddSubProperty} 
@@ -2449,7 +2449,7 @@ getSubProperties(nameFilter?: string, typeFilter?: string): CustomPropertyIterat
 * @instance
 * @summary Connects a custom property to an AccessProfile. 
 * @description An empty profile name disconnects the AccessProfile
-* @param {string} nameAccessProfile 
+* @param {string} [nameAccessProfile] 
 * @returns {boolean} 
 **/
 setAccessProfile(nameAccessProfile?: string): boolean;
@@ -2470,7 +2470,7 @@ setAttribute(attribute: string, value: string): boolean;
 * @function setFiletype
 * @instance
 * @summary Connects a custom property to a filetype. 
-* @param {string} nameFiletype 
+* @param {string} [nameFiletype] 
 * @returns {boolean} 
 **/
 setFiletype(nameFiletype?: string): boolean;
@@ -2504,7 +2504,7 @@ setOrAddSubProperty(name: string, type: string, value: string): CustomProperty;
 * @instance
 * @summary Connects a custom property to a SystemUser. 
 * @description An empty login disconnects the SystemUser
-* @param {string} login 
+* @param {string} [login] 
 * @returns {boolean} 
 **/
 setSystemUser(login?: string): boolean;
@@ -2840,9 +2840,9 @@ abort(): boolean;
 * @param {string} pathDocument String value containing the complete filepath to the source file on the server 
 * @param {string} targetRegister String value containing the technical name of the desired Register
 * @param {string} targetFileName String value containing the desired filename of the uploaded Document
-* @param {boolean} deleteDocumentAtFileSystem optional boolean value to decide whether to delete the source file on the server's filesystem 
-* @param {boolean} parseAutoText optional boolean value to decide whether to parse the AutoText values inside the source file. Note: if you want to make use of AutoTexts in this kind of template files, you need to use double percentage signs instead of single ones, e.g. %%Field1%% instead of %Field1%! 
-* @param {DocFile} referencFileToParse optional DocFile object to be used to parse the AutoTexts inside the template. If you omit this parameter, the current DocFile object is used as the data source. 
+* @param {boolean} [deleteDocumentAtFileSystem] optional boolean value to decide whether to delete the source file on the server's filesystem 
+* @param {boolean} [parseAutoText] optional boolean value to decide whether to parse the AutoText values inside the source file. Note: if you want to make use of AutoTexts in this kind of template files, you need to use double percentage signs instead of single ones, e.g. %%Field1%% instead of %Field1%! 
+* @param {DocFile} [referencFileToParse] optional DocFile object to be used to parse the AutoTexts inside the template. If you omit this parameter, the current DocFile object is used as the data source. 
 * @returns {Document} Document if successful, null in case of any error 
 * @since ELC 3.51f / otrisPORTAL 5.1f 
 * @since ELC 3.60i / otrisPORTAL 6.0i available for archive files
@@ -3113,8 +3113,8 @@ countFields(fieldName: string): number;
 * @summary Creates a workflow monitor file in the server's file system. 
 * @description This method creates a monitor file in the server's file system with the workflow monitor content of the DocFile. The file will be created as a html-file. 
 * Note: This generated file will no be automatically added to the DocFile
-* @param {boolean} asPDF boolean parameter that indicates that a pdf-file must be created instead of a html-file 
-* @param {string} locale String (de, en,..) in which locale the file must be created (empty locale = log-in locale) 
+* @param {boolean} [asPDF] boolean parameter that indicates that a pdf-file must be created instead of a html-file 
+* @param {string} [locale] String (de, en,..) in which locale the file must be created (empty locale = log-in locale) 
 * @returns {string} String containing the path of the created file 
 * @since DOCUMENTS 4.0a HF2 
 **/
@@ -3126,8 +3126,8 @@ createMonitorFile(asPDF?: boolean, locale?: string): string;
 * @summary Creates a status file in the server's file system. 
 * @description This method creates a status file in the server's file system with the status content of the DocFile. The file will be created as a html-file. 
 * Note: This generated file will no be automatically added to the DocFile
-* @param {boolean} asPDF boolean parameter that indicates that a pdf-file must ge created instead of a html-file 
-* @param {string} locale String (de, en,..) in which locale the file must be created (empty locale = log-in locale) 
+* @param {boolean} [asPDF] boolean parameter that indicates that a pdf-file must ge created instead of a html-file 
+* @param {string} [locale] String (de, en,..) in which locale the file must be created (empty locale = log-in locale) 
 * @returns {string} String containing the path of the created file 
 * @since DOCUMENTS 4.0a HF2 
 **/
@@ -3140,9 +3140,9 @@ createStatusFile(asPDF?: boolean, locale?: string): string;
 * @description If there's another PortalScript attached to the onDelete scripting hook, it will be executed right before the deletion takes place. 
 * Note: It is strictly forbidden to access the DocFile object after this function has been executed successfully; if you try to access it, your script will fail, because the DocFile does not exist any longer in DOCUMENTS. For the same reason it is strictly forbidden to execute this function in a signal exit PortalScript. 
 * Note: The parameters moveTrash, movePool are ignored for archive files. The parameter allVersions requires an EAS/EDA file and is ignored otherwise.
-* @param {boolean} moveTrash optional boolean parameter to decide whether to move the deleted file to the trash folder 
-* @param {boolean} movePool optional boolean parameter to decide whether to move the deleted file's object to the file pool 
-* @param {boolean} allVersions optional boolean parameter to delete all versions of an EAS archive file at once. 
+* @param {boolean} [moveTrash] optional boolean parameter to decide whether to move the deleted file to the trash folder 
+* @param {boolean} [movePool] optional boolean parameter to decide whether to move the deleted file's object to the file pool 
+* @param {boolean} [allVersions] optional boolean parameter to delete all versions of an EAS archive file at once. 
 * @returns {boolean} true if successful, false in case of any error 
 * @since ELC 3.50 / otrisPORTAL 5.0 (moveTrash parameter since ELC 3.50n / otrisPORTAL 5.0n, movePool parameter since ELC 3.51f / otrisPORTAL 5.1f, allVersions since DOCUMENTS 4.0e) 
 * @since DOCUMENTS 4.0a HF1 (available for archive files) 
@@ -3188,8 +3188,8 @@ disconnectFolder(fObj: Folder): boolean;
 * @summary Export the file as an XML file. 
 * @param {string} pathXML String containing full path and filename of the desired target xml file 
 * @param {boolean} withDocuments boolean value to include the documents. The value must be set to true in case status or monitor information are to be inserted. 
-* @param {boolean} withStatus boolean value to include status information. The value must be set to true in order to add the status. Status Information will then be generated into a file which will be added to the documents. Please note that therefore withDocuments must be set to true in order to get Status information. 
-* @param {boolean} withMonitor boolean value to include Monitor information. The value must be set to true in order to add the monitor. Monitor Information will then be generated into a file which will be added to the documents. Please note that therefore withDocuments must be set to true in order to get Monitor information.
+* @param {boolean} [withStatus] boolean value to include status information. The value must be set to true in order to add the status. Status Information will then be generated into a file which will be added to the documents. Please note that therefore withDocuments must be set to true in order to get Status information. 
+* @param {boolean} [withMonitor] boolean value to include Monitor information. The value must be set to true in order to add the monitor. Monitor Information will then be generated into a file which will be added to the documents. Please note that therefore withDocuments must be set to true in order to get Monitor information.
 * @returns {boolean} true if successful, false in case of any error 
 * @since ELC 3.50a / otrisPORTAL 5.0a 
 * @since ELC 3.60e / otrisPORTAL 6.0e (Option: export of status & monitor)
@@ -3254,7 +3254,7 @@ getAllWorkflowSteps(): WorkflowStepIterator;
 * @instance
 * @summary After archiving of a file this method returns the key of the file in the archive. 
 * @description Note: If the file is not archived or archived without versioning or uncoupled from the achived file the key is empty. 
-* @param {boolean} withServer optional boolean value to indicate, if the key should include an "@archiveServerName" appendix 
+* @param {boolean} [withServer] optional boolean value to indicate, if the key should include an "@archiveServerName" appendix 
 * @returns {string} String containing the key. 
 * @since ELC 3.60a / otrisPORTAL 6.0a 
 * @since ELC 3.60i / otrisPORTAL 6.0i available for archive files
@@ -3355,7 +3355,7 @@ getCreationDate(): Date;
 * @function getCreator
 * @instance
 * @summary Returns the SystemUser object or fullname as String of the creator of the DocFile. 
-* @param {boolean} asObject optional boolean value, that specifies, if the SystemUser object or the fullname should be returned. 
+* @param {boolean} [asObject] optional boolean value, that specifies, if the SystemUser object or the fullname should be returned. 
 * @returns {any} asObject=true:SystemUser object or null (if user does not exist anymore) 
 * @since DOCUMENTS 5.0c
 * @see [DocFile.getLastModifier]{@link DocFile#getLastModifier} 
@@ -3439,7 +3439,7 @@ getFieldAttribute(fieldName: string, attrName: string): string;
 * </ul>
 * 
 * @param {string} fieldName Name of the field as String 
-* @param {string} autoText 
+* @param {string} [autoText] 
 * @returns {string} String with the AutoText. 
 * @since DOCUMENTS 5.0c
 * @example
@@ -3603,7 +3603,7 @@ getLastModifier(): string;
 * @function getOID
 * @instance
 * @summary Returns the object-id. 
-* @param {boolean} oidLow Optional flag: 
+* @param {boolean} [oidLow] Optional flag: 
 * If true only the id of the filetype object (m_oid) will be returned. 
 * If false the id of the filetype object will be returned together with the id of the corresponding class in the form class-id:m_oid. 
 * The default value is false. 
@@ -3657,7 +3657,7 @@ getReferenceFile(referenceFileField: string): DocFile;
 * @instance
 * @description Note: Until version 5.0c this method ignored the access rights of the user to the register. With the optional parameter checkAccessRight this can now be done. For backward compatibility the default value is set to false.
 * @param {string} registerName String value containing the technical name of the desired register 
-* @param {boolean} checkAccessRight optional boolean value, that indicates if the access rights should be considered. 
+* @param {boolean} [checkAccessRight] optional boolean value, that indicates if the access rights should be considered. 
 * @returns {Register} Register object representing the desired register 
 * @since ELC 3.50n / otrisPORTAL 5.0n 
 * @since ELC 3.60i / otrisPORTAL 6.0i available for archive files 
@@ -3674,9 +3674,9 @@ getRegisterByName(registerName: string, checkAccessRight?: boolean): Register;
 * @instance
 * @summary Get an iterator with the registers of the file for the specified type. 
 * @description Note: Until version 5.0c this method ignored the access rights of the user to the register. With the optional parameter checkAccessRight this can now be done. For backward compatibility the default value is set to false.
-* @param {string} type optional String value to filter for a desired register type. Default type is documents
+* @param {string} [type] optional String value to filter for a desired register type. Default type is documents
 * Allowed values: documentsfieldslinksarchiveddocumentsexternalcallall (returns all registers independent of the type) 
-* @param {boolean} checkAccessRight optional boolean value, that indicates if the access rights should be considered. 
+* @param {boolean} [checkAccessRight] optional boolean value, that indicates if the access rights should be considered. 
 * @returns {RegisterIterator} RegisterIterator with all registers (matching the filter) 
 * @since ELC 3.50n / otrisPORTAL 5.0n 
 * @since ELC 3.60i / otrisPORTAL 6.0i available for archive files 
@@ -3693,7 +3693,7 @@ getRegisters(type?: string, checkAccessRight?: boolean): RegisterIterator;
 * @instance
 * @summary Returns the title of the DocFile. 
 * @description Note: the special locale raw returns the title in all locales
-* @param {string} locale 
+* @param {string} [locale] 
 * @returns {string} String with the title. 
 * @since DOCUMENTS 5.0c 
 * @example
@@ -4018,10 +4018,10 @@ startWorkflow(workflowName: string): boolean;
 * @summary Synchronize any changes to the DocFile object back to the real file. 
 * @description If you want to apply changes to file fields through a script that is executed as a signal exit inside a workflow, you should rather prefer sync() than the startEdit() / commit() instruction pair. 
 * Note: If there's a scratch copy of the file in the system (e.g. by some user through the web surface), committing the changes in the scratch copy results in the effect that your synced changes are lost. So be careful with the usage of this operation. 
-* @param {boolean} checkHistoryFields optional boolean parameter has to be set to true, if the file contains history fields, that are modified 
-* @param {boolean} notifyHitlistChange optional boolean parameter indicates the web client to refresh the current hitlist 
-* @param {boolean} updateRefFields optional boolean parameter indicates to update reference fields if using the property UpdateByRefFields 
-* @param {boolean} updateModifiedDate optional boolean parameter indicates to update the modification date of the file 
+* @param {boolean} [checkHistoryFields] optional boolean parameter has to be set to true, if the file contains history fields, that are modified 
+* @param {boolean} [notifyHitlistChange] optional boolean parameter indicates the web client to refresh the current hitlist 
+* @param {boolean} [updateRefFields] optional boolean parameter indicates to update reference fields if using the property UpdateByRefFields 
+* @param {boolean} [updateModifiedDate] optional boolean parameter indicates to update the modification date of the file 
 * @returns {boolean} true if successful, false in case of any error 
 * @since ELC 3.50 / otrisPORTAL 5.0 (checkHistoryFields parameter since ELC 3.60i / otrisPORTAL 6.0i) 
 * @since DOCUMENTS 5.0a (new parameter updateRefFields) 
@@ -4093,7 +4093,7 @@ getArchiveFile(): DocFile;
 * @function getArchiveKey
 * @instance
 * @summary Retrieve the key of the associated archive file object. 
-* @param {boolean} withServer optional boolean value to indicate, if the key should include an "@archiveServerName" appendix 
+* @param {boolean} [withServer] optional boolean value to indicate, if the key should include an "@archiveServerName" appendix 
 * @returns {string} The archive file's key as a String, but an empty String, if the hit does not refer to an archive file. 
 * @since DOCUMENTS 4.0b 
 * @see [getFileId]{@link getFileId} 
@@ -4412,9 +4412,9 @@ deleteDocument(): boolean;
 * @function downloadDocument
 * @instance
 * @summary Download the Document to the server's filesystem for further use. 
-* @param {string} filePath Optional string specifying where the downloaded Document to be stored. 
+* @param {string} [filePath] Optional string specifying where the downloaded Document to be stored. 
 * Note: A file path containing special characters can be modified due to the encoding problem. The modified file path will be returned. 
-* @param {string} version Optional string value specifying which version of this Document to be downloaded (e.g. "2.0"). The default value is the active version. 
+* @param {string} [version] Optional string value specifying which version of this Document to be downloaded (e.g. "2.0"). The default value is the active version. 
 * Note: This parameter is ignored for an archive document. 
 * @returns {string} String containing full path and file name of the downloaded Document, an empty string in case of any error. 
 * @since ELC 3.50n / otrisPORTAL 5.0n 
@@ -4501,7 +4501,7 @@ getLastError(): string;
 * @function getOID
 * @instance
 * @summary Returns the object-id. 
-* @param {boolean} oidLow Optional flag: 
+* @param {boolean} [oidLow] Optional flag: 
 * If true only the id of the filetype object (m_oid) will be returned. 
 * If false the id of the filetype object will be returned together with the id of the corresponding class in the form class-id:m_oid. 
 * The default value is false. 
@@ -4556,7 +4556,7 @@ setAttribute(attribute: string, value: string): boolean;
 * @description Note: After successful upload of the Document the source file on the server's directory structure is removed! 
 * @param {string} sourceFilePath String containing the path of the desired file to be uploaded. 
 * Note: Backslashes contained in the filepath must be quoted with a leading backslash, since the backslash is a special char in ECMAScript! 
-* @param {boolean} versioning Optional flag: true for versioning the Document and false for replacing it. 
+* @param {boolean} [versioning] Optional flag: true for versioning the Document and false for replacing it. 
 * @returns {boolean} true if successful, false in case of any error 
 * @since DOCUMENTS 4.0d
 * @example
@@ -6134,7 +6134,7 @@ getLocaleLabel(locale: string): string;
 * @function getOID
 * @instance
 * @summary Returns the object-id. 
-* @param {boolean} oidLow Optional flag: 
+* @param {boolean} [oidLow] Optional flag: 
 * If true only the id of the filetype object (m_oid) will be returned. 
 * If false the id of the filetype object will be returned together with the id of the corresponding class in the form class-id:m_oid. 
 * The default value is false. 
@@ -6555,7 +6555,7 @@ getColumnIndex(colName: string): number;
 * @summary List the names of all columns in the set of hits. 
 * @description Remark: If the resultset is bases on an EE.i hitlist, the function usually returns field numbers instead of technical names, because column descriptions of an EE.i hitlist only consist of the field number and a label. The label would not be a reliable identifier of the column.
 * Columns, which correspond to a DocFile attribute may be given a special constant name instead of the name in an archive's scheme. "TITLE" on EE.x and "110" on EE.i may be presented as "DlcFile_Title", for example. 
-* @param {boolean} local A boolean option to read the localized names instead of the technical names. 
+* @param {boolean} [local] A boolean option to read the localized names instead of the technical names. 
 * @returns {Array<any>} Array of strings with the column names. 
 * @since DOCUMENTS 4.0b 
 **/
@@ -6767,7 +6767,7 @@ getLastError(): string;
 * @function getOID
 * @instance
 * @summary Returns the object-id. 
-* @param {boolean} oidLow Optional flag: 
+* @param {boolean} [oidLow] Optional flag: 
 * If true only the id of the filetype object (m_oid) will be returned. 
 * If false the id of the filetype object will be returned together with the id of the corresponding class in the form class-id:m_oid. 
 * The default value is false. 
@@ -7537,8 +7537,8 @@ getBackDelegatedFiles(removeFromAgentInbox: boolean): boolean;
 * @instance
 * @summary Get a CustomPropertyIterator with all CustomProperty of the user. 
 * @description This method returns a CustomPropertyIterator with the CustomProperty of the user. 
-* @param {string} nameFilter String value defining an optional filter depending on the name 
-* @param {string} typeFilter String value defining an optional filter depending on the type 
+* @param {string} [nameFilter] String value defining an optional filter depending on the name 
+* @param {string} [typeFilter] String value defining an optional filter depending on the type 
 * @returns {CustomPropertyIterator} CustomPropertyIterator
 * @since DOCUMENTS 4a
 * @see [Context.findCustomProperties]{@link Context#findCustomProperties} 
@@ -7586,7 +7586,7 @@ getLastError(): string;
 * @function getOID
 * @instance
 * @summary Returns the object-id. 
-* @param {boolean} oidLow Optional flag: 
+* @param {boolean} [oidLow] Optional flag: 
 * If true only the id of the filetype object (m_oid) will be returned. 
 * If false the id of the filetype object will be returned together with the id of the corresponding class in the form class-id:m_oid. 
 * The default value is false. 
@@ -7705,7 +7705,7 @@ listFileTypeAgents(fileType: string): Array<any>;
 * @function notifyFileReturnedFromSending
 * @instance
 * @summary Define whether to notify the user by e-mail of files returned from sending. 
-* @param {boolean} notifying boolean indicating whether files returned from sending are to be notified to the user. The default value is true. 
+* @param {boolean} [notifying] boolean indicating whether files returned from sending are to be notified to the user. The default value is true. 
 * @returns {boolean} true if successful, false in case of any error. 
 * @since DOCUMENTS 5.0a
 * @example
@@ -7723,7 +7723,7 @@ notifyFileReturnedFromSending(notifying?: boolean): boolean;
 * @function notifyNewFileInInbox
 * @instance
 * @summary Define whether to notify the user by e-mail of new files in inbox. 
-* @param {boolean} notifying boolean indicating whether new files in inbox are to be notified to the user. The default value is true. 
+* @param {boolean} [notifying] boolean indicating whether new files in inbox are to be notified to the user. The default value is true. 
 * @returns {boolean} true if successful, false in case of any error. 
 * @since DOCUMENTS 5.0a
 * @example
@@ -7784,11 +7784,11 @@ resetSuperior(): boolean;
 * @summary Set a Systemuser absent or present. 
 * @description If a Systemuser is on holiday with this function it is possible to set the user absent. After his return you can set him present. You can also define one or more agents for the absent user. The agent will get new files for the absent user in substitution. With the agent list you set the agents for the user (you overwrite the existing agents!). With an empty agent list you remove all agents. 
 * @param {boolean} absent boolean true, if the user should be set absent, false, if the user is present 
-* @param {boolean} filesDueAbsenceToInfo boolean set to true, if the user should get the files due absence to info in his inbox 
-* @param {string[]} agents Array with the login-names of the agents 
-* @param {boolean} removeFromAgentInbox Optional boolean indicating whether the files are removed from agent inbox after getting back by the user. If this parameter is not specified, the value from the user settings in the absent dialog on the web is used. 
-* @param {Date} from Optional Date object specifying when the absence begins. 
-* @param {Date} until Optional Date object specifying when the absence ends. 
+* @param {boolean} [filesDueAbsenceToInfo] boolean set to true, if the user should get the files due absence to info in his inbox 
+* @param {string[]} [agents] Array with the login-names of the agents 
+* @param {boolean} [removeFromAgentInbox] Optional boolean indicating whether the files are removed from agent inbox after getting back by the user. If this parameter is not specified, the value from the user settings in the absent dialog on the web is used. 
+* @param {Date} [from] Optional Date object specifying when the absence begins. 
+* @param {Date} [until] Optional Date object specifying when the absence ends. 
 * @returns {boolean} true if correct, otherwise false an error message describing the error with getLastError(). 
 * @since ELC 3.60g / otrisPORTAL 6.0g 
 * @since DOCUMENTS 4.0d (Option: removeFromAgentInbox) 
@@ -7824,7 +7824,7 @@ setAbsent(absent: boolean, filesDueAbsenceToInfo?: boolean, agents?: string[], r
 * @summary Define if an absence mail for the absent user will be sent to the sender of the file. 
 * @description If a Systemuser is absent and get a file in the inbox, an absence mail to the sender of this file can be send. 
 * @param {boolean} sendMail boolean true, if an absent mail should be sent, otherwise false
-* @param {string} message String with an additional e-mail message from the absent user 
+* @param {string} [message] String with an additional e-mail message from the absent user 
 * @returns {boolean} true if succeeded, otherwise false - an error message describing the error with getLastError(). 
 * @since ELC 3.60g / otrisPORTAL 6.0g
 * @see [booleansetAbsent]{@link booleansetAbsent} [booleandelegateFilesOfAbsentUser]{@link booleandelegateFilesOfAbsentUser} 
@@ -8016,7 +8016,7 @@ getLastError(): string;
 * @function getOID
 * @instance
 * @summary Returns the object-id. 
-* @param {boolean} oidLow Optional flag: 
+* @param {boolean} [oidLow] Optional flag: 
 * If true only the id of the filetype object (m_oid) will be returned. 
 * If false the id of the filetype object will be returned together with the id of the corresponding class in the form class-id:m_oid. 
 * The default value is false. 
@@ -8211,7 +8211,7 @@ export var version: number;
 * @instance
 * @summary Decodes a base64 string and returns a string or byte-array. 
 * @param {string} value String to decode 
-* @param {boolean} returnArray boolean as an optional parameter to define if the return value must be a byte-array or string (default) 
+* @param {boolean} [returnArray] boolean as an optional parameter to define if the return value must be a byte-array or string (default) 
 * @returns {any} decoded string or byte-array 
 * @since DOCUMENTS 4.0c HF1
 * @example
@@ -8234,7 +8234,7 @@ export function base64Decode(value: string, returnArray?: boolean): any;
 * @instance
 * @summary Encodes a byte-array or string to base64 and returns the base 64 string. 
 * @param {any} value String or byte-array to encode 
-* @param {boolean} returnArray boolean as an optional parameter to define if the return value must be a byte-array or string (default) 
+* @param {boolean} [returnArray] boolean as an optional parameter to define if the return value must be a byte-array or string (default) 
 * @returns {string} base64 encoded string 
 * @since DOCUMENTS 4.0c HF1
 * @example
@@ -8271,7 +8271,7 @@ export function beep(frequency: number, duration: number): void;
 * @instance
 * @summary Concatenate the given PDFs together into one PDF. 
 * @param {Array<any>} pdfFilePaths Array containing the file paths of PDFs to be concatenated. 
-* @param {boolean} deleteSinglePdfs Optional boolean value to decide whether to delete the single PDFs on the server's filesystem after concatenating. 
+* @param {boolean} [deleteSinglePdfs] Optional boolean value to decide whether to delete the single PDFs on the server's filesystem after concatenating. 
 * @returns {string} String with file path of the PDF, an empty string in case of any error. 
 * @since DOCUMENTS 4.0c
 * @example
@@ -8661,7 +8661,7 @@ export function getUsedPrivateBytes(): number;
 * @param {string} hashfunction Name of the hash function. 
 * @param {string} key Secret key. 
 * @param {string} message Message string to be hashed. 
-* @param {boolean} rawOutput Optional flag: 
+* @param {boolean} [rawOutput] Optional flag: 
 * If set to true, the function outputs the raw binary representation of the hmac. 
 * If set to false, the function outputs the hexadecimal representation of the hmac. 
 * The default value is false. 
@@ -8746,7 +8746,7 @@ export function makeFullDir(dirPath: string): string;
 * 
 * If the String is in UTF-8 Format, all UTF-8 characters will be replaced with the according HTML entities. 
 * @param {string} val String to be masked 
-* @param {boolean} isUTF8 boolean flag, if the val is in UTF-8 format 
+* @param {boolean} [isUTF8] boolean flag, if the val is in UTF-8 format 
 * @returns {string} HTML-String 
 * @since ELC 3.60e / otrisPORTAL 6.0e 
 **/
@@ -8772,7 +8772,7 @@ export function out(output: string): any;
 * @description This functions provides a simple search method for Arrays to find the position of a string in an array. 
 * @param {Array<any>} theArray Array in that the String will be searched 
 * @param {string} searchedString String that will be searched 
-* @param {number} occurence Integer that define the wanted position at a multi-occurence of the String in the Array 
+* @param {number} [occurence] Integer that define the wanted position at a multi-occurence of the String in the Array 
 * @returns {number} Integer with the position of the String in the array, -1 in case of the String isn't found 
 * @since ELC 3.60e / otrisPORTAL 6.0e 
 * @example
@@ -8930,7 +8930,7 @@ templateId: string;
 * Note: This function requires a full workflow engine license, it does not work with pure submission lists. 
 * The current user's permissions are not checked when using this function! 
 * @param {string} controlFlowId String value containing the internal ID of the ControlFlow you want to pass through. 
-* @param {string} comment optional String value containing your desired comment for the file's monitor. 
+* @param {string} [comment] optional String value containing your desired comment for the file's monitor. 
 * @returns {boolean} true if successful, false in case of any error 
 * @since ELC 3.50e / otrisPORTAL 5.0e 
 **/
@@ -8972,7 +8972,7 @@ getLastError(): string;
 * @function getOID
 * @instance
 * @summary Returns the object-id. 
-* @param {boolean} oidLow Optional flag: 
+* @param {boolean} [oidLow] Optional flag: 
 * If true only the id of the filetype object (m_oid) will be returned. 
 * If false the id of the filetype object will be returned together with the id of the corresponding class in the form class-id:m_oid. 
 * The default value is false. 
@@ -9188,7 +9188,7 @@ addDocumentsSettings(): boolean;
 * @instance
 * @summary Add the desired editor (fellow) to the XMLExport. 
 * @param {any} editor The editor to be added to the XML output and specified as follows: String containing the login name of the editor. SystemUser object representing the editor. 
-* @param {boolean} includePrivateFolders boolean value indicating whether to export the private folders of the fellow 
+* @param {boolean} [includePrivateFolders] boolean value indicating whether to export the private folders of the fellow 
 * @returns {boolean} true if successful, false in case of any error 
 * @since DOCUMENTS 4.0c 
 * @since DOCUMENTS 4.0c HF2 (new parameter includePrivateFolders)
@@ -9208,7 +9208,7 @@ addFellow(editor: any, includePrivateFolders?: boolean): boolean;
 * @instance
 * @summary Add the desired DocFile object to the XMLExport. 
 * @param {DocFile} docFile An object of the DocFile class which should be added to the XML output 
-* @param {any} exportCondition Optional export conditions specified as follows: boolean value indicating whether the file id should be exported as update key. XMLExportDescription object defining serveral conditions for the exporting process of the DocFile object. 
+* @param {any} [exportCondition] Optional export conditions specified as follows: boolean value indicating whether the file id should be exported as update key. XMLExportDescription object defining serveral conditions for the exporting process of the DocFile object. 
 *The default value is true. 
 * @returns {boolean} true if successful, false in case of any error 
 * @since ELC 3.51b / otrisPORTAL 5.1b 
@@ -9294,7 +9294,7 @@ addFolder(folder: Folder, exportStructure: boolean, exportCondition: any): boole
 * @instance
 * @summary Add the desired number range alias to the XMLExport. 
 * @param {string} name String value containing the technical name of the number range to be added to the XML output. 
-* @param {boolean} withCounter boolean value indicating whether to export the actual counter value of the number range 
+* @param {boolean} [withCounter] boolean value indicating whether to export the actual counter value of the number range 
 * @returns {boolean} true if successful, false in case of any error 
 * @since DOCUMENTS 4.0d HF1 
 **/
@@ -9322,7 +9322,7 @@ addOutbar(outbarName: string): boolean;
 * @instance
 * @summary Add the desired user account (not fellow) to the XMLExport. 
 * @param {any} userAccount The user account to be added to the XML output and specified as follows: String containing the login name of the user account. SystemUser object representing the user account. 
-* @param {boolean} includePrivateFolders boolean value indicating whether to export the private folders of the user account 
+* @param {boolean} [includePrivateFolders] boolean value indicating whether to export the private folders of the user account 
 * @returns {boolean} true if successful, false in case of any error 
 * @since DOCUMENTS 5.0 HF2
 * @example
@@ -9342,7 +9342,7 @@ addPartnerAccount(userAccount: any, includePrivateFolders?: boolean): boolean;
 * @summary Add all PortalScripts with the desired name pattern to the XMLExport. 
 * @description Note: The XML files exported in DOCUMENTS 5.0 format are incompatible with DOCUMENTS 4.0. 
 * @param {string} namePattern The name pattern of the PortalScripts to be added to the XML output. 
-* @param {string} format Optional String value defining the desired export format. The following formats are available: 4.0 (DOCUMENTS 4.0) 5.0 (DOCUMENTS 5.0) 
+* @param {string} [format] Optional String value defining the desired export format. The following formats are available: 4.0 (DOCUMENTS 4.0) 5.0 (DOCUMENTS 5.0) 
 *The default value is "5.0". 
 * @returns {boolean} true if successful, false in case of any error 
 * @since DOCUMENTS 4.0c 
@@ -9385,7 +9385,7 @@ addPortalScriptCall(nameScript: string): boolean;
 * @summary Add all PortalScripts belonging to the desired category to the XMLExport. 
 * @description Note: The XML files exported in DOCUMENTS 5.0 format are incompatible with DOCUMENTS 4.0. 
 * @param {string} nameCategory The category name of the PortalScripts to be added to the XML output. 
-* @param {string} format Optional String value defining the desired export format. The following formats are available: 4.0 (DOCUMENTS 4.0) 4.0 (DOCUMENTS 5.0) 
+* @param {string} [format] Optional String value defining the desired export format. The following formats are available: 4.0 (DOCUMENTS 4.0) 4.0 (DOCUMENTS 5.0) 
 *The default value is "5.0". 
 * @returns {boolean} true if successful, false in case of any error 
 * @since DOCUMENTS 4.0d HF1 
@@ -9406,7 +9406,7 @@ addPortalScriptsFromCategory(nameCategory: string, format?: string): boolean;
 * @instance
 * @summary Add the desired SystemUser (user account or fellow) to the XMLExport. 
 * @param {any} systemUser The SystemUser to be added to the XML output and specified as follows: String containing the login name of the SystemUser. SystemUser object representing the user account. 
-* @param {boolean} includePrivateFolders boolean value indicating whether to export the private folders of the SystemUser
+* @param {boolean} [includePrivateFolders] boolean value indicating whether to export the private folders of the SystemUser
 * @returns {boolean} true if successful, false in case of any error 
 * @since DOCUMENTS 5.0 HF2
 * @example
@@ -9734,9 +9734,9 @@ getResponseHeader(name: string): string;
 * @summary Initialize a HTTP request. 
 * @param {string} method String specifying the used HTTP method. The following methods are available: GET: Sending a GET request, for example, for querying a HTML file. PUT: Sending data to the HTTP server. The data must be passed in the send() call. The URI represents the name under which the data should be stored. Under this name, the data are then normally retrievable. POST: Sending data to the HTTP server. The data must be passed in the send() call. The URI represents the name of the consumer of the data. 
 * @param {string} url String containing the URL for this request. 
-* @param {boolean} async Optional flag indicating whether to handle the request asynchronously. In this case the operation send() returns immediately, in other word, it will not be waiting until a response is received. Asynchronous sending is only possible, when XMLHTTPRequest.canAsync returns true. If asynchronous sending is not possible, this flag will be ignored. For an asynchronous request you can use XMLHTTPRequest.readyState to get the current state of the request. 
-* @param {string} user Optional user name must be specified only if the HTTP server requires authentication. 
-* @param {string} passwd Optional password must also be specified only if the HTTP server requires authentication. 
+* @param {boolean} [async] Optional flag indicating whether to handle the request asynchronously. In this case the operation send() returns immediately, in other word, it will not be waiting until a response is received. Asynchronous sending is only possible, when XMLHTTPRequest.canAsync returns true. If asynchronous sending is not possible, this flag will be ignored. For an asynchronous request you can use XMLHTTPRequest.readyState to get the current state of the request. 
+* @param {string} [user] Optional user name must be specified only if the HTTP server requires authentication. 
+* @param {string} [passwd] Optional password must also be specified only if the HTTP server requires authentication. 
 * @returns {boolean} true if the request was successfully initialized, false in case of any error. 
 * @since DOCUMENTS 4.0
 * @see [XMLHTTPRequest.send,XMLHTTPRequest.canAsync]{@link XMLHTTPRequest#send,XMLHTTPRequest#canAsync} 
@@ -9753,7 +9753,7 @@ open(method: string, url: string, async?: boolean, user?: string, passwd?: strin
 * @instance
 * @summary Send the request to the HTTP server. 
 * @description The request must be prepared via open() before.
-* @param {string} content 
+* @param {string} [content] 
 * @returns {boolean} 
 **/
 send(content?: string): boolean;
