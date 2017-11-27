@@ -33,11 +33,11 @@ The following commands are supported.
 | **Developing Scripts** ||
 | Install IntelliSense | Installs available TypeScript Defintion files for IntelliSense for PortalScripting |
 | View Documentation | Opens a browser with the HTML documentation |
-| **DOCUMENTS server information** ||
+| **DOCUMENTS Server Information** ||
 | Connect Server Console | Show all messages of the DOCUMENTS server in terminal |
 | Disonnect Server Console | Stop showing server messages in terminal |
 | Show DOCUMENTS Version | Show version of the DOCUMENTS server |
-| **Not supported** ||
+| **Not Supported** ||
 | Upload set of scripts selected in explorer | Select a set of files in explorer not supported by VS Code |
 | Download set of scripts selected in selection list | Select a set of entries in selection list not supported by VS Code |
 | Upload all open scripts | List of all open editors not available in VS Code |
