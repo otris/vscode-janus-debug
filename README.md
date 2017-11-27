@@ -20,7 +20,7 @@ The following commands are supported.
 
 | **Command** | **Description** |
 | --- | --- |
-| **Synchronising Scripts** ||
+| **Uploading/Downloading Scripts** ||
 | Upload Script | Uploads a script to the server |
 | Upload Folder | Uploads all scripts of a folder inclusive all subfolders to the server |
 | Download Script | Downloads a script from the server |
