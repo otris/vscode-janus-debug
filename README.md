@@ -6,18 +6,75 @@ Visual Studio Code plugin for developing and debugging JavaScript on DOCUMENTS 5
 
 ![Screenshot](https://github.com/otris/vscode-janus-debug/raw/master/img/extension-screenshot-1.png "Screenshot")
 
+
 ## Features
 
 This extension allows you to debug your JavaScript code directly on a JANUS-based server like DOCUMENTS, otris contract, and otris privacy. This includes launching a script from within VS Code and executing it remotely on the server, setting breakpoints, stepping through the code, and evaluating expressions<sup>1</sup>.
 
-This extensions includes lots of additional features that ease the development, especially on DOCUMENTS 5:
+This extensions includes lots of additional features that ease the development, especially on DOCUMENTS 5.
 
-* Download a single script, edit it with full IntelliSense, and upload it again
-* Upload all scripts from a local folder to a remote server
-* Download all scripts from a server to a local folder
-* Automatically upload a script every time it is saved
-* Set a script to conflict mode, meaning the script will not be uploaded if it has been changed on server
-* Compare a local script with the version that is stored on the remote server
+
+### Commands
+
+The following commands are supported.
+
+| **Command** | **Description** |
+| --- | --- |
+| **Synchronising Scripts** ||
+| Upload Script | Uploads a script to the server |
+| Upload Folder | Uploads all scripts of a folder inclusive all subfolders to the server |
+| Download Script | Downloads a script from the server |
+| Download All | Downloads all scripts from the server to a folder |
+| Download Folder (coming soon) | Downloads scripts in a folder from server |
+| Compare Script | Compares a script to the corresponding script on server |
+| **Executing Scripts** ||
+| Run Script | Executes a script |
+| Upload and Run | Uploads and executes a script |
+| **Developing Scripts** ||
+| Install IntelliSense | Installs available TypeScript Defintion files for IntelliSense for PortalScripting |
+| View Documentation | Opens a browser with the HTML documentation |
+| **DOCUMENTS server information** ||
+| Connect Server Console | Show all messages of the DOCUMENTS server in terminal |
+| Disonnect Server Console | Stop showing server messages in terminal |
+| Show DOCUMENTS Version | Show version of the DOCUMENTS server |
+| **Not supported** ||
+| Upload set of scripts selected in explorer | Select a set of files in explorer not supported by VS Code |
+| Download set of scripts selected in selection list | Select a set of entries in selection list not supported by VS Code |
+| Upload all open scripts | List of all open editors not available in VS Code |
+
+
+### Settings
+
+The following features can be influenced by settings (in `settings.json`)
+
+**Encryption**
+* A script is encrypted on upload, if
+  * The corresponding script on server is encrypted
+  * The script source code contains `// #crypt`
+  * `vscode-janus-debug.encryptOnUpload = true`
+* The encryption on upload can be ignored (coming soon)
+
+**Script Parameters as JSON**
+* Parameters are uploaded and downloaded together with every script, if
+  * `vscode-janus-debug.scriptParameters = true`
+
+**Conflict Mode**
+* A warning with option to cancel is shown on upload, if
+  * The source code of the corresponding script has been changed on server
+  * The script is encrypted on server and no decryption permission is available
+* The warning can be avoided, if
+  * `vscode-janus-debug.forceUpload = true`
+
+**View Documentation in Browser**
+* This command will jump directly to a function or member, if
+  * In `vscode-janus-debug.browser` a browser is selected.
+
+**Server Console**
+* Can be connected and disconnected by settings either.
+
+**Auto-upload script on save**
+* Scripts can be automatically uploaded every time the user saves the file.
+
 
 ## Requirements
 
@@ -27,9 +84,10 @@ This extension is only compatible with the JANUS servers listed below. Not every
 |---------------------------------	|-----------------------------------	|------------------	|
 | DOCUMENTS 5.0a & DOCUMENTS 5.0b 	| X                                 	|                  	|
 | DOCUMENTS 5.0c                  	| X                                 	| X                	|
-| privacy 6.1                     	| X                                 	| X                	|
+| privacy 6.1                     	|                                   	| X                	|
 
 If you suspect compatibility issues with your setup, please report them in the issue section.
+
 
 ## Remote Debugging
 
