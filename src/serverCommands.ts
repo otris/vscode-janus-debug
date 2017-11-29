@@ -252,13 +252,13 @@ function runScriptCommon(loginData: nodeDoc.ConnectionInformation, param: any, o
             const scriptName = await helpers.ensureScriptName(param, serverScriptNames);
             const script = new nodeDoc.scriptT(scriptName, '');
 
-            outputChannel.append('Run script:' + os.EOL);
+            outputChannel.append('Start script at ' + getTime() + os.EOL);
             outputChannel.show();
 
             await nodeDoc.serverSession(loginData, [script], nodeDoc.runScript);
 
             outputChannel.append(script.output + os.EOL);
-            outputChannel.append(`Run script finished on DOCUMENTS #${loginData.documentsVersion}` + os.EOL);
+            outputChannel.append(`Script finished at ` + getTime() + ` on DOCUMENTS #${loginData.documentsVersion}` + os.EOL);
             outputChannel.show();
 
             helpers.scriptLog(script.output);
@@ -277,6 +277,7 @@ function runScriptCommon(loginData: nodeDoc.ConnectionInformation, param: any, o
 export async function runScript(loginData: nodeDoc.ConnectionInformation, param: any, outputChannel: vscode.OutputChannel): Promise<void> {
     return new Promise<void>(async (resolve, reject) => {
         let scriptName;
+        vscode.window.setStatusBarMessage('Start script ' + scriptName + ' at ' + getTime());
 
         try {
             scriptName = await runScriptCommon(loginData, param, outputChannel);
@@ -285,7 +286,7 @@ export async function runScript(loginData: nodeDoc.ConnectionInformation, param:
             return reject();
         }
 
-        vscode.window.setStatusBarMessage('run: ' + scriptName);
+        vscode.window.setStatusBarMessage('Script ' + scriptName + ' finished at ' + getTime());
         resolve();
     });
 }
@@ -299,19 +300,22 @@ export function uploadRunScript(loginData: nodeDoc.ConnectionInformation, param:
         let scriptName;
 
         try {
+            vscode.window.setStatusBarMessage('Upload ' + scriptName + ' at ' + getTime());
             scriptName = await uploadScriptCommon(loginData, param);
+            vscode.window.setStatusBarMessage('Uploaded ' + scriptName + ' at ' + getTime());
         } catch (reason) {
             return reject();
         }
 
         try {
+            vscode.window.setStatusBarMessage('Start script ' + scriptName + ' at ' + getTime());
             scriptName = await runScriptCommon(loginData, param, outputChannel);
+            vscode.window.setStatusBarMessage('Script ' + scriptName + ' finished at ' + getTime());
         } catch (reason) {
             vscode.window.showErrorMessage('run script failed: ' + reason);
             return reject();
         }
 
-        vscode.window.setStatusBarMessage('uploaded and run: ' + scriptName);
         resolve();
     });
 }
