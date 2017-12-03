@@ -57,13 +57,13 @@ export async function viewDocumentation() {
                     }
                     if (functionOrMember.length === 1) {
                         const classNameHtml = functionOrMember[0].replace(':', '-') + '.html';
-                        file = path.join(portalScriptDocs, '#' + classNameHtml + '&' + selectedWord);
+                        file = portalScriptDocs + '#' + classNameHtml + '&' + selectedWord;
                     } else {
                         const question = `Found ${selectedWord} in several classes, select one class please!`;
                         let result = await vscode.window.showQuickPick(functionOrMember, {placeHolder: question});
                         if (result) {
                             result = result.replace(':', '-') + '.html';
-                            file = path.join(portalScriptDocs, '#' + result + '&' + selectedWord);
+                            file = portalScriptDocs + '#' + result + '&' + selectedWord;
                         }
                     }
 
