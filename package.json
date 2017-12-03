@@ -467,30 +467,48 @@
         },
         {
           "command": "extension.vscode-janus-debug.uploadScriptsFromFolder",
-          "when": "resourceLangId == javascript",
+          "when": "explorerResourceIsFolder",
           "group": "DOCUMENTS@6"
         },
         {
           "command": "extension.vscode-janus-debug.uploadScriptsFromFolder",
+          "when": "!explorerResourceIsFolder && !resourceLangId",
+          "group": "DOCUMENTS@6"
+        },
+        {
+          "command": "extension.vscode-janus-debug.downloadScriptsToFolder",
           "when": "explorerResourceIsFolder",
           "group": "DOCUMENTS@7"
         },
         {
           "command": "extension.vscode-janus-debug.downloadScriptsToFolder",
+          "when": "!explorerResourceIsFolder && !resourceLangId",
+          "group": "DOCUMENTS@7"
+        },
+        {
+          "command": "extension.vscode-janus-debug.getPortalScriptingTSD",
+          "when": "explorerResourceIsFolder",
           "group": "DOCUMENTS@8"
+        },
+        {
+          "command": "extension.vscode-janus-debug.getPortalScriptingTSD",
+          "when": "!explorerResourceIsFolder && !resourceLangId",
+          "group": "DOCUMENTS@8"
+        },
+        {
+          "command": "extension.vscode-janus-debug.getFileTypesTSD",
+          "when": "explorerResourceIsFolder",
+          "group": "DOCUMENTS@9"
+        },
+        {
+          "command": "extension.vscode-janus-debug.getFileTypesTSD",
+          "when": "!explorerResourceIsFolder && !resourceLangId",
+          "group": "DOCUMENTS@9"
         },
         {
           "command": "extension.vscode-janus-debug.getScriptNames",
           "when": "resourceFilename == .documents-script-names",
-          "group": "DOCUMENTS@9"
-        },
-        {
-          "command": "extension.vscode-janus-debug.getPortalScriptingTSD",
           "group": "DOCUMENTS@10"
-        },
-        {
-          "command": "extension.vscode-janus-debug.getFileTypesTSD",
-          "group": "DOCUMENTS@11"
         }
       ],
       "editor/context": [
