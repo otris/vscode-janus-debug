@@ -324,33 +324,6 @@ export async function writeScriptInfoJson(scripts: nodeDoc.scriptT[]) {
     });
 }
 
-export function setCategories(pscripts: nodeDoc.scriptT[]) {
-    if (!pscripts || 0 === pscripts.length || !vscode.workspace) {
-        return;
-    }
-
-    // get extension-part of settings.json
-    const conf = vscode.workspace.getConfiguration('vscode-janus-debug');
-    if (!conf) {
-        vscode.window.showWarningMessage('vscode-janus-debug missing in settings');
-        return;
-    }
-    const categories = conf.get('categories', false);
-
-    if (categories) {
-        pscripts.forEach((script) => {
-            if (script.path) {
-                let scriptDir = '';
-                if (fs.statSync(script.path).isDirectory()) {
-                    scriptDir = path.normalize(script.path);
-                } else if (fs.statSync(script.path).isFile()) {
-                    scriptDir = path.dirname(path.normalize(script.path));
-                }
-                script.category = scriptDir.split(path.sep).pop();
-            }
-        });
-    }
-}
 
 
 

@@ -89,7 +89,6 @@ async function uploadScriptCommon(loginData: nodeDoc.ConnectionInformation, para
             helpers.readHashValues([_script], loginData.server);
             helpers.readEncryptionFlag([_script]);
             helpers.setScriptInfoJson([_script]);
-            // helpers.setCategories([_script]);
 
             return nodeDoc.serverSession(loginData, [_script], nodeDoc.uploadScript).then((value) => {
 
@@ -209,7 +208,6 @@ export function uploadAll(loginData: nodeDoc.ConnectionInformation, paramPath: a
             helpers.readHashValues(folderScripts, loginData.server);
             helpers.readEncryptionFlag(folderScripts);
             helpers.setScriptInfoJson(folderScripts);
-            // helpers.setCategories(folderScripts);
 
             return nodeDoc.serverSession(loginData, folderScripts, nodeDoc.uploadAll).then((value1) => {
                 const retScripts: nodeDoc.scriptT[] = value1;
@@ -342,8 +340,6 @@ export async function downloadScript(loginData: nodeDoc.ConnectionInformation, c
             return nodeDoc.serverSession(loginData, [script], nodeDoc.downloadScript).then((value) => {
                 script = value[0];
 
-                // TODO: ask user if folder from category (script.category) should be created
-
                 return nodeDoc.saveScriptUpdateSyncHash([script]).then(() => {
                     helpers.updateHashValues([script], loginData.server);
                     helpers.writeScriptInfoJson([script]);
@@ -377,11 +373,15 @@ export async function downloadAll(loginData: nodeDoc.ConnectionInformation, cont
             // download scripts
             return nodeDoc.serverSession(loginData, requestScripts, nodeDoc.downloadAll).then((scripts) => {
 
-                // TODO: ask user if folder from category (script.category) should be created
-
+                // save script to file and update hash value in script structure
                 return nodeDoc.saveScriptUpdateSyncHash(scripts).then(() => {
+
+                    // write hash values to file
                     helpers.updateHashValues(scripts, loginData.server);
+
+                    // write parameters to file
                     helpers.writeScriptInfoJson(scripts);
+
                     // if a script from input list has not been downloaded but the function was resolved
                     // then the script is encrypted on server
                     const encryptedScripts = requestScripts.length - scripts.length;
