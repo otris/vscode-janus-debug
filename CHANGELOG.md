@@ -2,7 +2,11 @@
 
 You'll find a complete list of changes at our project site on [GitHub](https://github.com/otris/vscode-janus-debug).
 
-### 0.0.TBD (YYYY-MM-DD)
+### 0.0.26 (2017-12-4)
+
+Only clean-up and fix link in command `View Documentation In Browser`
+
+### 0.0.25 (2017-28-11)
 
 Following features have been added:
 
