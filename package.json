@@ -39,7 +39,8 @@
     "onCommand:extension.vscode-janus-debug.runScript",
     "onCommand:extension.vscode-janus-debug.compareScript",
     "onCommand:extension.vscode-janus-debug.uploadScriptsFromFolder",
-    "onCommand:extension.vscode-janus-debug.downloadScriptsToFolder",
+    "onCommand:extension.vscode-janus-debug.downloadAllScripts",
+    "onCommand:extension.vscode-janus-debug.downloadScriptsInsideFolder",
     "onCommand:extension.vscode-janus-debug.getScriptNames",
     "onCommand:extension.vscode-janus-debug.getPortalScriptingTSD",
     "onCommand:extension.vscode-janus-debug.getFileTypesTSD",
@@ -371,8 +372,13 @@
         "category": "DOCUMENTS"
       },
       {
-        "command": "extension.vscode-janus-debug.downloadScriptsToFolder",
+        "command": "extension.vscode-janus-debug.downloadAllScripts",
         "title": "Download All Scripts",
+        "category": "DOCUMENTS"
+      },
+      {
+        "command": "extension.vscode-janus-debug.downloadScriptsInsideFolder",
+        "title": "Download Scripts Inside Folder",
         "category": "DOCUMENTS"
       },
       {
@@ -476,39 +482,49 @@
           "group": "DOCUMENTS@6"
         },
         {
-          "command": "extension.vscode-janus-debug.downloadScriptsToFolder",
+          "command": "extension.vscode-janus-debug.downloadAllScripts",
           "when": "explorerResourceIsFolder",
           "group": "DOCUMENTS@7"
         },
         {
-          "command": "extension.vscode-janus-debug.downloadScriptsToFolder",
+          "command": "extension.vscode-janus-debug.downloadAllScripts",
           "when": "!explorerResourceIsFolder && !resourceLangId",
           "group": "DOCUMENTS@7"
         },
         {
-          "command": "extension.vscode-janus-debug.getPortalScriptingTSD",
+          "command": "extension.vscode-janus-debug.downloadScriptsInsideFolder",
           "when": "explorerResourceIsFolder",
           "group": "DOCUMENTS@8"
         },
         {
-          "command": "extension.vscode-janus-debug.getPortalScriptingTSD",
+          "command": "extension.vscode-janus-debug.downloadScriptsInsideFolder",
           "when": "!explorerResourceIsFolder && !resourceLangId",
           "group": "DOCUMENTS@8"
         },
         {
-          "command": "extension.vscode-janus-debug.getFileTypesTSD",
+          "command": "extension.vscode-janus-debug.getPortalScriptingTSD",
           "when": "explorerResourceIsFolder",
           "group": "DOCUMENTS@9"
         },
         {
-          "command": "extension.vscode-janus-debug.getFileTypesTSD",
+          "command": "extension.vscode-janus-debug.getPortalScriptingTSD",
           "when": "!explorerResourceIsFolder && !resourceLangId",
           "group": "DOCUMENTS@9"
+        },
+        {
+          "command": "extension.vscode-janus-debug.getFileTypesTSD",
+          "when": "explorerResourceIsFolder",
+          "group": "DOCUMENTS@10"
+        },
+        {
+          "command": "extension.vscode-janus-debug.getFileTypesTSD",
+          "when": "!explorerResourceIsFolder && !resourceLangId",
+          "group": "DOCUMENTS@10"
         },
         {
           "command": "extension.vscode-janus-debug.getScriptNames",
           "when": "resourceFilename == .documents-script-names",
-          "group": "DOCUMENTS@10"
+          "group": "DOCUMENTS@11"
         }
       ],
       "editor/context": [

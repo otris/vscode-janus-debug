@@ -561,7 +561,11 @@ export async function ensureHiddenFolder(_path: string): Promise<void> {
 }
 
 
-
+/**
+ * Check, if the path exists and return the folder path.
+ * Only the last subfolder in the input path does not have
+ * to exist, it can be created later.
+ */
 export async function checkPath(scriptPath: string | undefined, allowCreateFolder = false): Promise<string> {
     return new Promise<string>((resolve, reject) => {
         if (!vscode.workspace || !vscode.workspace.rootPath) {
@@ -634,7 +638,7 @@ export async function ensurePath(fileOrFolder: string | undefined, allowSubDir =
 
             checkPath(fileOrFolder).then((retpath) => {
                 resolve(retpath);
-            }).catch((reason) => {
+            }).catch((reason: string) => {
                 reject(reason);
             });
         } else {
@@ -656,7 +660,7 @@ export async function ensurePath(fileOrFolder: string | undefined, allowSubDir =
             }).then((input) => {
                 checkPath(input, allowSubDir).then((retpath) => {
                     resolve(retpath);
-                }).catch((reason) => {
+                }).catch((reason: string) => {
                     reject(reason);
                 });
             });

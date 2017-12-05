@@ -388,15 +388,31 @@ export function activate(context: vscode.ExtensionContext): void {
         })
     );
 
-    // Download all
+    // Download all scripts from server
     context.subscriptions.push(
-        vscode.commands.registerCommand('extension.vscode-janus-debug.downloadScriptsToFolder', async (param) => {
+        vscode.commands.registerCommand('extension.vscode-janus-debug.downloadAllScripts', async (param) => {
             let fsPath: string | undefined;
             if (param && (typeof param._fsPath === 'string')) {
                 fsPath = param._fsPath;
             }
             try {
-                await serverCommands.downloadAll(loginData, fsPath);
+                await serverCommands.downloadAllSelected(loginData, fsPath);
+            } catch (err) {
+                //
+            }
+            helpers.showWarning(loginData);
+        })
+    );
+
+    // Download all scripts that are inside the folder
+    context.subscriptions.push(
+        vscode.commands.registerCommand('extension.vscode-janus-debug.downloadScriptsInsideFolder', async (param) => {
+            let fsPath: string | undefined;
+            if (param && (typeof param._fsPath === 'string')) {
+                fsPath = param._fsPath;
+            }
+            try {
+                await serverCommands.downloadScriptsInsideFolder(loginData, fsPath);
             } catch (err) {
                 //
             }

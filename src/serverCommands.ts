@@ -7,6 +7,7 @@ import * as vscode from 'vscode';
 import * as helpers from './helpers';
 import * as login from './login';
 import stripJsonComments = require('strip-json-comments');
+import { scriptT } from 'node-documents-scripting';
 
 // tslint:disable-next-line:no-var-requires
 const tsc = require('typescript-compiler');
@@ -352,50 +353,118 @@ export async function downloadScript(loginData: nodeDoc.ConnectionInformation, c
     });
 }
 
+
 /**
- * Download all
+ * Downloads all scripts from list inputScripts to folder in downloadFolder
+ * @param loginData Information to connect to the server
+ * @param inputScripts the list of scripts that should be downloaded
+ * @param downloadFolder the folder where the scripts should be downloaded
  */
-export async function downloadAll(loginData: nodeDoc.ConnectionInformation, contextMenuPath: string | undefined) {
-    await login.ensureLoginInformation(loginData);
+export async function downloadAllCommon(loginData: nodeDoc.ConnectionInformation, inputScripts: scriptT[], downloadFolder: string): Promise<number> {
+    return new Promise<number>(async (resolve, reject) => {
 
-    helpers.ensurePath(contextMenuPath, true).then((scriptDir) => {
+        // set downloadParameters flag in script structure,
+        // if scriptParameters is true in settings.json
+        helpers.getScriptInfoJson(inputScripts);
 
-        // get names of scripts that should be downloaded
-        return getSelectedScriptNames(loginData).then((requestScripts) => {
+        // download scripts from server
+        return nodeDoc.serverSession(loginData, inputScripts, nodeDoc.downloadAll).then((outputScripts) => {
+
+            // save script to file and update hash value in script structure
+            return nodeDoc.saveScriptUpdateSyncHash(outputScripts).then(() => {
+
+                // write hash values to file
+                helpers.updateHashValues(outputScripts, loginData.server);
+
+                // write parameters to file
+                helpers.writeScriptInfoJson(outputScripts);
+
+                // if a script from inputScripts list is not downloaded but the function resolves,
+                // the script is encrypted on server
+                const encryptedScripts = inputScripts.length - outputScripts.length;
+                if (1 <= encryptedScripts) {
+                    vscode.window.showWarningMessage(`couldn't download ${encryptedScripts} scripts (scripts encrypted or not found)`);
+                }
+
+                resolve(outputScripts.length);
+            });
+        }).catch((reason) => {
+            reject(reason);
+        });
+    });
+}
+
+
+
+
+/**
+ * Download all (selected) scripts.
+ * For now it's not possible to select scripts in the selection list.
+ * So for normal users, this function will download all scripts on server.
+ *
+ * If SCRIPT_NAMES_FILE exists: download selected scripts in that file.
+ * If the file SCRIPT_NAMES_FILE exists, any line of this file will be
+ * interpreted as a script name. Then only scripts from this list
+ * that can be found on server will be downloaded.
+ */
+export async function downloadAllSelected(loginData: nodeDoc.ConnectionInformation, fileOrfolder: string | undefined): Promise<void> {
+    return new Promise<void>(async (resolve, reject) => {
+        try {
+            await login.ensureLoginInformation(loginData);
+
+            // get download folder
+            const downloadFolder = await helpers.ensurePath(fileOrfolder, true);
+
+            // get all scripts on server
+            // or if SCRIPT_NAMES_FILE exists: all scripts in that file
+            const scripts = await getSelectedScriptNames(loginData);
 
             // set download path to scripts
-            requestScripts.forEach(function(script) {
-                script.path = path.join(scriptDir, script.name + '.js');
+            scripts.forEach(function(script: any) {
+                script.path = path.join(downloadFolder, script.name + '.js');
             });
 
-            helpers.getScriptInfoJson(requestScripts);
+            const numDownloaded = await downloadAllCommon(loginData, scripts, downloadFolder);
+            vscode.window.setStatusBarMessage(`downloaded ${numDownloaded} scripts`);
 
-            // download scripts
-            return nodeDoc.serverSession(loginData, requestScripts, nodeDoc.downloadAll).then((scripts) => {
+            return resolve();
+        } catch (err) {
+            vscode.window.showErrorMessage('download all failed: ' + err);
+            return reject();
+        }
+    });
+}
 
-                // save script to file and update hash value in script structure
-                return nodeDoc.saveScriptUpdateSyncHash(scripts).then(() => {
 
-                    // write hash values to file
-                    helpers.updateHashValues(scripts, loginData.server);
+/**
+ * Download scripts that are found in the folder or subfolder and on the server.
+ * Scripts will be downloaded to the path where they are (so the folder or a subfolder).
+ * If fileOrFolder is a file path, the function will get the folder of this file
+ * and use this folder.
+ *
+ * @param loginData Connection information
+ * @param fileOrfolder a path to a file or folder
+ */
+export async function downloadScriptsInsideFolder(loginData: nodeDoc.ConnectionInformation, fileOrfolder: string | undefined): Promise<void> {
+    return new Promise<void>(async (resolve, reject) => {
+        try {
+            await login.ensureLoginInformation(loginData);
 
-                    // write parameters to file
-                    helpers.writeScriptInfoJson(scripts);
+            // get download folder
+            const downloadFolder = await helpers.ensurePath(fileOrfolder, true);
 
-                    // if a script from input list has not been downloaded but the function was resolved
-                    // then the script is encrypted on server
-                    const encryptedScripts = requestScripts.length - scripts.length;
-                    if (1 === encryptedScripts) {
-                        vscode.window.showWarningMessage(`couldn't download 1 script (it might be encrypted)`);
-                    } else if (1 < encryptedScripts) {
-                        vscode.window.showWarningMessage(`couldn't download ${encryptedScripts} scripts (they might be encrypted)`);
-                    }
-                    vscode.window.setStatusBarMessage(`downloaded ${scripts.length} scripts`);
-                });
-            });
-        });
-    }).catch((reason) => {
-        vscode.window.showErrorMessage('download all failed: ' + reason);
+            // get all scripts in that folder and subfolders
+            // and set paths to script structures
+            const scripts = nodeDoc.getScriptsFromFolderSync(downloadFolder);
+
+            const numDownloaded = await downloadAllCommon(loginData, scripts, downloadFolder);
+            vscode.window.setStatusBarMessage(`downloaded ${numDownloaded} scripts`);
+
+            return resolve();
+        } catch (err) {
+            vscode.window.showErrorMessage('download all failed: ' + err);
+            return reject();
+        }
     });
 }
 
