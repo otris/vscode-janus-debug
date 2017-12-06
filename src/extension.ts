@@ -516,7 +516,7 @@ export function activate(context: vscode.ExtensionContext): void {
         })
     );
 
-    // TODO: View documentation
+    // View documentation
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.viewDocumentation', (file) => {
             // file is not used, use active editor...
@@ -526,7 +526,7 @@ export function activate(context: vscode.ExtensionContext): void {
 
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.showDocumentsVersion', () => {
-            if (loginData.documentsVersion && loginData.documentsVersion.length > 0) {
+            if (loginData.documentsVersion && loginData.documentsVersion.length > 0 && loginData.documentsVersion !== 'unknown') {
                 vscode.window.showInformationMessage(`DOCUMENTS Version ${loginData.documentsVersion}`);
             } else {
                 vscode.window.showWarningMessage('Version only available after executing command on server');
