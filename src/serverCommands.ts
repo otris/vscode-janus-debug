@@ -276,7 +276,7 @@ function runScriptCommon(loginData: nodeDoc.ConnectionInformation, param: any, o
 export async function runScript(loginData: nodeDoc.ConnectionInformation, param: any, outputChannel: vscode.OutputChannel): Promise<void> {
     return new Promise<void>(async (resolve, reject) => {
         let scriptName;
-        vscode.window.setStatusBarMessage('Start script ' + scriptName + ' at ' + getTime());
+        vscode.window.setStatusBarMessage('Start script at ' + getTime());
 
         try {
             scriptName = await runScriptCommon(loginData, param, outputChannel);
