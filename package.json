@@ -414,6 +414,11 @@
         "command": "extension.vscode-janus-debug.showDocumentsVersion",
         "title": "Show DOCUMENTS Version",
         "category": "DOCUMENTS"
+      },
+      {
+        "command": "extension.vscode-janus-debug.showImports",
+        "title": "Show Imports",
+        "category": "DOCUMENTS"
       }
     ],
     "keybindings": [
@@ -534,11 +539,6 @@
           "group": "DOCUMENTS@1"
         },
         {
-          "command": "extension.vscode-janus-debug.downloadScript",
-          "when": "resourceLangId == javascript",
-          "group": "DOCUMENTS@2"
-        },
-        {
           "command": "extension.vscode-janus-debug.uploadJSFromTS",
           "when": "resourceLangId == typescript",
           "category": "DOCUMENTS@2"
@@ -572,6 +572,11 @@
           "command": "extension.vscode-janus-debug.viewDocumentation",
           "when": "resourceLangId == typescript",
           "group": "DOCUMENTS@7"
+        },
+        {
+          "command": "extension.vscode-janus-debug.showImports",
+          "when": "resourceLangId == javascript",
+          "group": "DOCUMENTS@8"
         }
       ]
     },
@@ -597,7 +602,7 @@
     "fs": "0.0.1-security",
     "fs-extra": "^4.0.0",
     "net": "^1.0.2",
-    "node-documents-scripting": "git+https://github.com/otris/node-documents-scripting.git#6.0.1",
+    "node-documents-scripting": "git+https://github.com/otris/node-documents-scripting.git#6.0.2",
     "node-file-log": "git+https://git@github.com/otris/node-file-log#1.0.0",
     "node-ipc": "^9.0.1",
     "node-sds": "git+https://git@github.com/otris/node-sds.git#1.1.7",

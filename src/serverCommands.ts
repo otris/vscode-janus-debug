@@ -516,6 +516,29 @@ export async function compareScript(loginData: nodeDoc.ConnectionInformation, co
     });
 }
 
+
+export async function showImports(loginData: nodeDoc.ConnectionInformation, contextMenuPath: string | undefined, outputChannel: vscode.OutputChannel): Promise<void> {
+    return new Promise<void>(async (resolve, reject) => {
+        await login.ensureLoginInformation(loginData);
+
+        helpers.ensureScriptName(contextMenuPath, []).then((scriptName) => {
+            return nodeDoc.serverSession(loginData, [scriptName], nodeDoc.getSourceCodeForEditor).then((value) => {
+                outputChannel.append(scriptName + ':' + os.EOL);
+                outputChannel.append(value + os.EOL);
+                outputChannel.show();
+
+                resolve();
+            });
+        }).catch((reason) => {
+            // warning in loginData, shown in calling function
+            reject();
+        });
+    });
+}
+
+
+
+
 /**
  * Download script names
  */

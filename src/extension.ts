@@ -534,6 +534,22 @@ export function activate(context: vscode.ExtensionContext): void {
         })
     );
 
+    // Show imports
+    context.subscriptions.push(
+        vscode.commands.registerCommand('extension.vscode-janus-debug.showImports', async (param) => {
+            let fsPath: string | undefined;
+            if (param && (typeof param._fsPath === 'string')) {
+                fsPath = param._fsPath;
+            }
+            try {
+                await serverCommands.showImports(loginData, fsPath, scriptChannel);
+            } catch (err) {
+                //
+            }
+            helpers.showWarning(loginData);
+        })
+    );
+
     // connect the sever console manually
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus.debug.connectServerConsole', (param) => {
