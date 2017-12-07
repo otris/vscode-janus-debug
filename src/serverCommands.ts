@@ -247,7 +247,10 @@ function runScriptCommon(loginData: nodeDoc.ConnectionInformation, param: any, o
 
         try {
             await login.ensureLoginInformation(loginData);
-            const serverScriptNames = await getServerScriptNames(loginData);
+            let serverScriptNames;
+            if (!param || '.js' !== path.extname(param)) {
+                serverScriptNames = await getServerScriptNames(loginData);
+            }
             const scriptName = await helpers.ensureScriptName(param, serverScriptNames);
             const script = new nodeDoc.scriptT(scriptName, '');
 
@@ -326,30 +329,43 @@ export function uploadRunScript(loginData: nodeDoc.ConnectionInformation, param:
  * @param contextMenuPath: If command is called from context menu, this variable should
  * contain the corresponding path. Otherwise it should be undefined.
  */
-export async function downloadScript(loginData: nodeDoc.ConnectionInformation, contextMenuPath: string | undefined) {
-    await login.ensureLoginInformation(loginData);
+export async function downloadScript(loginData: nodeDoc.ConnectionInformation, contextMenuPath: string | undefined): Promise<void>  {
+    return new Promise<void>(async (resolve, reject) => {
+        let serverScriptNames;
 
-    const serverScriptNames = await getServerScriptNames(loginData);
+        try {
+            await login.ensureLoginInformation(loginData);
 
-    helpers.ensureScriptName(contextMenuPath, serverScriptNames).then((scriptName) => {
-        return helpers.ensurePath(contextMenuPath, true).then((scriptDir) => {
-            const scriptPath = path.join(scriptDir, scriptName + '.js');
-            let script: nodeDoc.scriptT = new nodeDoc.scriptT(scriptName, scriptPath);
+            if (!contextMenuPath || '.js' !== path.extname(contextMenuPath)) {
+                serverScriptNames = await getServerScriptNames(loginData);
+            }
+        } catch (err) {
+            return reject();
+        }
 
-            helpers.getScriptInfoJson([script]);
 
-            return nodeDoc.serverSession(loginData, [script], nodeDoc.downloadScript).then((value) => {
-                script = value[0];
+        helpers.ensureScriptName(contextMenuPath, serverScriptNames).then((scriptName) => {
+            return helpers.ensurePath(contextMenuPath, true).then((scriptDir) => {
+                const scriptPath = path.join(scriptDir, scriptName + '.js');
+                let script: nodeDoc.scriptT = new nodeDoc.scriptT(scriptName, scriptPath);
 
-                return nodeDoc.saveScriptUpdateSyncHash([script]).then(() => {
-                    helpers.updateHashValues([script], loginData.server);
-                    helpers.writeScriptInfoJson([script]);
-                    vscode.window.setStatusBarMessage('downloaded: ' + script.name);
+                helpers.getScriptInfoJson([script]);
+
+                return nodeDoc.serverSession(loginData, [script], nodeDoc.downloadScript).then((value) => {
+                    script = value[0];
+
+                    return nodeDoc.saveScriptUpdateSyncHash([script]).then(() => {
+                        helpers.updateHashValues([script], loginData.server);
+                        helpers.writeScriptInfoJson([script]);
+                        vscode.window.setStatusBarMessage('downloaded: ' + script.name);
+                        resolve();
+                    });
                 });
             });
+        }).catch((reason) => {
+            vscode.window.showErrorMessage('download script failed: ' + reason);
+            reject();
         });
-    }).catch((reason) => {
-        vscode.window.showErrorMessage('download script failed: ' + reason);
     });
 }
 
