@@ -2,13 +2,18 @@
 
 You'll find a complete list of changes at our project site on [GitHub](https://github.com/otris/vscode-janus-debug).
 
-### 0.0.26 (2017-12-4)
-
-Only clean-up and fix link in command `View Documentation In Browser`
-
-### 0.0.25 (2017-28-11)
+### 0.0.27 (yyyy-mm-dd)
 
 Following features have been added:
+- Command **Download Scripts Inside Folder** was added. With this command, only the scripts that are already inside the folder, are downloaded.
+- Command **Show Imports** was added. This command shows the source code of the script and of all imported scripts in output.
+
+
+### 0.0.26 (2017-12-04)
+
+Only clean-up and fix link in command **View Documentation In Browser**.
+
+### 0.0.25 (2017-28-11)
 
 Following bugs have been addressed in this release:
 
