@@ -544,7 +544,7 @@ export function activate(context: vscode.ExtensionContext): void {
             try {
                 await serverCommands.showImports(loginData, fsPath, scriptChannel);
             } catch (err) {
-                //
+                vscode.window.showErrorMessage(err);
             }
             helpers.showWarning(loginData);
         })

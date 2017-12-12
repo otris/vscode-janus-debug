@@ -546,8 +546,7 @@ export async function showImports(loginData: nodeDoc.ConnectionInformation, cont
                 resolve();
             });
         }).catch((reason) => {
-            // warning in loginData, shown in calling function
-            reject();
+            reject("Show imports failed: " + reason);
         });
     });
 }
