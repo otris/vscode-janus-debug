@@ -493,7 +493,7 @@
         },
         {
           "command": "extension.vscode-janus-debug.downloadAllScripts",
-          "when": "!explorerResourceIsFolder && !resourceLangId",
+          "when": "resourceLangId == javascript",
           "group": "DOCUMENTS@7"
         },
         {
