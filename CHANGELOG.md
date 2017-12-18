@@ -7,6 +7,7 @@ You'll find a complete list of changes at our project site on [GitHub](https://g
 Following features have been added:
 - Command **Download Scripts Inside Folder** was added. With this command, only the scripts that are already inside the folder, are downloaded.
 - Command **Show Imports** was added. This command shows the source code of the script and of all imported scripts in output.
+- In the typings file `fileTypes.d.ts` the type definition `FileTypes` was inserted. This type is a union type of all file types.
 
 
 ### 0.0.26 (2017-12-04)
