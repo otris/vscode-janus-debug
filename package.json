@@ -507,16 +507,6 @@
           "group": "DOCUMENTS@8"
         },
         {
-          "command": "extension.vscode-janus-debug.getPortalScriptingTSD",
-          "when": "explorerResourceIsFolder",
-          "group": "DOCUMENTS@9"
-        },
-        {
-          "command": "extension.vscode-janus-debug.getPortalScriptingTSD",
-          "when": "!explorerResourceIsFolder && !resourceLangId",
-          "group": "DOCUMENTS@9"
-        },
-        {
           "command": "extension.vscode-janus-debug.getFileTypesTSD",
           "when": "explorerResourceIsFolder",
           "group": "DOCUMENTS@10"
