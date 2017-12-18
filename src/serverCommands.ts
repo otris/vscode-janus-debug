@@ -546,7 +546,7 @@ export async function showImports(loginData: nodeDoc.ConnectionInformation, cont
                 resolve();
             });
         }).catch((reason) => {
-            reject("Show imports failed: " + reason);
+            reject(reason);
         });
     });
 }
