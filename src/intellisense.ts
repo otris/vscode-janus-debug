@@ -51,7 +51,7 @@ export function createFiletypesTSD(loginData: nodeDoc.ConnectionInformation): Pr
             return resolve();
         }
 
-        vscode.window.showInformationMessage('Use **context.createFile("<Ctrl + Space>")** or add **/\\** @types{FileType} \\*/** to DocFile objects');
+        vscode.window.showInformationMessage('Get IntelliSense for file types by adding **/\\** @types{FileType} \\*/** to the variables');
 
         resolve();
     });
@@ -95,32 +95,24 @@ export async function copyPortalScriptingTSD() {
     const projecttypings = path.join(vscode.workspace.rootPath, 'typings');
     const projectTSDFile = path.join(projecttypings, PORTALSCRIPTING_FILE);
 
-    const question = `There is an improved portalScripting.d.ts without 'Documents' namespace available`;
-    const newFile = 'Get new portalScripting.d.ts (you may have to change some types in your jsDoc)';
-    const oldFile = 'Get usual portalScripting.d.ts';
-    const answer = await vscode.window.showQuickPick([newFile, oldFile], {placeHolder: question});
+    extensionTSDFile = extensionTSDFileNew;
 
-    if (answer) {
-        if (answer === newFile) {
-            extensionTSDFile = extensionTSDFileNew;
+    // check typings folder
+    try {
+        fs.readdirSync(projecttypings);
+    } catch (err) {
+        if (err.code === 'ENOENT') {
+            fs.mkdir(projecttypings);
         }
+    }
 
-        // check typings folder
-        try {
-            fs.readdirSync(projecttypings);
-        } catch (err) {
-            if (err.code === 'ENOENT') {
-                fs.mkdir(projecttypings);
-            }
-        }
-
-        // check and copy dts file
-        try {
-            fs.readFileSync(extensionTSDFile);
-            fs.copySync(extensionTSDFile, projectTSDFile);
-        } catch (err) {
-            vscode.window.showErrorMessage(err);
-            return;
-        }
+    // check and copy dts file
+    try {
+        fs.readFileSync(extensionTSDFile);
+        fs.copySync(extensionTSDFile, projectTSDFile);
+        vscode.window.showInformationMessage(`Installed portalScripting.d.ts without 'Documents' namespace`);
+    } catch (err) {
+        vscode.window.showErrorMessage(err);
+        return;
     }
 }
