@@ -2,7 +2,7 @@
 
 You'll find a complete list of changes at our project site on [GitHub](https://github.com/otris/vscode-janus-debug).
 
-### 0.0.27 (yyyy-mm-dd)
+### 0.0.27 (2017-12-18)
 
 Following features have been added:
 - Command **Download Scripts Inside Folder** was added. With this command, only the scripts that are already inside the folder, are downloaded.
