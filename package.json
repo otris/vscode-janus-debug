@@ -407,7 +407,7 @@
       },
       {
         "command": "extension.vscode-janus-debug.getFileTypesTSD",
-        "title": "Install IntelliSense: FileTypes",
+        "title": "Install IntelliSense: All",
         "category": "DOCUMENTS"
       },
       {
