@@ -27,8 +27,12 @@ export function createFiletypesTSD(loginData: nodeDoc.ConnectionInformation): Pr
         let fileTypesTSD = '';
         try {
             fileTypesTSD = await commands.getFileTypesTSD(loginData);
-        } catch (reason) {
-            vscode.window.showErrorMessage(reason.message);
+        } catch (err) {
+            if (err.code === 'ECONNREFUSED') {
+                vscode.window.showWarningMessage(`Cannot load 'fileTypes.d.ts' because the server ${err.address} is not available`);
+            } else {
+                vscode.window.showErrorMessage(err.message);
+            }
             return resolve();
         }
 
