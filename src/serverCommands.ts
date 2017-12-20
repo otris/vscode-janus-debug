@@ -6,6 +6,7 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import * as helpers from './helpers';
 import * as login from './login';
+import { getServerVersion } from './serverVersion';
 import stripJsonComments = require('strip-json-comments');
 import { scriptT } from 'node-documents-scripting';
 
@@ -259,8 +260,9 @@ function runScriptCommon(loginData: nodeDoc.ConnectionInformation, param: any, o
 
             await nodeDoc.serverSession(loginData, [script], nodeDoc.runScript);
 
+            const ver = getServerVersion(loginData.documentsVersion) + ' (' + loginData.documentsVersion + ')';
             outputChannel.append(script.output + os.EOL);
-            outputChannel.append(`Script finished at ` + getTime() + ` on DOCUMENTS #${loginData.documentsVersion}` + os.EOL);
+            outputChannel.append(`Script finished at ` + getTime() + ` on DOCUMENTS ${ver}` + os.EOL);
             outputChannel.show();
 
             helpers.scriptLog(script.output);

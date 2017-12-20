@@ -15,6 +15,7 @@ import { VSCodeExtensionIPC } from './ipcServer';
 import * as login from './login';
 import * as serverCommands from './serverCommands';
 import { ServerConsole } from './serverConsole';
+import { getServerVersion } from './serverVersion';
 import stripJsonComments = require('strip-json-comments');
 import * as version from './version';
 
@@ -527,7 +528,8 @@ export function activate(context: vscode.ExtensionContext): void {
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.showDocumentsVersion', () => {
             if (loginData.documentsVersion && loginData.documentsVersion.length > 0 && loginData.documentsVersion !== 'unknown') {
-                vscode.window.showInformationMessage(`DOCUMENTS Version ${loginData.documentsVersion}`);
+                const ver = getServerVersion(loginData.documentsVersion) + ' (' + loginData.documentsVersion + ')';
+                vscode.window.showInformationMessage(`DOCUMENTS Version ${ver}`);
             } else {
                 vscode.window.showWarningMessage('Version only available after executing command on server');
             }
