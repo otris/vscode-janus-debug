@@ -6,7 +6,7 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import * as helpers from './helpers';
 import * as login from './login';
-import { getServerVersion } from './serverVersion';
+import { mapVersion } from './serverVersion';
 import stripJsonComments = require('strip-json-comments');
 import { scriptT } from 'node-documents-scripting';
 
@@ -260,7 +260,7 @@ function runScriptCommon(loginData: nodeDoc.ConnectionInformation, param: any, o
 
             await nodeDoc.serverSession(loginData, [script], nodeDoc.runScript);
 
-            const ver = getServerVersion(loginData.documentsVersion) + ' (' + loginData.documentsVersion + ')';
+            const ver = mapVersion(loginData.documentsVersion) + ' (' + loginData.documentsVersion + ')';
             outputChannel.append(script.output + os.EOL);
             outputChannel.append(`Script finished at ` + getTime() + ` on DOCUMENTS ${ver}` + os.EOL);
             outputChannel.show();
@@ -598,10 +598,9 @@ async function getServerScriptNames(loginData: nodeDoc.ConnectionInformation): P
 }
 
 
-export async function getFileTypesTSD(loginData: nodeDoc.ConnectionInformation): Promise<string> {
-    await login.ensureLoginInformation(loginData);
-
-    return new Promise<string>((resolve, reject) => {
+export function getFileTypesTSD(loginData: nodeDoc.ConnectionInformation): Promise<string> {
+    return new Promise<string>(async (resolve, reject) => {
+        await login.ensureLoginInformation(loginData);
 
         nodeDoc.serverSession(loginData, [], nodeDoc.getFileTypesTSD).then((result) => {
             if (!result || result.length === 0) {
@@ -617,3 +616,15 @@ export async function getFileTypesTSD(loginData: nodeDoc.ConnectionInformation):
     });
 }
 
+export function getServerVersion(loginData: nodeDoc.ConnectionInformation): Promise<void> {
+    return new Promise<void>(async (resolve, reject) => {
+        await login.ensureLoginInformation(loginData);
+
+        nodeDoc.serverSession(loginData, [], nodeDoc.getDocumentsVersion).then(() => {
+            if (!loginData.documentsVersion || loginData.documentsVersion.length === 0) {
+                return reject('Get Version failed');
+            }
+            resolve();
+        });
+    });
+}

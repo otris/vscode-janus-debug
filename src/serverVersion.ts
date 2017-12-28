@@ -20,7 +20,7 @@
  * 2014 5.0 HF2                                    (04/2016)
  * 2013 5.0 HF1                                    (11/2015)
  */
-export function getServerVersion(buildVer: string): string {
+export function mapVersion(buildVer: string): string {
     const buildNo = parseInt(buildVer.replace('#', ''), 10);
 
     if (isNaN(buildNo)) {
