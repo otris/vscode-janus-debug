@@ -18,12 +18,10 @@ const fs = require('fs-extra');
 
 const VERSION_DECRYPT_PERM = '8040';
 
-export let decrptionVersionChecked: boolean;
-
+let decrptionVersionChecked: boolean;
 export function setDecryptionVersionChecked(value: boolean) {
     decrptionVersionChecked = value;
 }
-
 
 /**
  * If user has decryption permission and server version is not 5.0c or higher,
