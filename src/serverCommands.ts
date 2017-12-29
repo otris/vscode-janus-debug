@@ -5,6 +5,7 @@ import * as os from 'os';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import * as helpers from './helpers';
+import { getErrorMsg } from './helpers';
 import * as login from './login';
 import { mapVersion } from './serverVersion';
 import stripJsonComments = require('strip-json-comments');
@@ -23,6 +24,7 @@ export let decrptionVersionChecked: boolean;
 export function setDecryptionVersionChecked(value: boolean) {
     decrptionVersionChecked = value;
 }
+
 
 /**
  * If user has decryption permission and server version is not 5.0c or higher,
@@ -49,7 +51,7 @@ export async function checkDecryptionVersion(loginData: nodeDoc.ConnectionInform
                     resolve();
                 }
             }).catch((reason) => {
-                vscode.window.showErrorMessage(reason.message);
+                vscode.window.showErrorMessage(getErrorMsg(reason));
                 reject();
             });
         } else {

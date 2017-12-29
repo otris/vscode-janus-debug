@@ -45,6 +45,24 @@ export function extend<T, U>(target: T, source: U): T & U {
     return t;
 }
 
+
+/**
+ * If the type of an error is not clear, call this function.
+ * @param error the error with unknown type
+ */
+export function getErrorMsg(error: any): string {
+    let msg = 'Undefined error';
+
+    if (error instanceof Error) {
+        msg = error.message;
+    } else if (typeof error === 'string') {
+        msg = error;
+    }
+
+    return msg;
+}
+
+
 /**
  * Subfunction of ensureUploadScripts.
  *
