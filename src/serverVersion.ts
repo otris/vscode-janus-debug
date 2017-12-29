@@ -21,10 +21,14 @@
  * 2013 5.0 HF1                                    (11/2015)
  */
 export function mapVersion(buildVer: string): string {
-    const buildNo = parseInt(buildVer.replace('#', ''), 10);
+    let buildNo = parseInt(buildVer.replace('#', ''), 10);
 
     if (isNaN(buildNo)) {
         return '';
+    }
+
+    if (buildNo > 8000) {
+        buildNo -= 6000;
     }
 
     if (buildNo >= 2045) {
