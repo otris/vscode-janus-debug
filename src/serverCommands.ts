@@ -16,46 +16,6 @@ const tsc = require('typescript-compiler');
 // tslint:disable-next-line:no-var-requires
 const fs = require('fs-extra');
 
-const VERSION_DECRYPT_PERM = '8040';
-
-let decrptionVersionChecked: boolean;
-export function setDecryptionVersionChecked(value: boolean) {
-    decrptionVersionChecked = value;
-}
-
-/**
- * If user has decryption permission and server version is not 5.0c or higher,
- * warn and ask user before upload.
- * Because then the upload with encrypted scripts will cause problems.
- */
-export async function checkDecryptionVersion(loginData: nodeDoc.ConnectionInformation): Promise<void> {
-    await login.ensureLoginInformation(loginData);
-
-    return new Promise<void>((resolve, reject) => {
-        if (!decrptionVersionChecked) {
-            nodeDoc.serverSession(loginData, [], nodeDoc.checkDecryptionPermission).then(() => {
-                decrptionVersionChecked = true;
-                if (loginData.decryptionPermission && Number(loginData.documentsVersion) < Number(VERSION_DECRYPT_PERM)) {
-                    const info = `You should update your DOCUMENTS to 5.0c (#${VERSION_DECRYPT_PERM}) to avoid problems with encrypted scripts`;
-                    vscode.window.showQuickPick(['Upload anyway', 'Cancel'], { placeHolder: info }).then((answer) => {
-                        if ('Upload anyway' === answer) {
-                            resolve();
-                        } else {
-                            reject();
-                        }
-                    });
-                } else {
-                    resolve();
-                }
-            }).catch((reason) => {
-                vscode.window.showErrorMessage(getErrorMsg(reason));
-                reject();
-            });
-        } else {
-            resolve();
-        }
-    });
-}
 
 
 
