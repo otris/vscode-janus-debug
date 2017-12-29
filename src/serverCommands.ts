@@ -5,7 +5,7 @@ import * as os from 'os';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import * as helpers from './helpers';
-import { getErrorMsg } from './helpers';
+import { getErrorMsg, getTime } from './helpers';
 import * as login from './login';
 import { mapVersion } from './serverVersion';
 import stripJsonComments = require('strip-json-comments');
@@ -16,7 +16,6 @@ const tsc = require('typescript-compiler');
 // tslint:disable-next-line:no-var-requires
 const fs = require('fs-extra');
 
-const VERSION_SCRIPT_PARAMS = '8035';
 const VERSION_DECRYPT_PERM = '8040';
 
 export let decrptionVersionChecked: boolean;
@@ -58,20 +57,9 @@ export async function checkDecryptionVersion(loginData: nodeDoc.ConnectionInform
             resolve();
         }
     });
-
 }
 
 
-function getTime(): string {
-    const now = new Date();
-    const hours = now.getHours();
-    const minutes = now.getMinutes();
-    const seconds = now.getSeconds();
-    const hours2 = hours < 10 ? '0' + hours : hours;
-    const minutes2 = minutes < 10 ? '0' + minutes : minutes;
-    const seconds2 = seconds < 10 ? '0' + seconds : seconds;
-    return `${hours2}:${minutes2}:${seconds2}`;
-}
 
 
 

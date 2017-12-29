@@ -62,6 +62,20 @@ export function getErrorMsg(error: any): string {
     return msg;
 }
 
+/**
+ * get current time as hh:mm:ss
+ */
+export function getTime(): string {
+    const now = new Date();
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+    const seconds = now.getSeconds();
+    const hours2 = hours < 10 ? '0' + hours : hours;
+    const minutes2 = minutes < 10 ? '0' + minutes : minutes;
+    const seconds2 = seconds < 10 ? '0' + seconds : seconds;
+    return `${hours2}:${minutes2}:${seconds2}`;
+}
+
 
 /**
  * Subfunction of ensureUploadScripts.
