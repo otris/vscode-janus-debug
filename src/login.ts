@@ -12,7 +12,7 @@ const fs = require('fs-extra');
 
 
 
-async function askForPassword(loginInfo: nodeDoc.ConnectionInformation): Promise<void> {
+async function askForPassword(connection: nodeDoc.ConnectionInformation): Promise<void> {
     return new Promise<void>(async (resolve, reject) => {
         const password = await vscode.window.showInputBox({
             prompt: 'Please enter the password',
@@ -21,17 +21,18 @@ async function askForPassword(loginInfo: nodeDoc.ConnectionInformation): Promise
             ignoreFocusOut: true,
         });
 
-        if (password === undefined) { // Note: empty passwords are fine
+        // Note: empty passwords are fine
+        if (password === undefined) {
             return reject(new Error('input password cancelled'));
         }
 
-        loginInfo.password = nodeDoc.getJanusPassword(password);
+        connection.password = nodeDoc.getJanusPassword(password);
 
         resolve();
     });
 }
 
-async function askForLoginInformation(loginInfo: nodeDoc.ConnectionInformation): Promise<string | undefined> {
+async function askForLoginInformation(connection: nodeDoc.ConnectionInformation): Promise<string | undefined> {
     const SERVER: string = 'localhost';
     const PORT: number = 11000;
     const PRINCIPAL: string = 'dopaag';
@@ -51,7 +52,7 @@ async function askForLoginInformation(loginInfo: nodeDoc.ConnectionInformation):
 
         const port = await vscode.window.showInputBox({
             prompt: 'Please enter the port',
-            value: loginInfo.port ? loginInfo.port.toString() : PORT.toString(),
+            value: connection.port ? connection.port.toString() : PORT.toString(),
             ignoreFocusOut: true,
         });
 
@@ -61,7 +62,7 @@ async function askForLoginInformation(loginInfo: nodeDoc.ConnectionInformation):
 
         const principal = await vscode.window.showInputBox({
             prompt: 'Please enter the principal',
-            value: loginInfo.principal ? loginInfo.principal : PRINCIPAL,
+            value: connection.principal ? connection.principal : PRINCIPAL,
             ignoreFocusOut: true,
         });
 
@@ -71,7 +72,7 @@ async function askForLoginInformation(loginInfo: nodeDoc.ConnectionInformation):
 
         const username = await vscode.window.showInputBox({
             prompt: 'Please enter the username (username.principal)',
-            value: loginInfo.username ? loginInfo.username : USERNAME,
+            value: connection.username ? connection.username : USERNAME,
             ignoreFocusOut: true,
         });
 
@@ -79,10 +80,10 @@ async function askForLoginInformation(loginInfo: nodeDoc.ConnectionInformation):
             return reject(new Error('input login data cancelled'));
         }
 
-        loginInfo.server = server;
-        loginInfo.port = Number(port);
-        loginInfo.principal = principal;
-        loginInfo.username = username;
+        connection.server = server;
+        connection.port = Number(port);
+        connection.principal = principal;
+        connection.username = username;
 
         const password = await vscode.window.showInputBox({
             prompt: 'Please enter the password',
@@ -91,21 +92,22 @@ async function askForLoginInformation(loginInfo: nodeDoc.ConnectionInformation):
             ignoreFocusOut: true,
         });
 
-        if (password === undefined) { // Note: empty passwords are fine
+        // Note: empty passwords are fine
+        if (password === undefined) {
             return reject(new Error('input login data cancelled'));
         }
 
-        loginInfo.password = nodeDoc.getJanusPassword(password);
+        connection.password = nodeDoc.getJanusPassword(password);
 
         const savePw = await vscode.window.showQuickPick(["Yes", "No"], {placeHolder: "Save password to launch.json?"});
         if ("Yes" === savePw) {
-            loginInfo.askForPassword = false;
+            connection.askForPassword = false;
             resolve(password);
 
         } else {
             // set to true so the string to ask for password
             // is written to launch.json
-            loginInfo.askForPassword = true;
+            connection.askForPassword = true;
             resolve(undefined);
         }
     });
@@ -187,7 +189,11 @@ export async function ensureLoginInformation(serverInfo: nodeDoc.ConnectionInfor
 }
 
 
-
+/**
+ * This function is called by the launch.json-watcher when launch.json is created.
+ * When launch.json is created by this extension (see ensureLoginInformation() above),
+ * the login information should not be loaded.
+ */
 let launchJsonCreatedByExtension = false;
 export function loadLoginInformationOnCreate(login: nodeDoc.ConnectionInformation, configFile: string) {
     if (launchJsonCreatedByExtension) {
@@ -196,53 +202,76 @@ export function loadLoginInformationOnCreate(login: nodeDoc.ConnectionInformatio
         loadLoginInformation(login, configFile);
     }
 }
-function loadConfiguration(login: nodeDoc.ConnectionInformation, configuration: any) {
-    login.server = configuration.host;
-    login.port = configuration.applicationPort;
-    login.principal = configuration.principal;
-    login.username = configuration.username;
+
+
+
+
+function loadConfiguration(connection: nodeDoc.ConnectionInformation, configuration: any) {
+    connection.server = configuration.host;
+    connection.port = configuration.applicationPort;
+    connection.principal = configuration.principal;
+    connection.username = configuration.username;
     if (config.commandAskForPassword === configuration.password) {
-        login.askForPassword = true;
-        login.password = undefined;
+        connection.askForPassword = true;
+        connection.password = undefined;
     } else {
-        login.askForPassword = false;
-        login.password = nodeDoc.getJanusPassword(configuration.password);
+        connection.askForPassword = false;
+        connection.password = nodeDoc.getJanusPassword(configuration.password);
     }
-    login.sdsTimeout = configuration.sdsTimeout;
-    login.documentsVersion = 'unknown';
+    connection.sdsTimeout = configuration.sdsTimeout;
+    connection.documentsVersion = 'unknown';
 }
-export function loadLoginInformation(login: nodeDoc.ConnectionInformation, configFile: string): boolean {
-    console.log('loadLoginInformation');
-    login.configFile = configFile;
+
+
+/**
+ * Try to find a valid configuration in the configuration file and load it to the data structure.
+ * Is called once on start and every time the configuration file is changed.
+ */
+export function loadLoginInformation(connection: nodeDoc.ConnectionInformation, configFile: string): boolean {
+    connection.configFile = configFile;
+    let configurations;
 
     try {
-        const jsonContent = fs.readFileSync(login.configFile, 'utf8');
+        const jsonContent = fs.readFileSync(connection.configFile, 'utf8');
         const jsonObject = JSON.parse(stripJsonComments(jsonContent));
-        const configurations = jsonObject.configurations;
-        let validConfigurations = 0;
-
-        if (configurations) {
-            configurations.forEach((configuration: any) => {
-                if (configuration.type === 'janus' && configuration.request === 'launch') {
-                    if (validConfigurations === 0) {
-                        loadConfiguration(login, configuration);
-                    }
-                    validConfigurations++;
-                }
-            });
-
-            // if more than one valid configuration found, search for flag currentConfiguration
-            if (validConfigurations > 1) {
-                configurations.some((configuration: any) => {
-                    if (configuration.type === 'janus' && configuration.request === 'launch' && configuration.currentConfiguration) {
-                        loadConfiguration(login, configuration);
-                        return true;
-                    }
-                });
-            }
-        }
+        configurations = jsonObject.configurations;
     } catch (err) {
         return false;
     }
+
+    if (!configurations) {
+        return false;
+    }
+
+    let validConfigurations = 0;
+    let loadConf;
+
+    // count valid configurations and remember the first one
+    configurations.forEach((configuration: any) => {
+        if (configuration.type === 'janus' && configuration.request === 'launch') {
+            if (validConfigurations === 0) {
+                loadConf = configuration;
+            }
+            validConfigurations++;
+        }
+    });
+
+    // if more than one valid configuration found, search for flag currentConfiguration
+    if (validConfigurations > 1) {
+        configurations.some((configuration: any) => {
+            if (configuration.type === 'janus' && configuration.request === 'launch' && configuration.currentConfiguration) {
+                loadConf = configuration;
+                return true;
+            }
+        });
+    }
+
+    if (!loadConf) {
+        return false;
+    }
+
+    // finally load the configuration
+    loadConfiguration(connection, loadConf);
+
     return true;
 }
