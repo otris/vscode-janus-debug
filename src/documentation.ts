@@ -47,6 +47,7 @@ export async function viewDocumentation() {
                 const selectedWord = doc.getText(range);
                 const selectedWordL = selectedWord.toLocaleLowerCase();
                 const moduleName: string = (mapping['class-names'].indexOf('module:' + selectedWordL) >= 0) ? 'module:' + selectedWordL : '';
+                const namespaceName: string = (mapping['class-names'].indexOf(selectedWordL) >= 0) ? 'module:' + selectedWordL : '';
                 const className: string = (mapping['class-names'].indexOf(selectedWord) >= 0) ? selectedWord : '';
                 const functionOrMember: string[] = mapping[selectedWord];
 
@@ -76,8 +77,13 @@ export async function viewDocumentation() {
                 } else if (className.length > 0) {
                     const classNameHtml = className + '.html';
                     file = portalScriptDocs + '#' + classNameHtml;
+
+                // namespace selected?
+                } else if (namespaceName.length > 0) {
+                    const namespaceNameHtml = namespaceName + '.html';
+                    file = portalScriptDocs + '#' + namespaceNameHtml;
                 }
-            }
+    }
         }
 
         // no portal script member selected, open main documentation

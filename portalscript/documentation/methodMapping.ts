@@ -1,9 +1,9 @@
 export const mapping = {
   "name": [
     "AccessProfile",
-    "ArchiveServer",
     "UserAction",
     "ArchiveConnectionBlob",
+    "ArchiveServer",
     "ControlFlow",
     "CustomProperty",
     "Document",
@@ -19,8 +19,8 @@ export const mapping = {
   ],
   "addCustomProperty": [
     "AccessProfile",
-    "module:context",
-    "SystemUser"
+    "SystemUser",
+    "context"
   ],
   "getAttribute": [
     "AccessProfile",
@@ -37,28 +37,28 @@ export const mapping = {
   ],
   "getCustomProperties": [
     "AccessProfile",
-    "module:context",
-    "SystemUser"
+    "SystemUser",
+    "context"
   ],
   "getLastError": [
     "AccessProfile",
-    "ArchiveConnection",
     "ArchiveFileResultset",
-    "ArchiveServer",
-    "ArchiveServerIterator",
     "DBConnection",
-    "DBResultSet",
+    "DBConnection",
     "DOMParser",
     "Email",
     "HitResultset",
     "ScriptCall",
     "UserAction",
     "XMLExport",
-    "module:context",
     "AccessProfileIterator",
+    "ArchiveConnection",
     "ArchiveConnectionBlob",
+    "ArchiveServer",
+    "ArchiveServerIterator",
     "ControlFlow",
     "CustomProperty",
+    "DBResultSet",
     "DocFile",
     "DocHit",
     "DocQueryParams",
@@ -70,12 +70,13 @@ export const mapping = {
     "RegisterIterator",
     "SystemUser",
     "SystemUserIterator",
-    "WorkflowStep"
+    "WorkflowStep",
+    "context"
   ],
   "getOID": [
     "AccessProfile",
-    "ArchiveServer",
     "UserAction",
+    "ArchiveServer",
     "DocFile",
     "Document",
     "Folder",
@@ -85,7 +86,7 @@ export const mapping = {
   ],
   "getSystemUsers": [
     "AccessProfile",
-    "module:context"
+    "context"
   ],
   "setAttribute": [
     "AccessProfile",
@@ -102,40 +103,16 @@ export const mapping = {
   ],
   "setOrAddCustomProperty": [
     "AccessProfile",
-    "module:context",
-    "SystemUser"
-  ],
-  "id": [
-    "ArchiveConnection",
-    "ControlFlow",
-    "Folder",
-    "WorkflowStep"
-  ],
-  "downloadBlob": [
-    "ArchiveConnection"
-  ],
-  "downloadBlobs": [
-    "ArchiveConnection"
-  ],
-  "putBlob": [
-    "ArchiveConnection"
-  ],
-  "queryRawEEx": [
-    "ArchiveConnection"
-  ],
-  "sendEbisRequest": [
-    "ArchiveConnection"
-  ],
-  "sendRequest": [
-    "ArchiveConnection"
+    "SystemUser",
+    "context"
   ],
   "first": [
     "ArchiveFileResultset",
-    "ArchiveServerIterator",
     "FileResultset",
     "HitResultset",
     "AccessProfileIterator",
     "ArchiveConnectionBlobIterator",
+    "ArchiveServerIterator",
     "ControlFlowIterator",
     "CustomPropertyIterator",
     "DocumentIterator",
@@ -150,14 +127,14 @@ export const mapping = {
   ],
   "next": [
     "ArchiveFileResultset",
-    "ArchiveServerIterator",
-    "DBResultSet",
     "FileResultset",
     "HitResultset",
     "AccessProfileIterator",
     "ArchiveConnectionBlobIterator",
+    "ArchiveServerIterator",
     "ControlFlowIterator",
     "CustomPropertyIterator",
+    "DBResultSet",
     "DocumentIterator",
     "FolderIterator",
     "RegisterIterator",
@@ -166,12 +143,12 @@ export const mapping = {
   ],
   "size": [
     "ArchiveFileResultset",
-    "ArchiveServerIterator",
     "FileResultset",
     "HitResultset",
     "AccessProfileIterator",
     "ArchiveConnectionBlob",
     "ArchiveConnectionBlobIterator",
+    "ArchiveServerIterator",
     "ControlFlowIterator",
     "CustomPropertyIterator",
     "Document",
@@ -180,13 +157,6 @@ export const mapping = {
     "RegisterIterator",
     "SystemUserIterator",
     "WorkflowStepIterator"
-  ],
-  "getArchiveConnection": [
-    "ArchiveServer",
-    "module:context"
-  ],
-  "submitChanges": [
-    "ArchiveServer"
   ],
   "archiveMonitor": [
     "ArchivingDescription"
@@ -214,47 +184,25 @@ export const mapping = {
   ],
   "close": [
     "DBConnection",
-    "DBResultSet",
-    "File"
+    "DBConnection",
+    "File",
+    "DBResultSet"
   ],
   "executeQuery": [
+    "DBConnection",
     "DBConnection"
   ],
   "executeQueryUC": [
+    "DBConnection",
     "DBConnection"
   ],
   "executeStatement": [
+    "DBConnection",
     "DBConnection"
   ],
   "executeStatementUC": [
+    "DBConnection",
     "DBConnection"
-  ],
-  "getBool": [
-    "DBResultSet"
-  ],
-  "getColName": [
-    "DBResultSet"
-  ],
-  "getDate": [
-    "DBResultSet"
-  ],
-  "getFloat": [
-    "DBResultSet"
-  ],
-  "getInt": [
-    "DBResultSet"
-  ],
-  "getNumCols": [
-    "DBResultSet"
-  ],
-  "getString": [
-    "DBResultSet"
-  ],
-  "getTimestamp": [
-    "DBResultSet"
-  ],
-  "getUCString": [
-    "DBResultSet"
   ],
   "documentElement": [
     "DOMDocument"
@@ -278,7 +226,19 @@ export const mapping = {
     "DOMDocument",
     "DOMElement"
   ],
-  "ErrorConstants": [
+  "ErrCatDOM": [
+    "DOMParser"
+  ],
+  "ErrCatEnv": [
+    "DOMParser"
+  ],
+  "ErrCatNone": [
+    "DOMParser"
+  ],
+  "ErrCatSAX": [
+    "DOMParser"
+  ],
+  "ErrCatXML": [
     "DOMParser"
   ],
   "getDocument": [
@@ -579,384 +539,29 @@ export const mapping = {
   "open": [
     "XMLHTTPRequest"
   ],
-  "clientId": [
-    "module:context"
+  "id": [
+    "ArchiveConnection",
+    "ControlFlow",
+    "Folder",
+    "WorkflowStep"
   ],
-  "currentUser": [
-    "module:context"
+  "downloadBlob": [
+    "ArchiveConnection"
   ],
-  "document": [
-    "module:context"
+  "downloadBlobs": [
+    "ArchiveConnection"
   ],
-  "errorMessage": [
-    "module:context"
+  "putBlob": [
+    "ArchiveConnection"
   ],
-  "event": [
-    "module:context"
+  "queryRawEEx": [
+    "ArchiveConnection"
   ],
-  "file": [
-    "module:context"
+  "sendEbisRequest": [
+    "ArchiveConnection"
   ],
-  "fileType": [
-    "module:context"
-  ],
-  "folderFiles": [
-    "module:context"
-  ],
-  "folderName": [
-    "module:context"
-  ],
-  "register": [
-    "module:context"
-  ],
-  "returnType": [
-    "module:context"
-  ],
-  "scriptName": [
-    "module:context"
-  ],
-  "selectedArchiveFiles": [
-    "module:context"
-  ],
-  "selectedArchiveKeys": [
-    "module:context"
-  ],
-  "selectedDocuments": [
-    "module:context"
-  ],
-  "selectedFiles": [
-    "module:context"
-  ],
-  "sourceCode": [
-    "module:context"
-  ],
-  "workflowActionId": [
-    "module:context"
-  ],
-  "workflowActionName": [
-    "module:context"
-  ],
-  "workflowControlFlowId": [
-    "module:context"
-  ],
-  "workflowControlFlowName": [
-    "module:context"
-  ],
-  "workflowStep": [
-    "module:context"
-  ],
-  "addTimeInterval": [
-    "module:context"
-  ],
-  "changeScriptUser": [
-    "module:context"
-  ],
-  "clearEnumvalCache": [
-    "module:context"
-  ],
-  "convertDateToString": [
-    "module:context",
-    "module:util"
-  ],
-  "convertNumericToString": [
-    "module:context",
-    "module:context"
-  ],
-  "convertStringToDate": [
-    "module:context",
-    "module:util"
-  ],
-  "convertStringToNumeric": [
-    "module:context",
-    "module:context"
-  ],
-  "countPoolFiles": [
-    "module:context"
-  ],
-  "createAccessProfile": [
-    "module:context"
-  ],
-  "createArchiveServer": [
-    "module:context"
-  ],
-  "createFellow": [
-    "module:context"
-  ],
-  "createFile": [
-    "module:context"
-  ],
-  "createFolder": [
-    "module:context"
-  ],
-  "createPoolFile": [
-    "module:context"
-  ],
-  "createSystemUser": [
-    "module:context"
-  ],
-  "deleteAccessProfile": [
-    "module:context"
-  ],
-  "deleteFolder": [
-    "module:context",
-    "Folder"
-  ],
-  "deleteSystemUser": [
-    "module:context"
-  ],
-  "doMaintenance": [
-    "module:context"
-  ],
-  "extCall": [
-    "module:context"
-  ],
-  "extProcess": [
-    "module:context"
-  ],
-  "findAccessProfile": [
-    "module:context"
-  ],
-  "findCustomProperties": [
-    "module:context"
-  ],
-  "findSystemUser": [
-    "module:context"
-  ],
-  "findSystemUserByAlias": [
-    "module:context"
-  ],
-  "getAccessProfiles": [
-    "module:context",
-    "SystemUser"
-  ],
-  "getArchiveFile": [
-    "module:context",
-    "DocHit"
-  ],
-  "getArchiveServer": [
-    "module:context"
-  ],
-  "getArchiveServers": [
-    "module:context"
-  ],
-  "getAutoText": [
-    "module:context",
-    "DocFile"
-  ],
-  "getClientLang": [
-    "module:context"
-  ],
-  "getClientSystemLang": [
-    "module:context"
-  ],
-  "getClientType": [
-    "module:context"
-  ],
-  "getCurrentUserAttribute": [
-    "module:context"
-  ],
-  "getDatesDiff": [
-    "module:context"
-  ],
-  "getEnumAutoText": [
-    "module:context",
-    "DocFile"
-  ],
-  "getEnumErgValue": [
-    "module:context"
-  ],
-  "getEnumValues": [
-    "module:context"
-  ],
-  "getFieldErgName": [
-    "module:context"
-  ],
-  "getFileById": [
-    "module:context"
-  ],
-  "getFileTypeErgName": [
-    "module:context"
-  ],
-  "getFileTypeOID": [
-    "module:context"
-  ],
-  "getFolderPosition": [
-    "module:context"
-  ],
-  "getFoldersByName": [
-    "module:context"
-  ],
-  "getFromSystemTable": [
-    "module:context"
-  ],
-  "getJSObject": [
-    "module:context"
-  ],
-  "getPrincipalAttribute": [
-    "module:context"
-  ],
-  "getProgressBar": [
-    "module:context"
-  ],
-  "getQueryParams": [
-    "module:context"
-  ],
-  "getRegisterErgName": [
-    "module:context"
-  ],
-  "getServerInstallPath": [
-    "module:context"
-  ],
-  "getSystemUser": [
-    "module:context"
-  ],
-  "getTmpFilePath": [
-    "module:context"
-  ],
-  "getXMLServer": [
-    "module:context"
-  ],
-  "sendTCPStringRequest": [
-    "module:context"
-  ],
-  "setClientLang": [
-    "module:context"
-  ],
-  "setClientSystemLang": [
-    "module:context"
-  ],
-  "setFolderPosition": [
-    "module:context"
-  ],
-  "setPrincipalAttribute": [
-    "module:context"
-  ],
-  "setProgressBar": [
-    "module:context"
-  ],
-  "setProgressBarText": [
-    "module:context"
-  ],
-  "buildNo": [
-    "module:util"
-  ],
-  "DB": [
-    "module:util"
-  ],
-  "memoryModel": [
-    "module:util"
-  ],
-  "version": [
-    "module:util"
-  ],
-  "base64Decode": [
-    "module:util"
-  ],
-  "base64Encode": [
-    "module:util"
-  ],
-  "beep": [
-    "module:util"
-  ],
-  "concatPDF": [
-    "module:util"
-  ],
-  "convertBlobToPDF": [
-    "module:util"
-  ],
-  "cryptPassword": [
-    "module:util"
-  ],
-  "decodeUrlCompatible": [
-    "module:util"
-  ],
-  "decryptString": [
-    "module:util"
-  ],
-  "deleteFile": [
-    "module:util",
-    "DocFile"
-  ],
-  "encodeUrlCompatible": [
-    "module:util"
-  ],
-  "encryptString": [
-    "module:util"
-  ],
-  "fileCopy": [
-    "module:util"
-  ],
-  "fileMove": [
-    "module:util"
-  ],
-  "fileSize": [
-    "module:util"
-  ],
-  "generateChecksum": [
-    "module:util"
-  ],
-  "getDir": [
-    "module:util"
-  ],
-  "getEnvironment": [
-    "module:util"
-  ],
-  "getFileContentAsString": [
-    "module:util"
-  ],
-  "getQuoted": [
-    "module:util"
-  ],
-  "getSourceLineInfo": [
-    "module:util"
-  ],
-  "getTmpPath": [
-    "module:util"
-  ],
-  "getUniqueId": [
-    "module:util"
-  ],
-  "getUsedPrivateBytes": [
-    "module:util"
-  ],
-  "hmac": [
-    "module:util"
-  ],
-  "isEncryptedBlob": [
-    "module:util"
-  ],
-  "length_u": [
-    "module:util"
-  ],
-  "log": [
-    "module:util"
-  ],
-  "makeFullDir": [
-    "module:util"
-  ],
-  "makeHTML": [
-    "module:util"
-  ],
-  "out": [
-    "module:util"
-  ],
-  "searchInArray": [
-    "module:util"
-  ],
-  "sha256": [
-    "module:util"
-  ],
-  "sleep": [
-    "module:util"
-  ],
-  "substr_u": [
-    "module:util"
-  ],
-  "transcode": [
-    "module:util"
-  ],
-  "unlinkFile": [
-    "module:util"
+  "sendRequest": [
+    "ArchiveConnection"
   ],
   "bytes": [
     "ArchiveConnectionBlob",
@@ -979,6 +584,13 @@ export const mapping = {
   ],
   "download": [
     "ArchiveConnectionBlob"
+  ],
+  "getArchiveConnection": [
+    "ArchiveServer",
+    "context"
+  ],
+  "submitChanges": [
+    "ArchiveServer"
   ],
   "value": [
     "CustomProperty",
@@ -1005,8 +617,36 @@ export const mapping = {
   "setSystemUser": [
     "CustomProperty"
   ],
+  "getBool": [
+    "DBResultSet"
+  ],
+  "getColName": [
+    "DBResultSet"
+  ],
+  "getDate": [
+    "DBResultSet"
+  ],
+  "getFloat": [
+    "DBResultSet"
+  ],
+  "getInt": [
+    "DBResultSet"
+  ],
+  "getNumCols": [
+    "DBResultSet"
+  ],
+  "getString": [
+    "DBResultSet"
+  ],
+  "getTimestamp": [
+    "DBResultSet"
+  ],
+  "getUCString": [
+    "DBResultSet"
+  ],
   "fieldName": [
-    "DocFile"
+    "DocFile",
+    "context"
   ],
   "addDocumentFromFileSystem": [
     "DocFile"
@@ -1049,6 +689,10 @@ export const mapping = {
   "createStatusFile": [
     "DocFile"
   ],
+  "deleteFile": [
+    "DocFile",
+    "util"
+  ],
   "disconnectArchivedFile": [
     "DocFile"
   ],
@@ -1076,6 +720,10 @@ export const mapping = {
     "DocFile",
     "Document"
   ],
+  "getAutoText": [
+    "DocFile",
+    "context"
+  ],
   "getCopy": [
     "DocFile"
   ],
@@ -1087,6 +735,10 @@ export const mapping = {
   ],
   "getCurrentWorkflowStep": [
     "DocFile"
+  ],
+  "getEnumAutoText": [
+    "DocFile",
+    "context"
   ],
   "getFieldAttribute": [
     "DocFile"
@@ -1190,11 +842,16 @@ export const mapping = {
   "columnName": [
     "DocHit"
   ],
+  "getArchiveFile": [
+    "DocHit",
+    "context"
+  ],
   "getBlobInfo": [
     "DocHit"
   ],
   "getFile": [
-    "DocHit"
+    "DocHit",
+    "Register"
   ],
   "getFileId": [
     "DocHit"
@@ -1217,13 +874,40 @@ export const mapping = {
   "isArchiveHit": [
     "DocHit"
   ],
+  "API": [
+    "DocQueryParams"
+  ],
+  "DIRECT": [
+    "DocQueryParams"
+  ],
+  "EXTENDED": [
+    "DocQueryParams"
+  ],
+  "FILING_PLAN": [
+    "DocQueryParams"
+  ],
   "filledSearchFieldCount": [
+    "DocQueryParams"
+  ],
+  "FOLDER_D": [
+    "DocQueryParams"
+  ],
+  "FOLDER_S": [
+    "DocQueryParams"
+  ],
+  "QUICK_VIEW": [
+    "DocQueryParams"
+  ],
+  "REFERENCE": [
+    "DocQueryParams"
+  ],
+  "REGISTER": [
     "DocQueryParams"
   ],
   "requestType": [
     "DocQueryParams"
   ],
-  "requestTypeConstants": [
+  "SCRIPT_TREE": [
     "DocQueryParams"
   ],
   "searchFieldCount": [
@@ -1258,6 +942,9 @@ export const mapping = {
     "Register"
   ],
   "downloadDocument": [
+    "Document"
+  ],
+  "getRegister": [
     "Document"
   ],
   "moveToRegister": [
@@ -1314,10 +1001,55 @@ export const mapping = {
   "code": [
     "DOMException"
   ],
-  "Errorcodeconstants": [
+  "DOMSTRING_SIZE_ERR": [
+    "DOMException"
+  ],
+  "HIERARCHY_REQUEST_ERR": [
+    "DOMException"
+  ],
+  "INDEX_SIZE_ERR": [
+    "DOMException"
+  ],
+  "INUSE_ATTRIBUTE_ERR": [
+    "DOMException"
+  ],
+  "INVALID_ACCESS_ERR": [
+    "DOMException"
+  ],
+  "INVALID_CHARACTER_ERR": [
+    "DOMException"
+  ],
+  "INVALID_MODIFICATION_ERR": [
+    "DOMException"
+  ],
+  "INVALID_STATE_ERR": [
     "DOMException"
   ],
   "message": [
+    "DOMException"
+  ],
+  "NAMESPACE_ERR": [
+    "DOMException"
+  ],
+  "NO_DATA_ALLOWED_ERR": [
+    "DOMException"
+  ],
+  "NO_MODIFICATION_ALLOWED_ERR": [
+    "DOMException"
+  ],
+  "NOT_FOUND_ERR": [
+    "DOMException"
+  ],
+  "NOT_SUPPORTED_ERR": [
+    "DOMException"
+  ],
+  "SYNTAX_ERR": [
+    "DOMException"
+  ],
+  "VALIDATION_ERR": [
+    "DOMException"
+  ],
+  "WRONG_DOCUMENT_ERR": [
     "DOMException"
   ],
   "getNamedItem": [
@@ -1333,10 +1065,37 @@ export const mapping = {
   "setNamedItem": [
     "DOMNamedNodeMap"
   ],
+  "ATTRIBUTE_NODE": [
+    "DOMNode"
+  ],
   "attributes": [
     "DOMNode"
   ],
+  "CDATA_SECTION_NODE": [
+    "DOMNode"
+  ],
   "childNodes": [
+    "DOMNode"
+  ],
+  "COMMENT_NODE": [
+    "DOMNode"
+  ],
+  "DOCUMENT_FRAGMENT_NODE": [
+    "DOMNode"
+  ],
+  "DOCUMENT_NODE": [
+    "DOMNode"
+  ],
+  "DOCUMENT_TYPE_NODE": [
+    "DOMNode"
+  ],
+  "ELEMENT_NODE": [
+    "DOMNode"
+  ],
+  "ENTITY_NODE": [
+    "DOMNode"
+  ],
+  "ENTITY_REFERENCE_NODE": [
     "DOMNode"
   ],
   "firstChild": [
@@ -1354,10 +1113,10 @@ export const mapping = {
   "nodeType": [
     "DOMNode"
   ],
-  "NodeTypeConstants": [
+  "nodeValue": [
     "DOMNode"
   ],
-  "nodeValue": [
+  "NOTATION_NODE": [
     "DOMNode"
   ],
   "ownerDocument": [
@@ -1367,6 +1126,12 @@ export const mapping = {
     "DOMNode"
   ],
   "previousSibling": [
+    "DOMNode"
+  ],
+  "PROCESSING_INSTRUCTION_NODE": [
+    "DOMNode"
+  ],
+  "TEXT_NODE": [
     "DOMNode"
   ],
   "appendChild": [
@@ -1486,6 +1251,10 @@ export const mapping = {
   "createSubFolder": [
     "Folder"
   ],
+  "deleteFolder": [
+    "Folder",
+    "context"
+  ],
   "getActionByName": [
     "Folder"
   ],
@@ -1541,6 +1310,9 @@ export const mapping = {
   "hasProperty": [
     "PropertyCache"
   ],
+  "listProperties": [
+    "PropertyCache"
+  ],
   "removeProperty": [
     "PropertyCache"
   ],
@@ -1556,7 +1328,67 @@ export const mapping = {
   "defValWriteProt": [
     "RetrievalField"
   ],
-  "fieldTypes": [
+  "FT_BOOL": [
+    "RetrievalField"
+  ],
+  "FT_CHECKBOX": [
+    "RetrievalField"
+  ],
+  "FT_DATE": [
+    "RetrievalField"
+  ],
+  "FT_DOUBLE_LIST": [
+    "RetrievalField"
+  ],
+  "FT_E_MAIL": [
+    "RetrievalField"
+  ],
+  "FT_ENUM": [
+    "RetrievalField"
+  ],
+  "FT_FILING_PLAN": [
+    "RetrievalField"
+  ],
+  "FT_FILING_STRUCTURE": [
+    "RetrievalField"
+  ],
+  "FT_GADGET": [
+    "RetrievalField"
+  ],
+  "FT_HISTORY": [
+    "RetrievalField"
+  ],
+  "FT_HTML": [
+    "RetrievalField"
+  ],
+  "FT_NUMERIC": [
+    "RetrievalField"
+  ],
+  "FT_REFERENCE": [
+    "RetrievalField"
+  ],
+  "FT_SEPARATOR": [
+    "RetrievalField"
+  ],
+  "FT_STRING": [
+    "RetrievalField"
+  ],
+  "FT_TEXT": [
+    "RetrievalField"
+  ],
+  "FT_TEXT_FIXED_FONT": [
+    "RetrievalField"
+  ],
+  "FT_TIMESTAMP": [
+    "RetrievalField"
+  ],
+  "FT_UNDEFINED": [
+    "RetrievalField"
+  ],
+  "FT_URL": [
+    "RetrievalField"
+  ],
+  "FT_USER_DEFINED": [
     "RetrievalField"
   ],
   "valueExpr": [
@@ -1565,13 +1397,31 @@ export const mapping = {
   "setDefault": [
     "RetrievalField"
   ],
+  "MST_EAS_ONLY": [
+    "RetrievalSource"
+  ],
+  "MST_EAS_SERVER": [
+    "RetrievalSource"
+  ],
   "resId": [
     "RetrievalSource"
   ],
-  "searchableResource": [
+  "server": [
     "RetrievalSource"
   ],
-  "server": [
+  "ST_DLC_FILETYPE": [
+    "RetrievalSource"
+  ],
+  "ST_EAS_FILETYPE": [
+    "RetrievalSource"
+  ],
+  "ST_EEI_ARCHIVE": [
+    "RetrievalSource"
+  ],
+  "ST_EEX_USERVIEW": [
+    "RetrievalSource"
+  ],
+  "ST_EEX_VIEW": [
     "RetrievalSource"
   ],
   "ANNOTATIONS": [
@@ -1649,6 +1499,10 @@ export const mapping = {
   "getAccess": [
     "SystemUser"
   ],
+  "getAccessProfiles": [
+    "SystemUser",
+    "context"
+  ],
   "getAgents": [
     "SystemUser"
   ],
@@ -1703,6 +1557,9 @@ export const mapping = {
   "setAbsentMail": [
     "SystemUser"
   ],
+  "setAccessProfiles": [
+    "SystemUser"
+  ],
   "setPassword": [
     "SystemUser"
   ],
@@ -1742,15 +1599,372 @@ export const mapping = {
   "setNewExecutiveUser": [
     "WorkflowStep"
   ],
+  "clientId": [
+    "context"
+  ],
+  "currentUser": [
+    "context"
+  ],
+  "document": [
+    "context"
+  ],
+  "errorMessage": [
+    "context"
+  ],
+  "event": [
+    "context"
+  ],
+  "file": [
+    "context"
+  ],
+  "fileType": [
+    "context"
+  ],
+  "folderFiles": [
+    "context"
+  ],
+  "folderName": [
+    "context"
+  ],
+  "register": [
+    "context"
+  ],
+  "returnType": [
+    "context"
+  ],
+  "scriptName": [
+    "context"
+  ],
+  "selectedArchiveFiles": [
+    "context"
+  ],
+  "selectedArchiveKeys": [
+    "context"
+  ],
+  "selectedDocuments": [
+    "context"
+  ],
+  "selectedFiles": [
+    "context"
+  ],
+  "sourceCode": [
+    "context"
+  ],
+  "workflowActionId": [
+    "context"
+  ],
+  "workflowActionName": [
+    "context"
+  ],
+  "workflowControlFlowId": [
+    "context"
+  ],
+  "workflowControlFlowName": [
+    "context"
+  ],
+  "workflowStep": [
+    "context"
+  ],
+  "addTimeInterval": [
+    "context"
+  ],
+  "changeScriptUser": [
+    "context"
+  ],
+  "clearEnumvalCache": [
+    "context"
+  ],
+  "convertDateToString": [
+    "context",
+    "util"
+  ],
+  "convertNumericToString": [
+    "context",
+    "context"
+  ],
+  "convertStringToDate": [
+    "context",
+    "util"
+  ],
+  "convertStringToNumeric": [
+    "context",
+    "context"
+  ],
+  "countPoolFiles": [
+    "context"
+  ],
+  "createAccessProfile": [
+    "context"
+  ],
+  "createArchiveServer": [
+    "context"
+  ],
+  "createFellow": [
+    "context"
+  ],
+  "createFile": [
+    "context"
+  ],
+  "createFolder": [
+    "context"
+  ],
+  "createPoolFile": [
+    "context"
+  ],
+  "createSystemUser": [
+    "context"
+  ],
+  "deleteAccessProfile": [
+    "context"
+  ],
+  "deleteSystemUser": [
+    "context"
+  ],
+  "doMaintenance": [
+    "context"
+  ],
+  "extCall": [
+    "context"
+  ],
+  "extProcess": [
+    "context"
+  ],
+  "findAccessProfile": [
+    "context"
+  ],
+  "findCustomProperties": [
+    "context"
+  ],
+  "findSystemUser": [
+    "context"
+  ],
+  "findSystemUserByAlias": [
+    "context"
+  ],
+  "getArchiveServer": [
+    "context"
+  ],
+  "getArchiveServers": [
+    "context"
+  ],
+  "getClientLang": [
+    "context"
+  ],
+  "getClientSystemLang": [
+    "context"
+  ],
+  "getClientType": [
+    "context"
+  ],
+  "getCurrentUserAttribute": [
+    "context"
+  ],
+  "getDatesDiff": [
+    "context"
+  ],
+  "getEnumErgValue": [
+    "context"
+  ],
+  "getEnumValues": [
+    "context"
+  ],
+  "getFieldErgName": [
+    "context"
+  ],
+  "getFileById": [
+    "context"
+  ],
+  "getFileTypeErgName": [
+    "context"
+  ],
+  "getFileTypeOID": [
+    "context"
+  ],
+  "getFolderPosition": [
+    "context"
+  ],
+  "getFoldersByName": [
+    "context"
+  ],
+  "getFromSystemTable": [
+    "context"
+  ],
+  "getJSObject": [
+    "context"
+  ],
+  "getLocaleValue": [
+    "context"
+  ],
+  "getPrincipalAttribute": [
+    "context"
+  ],
+  "getProgressBar": [
+    "context"
+  ],
+  "getQueryParams": [
+    "context"
+  ],
+  "getRegisterErgName": [
+    "context"
+  ],
+  "getServerInstallPath": [
+    "context"
+  ],
+  "getSystemUser": [
+    "context"
+  ],
+  "getTmpFilePath": [
+    "context"
+  ],
+  "getXMLServer": [
+    "context"
+  ],
+  "sendTCPStringRequest": [
+    "context"
+  ],
+  "setClientLang": [
+    "context"
+  ],
+  "setClientSystemLang": [
+    "context"
+  ],
+  "setFolderPosition": [
+    "context"
+  ],
+  "setPrincipalAttribute": [
+    "context"
+  ],
+  "setProgressBar": [
+    "context"
+  ],
+  "setProgressBarText": [
+    "context"
+  ],
+  "buildNo": [
+    "util"
+  ],
+  "DB": [
+    "util"
+  ],
+  "memoryModel": [
+    "util"
+  ],
+  "version": [
+    "util"
+  ],
+  "base64Decode": [
+    "util"
+  ],
+  "base64Encode": [
+    "util"
+  ],
+  "beep": [
+    "util"
+  ],
+  "concatPDF": [
+    "util"
+  ],
+  "convertBlobToPDF": [
+    "util"
+  ],
+  "cryptPassword": [
+    "util"
+  ],
+  "decodeUrlCompatible": [
+    "util"
+  ],
+  "decryptString": [
+    "util"
+  ],
+  "encodeUrlCompatible": [
+    "util"
+  ],
+  "encryptString": [
+    "util"
+  ],
+  "fileCopy": [
+    "util"
+  ],
+  "fileMove": [
+    "util"
+  ],
+  "fileSize": [
+    "util"
+  ],
+  "generateChecksum": [
+    "util"
+  ],
+  "getDir": [
+    "util"
+  ],
+  "getEnvironment": [
+    "util"
+  ],
+  "getFileContentAsString": [
+    "util"
+  ],
+  "getQuoted": [
+    "util"
+  ],
+  "getSourceLineInfo": [
+    "util"
+  ],
+  "getTmpPath": [
+    "util"
+  ],
+  "getUniqueId": [
+    "util"
+  ],
+  "getUsedPrivateBytes": [
+    "util"
+  ],
+  "hmac": [
+    "util"
+  ],
+  "isEncryptedBlob": [
+    "util"
+  ],
+  "length_u": [
+    "util"
+  ],
+  "log": [
+    "util"
+  ],
+  "makeFullDir": [
+    "util"
+  ],
+  "makeGACLValue": [
+    "util"
+  ],
+  "makeHTML": [
+    "util"
+  ],
+  "out": [
+    "util"
+  ],
+  "searchInArray": [
+    "util"
+  ],
+  "sha256": [
+    "util"
+  ],
+  "sleep": [
+    "util"
+  ],
+  "substr_u": [
+    "util"
+  ],
+  "transcode": [
+    "util"
+  ],
+  "unlinkFile": [
+    "util"
+  ],
   "class-names": [
     "AccessProfile",
-    "ArchiveConnection",
     "ArchiveFileResultset",
-    "ArchiveServer",
-    "ArchiveServerIterator",
     "ArchivingDescription",
     "DBConnection",
-    "DBResultSet",
     "DOMDocument",
     "DOMParser",
     "Email",
@@ -1762,15 +1976,17 @@ export const mapping = {
     "XMLExport",
     "XMLExportDescription",
     "XMLHTTPRequest",
-    "module:context",
-    "module:util",
     "AccessProfileIterator",
+    "ArchiveConnection",
     "ArchiveConnectionBlob",
     "ArchiveConnectionBlobIterator",
+    "ArchiveServer",
+    "ArchiveServerIterator",
     "ControlFlow",
     "ControlFlowIterator",
     "CustomProperty",
     "CustomPropertyIterator",
+    "DBResultSet",
     "DocFile",
     "DocHit",
     "DocQueryParams",
@@ -1793,6 +2009,8 @@ export const mapping = {
     "SystemUser",
     "SystemUserIterator",
     "WorkflowStep",
-    "WorkflowStepIterator"
+    "WorkflowStepIterator",
+    "context",
+    "util"
   ]
 };
