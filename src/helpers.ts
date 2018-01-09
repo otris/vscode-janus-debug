@@ -373,10 +373,32 @@ export function readEncryptionFlag(pscripts: nodeDoc.scriptT[]) {
 
     // write values
     const encryptOnUpload = conf.get('encryptOnUpload');
+    const encryptionOnUpload = conf.get('encryptionOnUpload');
     if (encryptOnUpload) {
         pscripts.forEach((script) => {
             script.encrypted = 'decrypted';
         });
+    } else if (encryptionOnUpload) {
+        switch (encryptionOnUpload) {
+            case "always":
+                pscripts.forEach((script) => {
+                    script.encrypted = 'decrypted';
+                });
+                break;
+
+            case "never":
+                pscripts.forEach((script) => {
+                    script.encrypted = 'forceFalse';
+                });
+                break;
+
+            case "default":
+            default:
+                pscripts.forEach((script) => {
+                    script.encrypted = 'false';
+                });
+                break;
+            }
     } else {
         pscripts.forEach((script) => {
             script.encrypted = 'false';
