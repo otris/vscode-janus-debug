@@ -795,7 +795,6 @@ export function getScript(file: string): nodeDoc.scriptT | string {
  * @param param path to script or textdocument of script
  */
 export async function ensureScript(param?: string | vscode.TextDocument): Promise<nodeDoc.scriptT> {
-    console.log('ensureScript');
     return new Promise<nodeDoc.scriptT>((resolve, reject) => {
 
         if (param) {
