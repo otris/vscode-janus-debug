@@ -209,7 +209,7 @@ export async function ensureUploadOnSave(param: string): Promise<autoUpload> {
             const NO: string = `No`;
             const ALWAYS: string = `Always upload ${scriptname} automatically`;
             const NEVER: string = `Never upload ${scriptname} automatically`;
-            const NEVERASK: string = `Never ask me again`;
+            const NEVERASK: string = `Never upload scripts automatically`;
             vscode.window.showQuickPick([YES, NO, ALWAYS, NEVER, NEVERASK], { placeHolder: QUESTION }).then((answer) => {
                 if (YES === answer) {
                     resolve(autoUpload.yes);
