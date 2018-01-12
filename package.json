@@ -351,7 +351,7 @@
       },
       {
         "command": "extension.vscode-janus-debug.uploadJSFromTS",
-        "title": "Upload JS From TS",
+        "title": "Upload JS from TS",
         "category": "DOCUMENTS"
       },
       {
@@ -376,7 +376,7 @@
       },
       {
         "command": "extension.vscode-janus-debug.uploadScriptsFromFolder",
-        "title": "Upload Scripts From Folder",
+        "title": "Upload Scripts from Folder",
         "category": "DOCUMENTS"
       },
       {
@@ -395,7 +395,7 @@
       },
       {
         "command": "extension.vscode-janus-debug.viewDocumentation",
-        "title": "View Documentation In Browser",
+        "title": "View Documentation in Browser",
         "category": "DOCUMENTS"
       },
       {
@@ -415,7 +415,7 @@
       },
       {
         "command": "extension.vscode-janus-debug.getFileTypesTSD",
-        "title": "Install IntelliSense: All",
+        "title": "Install IntelliSense",
         "category": "DOCUMENTS"
       },
       {
@@ -496,12 +496,6 @@
         },
         {
           "command": "extension.vscode-janus-debug.downloadAllScripts",
-          "when": "explorerResourceIsFolder",
-          "group": "DOCUMENTS@7"
-        },
-        {
-          "command": "extension.vscode-janus-debug.downloadAllScripts",
-          "when": "resourceLangId == javascript",
           "group": "DOCUMENTS@7"
         },
         {
@@ -516,12 +510,6 @@
         },
         {
           "command": "extension.vscode-janus-debug.getFileTypesTSD",
-          "when": "explorerResourceIsFolder",
-          "group": "DOCUMENTS@10"
-        },
-        {
-          "command": "extension.vscode-janus-debug.getFileTypesTSD",
-          "when": "!explorerResourceIsFolder && !resourceLangId",
           "group": "DOCUMENTS@10"
         },
         {
