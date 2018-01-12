@@ -150,7 +150,7 @@ function disconnectServerConsole(console: ServerConsole): void {
  */
 function readAutoConnectServerConsole() {
     const extensionSettings = vscode.workspace.getConfiguration('vscode-janus-debug');
-    autoConnectServerConsole = extensionSettings.get('serverConsole.autoConnect', true);
+    autoConnectServerConsole = extensionSettings.get('serverConsole.autoConnect', false);
 }
 
 function printVersion(outputChannel: vscode.OutputChannel) {

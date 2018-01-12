@@ -246,7 +246,7 @@
           "properties": {
             "autoConnect": {
               "type": "boolean",
-              "default": true,
+              "default": false,
               "description": "Try to auto connect Server Console every time the launch.json is changed"
             }
           }
