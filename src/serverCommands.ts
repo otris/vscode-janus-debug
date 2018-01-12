@@ -411,7 +411,7 @@ export async function downloadAllSelected(loginData: nodeDoc.ConnectionInformati
  * @param loginData Connection information
  * @param fileOrfolder a path to a file or folder
  */
-export async function downloadScriptsInsideFolder(loginData: nodeDoc.ConnectionInformation, fileOrfolder: string | undefined): Promise<void> {
+export async function reloadScripts(loginData: nodeDoc.ConnectionInformation, fileOrfolder: string | undefined): Promise<void> {
     return new Promise<void>(async (resolve, reject) => {
         try {
             await login.ensureLoginInformation(loginData);

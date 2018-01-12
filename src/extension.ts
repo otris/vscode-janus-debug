@@ -384,13 +384,13 @@ export function activate(context: vscode.ExtensionContext): void {
 
     // Download all scripts that are inside the folder
     context.subscriptions.push(
-        vscode.commands.registerCommand('extension.vscode-janus-debug.downloadScriptsInsideFolder', async (param) => {
+        vscode.commands.registerCommand('extension.vscode-janus-debug.reloadScripts', async (param) => {
             let fsPath: string | undefined;
             if (param && (typeof param._fsPath === 'string')) {
                 fsPath = param._fsPath;
             }
             try {
-                await serverCommands.downloadScriptsInsideFolder(loginData, fsPath);
+                await serverCommands.reloadScripts(loginData, fsPath);
             } catch (err) {
                 //
             }
