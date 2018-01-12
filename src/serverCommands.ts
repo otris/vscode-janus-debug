@@ -390,6 +390,7 @@ export async function downloadAllSelected(loginData: nodeDoc.ConnectionInformati
                 script.path = path.join(downloadFolder, script.name + '.js');
             });
 
+            vscode.window.setStatusBarMessage(`downloading scripts...`);
             const numDownloaded = await downloadAllCommon(loginData, scripts, downloadFolder);
             vscode.window.setStatusBarMessage(`downloaded ${numDownloaded} scripts`);
 
@@ -423,8 +424,9 @@ export async function reloadScripts(loginData: nodeDoc.ConnectionInformation, fi
             // and set paths to script structures
             const scripts = nodeDoc.getScriptsFromFolderSync(downloadFolder);
 
+            vscode.window.setStatusBarMessage(`reloading scripts...`);
             const numDownloaded = await downloadAllCommon(loginData, scripts, downloadFolder);
-            vscode.window.setStatusBarMessage(`downloaded ${numDownloaded} scripts`);
+            vscode.window.setStatusBarMessage(`reloaded ${numDownloaded} scripts`);
 
             return resolve();
         } catch (err) {
