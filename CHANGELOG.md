@@ -2,6 +2,12 @@
 
 You'll find a complete list of changes at our project site on [GitHub](https://github.com/otris/vscode-janus-debug).
 
+### 0.0.29 (2018-01-12)
+
+Only small changes:
+- Server console is not connected on default anymore.
+- Some commands have been renamed and are visible more often.
+
 ### 0.0.28 (2018-01-12)
 
 Following features have been added:
