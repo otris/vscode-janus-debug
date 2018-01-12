@@ -2,6 +2,14 @@
 
 You'll find a complete list of changes at our project site on [GitHub](https://github.com/otris/vscode-janus-debug).
 
+### 0.0.28 (2018-01-12)
+
+Following features have been added:
+- Setting `vscode-janus-debug.encryptOnUpload` is deprecated now. Instead `vscode-janus-debug.encryptionOnUpload` should be used. This new setting has three possible values.
+  - `"default"`: the script will be encrypted on upload, if it is encrypted on server or conains `// #crypt`
+  - `"always"`: the script will be encrypted on upload in any case
+  - `"never"`: the script will be kept unencrypted on upload in any case
+
 ### 0.0.27 (2017-12-18)
 
 Following features have been added:
