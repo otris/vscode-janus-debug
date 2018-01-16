@@ -584,9 +584,11 @@
     "postinstall": "node ./node_modules/vscode/bin/install"
   },
   "dependencies": {
+    "@otris/jsdoc-tsd": "^0.8.6",
     "@types/uuid": "^2.0.29",
     "fs": "0.0.1-security",
     "fs-extra": "^4.0.0",
+    "jsdoc": "^3.5.5",
     "net": "^1.0.2",
     "node-documents-scripting": "git+https://github.com/otris/node-documents-scripting.git#6.1.0",
     "node-file-log": "git+https://git@github.com/otris/node-file-log#1.0.0",
