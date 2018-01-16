@@ -10,7 +10,6 @@ const fs = require('fs-extra');
 
 const FILETYPES_FILE = 'fileTypes.d.ts';
 const PORTALSCRIPTING_FILE = 'portalScripting.d.ts';
-const PORTALSCRIPTING_FILE_NEW = 'portalScriptingNew.d.ts';
 
 
 
@@ -94,12 +93,10 @@ export async function copyPortalScriptingTSD() {
         return;
     }
 
-    let extensionTSDFile = path.join(extension.extensionPath, 'portalscript', 'typings', PORTALSCRIPTING_FILE);
-    const extensionTSDFileNew = path.join(extension.extensionPath, 'portalscript', 'typings', PORTALSCRIPTING_FILE_NEW);
+    const extensionTSDFile = path.join(extension.extensionPath, 'portalscript', 'typings', PORTALSCRIPTING_FILE);
     const projecttypings = path.join(vscode.workspace.rootPath, 'typings');
     const projectTSDFile = path.join(projecttypings, PORTALSCRIPTING_FILE);
 
-    extensionTSDFile = extensionTSDFileNew;
 
     // check typings folder
     try {
