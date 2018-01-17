@@ -2,7 +2,6 @@
 
 import * as fs from 'fs';
 import * as nodeDoc from 'node-documents-scripting';
-import { mapVersion } from 'node-documents-scripting';
 import { LogConfiguration, Logger } from 'node-file-log';
 import * as os from 'os';
 import * as path from 'path';
@@ -16,6 +15,7 @@ import { VSCodeExtensionIPC } from './ipcServer';
 import * as login from './login';
 import * as serverCommands from './serverCommands';
 import { ServerConsole } from './serverConsole';
+import { mapVersion } from './serverVersion';
 import stripJsonComments = require('strip-json-comments');
 import * as version from './version';
 

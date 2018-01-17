@@ -1,13 +1,13 @@
 ﻿'use strict';
 
 import * as nodeDoc from 'node-documents-scripting';
-import { mapVersion } from 'node-documents-scripting';
 import * as os from 'os';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import * as helpers from './helpers';
 import { getErrorMsg, getTime } from './helpers';
 import * as login from './login';
+import { mapVersion } from './serverVersion';
 import stripJsonComments = require('strip-json-comments');
 import { scriptT } from 'node-documents-scripting';
 
