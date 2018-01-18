@@ -1,3 +1,4 @@
+// generated file, do not edit
 export const mapping = {
   "name": [
     "AccessProfile",
