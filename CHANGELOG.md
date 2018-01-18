@@ -2,6 +2,10 @@
 
 You'll find a complete list of changes at our project site on [GitHub](https://github.com/otris/vscode-janus-debug).
 
+### 0.0.30 (2018-01-18)
+
+- The command **Install IntelliSense** additionally installs the typings for the ScriptExtensions `scriptExtensions.d.ts`. Both files `portalScripting.d.ts` and `scriptExtensions.d.ts` were generated using node module **jsdoc** with template [**@otris/jsdoc-tsd**](https://www.npmjs.com/package/@otris/jsdoc-tsd).
+
 ### 0.0.29 (2018-01-12)
 
 Only small changes:
