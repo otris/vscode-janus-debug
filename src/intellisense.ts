@@ -10,6 +10,7 @@ const fs = require('fs-extra');
 
 const FILETYPES_FILE = 'fileTypes.d.ts';
 const PORTALSCRIPTING_FILE = 'portalScripting.d.ts';
+const SCRIPTEXTENSIONS_FILE = 'scriptExtensions.d.ts';
 
 
 
@@ -18,8 +19,7 @@ export function createFiletypesTSD(loginData: nodeDoc.ConnectionInformation): Pr
     return new Promise<void>(async (resolve, reject) => {
 
         if (!vscode.workspace || !vscode.workspace.rootPath) {
-            vscode.window.showErrorMessage('Create a workspace root folder please');
-            return resolve();
+            return reject('Workspace folder missing');
         }
 
         // get the content for fileTypes.d.ts
@@ -28,92 +28,98 @@ export function createFiletypesTSD(loginData: nodeDoc.ConnectionInformation): Pr
             fileTypesTSD = await commands.getFileTypesTSD(loginData);
         } catch (err) {
             if (err.code === 'ECONNREFUSED') {
-                vscode.window.showWarningMessage(`Cannot load 'fileTypes.d.ts' because the server ${err.address} is not available`);
+                return reject(`Cannot load 'fileTypes.d.ts' because the server ${err.address} is not available`);
             } else {
-                vscode.window.showErrorMessage(err.message);
+                return reject(err.message);
             }
-            return resolve();
         }
 
-        // check typings folder
         const projtypings = path.join(vscode.workspace.rootPath, 'typings');
-        try {
-            fs.readdirSync(projtypings);
-        } catch (err) {
-            if (err.code === 'ENOENT') {
-                fs.mkdirSync(projtypings);
-            }
-        }
+        fs.ensureDirSync(projtypings);
 
         // create fileTypes.d.ts
         const filetypesPath = path.join(projtypings, FILETYPES_FILE);
         try {
             fs.writeFileSync(filetypesPath, fileTypesTSD);
         } catch (reason) {
-            vscode.window.showErrorMessage(reason.message);
-            return resolve();
+            return reject(reason.message);
         }
-
-        vscode.window.showInformationMessage('Get IntelliSense for file types by adding **/\\** @types{FileType} \\*/** to the variables');
 
         resolve();
     });
 }
 
-export function createJsconfigJson() {
+export function ensureJsconfigJson(): boolean {
     if (!vscode.workspace || !vscode.workspace.rootPath) {
-        return;
+        vscode.window.showErrorMessage('Workspace folder missing');
+        return false;
     }
 
     // create empty jsconfig.json, if it does not exist
-    const ERR_FILE_EMPTY = 'File empty';
     const jsconfigPath = path.join(vscode.workspace.rootPath, 'jsconfig.json');
+    let fileCreated = false;
     try {
-        const jsconfigjson = fs.readFileSync(jsconfigPath);
-        if (jsconfigjson.length === 0) {
-            // execute catch block
-            throw new Error(ERR_FILE_EMPTY);
-        }
+        fs.readFileSync(jsconfigPath);
     } catch (err) {
-        if (err.code === 'ENOENT' || err.message === ERR_FILE_EMPTY) {
-            const jsconfigContent = '';
+        if (err.code === 'ENOENT') {
             try {
-                fs.writeFileSync(jsconfigPath, jsconfigContent);
+                fs.writeFileSync(jsconfigPath, '');
+                fileCreated = true;
             } catch (reason) {
-                console.log('Write jsonfig.json failed: ' + reason);
+                vscode.window.showErrorMessage('Write jsonfig.json failed: ' + reason);
+                return false;
             }
         }
     }
+    return fileCreated;
 }
 
 
-export async function copyPortalScriptingTSD() {
+export function copyPortalScriptingTSD(): boolean {
     const extension = vscode.extensions.getExtension('otris-software.vscode-janus-debug');
     if (!extension || !vscode.workspace || !vscode.workspace.rootPath) {
-        return;
+        vscode.window.showErrorMessage('Extension or workspace folder missing');
+        return false;
     }
 
     const extensionTSDFile = path.join(extension.extensionPath, 'portalscript', 'typings', PORTALSCRIPTING_FILE);
     const projecttypings = path.join(vscode.workspace.rootPath, 'typings');
     const projectTSDFile = path.join(projecttypings, PORTALSCRIPTING_FILE);
+    fs.ensureDirSync(projecttypings);
 
-
-    // check typings folder
-    try {
-        fs.readdirSync(projecttypings);
-    } catch (err) {
-        if (err.code === 'ENOENT') {
-            fs.mkdir(projecttypings);
-        }
-    }
-
-    // check and copy dts file
+    // copy dts file
     try {
         fs.readFileSync(extensionTSDFile);
         fs.copySync(extensionTSDFile, projectTSDFile);
-        vscode.window.showInformationMessage(`Installed portalScripting.d.ts without 'Documents' namespace`);
     } catch (err) {
         vscode.window.showErrorMessage(err);
-        return;
+        return false;
     }
+
+    return true;
+}
+
+
+export function copyScriptExtensionsTSD(): boolean {
+    const extension = vscode.extensions.getExtension('otris-software.vscode-janus-debug');
+    if (!extension || !vscode.workspace || !vscode.workspace.rootPath) {
+        vscode.window.showErrorMessage('Extension or workspace folder missing');
+        return false;
+    }
+
+    const extensionTSDFile = path.join(extension.extensionPath, 'portalscript', 'typings', SCRIPTEXTENSIONS_FILE);
+    const projecttypings = path.join(vscode.workspace.rootPath, 'typings');
+    const projectTSDFile = path.join(projecttypings, SCRIPTEXTENSIONS_FILE);
+    fs.ensureDirSync(projecttypings);
+
+    // copy dts file
+    try {
+        fs.readFileSync(extensionTSDFile);
+        fs.copySync(extensionTSDFile, projectTSDFile);
+    } catch (err) {
+        vscode.window.showErrorMessage(err);
+        return false;
+    }
+
+    return true;
 }

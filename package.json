@@ -43,7 +43,7 @@
     "onCommand:extension.vscode-janus-debug.reloadScripts",
     "onCommand:extension.vscode-janus-debug.getScriptNames",
     "onCommand:extension.vscode-janus-debug.getPortalScriptingTSD",
-    "onCommand:extension.vscode-janus-debug.getFileTypesTSD",
+    "onCommand:extension.vscode-janus-debug.getAllTSD",
     "onCommand:extension.vscode-janus-debug.showDocumentsVersion",
     "onDebug"
   ],
@@ -414,7 +414,7 @@
         "category": "DOCUMENTS"
       },
       {
-        "command": "extension.vscode-janus-debug.getFileTypesTSD",
+        "command": "extension.vscode-janus-debug.getAllTSD",
         "title": "Install IntelliSense",
         "category": "DOCUMENTS"
       },
@@ -509,7 +509,7 @@
           "group": "DOCUMENTS@8"
         },
         {
-          "command": "extension.vscode-janus-debug.getFileTypesTSD",
+          "command": "extension.vscode-janus-debug.getAllTSD",
           "group": "DOCUMENTS@10"
         },
         {

@@ -472,18 +472,30 @@ export function activate(context: vscode.ExtensionContext): void {
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.getPortalScriptingTSD', () => {
             intellisense.copyPortalScriptingTSD();
-            intellisense.createJsconfigJson();
+            intellisense.ensureJsconfigJson();
         })
     );
     context.subscriptions.push(
-        vscode.commands.registerCommand('extension.vscode-janus-debug.getFileTypesTSD', async () => {
+        vscode.commands.registerCommand('extension.vscode-janus-debug.getAllTSD', async () => {
+            vscode.window.setStatusBarMessage('Installing IntelliSense ...');
+            let message = 'Installed:';
             try {
                 await intellisense.createFiletypesTSD(loginData);
-                intellisense.copyPortalScriptingTSD();
-                intellisense.createJsconfigJson();
+                message += ' fileTypes.d.ts';
             } catch (err) {
                 //
             }
+            if (intellisense.copyPortalScriptingTSD()) {
+                message += ' portalScripting.d.ts';
+            }
+            if (intellisense.copyScriptExtensionsTSD()) {
+                message += ' scriptExtensions.d.ts';
+            }
+            if (intellisense.ensureJsconfigJson()) {
+                message += ' jsconfig.json';
+            }
+
+            vscode.window.setStatusBarMessage(message);
         })
     );
 
