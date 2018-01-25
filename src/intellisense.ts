@@ -15,6 +15,30 @@ const SCRIPTEXTENSIONS_FILE = 'scriptExtensions.d.ts';
 
 
 
+export async function getAllTypings(loginData: nodeDoc.ConnectionInformation) {
+    vscode.window.setStatusBarMessage('Installing IntelliSense ...');
+    let message = 'Installed:';
+    try {
+        await createFiletypesTSD(loginData);
+        message += ' fileTypes.d.ts';
+    } catch (err) {
+        //
+    }
+    if (copyPortalScriptingTSD()) {
+        message += ' portalScripting.d.ts';
+    }
+    if (copyScriptExtensionsTSD()) {
+        message += ' scriptExtensions.d.ts';
+    }
+    if (ensureJsconfigJson()) {
+        message += ' jsconfig.json';
+    }
+
+    vscode.window.setStatusBarMessage(message);
+}
+
+
+
 export function createFiletypesTSD(loginData: nodeDoc.ConnectionInformation): Promise<void> {
     return new Promise<void>(async (resolve, reject) => {
 

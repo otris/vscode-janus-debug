@@ -340,6 +340,18 @@
             "safari",
             "firefox"
           ]
+        },
+        "vscode-janus-debug.typings": {
+          "type": "object",
+          "title": "Type definition files",
+          "description": "Settings for type definition files",
+          "properties": {
+            "autoAcquire": {
+              "type": "boolean",
+              "default": false,
+              "description": "Acuires the documents typings automatically. Only on activation for now."
+            }
+          }
         }
       }
     },

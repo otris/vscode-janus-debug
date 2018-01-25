@@ -285,6 +285,14 @@ export function activate(context: vscode.ExtensionContext): void {
     context.subscriptions.push(vscode.debug.registerDebugConfigurationProvider('janus',
         new JanusDebugConfigurationProvider()));
 
+    const config = vscode.workspace.getConfiguration('vscode-janus-debug');
+    if (config) {
+        const autoAcquire = config.get("typings.autoAcquire", false);
+        if (autoAcquire) {
+            intellisense.getAllTypings(loginData);
+        }
+    }
+
     // Register commands
 
     // this command is used for the default password entry in launch.json
@@ -477,25 +485,7 @@ export function activate(context: vscode.ExtensionContext): void {
     );
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.getAllTSD', async () => {
-            vscode.window.setStatusBarMessage('Installing IntelliSense ...');
-            let message = 'Installed:';
-            try {
-                await intellisense.createFiletypesTSD(loginData);
-                message += ' fileTypes.d.ts';
-            } catch (err) {
-                //
-            }
-            if (intellisense.copyPortalScriptingTSD()) {
-                message += ' portalScripting.d.ts';
-            }
-            if (intellisense.copyScriptExtensionsTSD()) {
-                message += ' scriptExtensions.d.ts';
-            }
-            if (intellisense.ensureJsconfigJson()) {
-                message += ' jsconfig.json';
-            }
-
-            vscode.window.setStatusBarMessage(message);
+            await intellisense.getAllTypings(loginData);
         })
     );
 
