@@ -136,7 +136,8 @@
                           "Debug",
                           "Info",
                           "Warn",
-                          "Error"
+                          "Error",
+                          "None"
                         ],
                         "description": "The default loglevel."
                       }
@@ -603,7 +604,7 @@
     "jsdoc": "^3.5.5",
     "net": "^1.0.2",
     "node-documents-scripting": "git+https://github.com/otris/node-documents-scripting.git#6.2.0",
-    "node-file-log": "git+https://git@github.com/otris/node-file-log#1.0.0",
+    "node-file-log": "git+https://git@github.com/otris/node-file-log#1.1.0",
     "node-ipc": "^9.0.1",
     "node-sds": "git+https://git@github.com/otris/node-sds.git#1.1.7",
     "open": "0.0.5",

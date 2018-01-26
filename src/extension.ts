@@ -40,7 +40,9 @@ function getExtensionLogPath(): LogConfiguration | undefined {
     if (log && log.fileName && workspaceRoot) {
         return {
             fileName: log.fileName.replace(/[$]{workspaceRoot}/, workspaceRoot),
-            logLevel: log.logLevel ? log.logLevel : "Debug"
+            logLevel: {
+                "vscode-janus-debug": log.logLevel ? log.logLevel : "Debug"
+            }
         };
     }
 }
