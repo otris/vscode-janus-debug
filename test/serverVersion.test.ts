@@ -1,4 +1,6 @@
 import * as assert from 'assert';
+import * as path from 'path';
+import * as procsee from 'process';
 import * as serverVersion from '../src/serverVersion';
 
 // tslint:disable-next-line:no-var-requires
@@ -6,8 +8,10 @@ const fs = require("fs-extra");
 
 suite('server version tests', () => {
     test('should create typings in specific version', () => {
-        const extensionPath = "C:\\projekte\\vscode-janus-debug";
-        const outputPath = "C:\\projekte\\vscode-janus-debug\\test\\typings";
+        // wherever the tests are started, they are executed
+        // in workspace root
+        const extensionPath = process.cwd();
+        const outputPath = path.join(extensionPath, "test", "typings");
         fs.emptyDirSync(outputPath);
 
         let buildNo;
@@ -23,10 +27,12 @@ suite('server version tests', () => {
     });
 
     test('should not create typings if the file exists', () => {
-        const extensionPath = "C:\\projekte\\vscode-janus-debug";
-        const outputPath = "C:\\projekte\\vscode-janus-debug\\test\\typings";
+        // wherever the tests are started, they are executed
+        // in workspace root
+        const extensionPath = process.cwd();
+        const outputPath = path.join(extensionPath, "test", "typings");
         fs.emptyDirSync(outputPath);
-        const outputFile = "C:\\projekte\\vscode-janus-debug\\test\\typings\\portalScripting_50c.d.ts";
+        const outputFile = path.join(outputPath, "portalScripting_50c.d.ts");
         fs.createFileSync(outputFile, "");
 
         let buildNo;
