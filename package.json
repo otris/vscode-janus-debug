@@ -341,17 +341,11 @@
             "firefox"
           ]
         },
-        "vscode-janus-debug.typings": {
-          "type": "object",
-          "title": "Type definition files",
-          "description": "Settings for type definition files",
-          "properties": {
-            "autoAcquire": {
-              "type": "boolean",
-              "default": false,
-              "description": "Acuires the documents typings automatically. Only on activation for now."
-            }
-          }
+        "vscode-janus-debug.autoAcquireTypings": {
+          "type": "boolean",
+          "default": false,
+          "title": "Aqcuire type definition files automatically",
+          "description": "Acuires the documents type definition files automatically. Only on activation for now."
         }
       }
     },
