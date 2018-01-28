@@ -287,7 +287,7 @@ export function activate(context: vscode.ExtensionContext): void {
 
     const config = vscode.workspace.getConfiguration('vscode-janus-debug');
     if (config) {
-        const autoAcquire = config.get("typings.autoAcquire", false);
+        const autoAcquire = config.get("autoAcquireTypings", false);
         if (autoAcquire) {
             intellisense.getAllTypings(loginData);
         }
