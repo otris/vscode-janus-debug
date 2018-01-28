@@ -7,7 +7,7 @@ import * as vscode from 'vscode';
 import * as helpers from './helpers';
 import { getErrorMsg, getTime } from './helpers';
 import * as login from './login';
-import { mapVersion } from './serverVersion';
+import { getExactVersion } from './serverVersion';
 import stripJsonComments = require('strip-json-comments');
 import { scriptT } from 'node-documents-scripting';
 
@@ -208,7 +208,7 @@ function runScriptCommon(loginData: nodeDoc.ConnectionInformation, param: any, o
 
             await nodeDoc.serverSession(loginData, [script], nodeDoc.runScript);
 
-            const ver = mapVersion(loginData.documentsVersion) + ' (' + loginData.documentsVersion + ')';
+            const ver = getExactVersion(loginData.documentsVersion) + ' (' + loginData.documentsVersion + ')';
             outputChannel.append(script.output + os.EOL);
             outputChannel.append(`Script finished at ` + getTime() + ` on DOCUMENTS ${ver}` + os.EOL);
             outputChannel.show();
