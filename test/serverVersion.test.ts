@@ -24,6 +24,8 @@ suite('server version tests', () => {
         const ret = content.indexOf("declare namespace context");
         assert.ok(ret > 0, "generated portalScripting.d.ts does not contain 'declare namespace context'");
 
+        const jsdocConfig = path.join(extensionPath, "portalscript", "jsdoc", "jsdoc-config.json");
+        fs.removeSync(jsdocConfig);
         fs.removeSync(outputPath);
     });
 
@@ -44,6 +46,8 @@ suite('server version tests', () => {
         const content = fs.readFileSync(typingsPath, 'utf8');
         assert.ok(content.length === 0, "function overwrites portalScripting_50c.d.ts");
 
+        const jsdocConfig = path.join(extensionPath, "portalscript", "jsdoc", "jsdoc-config.json");
+        fs.removeSync(jsdocConfig);
         fs.removeSync(outputPath);
     });
 
@@ -69,6 +73,8 @@ suite('server version tests', () => {
 
         assert.ok(!fs.existsSync(typingsPath));
 
+        const jsdocConfig = path.join(extensionPath, "portalscript", "jsdoc", "jsdoc-config.json");
+        fs.removeSync(jsdocConfig);
         fs.removeSync(outputPath);
     });
 
@@ -95,6 +101,8 @@ suite('server version tests', () => {
         ret = content.indexOf("getAllWorkflowSteps()");
         assert.ok(ret > 0, "generated portalScripting.d.ts does not contain 'getAllWorkflowSteps()'");
 
+        const jsdocConfig = path.join(extensionPath, "portalscript", "jsdoc", "jsdoc-config.json");
+        fs.removeSync(jsdocConfig);
         fs.removeSync(outputPath);
     });
 
