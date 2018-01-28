@@ -72,6 +72,32 @@ suite('server version tests', () => {
         fs.removeSync(outputPath);
     });
 
+    test('typings in specific version should contain corresponding functions', () => {
+        // wherever the tests are started, they are executed
+        // in workspace root
+        const extensionPath = process.cwd();
+        const outputPath = path.join(extensionPath, "test", "typings");
+        fs.emptyDirSync(outputPath);
+
+        let buildNo;
+
+        buildNo = "#8030"; // 5.0b
+
+        const typingsPath = serverVersion.ensurePortalScriptingTSD(extensionPath, outputPath, buildNo);
+        const content = fs.readFileSync(typingsPath, 'utf8');
+        let ret;
+        ret = content.indexOf("declare namespace context");
+        assert.ok(ret > 0, "generated portalScripting.d.ts does not contain 'declare namespace context'");
+
+        ret = content.indexOf("addPortalScriptCall()");
+        assert.ok(ret < 0, "generated portalScripting.d.ts contains 'addPortalScriptCall()'");
+
+        ret = content.indexOf("getAllWorkflowSteps()");
+        assert.ok(ret > 0, "generated portalScripting.d.ts does not contain 'getAllWorkflowSteps()'");
+
+        fs.removeSync(outputPath);
+    });
+
     test('should return the correct version to given build number', () => {
         let buildNo;
         let version;
