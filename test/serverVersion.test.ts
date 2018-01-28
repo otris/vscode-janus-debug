@@ -2,6 +2,7 @@ import * as assert from 'assert';
 import * as path from 'path';
 import * as procsee from 'process';
 import * as serverVersion from '../src/serverVersion';
+import { getLatestBuildNo } from '../src/serverVersion';
 
 // tslint:disable-next-line:no-var-requires
 const fs = require("fs-extra");
@@ -23,10 +24,10 @@ suite('server version tests', () => {
         const ret = content.indexOf("declare namespace context");
         assert.ok(ret > 0, "generated portalScripting.d.ts does not contain 'declare namespace context'");
 
-        fs.emptyDirSync(outputPath);
+        fs.removeSync(outputPath);
     });
 
-    test('should not create typings if the file exists', () => {
+    test('should not create typings in specific version if they already exist', () => {
         // wherever the tests are started, they are executed
         // in workspace root
         const extensionPath = process.cwd();
@@ -43,10 +44,35 @@ suite('server version tests', () => {
         const content = fs.readFileSync(typingsPath, 'utf8');
         assert.ok(content.length === 0, "function overwrites portalScripting_50c.d.ts");
 
-        fs.emptyDirSync(outputPath);
+        fs.removeSync(outputPath);
     });
 
-    test('should return the correct version of a build number', () => {
+    test('should not create typings in latest version', () => {
+        // wherever the tests are started, they are executed
+        // in workspace root
+        const extensionPath = process.cwd();
+        const outputPath = path.join(extensionPath, "test", "typings");
+        fs.emptyDirSync(outputPath);
+        const outputFile = path.join(outputPath, "portalScripting_50c.d.ts");
+        fs.createFileSync(outputFile, "");
+
+        let buildNo;
+
+        buildNo = getLatestBuildNo();
+
+        // check buildNo
+        const no = parseInt(buildNo, 10);
+        assert.ok(!isNaN(no), "isNaN failed");
+        assert.ok(no > 8000, "buildNo not greater than 8000");
+
+        const typingsPath = serverVersion.ensurePortalScriptingTSD(extensionPath, outputPath, buildNo);
+
+        assert.ok(!fs.existsSync(typingsPath));
+
+        fs.removeSync(outputPath);
+    });
+
+    test('should return the correct version to given build number', () => {
         let buildNo;
         let version;
         let latest;
@@ -57,11 +83,16 @@ suite('server version tests', () => {
         assert.equal(version, "");
         assert.equal(latest, false);
 
+        buildNo = "#8025";
+        version = serverVersion.getVersion(buildNo);
+        latest = serverVersion.isLatestVersion(version);
+        assert.equal(version, "5.0a HF1");
+        assert.equal(latest, false);
+
         buildNo = "#8045";
         version = serverVersion.getVersion(buildNo);
         latest = serverVersion.isLatestVersion(version);
         assert.equal(version, "5.0c HF1");
-        assert.equal(latest, true);
 
         buildNo = "unknown";
         version = serverVersion.getVersion(buildNo);

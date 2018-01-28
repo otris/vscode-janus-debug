@@ -57,6 +57,12 @@ export function isLatestVersion(version: string): boolean {
     return false;
 }
 
+export function getLatestBuildNo(): string {
+    const keys = Object.keys(versionMapping);
+    keys.sort();
+    return keys[keys.length - 1];
+}
+
 
 export function ensurePortalScriptingTSD(extensionPath: string, outputPath: string, buildNo?: string): string {
     let output = path.join(outputPath, PORTALSCRIPTING + ".d.ts");
