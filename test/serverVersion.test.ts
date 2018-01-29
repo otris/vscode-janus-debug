@@ -166,4 +166,15 @@ suite('server version tests', () => {
         assert.equal(version, "");
         assert.equal(latest, false);
     });
+
+    test('should return true if string is available version', () => {
+
+        let ret;
+        ret = serverVersion.isVersion("5.0b HF1");
+        assert.equal(ret, true);
+
+        ret = serverVersion.isVersion("unknown");
+        assert.equal(ret, false);
+    });
+
 });
