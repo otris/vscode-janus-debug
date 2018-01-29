@@ -89,6 +89,17 @@ export function getLatestBuildNo(): string {
 }
 
 
+export function isVersion(version: string): boolean {
+    const value = Object.keys(versionMapping).find((key) => {
+        return (version === (versionMapping as any)[key]);
+    });
+    if (value) {
+        return true;
+    }
+    return false;
+}
+
+
 /**
  * If a build number is given and if this is not the latest build of the documents server,
  * the function gets the corresponding server version and checks if the typings to this
@@ -103,9 +114,12 @@ export function getLatestBuildNo(): string {
 export function ensurePortalScriptingTSD(extensionPath: string, outputPath: string, version?: string): string {
     let output = path.join(outputPath, PORTALSCRIPTING + ".d.ts");
 
-    if (!version || version === "" || isLatestVersion(version)) {
+    if (!version || version === "" || !isVersion(version) || isLatestVersion(version)) {
         return output;
     }
+    // if (!version) {
+    //     return output;
+    // }
 
     // version e.g. 5.0c HF1 -> 50chf1
     let versionPostfix = version.replace('.', '');
