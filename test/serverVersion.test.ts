@@ -8,7 +8,7 @@ import { getLatestBuildNo } from '../src/serverVersion';
 const fs = require("fs-extra");
 
 suite('server version tests', () => {
-    test('should create typings in specific version', () => {
+    test('should generate typings in specific version', () => {
         // wherever the tests are started, they are executed
         // in workspace root
         const extensionPath = process.cwd();
@@ -37,7 +37,26 @@ suite('server version tests', () => {
         fs.removeSync(outputPath);
     });
 
-    test('should not create typings in specific version if they already exist', () => {
+    test('should not generate typings if version is invalid', () => {
+        // wherever the tests are started, they are executed
+        // in workspace root
+        const extensionPath = process.cwd();
+        const outputPath = path.join(extensionPath, "test", "typings");
+        fs.emptyDirSync(outputPath);
+
+        const version = "invalid";
+        const typingsPath = serverVersion.ensurePortalScriptingTSD(extensionPath, outputPath, version);
+        const testPath = path.join(outputPath, "portalScripting.d.ts");
+        const ret = fs.existsSync(typingsPath);
+        assert.equal(typingsPath, testPath);
+        assert.ok(!ret, "generated typings for invalid version");
+
+        const jsdocConfig = path.join(extensionPath, "portalscript", "jsdoc", "jsdoc-config.json");
+        fs.removeSync(jsdocConfig);
+        fs.removeSync(outputPath);
+    });
+
+    test('should not generate typings in specific version if they already exist', () => {
         // wherever the tests are started, they are executed
         // in workspace root
         const extensionPath = process.cwd();
@@ -67,7 +86,7 @@ suite('server version tests', () => {
         fs.removeSync(outputPath);
     });
 
-    test('should not create typings in latest version', () => {
+    test('should not generate typings in latest version', () => {
         // wherever the tests are started, they are executed
         // in workspace root
         const extensionPath = process.cwd();
