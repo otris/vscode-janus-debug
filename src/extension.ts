@@ -15,7 +15,7 @@ import { VSCodeExtensionIPC } from './ipcServer';
 import * as login from './login';
 import * as serverCommands from './serverCommands';
 import { ServerConsole } from './serverConsole';
-import { mapVersion } from './serverVersion';
+import { getExactVersion } from './serverVersion';
 import stripJsonComments = require('strip-json-comments');
 import * as version from './version';
 
@@ -289,7 +289,7 @@ export function activate(context: vscode.ExtensionContext): void {
 
     const config = vscode.workspace.getConfiguration('vscode-janus-debug');
     if (config) {
-        const autoAcquire = config.get("typings.autoAcquire", false);
+        const autoAcquire = config.get("autoAcquireTypings", false);
         if (autoAcquire) {
             intellisense.getAllTypings(loginData);
         }
@@ -503,7 +503,7 @@ export function activate(context: vscode.ExtensionContext): void {
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.showDocumentsVersion', async () => {
             await serverCommands.getServerVersion(loginData);
-            const docVer = mapVersion(loginData.documentsVersion);
+            const docVer = getExactVersion(loginData.documentsVersion);
             vscode.window.showInformationMessage(`DOCUMENTS Version ${docVer}`);
         })
     );

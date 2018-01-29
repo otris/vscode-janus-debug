@@ -2,15 +2,16 @@ import * as nodeDoc from 'node-documents-scripting';
 import * as os from 'os';
 import * as path from 'path';
 import * as vscode from 'vscode';
-import { window } from 'vscode';
 import * as commands from './serverCommands';
+import * as serverVersion from './serverVersion';
 
 // tslint:disable-next-line:no-var-requires
 const fs = require('fs-extra');
+// tslint:disable-next-line:no-var-requires
+const execSync = require('child_process').execSync;
 
-const FILETYPES_FILE = 'fileTypes.d.ts';
-const PORTALSCRIPTING_FILE = 'portalScripting.d.ts';
-const SCRIPTEXTENSIONS_FILE = 'scriptExtensions.d.ts';
+
+
 
 
 
@@ -24,7 +25,8 @@ export async function getAllTypings(loginData: nodeDoc.ConnectionInformation) {
     } catch (err) {
         //
     }
-    if (copyPortalScriptingTSD()) {
+
+    if (copyPortalScriptingTSD(loginData.documentsVersion)) {
         message += ' portalScripting.d.ts';
     }
     if (copyScriptExtensionsTSD()) {
@@ -62,7 +64,7 @@ export function createFiletypesTSD(loginData: nodeDoc.ConnectionInformation): Pr
         fs.ensureDirSync(projtypings);
 
         // create fileTypes.d.ts
-        const filetypesPath = path.join(projtypings, FILETYPES_FILE);
+        const filetypesPath = path.join(projtypings, "fileTypes.d.ts");
         try {
             fs.writeFileSync(filetypesPath, fileTypesTSD);
         } catch (reason) {
@@ -99,16 +101,23 @@ export function ensureJsconfigJson(): boolean {
 }
 
 
-export function copyPortalScriptingTSD(): boolean {
+
+
+
+
+
+
+export function copyPortalScriptingTSD(buildNo?: string): boolean {
     const extension = vscode.extensions.getExtension('otris-software.vscode-janus-debug');
     if (!extension || !vscode.workspace || !vscode.workspace.rootPath) {
         vscode.window.showErrorMessage('Extension or workspace folder missing');
         return false;
     }
 
-    const extensionTSDFile = path.join(extension.extensionPath, 'portalscript', 'typings', PORTALSCRIPTING_FILE);
+    const outputPath = path.join(extension.extensionPath, 'portalscript', 'typings');
+    const extensionTSDFile = serverVersion.ensurePortalScriptingTSD(extension.extensionPath, outputPath, buildNo);
     const projecttypings = path.join(vscode.workspace.rootPath, 'typings');
-    const projectTSDFile = path.join(projecttypings, PORTALSCRIPTING_FILE);
+    const projectTSDFile = path.join(projecttypings, 'portalScripting.d.ts');
     fs.ensureDirSync(projecttypings);
 
     // copy dts file
@@ -123,6 +132,8 @@ export function copyPortalScriptingTSD(): boolean {
     return true;
 }
 
+copyPortalScriptingTSD();
+
 
 export function copyScriptExtensionsTSD(): boolean {
     const extension = vscode.extensions.getExtension('otris-software.vscode-janus-debug');
@@ -131,9 +142,9 @@ export function copyScriptExtensionsTSD(): boolean {
         return false;
     }
 
-    const extensionTSDFile = path.join(extension.extensionPath, 'portalscript', 'typings', SCRIPTEXTENSIONS_FILE);
+    const extensionTSDFile = path.join(extension.extensionPath, 'portalscript', 'typings', "scriptExtensions.d.ts");
     const projecttypings = path.join(vscode.workspace.rootPath, 'typings');
-    const projectTSDFile = path.join(projecttypings, SCRIPTEXTENSIONS_FILE);
+    const projectTSDFile = path.join(projecttypings, "scriptExtensions.d.ts");
     fs.ensureDirSync(projecttypings);
 
     // copy dts file
