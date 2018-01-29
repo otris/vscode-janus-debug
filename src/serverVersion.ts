@@ -103,39 +103,49 @@ export function getLatestBuildNo(): string {
 export function ensurePortalScriptingTSD(extensionPath: string, outputPath: string, version?: string): string {
     let output = path.join(outputPath, PORTALSCRIPTING + ".d.ts");
 
-    if (version && version !== '') {
-        // version e.g. 5.0c HF1 -> 50chf1
-        let versionPostfix = version.replace('.', '');
-        versionPostfix = versionPostfix.replace(' ', '');
-        versionPostfix = versionPostfix.toLocaleLowerCase();
+    if (!version || version === "" || isLatestVersion(version)) {
+        return output;
+    }
 
-        output = path.join(outputPath, PORTALSCRIPTING + "_" + versionPostfix + ".d.ts");
+    // version e.g. 5.0c HF1 -> 50chf1
+    let versionPostfix = version.replace('.', '');
+    versionPostfix = versionPostfix.replace(' ', '');
+    versionPostfix = versionPostfix.toLocaleLowerCase();
+    output = path.join(outputPath, PORTALSCRIPTING + "_" + versionPostfix + ".d.ts");
 
-        if (!fs.existsSync(output)) {
-            const jsdoc = path.join(extensionPath, 'node_modules', '.bin', "jsdoc");
-            const input = path.join(extensionPath, 'portalscript', 'jsdoc', "portalScripting.js");
-            const concat = path.join(extensionPath, 'portalscript', 'typings', "fileTypeMapper.d.ts");
-            const config = path.join(extensionPath, 'portalscript', 'jsdoc', 'jsdoc-config.json');
-            const configObject = {
-                "latestVersion": "DOCUMENTS " + version,
-                "versionComparator": path.join(extensionPath, 'portalscript', 'jsdoc', "versionComparator.js")
-            };
-            const configContent = JSON.stringify(configObject);
-            fs.writeFileSync(config, configContent);
-            const template = path.join(extensionPath, 'node_modules', '@otris', 'jsdoc-tsd', "src-out", "core");
-            execSync(jsdoc + " " + input + " -c " + config + " -t " + template + " -d " + output);
-            console.log(`Generated typings for version ${version}`);
-            try {
-                const comment = "// type definition file for portal scripting on DOCUMENTS " + version + "\n";
-                const dtsFile = fs.readFileSync(output, 'utf8');
-                const ftMapper = fs.readFileSync(concat, 'utf8');
-                fs.writeFileSync(output, comment + "\n" + dtsFile + "\n" + ftMapper);
-            } catch (err) {
-                output = path.join(outputPath, PORTALSCRIPTING + ".d.ts");
-            }
-        } else {
-            console.log(`Use existing typings for version ${version}`);
-        }
+    if (fs.existsSync(output)) {
+        return output;
+    }
+
+    // typings in that version do not exist, so generate them
+
+    // create all required paths for jsdoc
+    const jsdoc = path.join(extensionPath, 'node_modules', '.bin', "jsdoc");
+    const input = path.join(extensionPath, 'portalscript', 'jsdoc', "portalScripting.js");
+    const config = path.join(extensionPath, 'portalscript', 'jsdoc', 'jsdoc-config.json');
+    const template = path.join(extensionPath, 'node_modules', '@otris', 'jsdoc-tsd', "src-out", "core");
+
+    // create jdoc-config.json
+    const configObject = {
+        "latestVersion": "DOCUMENTS " + version,
+        "versionComparator": path.join(extensionPath, 'portalscript', 'jsdoc', "versionComparator.js")
+    };
+    const configContent = JSON.stringify(configObject);
+    fs.writeFileSync(config, configContent);
+
+    // execute jsdoc
+    execSync(jsdoc + " " + input + " -c " + config + " -t " + template + " -d " + output);
+    console.log(`Generated typings for version ${version}`);
+
+    // add fileTypeMapper and comment to typings
+    try {
+        const concat = path.join(extensionPath, 'portalscript', 'typings', "fileTypeMapper.d.ts");
+        const comment = "// type definition file for portal scripting on DOCUMENTS " + version + "\n";
+        const dtsFile = fs.readFileSync(output, 'utf8');
+        const ftMapper = fs.readFileSync(concat, 'utf8');
+        fs.writeFileSync(output, comment + "\n" + dtsFile + "\n" + ftMapper);
+    } catch (err) {
+        output = path.join(outputPath, PORTALSCRIPTING + ".d.ts");
     }
 
     return output;

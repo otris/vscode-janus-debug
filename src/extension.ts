@@ -185,6 +185,15 @@ function initLaunchJsonWatcher(outputChannel: vscode.OutputChannel, loginData: n
         }
         const fspath = file ? file.fsPath : '';
         login.loadLoginInformationOnCreate(loginData, fspath);
+
+        // check, if typings should be acquired automatically
+        const config = vscode.workspace.getConfiguration('vscode-janus-debug');
+        if (config) {
+            const autoAcquire = config.get("autoAcquireTypings", false);
+            if (autoAcquire) {
+                intellisense.getAllTypings(loginData);
+            }
+        }
     });
 
     launchJsonWatcher.onDidChange((file) => {
@@ -194,6 +203,15 @@ function initLaunchJsonWatcher(outputChannel: vscode.OutputChannel, loginData: n
         }
         if (file) {
             login.loadLoginInformation(loginData, file.fsPath);
+        }
+
+        // check, if typings should be updated automatically
+        const config = vscode.workspace.getConfiguration('vscode-janus-debug');
+        if (config) {
+            const autoAcquire = config.get("autoAcquireTypings", false);
+            if (autoAcquire) {
+                intellisense.getAllTypings(loginData);
+            }
         }
     });
 
@@ -287,13 +305,6 @@ export function activate(context: vscode.ExtensionContext): void {
     context.subscriptions.push(vscode.debug.registerDebugConfigurationProvider('janus',
         new JanusDebugConfigurationProvider()));
 
-    const config = vscode.workspace.getConfiguration('vscode-janus-debug');
-    if (config) {
-        const autoAcquire = config.get("autoAcquireTypings", false);
-        if (autoAcquire) {
-            intellisense.getAllTypings(loginData);
-        }
-    }
 
     // Register commands
 
@@ -481,13 +492,14 @@ export function activate(context: vscode.ExtensionContext): void {
     // Install intellisense files
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.getPortalScriptingTSD', () => {
+            // todo ask for version
             intellisense.copyPortalScriptingTSD();
             intellisense.ensureJsconfigJson();
         })
     );
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.getAllTSD', async () => {
-            await intellisense.getAllTypings(loginData);
+            await intellisense.getAllTypings(loginData, true);
         })
     );
 
@@ -572,6 +584,7 @@ export function activate(context: vscode.ExtensionContext): void {
 
 
     // show warnings for deprecated files
+    // todo remove this checks and warnings
     if (vscode.workspace && vscode.workspace.rootPath) {
         try {
             fs.readFileSync(path.join(vscode.workspace.rootPath, 'documents-scripting-settings.json'));

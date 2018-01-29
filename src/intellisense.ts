@@ -16,28 +16,35 @@ const execSync = require('child_process').execSync;
 
 
 
-export async function getAllTypings(loginData: nodeDoc.ConnectionInformation) {
+export async function getAllTypings(loginData: nodeDoc.ConnectionInformation, force = false) {
     vscode.window.setStatusBarMessage('Installing IntelliSense ...');
     let message = "";
+    let serverRunning = false;
+
     try {
         await createFiletypesTSD(loginData);
         message += ' fileTypes.d.ts';
+        serverRunning = true;
     } catch (err) {
         //
     }
 
-    let version;
-    if (loginData.documentsVersion && loginData.documentsVersion !== "") {
-        version = serverVersion.getVersion(loginData.documentsVersion);
-        if (serverVersion.isLatestVersion(version)) {
-            // latest version is default and should not be generated
-            version = "";
+    if (force || serverRunning) {
+        let version;
+        if (loginData.documentsVersion && loginData.documentsVersion !== "") {
+            version = serverVersion.getVersion(loginData.documentsVersion);
+            if (serverVersion.isLatestVersion(version)) {
+                // latest version is default
+                version = "";
+            }
+        }
+
+        if (copyPortalScriptingTSD(version)) {
+            message += ' portalScripting.d.ts';
         }
     }
 
-    if (copyPortalScriptingTSD(version)) {
-        message += ' portalScripting.d.ts';
-    }
+
     if (copyScriptExtensionsTSD()) {
         message += ' scriptExtensions.d.ts';
     }
