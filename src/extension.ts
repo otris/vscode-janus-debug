@@ -492,9 +492,10 @@ export function activate(context: vscode.ExtensionContext): void {
     // Install intellisense files
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.getPortalScriptingTSD', () => {
-            // todo ask for version
-            intellisense.copyPortalScriptingTSD();
-            intellisense.ensureJsconfigJson();
+            vscode.window.showInputBox({placeHolder: "version?"}).then((version) => {
+                intellisense.copyPortalScriptingTSD(version);
+                intellisense.ensureJsconfigJson();
+            });
         })
     );
     context.subscriptions.push(
