@@ -308,6 +308,11 @@ export async function downloadScript(loginData: nodeDoc.ConnectionInformation, c
                         helpers.updateHashValues([script], loginData.server);
                         helpers.writeScriptInfoJson([script]);
                         vscode.window.setStatusBarMessage('downloaded: ' + script.name);
+
+                        const openPath = vscode.Uri.file(script.path);
+                        vscode.workspace.openTextDocument(openPath).then(doc => {
+                            vscode.window.showTextDocument(doc);
+                        });
                         resolve();
                     });
                 });
