@@ -42,14 +42,12 @@ export async function getAllTypings(loginData: nodeDoc.ConnectionInformation, fo
         if (copyPortalScriptingTSD(version)) {
             message += ' portalScripting.d.ts';
         }
-    }
-
-
-    if (copyScriptExtensionsTSD()) {
-        message += ' scriptExtensions.d.ts';
-    }
-    if (ensureJsconfigJson()) {
-        message += ' jsconfig.json';
+        if (copyScriptExtensionsTSD()) {
+            message += ' scriptExtensions.d.ts';
+        }
+        if (ensureJsconfigJson()) {
+            message += ' jsconfig.json';
+        }
     }
 
     if (message !== "") {
