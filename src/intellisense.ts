@@ -18,7 +18,7 @@ const execSync = require('child_process').execSync;
 
 export async function getAllTypings(loginData: nodeDoc.ConnectionInformation) {
     vscode.window.setStatusBarMessage('Installing IntelliSense ...');
-    let message = 'Installed:';
+    let message = "";
     try {
         await createFiletypesTSD(loginData);
         message += ' fileTypes.d.ts';
@@ -26,7 +26,16 @@ export async function getAllTypings(loginData: nodeDoc.ConnectionInformation) {
         //
     }
 
-    if (copyPortalScriptingTSD(loginData.documentsVersion)) {
+    let version;
+    if (loginData.documentsVersion && loginData.documentsVersion !== "") {
+        version = serverVersion.getVersion(loginData.documentsVersion);
+        if (serverVersion.isLatestVersion(version)) {
+            // latest version is default and should not be generated
+            version = "";
+        }
+    }
+
+    if (copyPortalScriptingTSD(version)) {
         message += ' portalScripting.d.ts';
     }
     if (copyScriptExtensionsTSD()) {
@@ -36,7 +45,9 @@ export async function getAllTypings(loginData: nodeDoc.ConnectionInformation) {
         message += ' jsconfig.json';
     }
 
-    vscode.window.setStatusBarMessage(message);
+    if (message !== "") {
+        vscode.window.setStatusBarMessage('Installed:' + message);
+    }
 }
 
 
@@ -107,7 +118,7 @@ export function ensureJsconfigJson(): boolean {
 
 
 
-export function copyPortalScriptingTSD(buildNo?: string): boolean {
+export function copyPortalScriptingTSD(version?: string): boolean {
     const extension = vscode.extensions.getExtension('otris-software.vscode-janus-debug');
     if (!extension || !vscode.workspace || !vscode.workspace.rootPath) {
         vscode.window.showErrorMessage('Extension or workspace folder missing');
@@ -115,7 +126,7 @@ export function copyPortalScriptingTSD(buildNo?: string): boolean {
     }
 
     const outputPath = path.join(extension.extensionPath, 'portalscript', 'typings');
-    const extensionTSDFile = serverVersion.ensurePortalScriptingTSD(extension.extensionPath, outputPath, buildNo);
+    const extensionTSDFile = serverVersion.ensurePortalScriptingTSD(extension.extensionPath, outputPath, version);
     const projecttypings = path.join(vscode.workspace.rootPath, 'typings');
     const projectTSDFile = path.join(projecttypings, 'portalScripting.d.ts');
     fs.ensureDirSync(projecttypings);
@@ -132,7 +143,6 @@ export function copyPortalScriptingTSD(buildNo?: string): boolean {
     return true;
 }
 
-copyPortalScriptingTSD();
 
 
 export function copyScriptExtensionsTSD(): boolean {

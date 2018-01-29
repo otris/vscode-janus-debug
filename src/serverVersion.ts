@@ -100,17 +100,8 @@ export function getLatestBuildNo(): string {
  * @param outputPath the path where all generated typings are stored
  * @param buildNo the build number of the documents server
  */
-export function ensurePortalScriptingTSD(extensionPath: string, outputPath: string, buildNo?: string): string {
+export function ensurePortalScriptingTSD(extensionPath: string, outputPath: string, version?: string): string {
     let output = path.join(outputPath, PORTALSCRIPTING + ".d.ts");
-
-    let version;
-    if (buildNo && buildNo !== "") {
-        version = getVersion(buildNo);
-        if (isLatestVersion(version)) {
-            // latest version is default and should not be generated
-            version = "";
-        }
-    }
 
     if (version && version !== '') {
         // version e.g. 5.0c HF1 -> 50chf1

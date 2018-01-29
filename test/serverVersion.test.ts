@@ -18,8 +18,16 @@ suite('server version tests', () => {
         let buildNo;
 
         buildNo = "#8040";
+        let version;
+        if (buildNo && buildNo !== "") {
+            version = serverVersion.getVersion(buildNo);
+            if (serverVersion.isLatestVersion(version)) {
+                // latest version is default and should not be generated
+                version = "";
+            }
+        }
 
-        const typingsPath = serverVersion.ensurePortalScriptingTSD(extensionPath, outputPath, buildNo);
+        const typingsPath = serverVersion.ensurePortalScriptingTSD(extensionPath, outputPath, version);
         const content = fs.readFileSync(typingsPath, 'utf8');
         const ret = content.indexOf("declare namespace context");
         assert.ok(ret > 0, "generated portalScripting.d.ts does not contain 'declare namespace context'");
@@ -41,8 +49,16 @@ suite('server version tests', () => {
         let buildNo;
 
         buildNo = "#8040";
+        let version;
+        if (buildNo && buildNo !== "") {
+            version = serverVersion.getVersion(buildNo);
+            if (serverVersion.isLatestVersion(version)) {
+                // latest version is default and should not be generated
+                version = "";
+            }
+        }
 
-        const typingsPath = serverVersion.ensurePortalScriptingTSD(extensionPath, outputPath, buildNo);
+        const typingsPath = serverVersion.ensurePortalScriptingTSD(extensionPath, outputPath, version);
         const content = fs.readFileSync(typingsPath, 'utf8');
         assert.ok(content.length === 0, "function overwrites portalScripting_50c.d.ts");
 
@@ -63,13 +79,21 @@ suite('server version tests', () => {
         let buildNo;
 
         buildNo = getLatestBuildNo();
+        let version;
+        if (buildNo && buildNo !== "") {
+            version = serverVersion.getVersion(buildNo);
+            if (serverVersion.isLatestVersion(version)) {
+                // latest version is default and should not be generated
+                version = "";
+            }
+        }
 
         // check buildNo
         const no = parseInt(buildNo, 10);
         assert.ok(!isNaN(no), "isNaN failed");
         assert.ok(no > 8000, "buildNo not greater than 8000");
 
-        const typingsPath = serverVersion.ensurePortalScriptingTSD(extensionPath, outputPath, buildNo);
+        const typingsPath = serverVersion.ensurePortalScriptingTSD(extensionPath, outputPath, version);
 
         assert.ok(!fs.existsSync(typingsPath));
 
@@ -88,8 +112,16 @@ suite('server version tests', () => {
         let buildNo;
 
         buildNo = "#8030"; // 5.0b
+        let version;
+        if (buildNo && buildNo !== "") {
+            version = serverVersion.getVersion(buildNo);
+            if (serverVersion.isLatestVersion(version)) {
+                // latest version is default and should not be generated
+                version = "";
+            }
+        }
 
-        const typingsPath = serverVersion.ensurePortalScriptingTSD(extensionPath, outputPath, buildNo);
+        const typingsPath = serverVersion.ensurePortalScriptingTSD(extensionPath, outputPath, version);
         const content = fs.readFileSync(typingsPath, 'utf8');
         let ret;
         ret = content.indexOf("declare namespace context");
