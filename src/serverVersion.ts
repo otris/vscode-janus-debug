@@ -124,6 +124,7 @@ export function ensurePortalScriptingTSD(extensionPath: string, outputPath: stri
             fs.writeFileSync(config, configContent);
             const template = path.join(extensionPath, 'node_modules', '@otris', 'jsdoc-tsd', "src-out", "core");
             execSync(jsdoc + " " + input + " -c " + config + " -t " + template + " -d " + output);
+            console.log(`Generated typings for version ${version}`);
             try {
                 const comment = "// type definition file for portal scripting on DOCUMENTS " + version + "\n";
                 const dtsFile = fs.readFileSync(output, 'utf8');
@@ -132,6 +133,8 @@ export function ensurePortalScriptingTSD(extensionPath: string, outputPath: stri
             } catch (err) {
                 output = path.join(outputPath, PORTALSCRIPTING + ".d.ts");
             }
+        } else {
+            console.log(`Use existing typings for version ${version}`);
         }
     }
 
