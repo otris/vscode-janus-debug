@@ -7,6 +7,9 @@ import { getLatestBuildNo } from '../src/serverVersion';
 // tslint:disable-next-line:no-var-requires
 const fs = require("fs-extra");
 
+// run single test, e.g.
+// test.only('should generate typings in specific version', () => {
+
 suite('server version tests', () => {
     test('should generate typings in specific version', () => {
         // wherever the tests are started, they are executed
