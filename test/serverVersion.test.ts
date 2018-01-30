@@ -124,6 +124,35 @@ suite('server version tests', () => {
         fs.removeSync(outputPath);
     });
 
+    test('typings in old version should be generated', () => {
+        // wherever the tests are started, they are executed
+        // in workspace root
+        const extensionPath = process.cwd();
+        const outputPath = path.join(extensionPath, "test", "typings");
+        fs.emptyDirSync(outputPath);
+
+        let buildNo;
+
+        buildNo = "#8030"; // 5.0b
+        let version;
+        if (buildNo && buildNo !== "") {
+            version = serverVersion.getVersion(buildNo);
+            if (serverVersion.isLatestVersion(version)) {
+                // latest version is default and should not be generated
+                version = "";
+            }
+        }
+
+        const typingsPath = serverVersion.ensurePortalScriptingTSD(extensionPath, outputPath, version);
+        const jsdocConfig = path.join(extensionPath, "portalscript", "jsdoc", "jsdoc-config.json");
+
+        assert.ok(fs.existsSync(typingsPath), "typings not generated");
+        assert.ok(fs.existsSync(jsdocConfig), "typings not generated");
+
+        fs.removeSync(jsdocConfig);
+        fs.removeSync(outputPath);
+    });
+
     test('typings in specific version should contain corresponding functions', () => {
         // wherever the tests are started, they are executed
         // in workspace root
