@@ -52,6 +52,10 @@ export async function getAllTypings(loginData: nodeDoc.ConnectionInformation, fo
 
     if (message !== "") {
         vscode.window.setStatusBarMessage('Installed:' + message);
+    } else if (!serverRunning) {
+        vscode.window.setStatusBarMessage('IntelliSense not updated because server is not running');
+    } else {
+        vscode.window.setStatusBarMessage('IntelliSense not updated');
     }
 }
 
