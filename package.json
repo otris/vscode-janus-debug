@@ -417,7 +417,7 @@
       },
       {
         "command": "extension.vscode-janus-debug.getPortalScriptingTSD",
-        "title": "Install IntelliSense: PortalScripting",
+        "title": "Install IntelliSense: PortalScripting Version",
         "category": "DOCUMENTS"
       },
       {
