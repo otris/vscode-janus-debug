@@ -346,7 +346,7 @@
           "type": "boolean",
           "default": false,
           "title": "Aqcuire type definition files automatically",
-          "description": "Acuires the documents type definition files automatically. Only on activation for now."
+          "description": "Try to acquire documents type definition files automatically when server configuration changed."
         }
       }
     },
