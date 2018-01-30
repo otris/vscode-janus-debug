@@ -341,12 +341,6 @@
             "safari",
             "firefox"
           ]
-        },
-        "vscode-janus-debug.autoAcquireTypings": {
-          "type": "boolean",
-          "default": false,
-          "title": "Aqcuire type definition files automatically",
-          "description": "Try to acquire documents type definition files automatically when server configuration changed."
         }
       }
     },

@@ -186,14 +186,14 @@ function initLaunchJsonWatcher(outputChannel: vscode.OutputChannel, loginData: n
         const fspath = file ? file.fsPath : '';
         login.loadLoginInformationOnCreate(loginData, fspath);
 
-        // check, if typings should be acquired automatically
-        const config = vscode.workspace.getConfiguration('vscode-janus-debug');
-        if (config) {
-            const autoAcquire = config.get("autoAcquireTypings", false);
-            if (autoAcquire) {
-                intellisense.getAllTypings(loginData);
-            }
-        }
+        // // check, if typings should be acquired automatically
+        // const config = vscode.workspace.getConfiguration('vscode-janus-debug');
+        // if (config) {
+        //     const autoAcquire = config.get("autoAcquireTypings", false);
+        //     if (autoAcquire) {
+        //         intellisense.getAllTypings(loginData);
+        //     }
+        // }
     });
 
     launchJsonWatcher.onDidChange((file) => {
@@ -205,14 +205,14 @@ function initLaunchJsonWatcher(outputChannel: vscode.OutputChannel, loginData: n
             login.loadLoginInformation(loginData, file.fsPath);
         }
 
-        // check, if typings should be updated automatically
-        const config = vscode.workspace.getConfiguration('vscode-janus-debug');
-        if (config) {
-            const autoAcquire = config.get("autoAcquireTypings", false);
-            if (autoAcquire) {
-                intellisense.getAllTypings(loginData);
-            }
-        }
+        // // check, if typings should be updated automatically
+        // const config = vscode.workspace.getConfiguration('vscode-janus-debug');
+        // if (config) {
+        //     const autoAcquire = config.get("autoAcquireTypings", false);
+        //     if (autoAcquire) {
+        //         intellisense.getAllTypings(loginData);
+        //     }
+        // }
     });
 
     launchJsonWatcher.onDidDelete((file) => {
