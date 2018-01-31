@@ -45,6 +45,7 @@
     "onCommand:extension.vscode-janus-debug.getPortalScriptingTSD",
     "onCommand:extension.vscode-janus-debug.getAllTSD",
     "onCommand:extension.vscode-janus-debug.showDocumentsVersion",
+    "onCommand:extension.vscode-janus-debug.wizardDownloadProject",
     "onDebug"
   ],
   "main": "./out/src/extension",
@@ -428,6 +429,11 @@
         "command": "extension.vscode-janus-debug.showImports",
         "title": "Show Imports",
         "category": "DOCUMENTS"
+      },
+      {
+        "command": "extension.vscode-janus-debug.wizardDownloadProject",
+        "title": "WIZARD: Download All / Create Project",
+        "category": "DOCUMENTS"
       }
     ],
     "keybindings": [
@@ -450,6 +456,11 @@
     ],
     "menus": {
       "explorer/context": [
+        {
+          "command": "extension.vscode-janus-debug.wizardDownloadProject",
+          "when": "!explorerResourceIsFolder && !resourceFilename",
+          "group": "DOCUMENTS@1"
+        },
         {
           "command": "extension.vscode-janus-debug.uploadScript",
           "when": "resourceLangId == javascript",

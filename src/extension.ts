@@ -1,6 +1,5 @@
 'use strict';
 
-import * as fs from 'fs';
 import * as nodeDoc from 'node-documents-scripting';
 import { LogConfiguration, Logger } from 'node-file-log';
 import * as os from 'os';
@@ -19,6 +18,8 @@ import { getExactVersion } from './serverVersion';
 import stripJsonComments = require('strip-json-comments');
 import * as version from './version';
 
+// tslint:disable-next-line:no-var-requires
+const fs = require('fs-extra');
 
 let ipcServer: VSCodeExtensionIPC;
 let launchJsonWatcher: vscode.FileSystemWatcher;
@@ -91,7 +92,7 @@ async function getLaunchConfigFromDisk(): Promise<vscode.WorkspaceConfiguration>
         }
 
         const filePath = path.resolve(vscode.workspace.rootPath, '.vscode/launch.json');
-        fs.readFile(filePath, { encoding: 'utf-8', flag: 'r' }, (err, data) => {
+        fs.readFile(filePath, { encoding: 'utf-8', flag: 'r' }, (err: any, data: any) => {
             if (err) {
                 // Silently ignore error and resolve with an empty configuration
                 return resolve(new Config());
@@ -503,6 +504,55 @@ export function activate(context: vscode.ExtensionContext): void {
             await intellisense.getAllTypings(loginData, true);
         })
     );
+
+    // wizard: download project
+    context.subscriptions.push(
+        vscode.commands.registerCommand('extension.vscode-janus-debug.wizardDownloadProject', async (param) => {
+            const wizard = "🧙: A project containing all server scripts will be created! This will take a few seconds...";
+            const answer = await vscode.window.showQuickPick(["Continue", "Cancel"], {placeHolder: wizard});
+            if (answer !== "Continue") {
+                return;
+            }
+
+            let fsPath;
+            if (param) {
+                fsPath = param._fsPath;
+            }
+            if (!fsPath) {
+                fsPath = await vscode.window.showInputBox({placeHolder: "🧙: Enter the path where you want the project to be created"});
+            }
+            if (!fsPath) {
+                return;
+            }
+            const folderContent = fs.readdirSync(fsPath);
+            if (folderContent.length > 1 || folderContent[0] !== ".vscode-janus-debug") {
+                vscode.window.showErrorMessage("🧙: Please start again with an empty folder");
+                return;
+            }
+            const src = path.join(fsPath, "src");
+            fs.emptyDirSync(src);
+            try {
+                await serverCommands.downloadAllSelected(loginData, src, false);
+            } catch (err) {
+                vscode.window.showErrorMessage(`🧙: The connection to the entered server (${loginData.server}) cannot be established, please check if the server is runing`);
+                return;
+            }
+            helpers.showWarning(loginData);
+            await intellisense.getAllTypings(loginData, true);
+
+            if (!thisExtension) {
+                // should not happen
+                return;
+            }
+
+            const source = path.join(thisExtension.extensionPath, "portalscript", "templates", "jsconfig.json");
+            const dest = path.join(fsPath, "jsconfig.json");
+            fs.copySync(source, dest);
+
+            vscode.window.showInformationMessage("🧙: Finished! When you want to rename folder 'src' you should also rename it in 'jsconfig.json'");
+        })
+    );
+
 
     // View documentation
     context.subscriptions.push(
