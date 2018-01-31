@@ -1,41 +1,11 @@
 # Test Cases
 
-## Command Palette
+## Upload / Download Scripts
+Under construction
 
-1. Download scripts to folder (folder, new folder)
-2. Download script (scriptname, folder, new folder)
-3. Upload scripts from folder (folder)
-4. Upload script (script, folder)
-5. Run script (scriptname)
-6. Login (launch.json)
-
-* script
-    * positive:
-        * valid path
-        * encrypted, decrypted
-        * with bom, without bom
-    * negative: invalid path
-* scriptname
-    * positive: scriptname existing on server
-    * negative: scriptname not existing on server
-* folder
-    * positive: absolute
-    * negative: path not in root, relative path
-* new folder
-    * positive: absolute with new subfolder
-    * negative: absolute with new subfolder/subfolder, incorrect foldername, path not in root, relative path
-
-## Context-Menus
-
-## Events
-
-* Save script
-
-## Keys
-
-* Run script
 
 ## Debugger
+
 ### Launch configuration
 1. copy the test/test-folder to any location
 2. open the copy of the test-folder as your VS Code project
