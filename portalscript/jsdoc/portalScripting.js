@@ -2,10 +2,11 @@
 * @class AccessProfile
 * @classdesc The AccessProfile class has been added to the DOCUMENTS PortalScripting API to gain full access to the DOCUMENTS access profiles by scripting means. 
 * A SystemUser can be assigned to an AccessProfile. At the filetype it is possible to define several rights depending on the AccessProfile. You can get an AccessProfile object by different methods like Context.findAccessProfile(String ProfileName) or from the AccessProfileIterator. 
+* @since ELC 3.50b / otrisPORTAL 5.0b 
 * @summary With the new method is it possible to create a new AccessProfile. 
 * @description If an access profile with the profile name already exist, the method return the existing access profile. 
+* Since ELC 3.50b / otrisPORTAL 5.0b 
 * @param {string} nameAccessProfile 
-* @since ELC 3.50b / otrisPORTAL 5.0b 
 * @deprecated since ELC 3.60i / otrisPORTAL 6.0i use Context.createAccessProfile() instead 
 * @example
 * var newAP = new AccessProfile("supportteam");
@@ -17,12 +18,32 @@
 * @summary The technical name of the AccessProfile. 
 * @member {string} name
 * @instance
+* @since ELC 3.50b / otrisPORTAL 5.0b
+* @example
+* var su = context.getSystemUser(); // current user
+* if (su)
+* {
+*    var apIter = su.getAccessProfiles();
+*    for (var ap = apIter.first(); ap; ap = apIter.next())
+*    {
+*       util.out(ap.name);
+*    }
+* }
 **/
 /**
 * @memberof AccessProfile
 * @summary Access to the property cache of the AccessProfile. 
 * @member {PropertyCache} propCache
 * @instance
+* @since DOCUMENTS 5.0 
+* @see [PropertyCache,SystemUser.propCache]{@link PropertyCache,SystemUser#propCache} 
+* @example
+* var ap = context.findAccessProfile("Everybody");
+* if (!ap.propCache.hasProperty("Contacts"))
+* {
+*    util.out("Creating cache");
+*    ap.propCache.Contacts = ["Peter", "Paul", "Marry"];
+* }
 **/
 /**
 * @memberof AccessProfile
@@ -49,7 +70,8 @@
 * @function getAttribute
 * @instance
 * @summary Get the String value of an attribute of the AccessProfile. 
-* @description Note: This function is only for experts. Knowledge about the ELC-database schema is necessary! 
+* @description 
+* Note: This function is only for experts. Knowledge about the ELC-database schema is necessary! 
 * @param {string} attribute String containing the name of the desired attribute 
 * @returns {string} String containing the value of the desired attribute 
 * @since ELC 3.50b / otrisPORTAL 5.0b 
@@ -63,7 +85,7 @@
 * @param {string} [typeFilter] String value defining an optional filter depending on the type 
 * @returns {CustomPropertyIterator} CustomPropertyIterator
 * @since DOCUMENTS 5.0
-* @see [Context.findCustomProperties]{@link Context#findCustomProperties} 
+* @see [context.findCustomProperties]{@link context#findCustomProperties} 
 * @see [AccessProfile.setOrAddCustomProperty]{@link AccessProfile#setOrAddCustomProperty} 
 * @see [AccessProfile.addCustomProperty]{@link AccessProfile#addCustomProperty} 
 * @example
@@ -90,19 +112,24 @@
 * @function getOID
 * @instance
 * @summary Returns the object-id. 
+* @description
 * Since DOCUMENTS 5.0 (new parameter oidLow) 
 * @param {boolean} [oidLow] Optional flag: 
-* If true only the id of the filetype object (m_oid) will be returned. 
-* If false the id of the filetype object will be returned together with the id of the corresponding class in the form class-id:m_oid. 
-* The default value is false. 
-* @returns {string} String with the object-id 
+* If <code>true</code> only the id of the filetype object (<code>m_oid</code>) will be returned. 
+* If <code>false</code> the id of the filetype object will be returned together with the id of the corresponding class in the form <code>class-id:m_oid</code>. 
+* The default value is <code>false</code>. 
+* @returns {string} <code>String</code> with the object-id 
 * @since ELC 3.60c / otrisPORTAL 6.0c 
 **/
 /**
 * @memberof AccessProfile
 * @function getSystemUsers
 * @instance
-* @summary Retrieve a list of all SystemUser which are assigned to the current AccessProfile. 
+* @summary Retrieve a list of desired SystemUser which are assigned to the current AccessProfile. 
+* @description
+* Since DOCUMENTS 5.0c HF2 (new parameters includeLockedUsers and includeInvisibleUsers) 
+* @param {boolean} [includeLockedUsers] Optional flag indicating whether locked users also should be returned. The default value is <code>true</code>. 
+* @param {boolean} [includeInvisibleUsers] Optional flag indicating whether the method also should return users for which the option "Display user in DOCUMENTS lists" in the Documents Manager is not checkmarked. The default value is <code>true</code>. 
 * @returns {SystemUserIterator} SystemUserIterator containing a list of SystemUser
 * @since ELC 3.51e / otrisPORTAL 5.1e 
 * @example
@@ -121,10 +148,11 @@
 * @function setAttribute
 * @instance
 * @summary Set the String value of an attribute of the AccessProfile to the desired value. 
-* @description Note: This function is only for experts. Knowledge about the ELC-database schema is necessary! 
+* @description 
+* Note: This function is only for experts. Knowledge about the ELC-database schema is necessary! 
 * @param {string} attribute String containing the name of the desired attribute 
 * @param {string} value String containing the desired value of the attribute 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since ELC 3.50b / otrisPORTAL 5.0b 
 **/
 /**
@@ -152,13 +180,25 @@
 * @interface AccessProfileIterator
 * @summary The AccessProfileIterator class has been added to the DOCUMENTS PortalScripting API to gain full access to the DOCUMENTS access profiles by scripting means. 
 * @description The objects of this class represent lists of AccessProfile objects and allow to loop through such a list of profiles. The following methods return an AccessProfileIterator: Context.getAccessProfiles(), SystemUser.getAccessProfiles(). 
+* @since ELC 3.50b / otrisPORTAL 5.0b
+* @example
+* // take a certain Systemuser object (stored in user) and assign all availabe
+* // accessprofiles to this user
+* var itRoles = context.getAccessProfiles();
+* if (itRoles && itRoles.size() > 0)
+* {
+*    for (var ap = itRoles.first(); ap; ap = itRoles.next())
+*    {
+*       user.addToAccessProfile(ap); // add user to profile
+*    }
+* }
 */
 /**
 * @memberof AccessProfileIterator
 * @function first
 * @instance
 * @summary Retrieve the first AccessProfile object in the AccessProfileIterator. 
-* @returns {AccessProfile} AccessProfile or null in case of an empty AccessProfileIterator
+* @returns {AccessProfile} AccessProfile or <code>null</code> in case of an empty AccessProfileIterator
 * @since ELC 3.50b / otrisPORTAL 5.0b 
 **/
 /**
@@ -175,7 +215,7 @@
 * @function next
 * @instance
 * @summary Retrieve the next AccessProfile object in the AccessProfileIterator. 
-* @returns {AccessProfile} AccessProfile or null if end of AccessProfileIterator is reached. 
+* @returns {AccessProfile} AccessProfile or <code>null</code> if end of AccessProfileIterator is reached. 
 * @since ELC 3.50b / otrisPORTAL 5.0b 
 **/
 /**
@@ -195,17 +235,18 @@
 * @summary String value containing the version of the archive interface. 
 * @member {string} id
 * @instance
+* @since ELC 3.60h / otrisPORTAL 6.0h 
 **/
 /**
 * @memberof ArchiveConnection
 * @function downloadBlob
 * @instance
 * @summary Download an attachment from the XML-Server. 
-* @description With this method you can download an attachment from the EASYWARE ENTERPRISE archive using the XML-Server. The method returns an object of the class ArchiveConnectionBlob. This object allows you to access the attachment. If the method fails the return value is NULL. You can retrieve the error message by executing ArchiveConnection.getLastError(). 
+* @description With this method you can download an attachment from the EASYWARE ENTERPRISE archive using the XML-Server. The method returns an object of the class <code>ArchiveConnectionBlob</code>. This object allows you to access the attachment. If the method fails the return value is NULL. You can retrieve the error message by executing <code>ArchiveConnection.getLastError()</code>. 
 * Note: Method is only available for EE.x using XML-Server 
 * @param {string} fileKey String containing the key of the file 
 * @param {string} docKey String containing the key of the attachment 
-* @returns {ArchiveConnectionBlob} ArchiveConnectionBlob or NULL, if failed 
+* @returns {ArchiveConnectionBlob} <code>ArchiveConnectionBlob</code> or <code>NULL</code>, if failed 
 * @since ELC 3.60h / otrisPORTAL 6.0h
 * @example
 * var xmlserver = context.getArchiveConnection();
@@ -225,11 +266,11 @@
 * @function downloadBlobs
 * @instance
 * @summary Download multiple attachments from the XML-Server. 
-* @description This method allows downloading multiple attachments from the EASYWARE ENTERPRISE archive using the XML-Server. The method returns an object of the class ArchiveConnectionBlobIterator. This object allows you to access the attachments. If the method fails the return value is NULL. You can retrieve the error message by executing ArchiveConnection.getLastError(). 
+* @description This method allows downloading multiple attachments from the EASYWARE ENTERPRISE archive using the XML-Server. The method returns an object of the class <code>ArchiveConnectionBlobIterator</code>. This object allows you to access the attachments. If the method fails the return value is NULL. You can retrieve the error message by executing <code>ArchiveConnection.getLastError()</code>. 
 * Note: Method is only available for EE.x using XML-Server 
 * @param {string} fileKey String Array containing the keys of the files 
 * @param {string} docKey String Array containing the keys of the attachments 
-* @returns {ArchiveConnectionBlobIterator} ArchiveConnectionBlobIterator or NULL, if failed 
+* @returns {ArchiveConnectionBlobIterator} <code>ArchiveConnectionBlobIterator</code> or <code>NULL</code>, if failed 
 * @since ELC 3.60h / otrisPORTAL 6.0h
 * @example
 * var fileKeys = new Array();
@@ -271,10 +312,27 @@
 * @function putBlob
 * @instance
 * @summary Upload an attachment to the XML-Server. 
+* @description This method performs a "putblob" request to an installed EASY XML-Server.
+* 
+* Note: You may use util.getUniqueId() to create a blobreference. However this may be not unique enough, if several portal servers are connected to the same XML-server in this way. 
+* Note: Method is only available for EE.x using XML-Server 
 * @param {Document} doc 
 * @param {string} blobreference 
 * @returns {boolean} 
-
+* @since ELC 3.60h / otrisPORTAL 6.0h
+* @example
+* var xmlserver = context.getArchiveConnection();
+* if (!xmlserver)
+*    throw "Error: no ArchiveConnection"
+* 
+* // Create a unique id as BlobReference for the upload
+* var blobRef = util.getUniqueId();
+* 
+* // take a Document object and upload it to the ArchiveConnection
+* if (!xmlserver.putBlob(doc, blobRef))
+*    throw "Upload failed";
+* 
+* // Now the blobRef can be used e.g. for an IMPORT request
 **/
 /**
 * @memberof ArchiveConnection
@@ -306,7 +364,7 @@
 * @instance
 * @summary Sends a request to the EBIS interface and returns the response. 
 * @description With this method you can send a GET or a POST request to an EBIS interface. If the request succeeds, the return value is the HTTP-content of the response. Otherwise the function returns an empty String. Call ArchiveConnection.getLastError() subsequently to test for eventual errors. If the interface reports an error, it will be prefixed with "[EBIS] ". 
-* Remark: The function is unable to handle a response with binary data. The function does not check the parameters for illegal characters, such as linefeeds in the extraHeaders, for example. 
+* Note: The function is unable to handle a response with binary data. The function does not check the parameters for illegal characters, such as linefeeds in the extraHeaders, for example. 
 * Note: Method is only available for EBIS 
 * @param {string} resourceIdentifier String containing the REST resource identifier (in other words: the back part of the URL). 
 * @param {string} [postData] A optional String with content data of a HTTP-POST request. If the parameter is missing or empty, the function generates a GET request. 
@@ -388,66 +446,109 @@
 /**
 * @interface ArchiveConnectionBlob
 * @summary The ArchiveConnectionBlob class provides access to each single attachment of files in the archive. 
-* @description This class holds data like name, extension, size etc. of attachments in the archive. The existance of an object means, that an attachment exists in the archive. If you want to access the attachment (blob) itself in the PortalServer, you have to download the attachment from the archive with the ArchiveConnectionBlob.download() method. Then the attachment will be transferred to the PortalServer machine (localPath). 
+* @description This class holds data like name, extension, size etc. of attachments in the archive. The existance of an object means, that an attachment exists in the archive. If you want to access the attachment (blob) itself in the PortalServer, you have to download the attachment from the archive with the <code>ArchiveConnectionBlob.download()</code> method. Then the attachment will be transferred to the PortalServer machine (localPath). 
 * Note: You can not create objects of this class. Objects of this class are available only as return value of other functions, e.g. ArchiveConnection.downloadBlob(String fileKey, String docKey). 
 * Note: Class is only available for an ArchiceConnection to a XML-Server 
+* @since ELC 3.60i / otrisPORTAL 6.0i available for archive files 
 */
 /**
 * @memberof ArchiveConnectionBlob
 * @summary Integer containing the filesize of an attachment in the archive. 
+* @description This property contains the filesize of the attachment in bytes (83605).
+* 
 * @member {number} bytes
 * @instance
+* @example
+* ....
+* var archDoc = xmlserver.downloadBlob(....);
+* util.out(archDoc.bytes);
 **/
 /**
 * @memberof ArchiveConnectionBlob
 * @summary String containing the key of the attachment in the archive. 
 * @member {string} docKey
 * @instance
+* @example
+* ....
+* var archDoc = xmlserver.downloadBlob(....);
+* util.out(archDoc.docKey);
 **/
 /**
 * @memberof ArchiveConnectionBlob
 * @summary boolean that indicates whether an attachment of the archive is locally available at the PortalServer. 
-* @description If the attachment in the archive is locally available at the PortalServer's file system, this value is true.
+* @description If the attachment in the archive is locally available at the PortalServer's file system, this value is <code>true</code>.
+* 
 * @member {boolean} downloaded
 * @instance
+* @example
+* ....
+* var archDoc = ...
+* if (archDoc.downloaded)
+*    util.out(archDoc.localPath);
 **/
 /**
 * @memberof ArchiveConnectionBlob
 * @summary String containing the key of the file the attachment belongs to in the archive. 
 * @member {string} fileKey
 * @instance
+* @example
+* ....
+* var archDoc = xmlserver.downloadBlob(....);
+* util.out(archDoc.fileKey);
 **/
 /**
 * @memberof ArchiveConnectionBlob
 * @summary String with the local path to the attachment (blob). 
-* @description This path is only available if the attribute ArchiveConnectionBlob.downloaded is true
+* @description This path is only available if the attribute <code>ArchiveConnectionBlob.downloaded</code> is <code>true</code>
+* 
 * @member {string} localPath
 * @instance
+* @example
+* ....
+* var archDoc = ...
+* if (archDoc.downloaded)
+*    util.out(archDoc.localPath);
 **/
 /**
 * @memberof ArchiveConnectionBlob
 * @summary String containing the mime-type of an attachment in the archive. 
+* @description This property contains the mime-type of the attachment, e.g image/jpeg.
+* 
 * @member {string} mimeType
 * @instance
+* @example
+* ....
+* var archDoc = xmlserver.downloadBlob(....);
+* util.out(archDoc.mimeType);
 **/
 /**
 * @memberof ArchiveConnectionBlob
 * @summary String containing the name of the attachment in the archive. 
 * @member {string} name
 * @instance
+* @example
+* ....
+* var archDoc = xmlserver.downloadBlob(....);
+* util.out(archDoc.name);
 **/
 /**
 * @memberof ArchiveConnectionBlob
 * @summary String containing the filesize of an attachment in the archive. 
+* @description This property contains the filesize of the attachment in as readable way (81.6 KB).
+* 
 * @member {string} size
 * @instance
+* @example
+* ....
+* var archDoc = xmlserver.downloadBlob(....);
+* util.out(archDoc.size);
 **/
 /**
 * @memberof ArchiveConnectionBlob
 * @function download
 * @instance
 * @summary Download the attachment to the PortalServer's machine (localPath) 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since ELC 3.60h / otrisPORTAL 6.0h
 * @example
 * var archFile = .....
@@ -473,13 +574,14 @@
 * @summary The ArchiveConnectionBlobIterator class is an iterator that holds a list of objects of the class ArchiveConnectionBlob. 
 * @description You may access ArchiveConnectionBlobIterator objects by the ArchiveConnection.downloadBlobs() method described in the ArchiceConnection chapter. 
 * Note: Class is only available for an ArchiceConnection to a XML-Server 
+* @since ELC 3.60h / otrisPORTAL 6.0h 
 */
 /**
 * @memberof ArchiveConnectionBlobIterator
 * @function first
 * @instance
 * @summary Retrieve the first ArchiveConnectionBlob object in the ArchiveConnectionBlobIterator. 
-* @returns {ArchiveConnectionBlob} ArchiveConnectionBlob or null in case of an empty ArchiveConnectionBlobIterator
+* @returns {ArchiveConnectionBlob} ArchiveConnectionBlob or <code>null</code> in case of an empty ArchiveConnectionBlobIterator
 * @since ELC 3.60h / otrisPORTAL 6.0h 
 **/
 /**
@@ -487,7 +589,7 @@
 * @function next
 * @instance
 * @summary Retrieve the next ArchiveConnectionBlob object in the ArchiveConnectionBlobIterator. 
-* @returns {ArchiveConnectionBlob} ArchiveConnectionBlob or NULL if end of ArchiveConnectionBlobIterator is reached 
+* @returns {ArchiveConnectionBlob} ArchiveConnectionBlob or <code>NULL</code> if end of ArchiveConnectionBlobIterator is reached 
 * @since ELC 3.60h / otrisPORTAL 6.0h 
 **/
 /**
@@ -501,13 +603,14 @@
 /**
 * @class ArchiveFileResultset
 * @classdesc The ArchiveFileResultset class supports basic functions to loop through a list of ArchiveFile objects. 
+
 * @summary Create a new ArchiveFileResultset object. 
-* @description Like in other programming languages you create a new object with the new operator (refer to example below). 
+* @description Like in other programming languages you create a new object with the <code>new</code> operator (refer to example below). 
 * Note: Important: The resultset may contain less hits than really exist. For EE.i and EE.x the limit of returned hits is the value of the DOCUMENTS property "MaxArchiveHitsFolder". If the property is not set, the limit is the XML-Server's default hit count. For EAS, The limit is either the "MaxArchiveHitsFolder" value or the limit of free research hitlists. The method is the same for dynamic folders and link-registers. 
 * @param {string} archiveKey String containing the key of the desired view or archive 
 * @param {string} filter String containing an filter criterium; use empty String ('') if you don't want to filter at all 
 * @param {string} sortOrder String containing an sort order; use empty String ('') if you don't want to sort at all 
-* @param {string} hitlist String containing the hitlist that you want to use (optional fÃ¼r EE.i / mandatory for EE.x 
+* @param {string} hitlist String containing the hitlist that you want to use (optional für EE.i / mandatory for EE.x 
 * @param {boolean} [unlimitedHits] boolean that indicates if the archive hit limit must be ignored 
 * @since ELC 3.60i / otrisPORTAL 6.0i
 * @example
@@ -555,7 +658,7 @@
 * @function first
 * @instance
 * @summary Retrieve the first DocFile object in the ArchiveFileResultset. 
-* @returns {DocFile} DocFile, null in case of an empty ArchiveFileResultset, throws an exception on error loading archive file. 
+* @returns {DocFile} DocFile, <code>null</code> in case of an empty ArchiveFileResultset, throws an exception on error loading archive file. 
 * @since ELC 3.60i / otrisPORTAL 6.0i 
 **/
 /**
@@ -572,7 +675,7 @@
 * @function last
 * @instance
 * @summary Retrieve the last DocFile object in the ArchiveFileResultset. 
-* @returns {DocFile} DocFile or null if end of ArchiveFileResultset is reached. 
+* @returns {DocFile} DocFile or <code>null</code> if end of ArchiveFileResultset is reached. 
 * @since ELC 3.60j / otrisPORTAL 6.0j 
 **/
 /**
@@ -580,7 +683,7 @@
 * @function next
 * @instance
 * @summary Retrieve the next DocFile object in the ArchiveFileResultset. 
-* @returns {DocFile} DocFile, null if end of ArchiveFileResultset is reached, throws an exception on error loading archive file. 
+* @returns {DocFile} DocFile, <code>null</code> if end of ArchiveFileResultset is reached, throws an exception on error loading archive file. 
 * @since ELC 3.60i / otrisPORTAL 6.0i 
 **/
 /**
@@ -594,12 +697,14 @@
 /**
 * @interface ArchiveServer
 * @summary The ArchiveServer class has been added to the DOCUMENTS PortalScripting API to gain full access to the DOCUMENTS ArchiveServer by scripting means. 
+* @since DOCUMENTS 5.0a 
 */
 /**
 * @memberof ArchiveServer
 * @summary The technical name of the ArchiveServer. 
 * @member {string} name
 * @instance
+* @since DOCUMENTS 5.0a 
 **/
 /**
 * @memberof ArchiveServer
@@ -607,7 +712,7 @@
 * @instance
 * @summary Retrieve the archive connection object for EAS, EBIS or EASY Enterprise XML-Server. 
 * @description The ArchiveConnection object can be used for low level call directly on the archive interface. 
-* @returns {ArchiveConnection} ArchiveConnection object if successful, NULL in case of any error 
+* @returns {ArchiveConnection} <code>ArchiveConnection</code> object if successful, <code>NULL</code> in case of any error 
 * @since DOCUMENTS 5.0a 
 **/
 /**
@@ -615,7 +720,8 @@
 * @function getAttribute
 * @instance
 * @summary Get the String value of an attribute of the ArchiveServer. 
-* @description Note: This function is only for experts. Knowledge about the DOCUMENTS-database schema is necessary! 
+* @description 
+* Note: This function is only for experts. Knowledge about the DOCUMENTS-database schema is necessary! 
 * @param {string} attribute String containing the name of the desired attribute 
 * @returns {string} String containing the value of the desired attribute 
 * @since DOCUMENTS 5.0a 
@@ -634,10 +740,10 @@
 * @instance
 * @summary Returns the object-id. 
 * @param {boolean} [oidLow] Optional flag: 
-* If true only the id of the filetype object (m_oid) will be returned. 
-* If false the id of the filetype object will be returned together with the id of the corresponding class in the form class-id:m_oid. 
-* The default value is false. 
-* @returns {string} String with the object-id 
+* If <code>true</code> only the id of the filetype object (<code>m_oid</code>) will be returned. 
+* If <code>false</code> the id of the filetype object will be returned together with the id of the corresponding class in the form <code>class-id:m_oid</code>. 
+* The default value is <code>false</code>. 
+* @returns {string} <code>String</code> with the object-id 
 * @since DOCUMENTS 5.0a 
 **/
 /**
@@ -645,10 +751,11 @@
 * @function setAttribute
 * @instance
 * @summary Set the String value of an attribute of the ArchiveServer to the desired value. 
-* @description Note: This function is only for experts. Knowledge about the DOCUMENTS-database schema is necessary! 
+* @description 
+* Note: This function is only for experts. Knowledge about the DOCUMENTS-database schema is necessary! 
 * @param {string} attribute String containing the name of the desired attribute 
 * @param {string} value String containing the desired value of the attribute 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since DOCUMENTS 5.0a 
 **/
 /**
@@ -657,19 +764,28 @@
 * @instance
 * @summary After changes on the ArchiveServer with scripting methods, it is necessary to submit them to make them immediately valid. 
 * @description The settings of the ArchiveServer will be cached in a connection pool to the archive system. The pool does not recognize changes in the ArchiveServer object automatically, therefore it is necessary to call this method after all.
+* 
 * @returns {void} 
-
+* @since DOCUMENTS 5.0c 
+* @example
+* var as = context.getArchiveServerByName("EDA_2017");
+* if (as)
+* {
+*   as.setAttribute("Host", "127.0.0.1");
+*   as.submitChanges();
+* }
 **/
 /**
 * @interface ArchiveServerIterator
 * @summary The ArchiveServerIterator class has been added to the DOCUMENTS PortalScripting API to gain full access to the DOCUMENTS ArchiveSerevrby scripting means. 
+* @since DOCUMENTS 5.0a 
 */
 /**
 * @memberof ArchiveServerIterator
 * @function first
 * @instance
 * @summary Retrieve the first ArchiveServer object in the ArchiveServerIterator. 
-* @returns {AccessProfile} ArchiveServer or null in case of an empty ArchiveServerIterator
+* @returns {AccessProfile} ArchiveServer or <code>null</code> in case of an empty ArchiveServerIterator
 * @since DOCUMENTS 5.0a 
 **/
 /**
@@ -685,7 +801,7 @@
 * @function next
 * @instance
 * @summary Retrieve the next ArchiveServer object in the ArchiveServerIterator. 
-* @returns {AccessProfile} ArchiveServer or null if end of ArchiveServerIterator is reached. 
+* @returns {AccessProfile} ArchiveServer or <code>null</code> if end of ArchiveServerIterator is reached. 
 * @since DOCUMENTS 5.0a 
 **/
 /**
@@ -701,11 +817,14 @@
 * @classdesc The ArchivingDescription class has been added to the DOCUMENTS PortalScripting API to improve the archiving process of DOCUMENTS files by scripting means. 
 * For instance this allows to use different target archives for each file as well as to influence the archiving process by the file's contents itself. The ArchivingDescription object can only be used as parameter for the method DocFile.archive(ArchivingDescription)
 * Note: By default, archiving with an ArchivingDescription does not include any attachments. To archive some attachments, the script needs to call addRegister() on this object. 
+* Since EE.x: ELC 3.60a / otrisPORTAL 6a 
+* Since EAS: ELC 4 / otrisPORTAL 7 
+* @since EE.i: ELC 3.51c / otrisPORTAL 5.1c 
 * @summary Create a new ArchivingDescription object. 
-* @description Like in other programming languages you create a new object with the new operator (refer to example below). 
+* @description Like in other programming languages you create a new object with the <code>new</code> operator (refer to example below). 
+* Since EE.i: ELC 3.51c / otrisPORTAL 5.1c 
 * Since EE.x: ELC 3.60a / otrisPORTAL 6a 
 * Since EAS: ELC 4 / otrisPORTAL 7
-* @since EE.i: ELC 3.51c / otrisPORTAL 5.1c 
 * @see [DocFile.archive]{@link DocFile#archive} 
 * @example
 * // Example for EE.i:
@@ -762,21 +881,42 @@
 * @memberof ArchivingDescription
 * @summary boolean value whether to archive the monitor of the file. 
 * @description Like on the filetype in the Portal Client you may decide whether you want to archive the monitor of the file along with the file. If so, the file's monitor will be transformed to a HTML file named monitor.html, and it will be part of the archived file in the desired target archive. 
+* Since EE.x: ELC 3.60a / otrisPORTAL 6a 
+* Since EAS: ELC 4 / otrisPORTAL 7
 * @member {boolean} archiveMonitor
 * @instance
+* @since EE.i: ELC 3.51c / otrisPORTAL 5.1c 
+* @example
+* var ad = new ArchivingDescription();
+* ad.archiveMonitor = true; // archive monitor of file as HTML page as well
 **/
 /**
 * @memberof ArchivingDescription
 * @summary String containing the name of the archive server in a multi archive server environment. 
+* @description You need to define the archive server if you want to archive in an archive server that is different from the main archives server. If you want to archive into the main archive you can leave this value empty.
+* 
+* Note: This value has only to be set if you habe multiple archive servers 
+* Since EE.x: ELC 4 / otrisPORTAL 7 
+* Since EAS: ELC 4 / otrisPORTAL 7
 * @member {string} archiveServer
 * @instance
+* @since EE.i: ELC 4 / otrisPORTAL 7 
+* @example
+* var ad = new ArchivingDescription();
+* ad.archiveServer = "myeei"";
 **/
 /**
 * @memberof ArchivingDescription
 * @summary boolean value whether to archive the status of the file. 
 * @description Like on the filetype in the Portal Client you may decide whether you want to archive the status of the file along with the file. If so, the file's status will be transformed to a HTML file named status.html, and it will be part of the archived file in the desired target archive. 
+* Since EE.x: ELC 3.60a / otrisPORTAL 6a 
+* Since EAS: ELC 4 / otrisPORTAL 7
 * @member {boolean} archiveStatus
 * @instance
+* @since EE.i: ELC 3.51c / otrisPORTAL 5.1c 
+* @example
+* var ad = new ArchivingDescription();
+* ad.archiveStatus = true; // archive status of file as HTML page as well
 **/
 /**
 * @memberof ArchivingDescription
@@ -785,6 +925,10 @@
 * Note: This value has only to be set if you want to archive to EE.i. If you want to archive to EE.x, you have to set targetView and targetSchema. It is important to know that the target archive String must use the socalled XML-Server syntax. It is as well neccessary to use a double backslash (\\) if you define your target archive as an PortalScript String value, because a single backslash is a special character. 
 * @member {string} targetArchive
 * @instance
+* @since EE.i: ELC 3.51c / otrisPORTAL 5.1c
+* @example
+* var ad = new ArchivingDescription();
+* ad.targetArchive = "$(#DEMO)\\BELEGE";  // archiving to "DEMO\BELEGE"
 **/
 /**
 * @memberof ArchivingDescription
@@ -793,6 +937,10 @@
 * Note: This value has only to be set if you want to archive to EE.x. 
 * @member {string} targetSchema
 * @instance
+* @since EE.x: ELC 3.60a / otrisPORTAL 6a
+* @example
+* var ad = new ArchivingDescription();
+* ad.targetView = "Unit=Default/Instance=Default/DocumentSchema=LIEFERSCHEINE";
 **/
 /**
 * @memberof ArchivingDescription
@@ -801,13 +949,23 @@
 * Note: This value has only to be set if you want to archive to EE.x. 
 * @member {string} targetView
 * @instance
+* @since EE.x: ELC 3.60a / otrisPORTAL 6a
+* @example
+* var ad = new ArchivingDescription();
+* ad.targetView = "Unit=Default/Instance=Default/View=DeliveryNotes";
 **/
 /**
 * @memberof ArchivingDescription
 * @summary boolean value whether to use the versioning technique in the archive. 
 * @description If the DocFile has already been archived and if you define this attribute to be true, a new version of the archive file will be created otherwise a independent new file in the archive will be created. 
+* Since EE.x: ELC 3.60a / otrisPORTAL 6a 
+* Since EAS: ELC 4 / otrisPORTAL 7
 * @member {boolean} versioning
 * @instance
+* @since EE.i: ELC 3.51c / otrisPORTAL 5.1c 
+* @example
+* var ad = new ArchivingDescription();
+* ad.versioning = true; // use versioning for archived file
 **/
 /**
 * @memberof ArchivingDescription
@@ -831,8 +989,272 @@
 /**
 * @namespace context
 * @summary The Context class is the basic anchor for the most important attributes and methods to customize DOCUMENTS through PortalScripting. 
-* @description There is exactly ONE implicit object of the class Context which is named context. The implicit object context is the root object in any script. With the context object you are able to access to the different DOCUMENTS objects like DocFile, Folder etc. Some of the attributes are only available under certain conditions. It depends on the execution context of the PortalScript, whether a certain attribute is accessible or not. For example, context.selectedFiles is available in a folder userdefined action script, but not in a script used as a signal exit. 
+* @description There is exactly ONE implicit object of the class <code>Context</code> which is named <code>context</code>. The implicit object <code>context</code> is the root object in any script. With the <code>context</code> object you are able to access to the different DOCUMENTS objects like DocFile, Folder etc. Some of the attributes are only available under certain conditions. It depends on the execution context of the PortalScript, whether a certain attribute is accessible or not. For example, <code>context.selectedFiles</code> is available in a folder userdefined action script, but not in a script used as a signal exit. 
 * Note: It is not possible to create objects of the class Context, since the context object is always available. 
+*/
+/**
+* @memberof context
+* @description 
+* <br> This constant is member of constant group: PEM Module Constants<br>
+* These constants build an enumeration of the possible values of the pem license. 
+
+* @instance 
+* @constant {number} PEM_MODULE_INVOICE
+
+* @see [context.hasPEMModule]{@link context#hasPEMModule} 
+
+*/
+/**
+* @memberof context
+* @description 
+* <br> This constant is member of constant group: PEM Module Constants<br>
+* These constants build an enumeration of the possible values of the pem license. 
+
+* @instance 
+* @constant {number} PEM_MODULE_FP_HENR
+
+* @see [context.hasPEMModule]{@link context#hasPEMModule} 
+
+*/
+/**
+* @memberof context
+* @description 
+* <br> This constant is member of constant group: PEM Module Constants<br>
+* These constants build an enumeration of the possible values of the pem license. 
+
+* @instance 
+* @constant {number} PEM_MODULE_LDAP
+
+* @see [context.hasPEMModule]{@link context#hasPEMModule} 
+
+*/
+/**
+* @memberof context
+* @description 
+* <br> This constant is member of constant group: PEM Module Constants<br>
+* These constants build an enumeration of the possible values of the pem license. 
+
+* @instance 
+* @constant {number} PEM_MODULE_CONTRACT
+
+* @see [context.hasPEMModule]{@link context#hasPEMModule} 
+
+*/
+/**
+* @memberof context
+* @description 
+* <br> This constant is member of constant group: PEM Module Constants<br>
+* These constants build an enumeration of the possible values of the pem license. 
+
+* @instance 
+* @constant {number} PEM_MODULE_OUTLOOK_WEB
+
+* @see [context.hasPEMModule]{@link context#hasPEMModule} 
+
+*/
+/**
+* @memberof context
+* @description 
+* <br> This constant is member of constant group: PEM Module Constants<br>
+* These constants build an enumeration of the possible values of the pem license. 
+
+* @instance 
+* @constant {number} PEM_MODULE_OUTLOOK_SYNC
+
+* @see [context.hasPEMModule]{@link context#hasPEMModule} 
+
+*/
+/**
+* @memberof context
+* @description 
+* <br> This constant is member of constant group: PEM Module Constants<br>
+* These constants build an enumeration of the possible values of the pem license. 
+
+* @instance 
+* @constant {number} PEM_MODULE_WORDML
+
+* @see [context.hasPEMModule]{@link context#hasPEMModule} 
+
+*/
+/**
+* @memberof context
+* @description 
+* <br> This constant is member of constant group: PEM Module Constants<br>
+* These constants build an enumeration of the possible values of the pem license. 
+
+* @instance 
+* @constant {number} PEM_MODULE_MOBILE
+
+* @see [context.hasPEMModule]{@link context#hasPEMModule} 
+
+*/
+/**
+* @memberof context
+* @description 
+* <br> This constant is member of constant group: PEM Module Constants<br>
+* These constants build an enumeration of the possible values of the pem license. 
+
+* @instance 
+* @constant {number} PEM_MODULE_BUSINESS_UNITS
+
+* @see [context.hasPEMModule]{@link context#hasPEMModule} 
+
+*/
+/**
+* @memberof context
+* @description 
+* <br> This constant is member of constant group: PEM Module Constants<br>
+* These constants build an enumeration of the possible values of the pem license. 
+
+* @instance 
+* @constant {number} PEM_MODULE_CONTROLLING
+
+* @see [context.hasPEMModule]{@link context#hasPEMModule} 
+
+*/
+/**
+* @memberof context
+* @description 
+* <br> This constant is member of constant group: PEM Module Constants<br>
+* These constants build an enumeration of the possible values of the pem license. 
+
+* @instance 
+* @constant {number} PEM_MODULE_REPORTING
+
+* @see [context.hasPEMModule]{@link context#hasPEMModule} 
+
+*/
+/**
+* @memberof context
+* @description 
+* <br> This constant is member of constant group: PEM Module Constants<br>
+* These constants build an enumeration of the possible values of the pem license. 
+
+* @instance 
+* @constant {number} PEM_MODULE_EASYHR
+
+* @see [context.hasPEMModule]{@link context#hasPEMModule} 
+
+*/
+/**
+* @memberof context
+* @description 
+* <br> This constant is member of constant group: PEM Module Constants<br>
+* These constants build an enumeration of the possible values of the pem license. 
+
+* @instance 
+* @constant {number} PEM_MODULE_CONTRACT_SAP
+
+* @see [context.hasPEMModule]{@link context#hasPEMModule} 
+
+*/
+/**
+* @memberof context
+* @description 
+* <br> This constant is member of constant group: PEM Module Constants<br>
+* These constants build an enumeration of the possible values of the pem license. 
+
+* @instance 
+* @constant {number} PEM_MODULE_GADGETS
+
+* @see [context.hasPEMModule]{@link context#hasPEMModule} 
+
+*/
+/**
+* @memberof context
+* @description 
+* <br> This constant is member of constant group: PEM Module Constants<br>
+* These constants build an enumeration of the possible values of the pem license. 
+
+* @instance 
+* @constant {number} PEM_MODULE_INBOX
+
+* @see [context.hasPEMModule]{@link context#hasPEMModule} 
+
+*/
+/**
+* @memberof context
+* @description 
+* <br> This constant is member of constant group: PEM Module Constants<br>
+* These constants build an enumeration of the possible values of the pem license. 
+
+* @instance 
+* @constant {number} PEM_MODULE_IMS
+
+* @see [context.hasPEMModule]{@link context#hasPEMModule} 
+
+*/
+/**
+* @memberof context
+* @description 
+* <br> This constant is member of constant group: PEM Module Constants<br>
+* These constants build an enumeration of the possible values of the pem license. 
+
+* @instance 
+* @constant {number} PEM_MODULE_CGC
+
+* @see [context.hasPEMModule]{@link context#hasPEMModule} 
+
+*/
+/**
+* @memberof context
+* @description 
+* <br> This constant is member of constant group: PEM Module Constants<br>
+* These constants build an enumeration of the possible values of the pem license. 
+
+* @instance 
+* @constant {number} PEM_MODULE_CGC_ENT
+
+* @see [context.hasPEMModule]{@link context#hasPEMModule} 
+
+*/
+/**
+* @memberof context
+* @description 
+* <br> This constant is member of constant group: PEM Module Constants<br>
+* These constants build an enumeration of the possible values of the pem license. 
+
+* @instance 
+* @constant {number} PEM_MODULE_CGC_ENT_PLUS
+
+* @see [context.hasPEMModule]{@link context#hasPEMModule} 
+
+*/
+/**
+* @memberof context
+* @description 
+* <br> This constant is member of constant group: PEM Module Constants<br>
+* These constants build an enumeration of the possible values of the pem license. 
+
+* @instance 
+* @constant {number} PEM_MODULE_CREATOR
+
+* @see [context.hasPEMModule]{@link context#hasPEMModule} 
+
+*/
+/**
+* @memberof context
+* @description 
+* <br> This constant is member of constant group: PEM Module Constants<br>
+* These constants build an enumeration of the possible values of the pem license. 
+
+* @instance 
+* @constant {number} PEM_MODULE_DOC_TREE
+
+* @see [context.hasPEMModule]{@link context#hasPEMModule} 
+
+*/
+/**
+* @memberof context
+* @description 
+* <br> This constant is member of constant group: PEM Module Constants<br>
+* These constants build an enumeration of the possible values of the pem license. 
+
+* @instance 
+* @constant {number} PEM_MODULE_RISK_MANAGEMENT
+
+* @see [context.hasPEMModule]{@link context#hasPEMModule} 
+
 */
 /**
 * @memberof context
@@ -841,6 +1263,9 @@
 * Note: This property is readonly.
 * @member {string} clientId
 * @instance
+* @since ELC 3.51e / otrisPORTAL 5.1e 
+* @example
+* util.out(context.clientId);
 **/
 /**
 * @memberof context
@@ -849,13 +1274,20 @@
 * Note: This property is readonly.
 * @member {string} currentUser
 * @instance
+* @since ELC 3.50 / otrisPORTAL 5.0 
+* @example
+* util.out(context.currentUser);
 **/
 /**
 * @memberof context
 * @summary Document object representing the current document that the script is executed at. 
-* @description Note: This property is readonly. If the script is not executed in a document context then the return value is null. 
+* @description 
+* Note: This property is readonly. If the script is not executed in a document context then the return value is null. 
 * @member {Document} document
 * @instance
+* @since ELC 3.50 / otrisPORTAL 5.0
+* @example
+* var doc = context.document;
 **/
 /**
 * @memberof context
@@ -864,6 +1296,10 @@
 * Note: You can get and set this property. 
 * @member {string} errorMessage
 * @instance
+* @since ELC 3.50 / otrisPORTAL 5.0
+* @example
+* context.errorMessage = "You are not authorized to run this script";
+* return -1; // neccessary to indicate an error
 **/
 /**
 * @memberof context
@@ -873,44 +1309,56 @@
 * 
 * The following events are available: 
 * <ul>
-* <li>"afterMail"</li>
-* <li>"afterSave"</li>
-* <li>"attributeSetter"</li>
-* <li>"autoText"</li>
-* <li>"condition"</li>
-* <li>"custom"</li>
-* <li>"fileAction"</li>
-* <li>"folderAction"</li>
-* <li>"moveTrash"</li>
-* <li>"newFile"</li>
-* <li>"onAutoLogin"</li>
-* <li>"onArchive"</li>
-* <li>"onDelete"</li>
-* <li>"onDeleteAll"</li>
-* <li>"onEdit"</li>
-* <li>"onLogin"</li>
-* <li>"onSave"</li>
-* <li>"test"</li>
-* <li>"workflow"</li>
+* <li><code>"afterMail"</code></li>
+* <li><code>"afterSave"</code></li>
+* <li><code>"attributeSetter"</code></li>
+* <li><code>"autoText"</code></li>
+* <li><code>"condition"</code></li>
+* <li><code>"custom"</code></li>
+* <li><code>"fileAction"</code></li>
+* <li><code>"folderAction"</code></li>
+* <li><code>"moveTrash"</code></li>
+* <li><code>"newFile"</code></li>
+* <li><code>"onAutoLogin"</code></li>
+* <li><code>"onArchive"</code></li>
+* <li><code>"onDelete"</code></li>
+* <li><code>"onDeleteAll"</code></li>
+* <li><code>"onEdit"</code></li>
+* <li><code>"onLogin"</code></li>
+* <li><code>"onSave"</code></li>
+* <li><code>"test"</code></li>
+* <li><code>"workflow"</code></li>
 * </ul>
 * 
 * Note: This property is readonly.
 * @member {string} event
 * @instance
+* @since ELC 3.50n / otrisPORTAL 5.0n 
+* @example
+* if (context.event == "fileAction")
+* {
+*     util.out("Action at the file");
+* }
 **/
 /**
 * @memberof context
-* @summary Returns at an enumeratopn script the name of the field where the script is executed for. 
-* @description Note: This property is readonly. 
+* @summary Returns at an enumeration script the name of the field where the script is executed for. 
+* @description 
+* Note: This property is readonly. 
 * @member {string} fieldName
 * @instance
+* @since DOCUMENTS 5.0c HF2 
 **/
 /**
 * @memberof context
 * @summary DocFile object representing the current file that the script is executed at. 
-* @description Note: This property is readonly. If the script is not executed in a file context then the return value is null. 
+* @description 
+* Note: This property is readonly. If the script is not executed in a file context then the return value is null. 
 * @member {DocFile} file
 * @instance
+* @since ELC 3.50 / otrisPORTAL 5.0
+* @example
+* var file = context.file;
 **/
 /**
 * @memberof context
@@ -919,6 +1367,10 @@
 * Note: This property is readonly. 
 * @member {string} fileType
 * @instance
+* @since ELC 3.50 / otrisPORTAL 5.0
+* @see [context.file]{@link context#file} 
+* @example
+* util.out(context.fileType);
 **/
 /**
 * @memberof context
@@ -928,6 +1380,9 @@
 * Note: This property is readonly. If there is no file inside the folder you will receive a valid empty FileResultset. 
 * @member {FileResultset} folderFiles
 * @instance
+* @since ELC 3.50 / otrisPORTAL 5.0
+* @example
+* var it = context.folderFiles;
 **/
 /**
 * @memberof context
@@ -936,13 +1391,20 @@
 * Note: This property is readonly. 
 * @member {string} folderName
 * @instance
+* @since ELC 3.50 / otrisPORTAL 5.0
+* @example
+* util.out(context.folderName);
 **/
 /**
 * @memberof context
 * @summary Register object representing the current register that the script is executed at. 
-* @description Note: This property is readonly. If the script is not executed in a register context then the return value is null. 
+* @description 
+* Note: This property is readonly. If the script is not executed in a register context then the return value is null. 
 * @member {Register} register
 * @instance
+* @since ELC 3.50 / otrisPORTAL 5.0
+* @example
+* var reg = context.register;
 **/
 /**
 * @memberof context
@@ -952,27 +1414,61 @@
 * 
 * The following types of return values are available: 
 * <ul>
-* <li>"html" - The return value contains html-content. </li>
-* <li>"stay" - The continues to display the current file (this is the default behaviour). </li>
-* <li>"showFile" - The return value contains the file-id and optional the register-id of a file to be displayed after the script has been executed. Syntax: file-id[&dlcRegisterId=register-id]. </li>
-* <li>"showFolder" - The return value contains the folder-id of a folder to be displayed. </li>
-* <li>"updateTree" - The return value contains the folder-id of a folder to be displayed. The folder tree will be updated as well. </li>
-* <li>"showNewFile" - The return value contains the file-id of a file to be displayed. This file will automatically open in edit mode and will be deleted at cancellation by the user. </li>
-* <li>"showEditFile" - The return value contains the file-id of a file to be displayed. This file will automatically open in edit mode. </li>
-* <li>"file:filename" - The web user will be asked to download the content of the return value (usually a String variable) to his client computer; The filename filename will be proposed as a default. </li>
-* <li>"download:filename" - The web user will be asked to download the blob, that is specified in the return value (server-sided path to the blob), to his client computer; The filename filename will be proposed as a default.</li>
+* <li><code>"html"</code> - The return value contains html-content. </li>
+* <li><code>"stay"</code> - The continues to display the current file (this is the default behaviour). </li>
+* <li><code>"showFile"</code> - The return value contains the file-id and optional the register-id of a file to be displayed after the script has been executed. Syntax: <code>file-id[&dlcRegisterId=register-id]</code>. </li>
+* <li><code>"showFolder"</code> - The return value contains the folder-id of a folder to be displayed. </li>
+* <li><code>"updateTree"</code> - The return value contains the folder-id of a folder to be displayed. The folder tree will be updated as well. </li>
+* <li><code>"showNewFile"</code> - The return value contains the file-id of a file to be displayed. This file will automatically open in edit mode and will be deleted at cancellation by the user. </li>
+* <li><code>"showEditFile"</code> - The return value contains the file-id of a file to be displayed. This file will automatically open in edit mode. </li>
+* <li><code>"file:filename"</code> - The web user will be asked to download the content of the return value (usually a String variable) to his client computer; The filename <code>filename</code> will be proposed as a default. </li>
+* <li><code>"download:filename"</code> - The web user will be asked to download the blob, that is specified in the return value (server-sided path to the blob), to his client computer; The filename <code>filename</code> will be proposed as a default.</li>
 * </ul>
 * 
 * Note: You may read from and write to this property. 
+* Since DOCUMENTS 4.0c showFile with return value of file-id and register-id
 * @member {string} returnType
 * @instance
+* @since ELC 3.50 / otrisPORTAL 5.0 resp. ELC 3.50c / otrisPORTAL 5.0c (showNewFile, updateTree, file) 
+* @example
+* // Example 1: showFile
+* context.returnType = "showFile";
+* var idFile = docFile.getAutoText("id");
+* return idFile;
+* @example
+* // Example 2: showFile with specific register
+* context.returnType = "showFile";
+* var idFile = docFile.getAutoText("id");
+* var idRegister = docFile.getRegisterByName("internal_documents").getAttribute("id");
+* return idFile + "&dlcRegisterId=" + idRegister;
+* @example
+* // Example 3:
+* var itFolders = context.getFoldersByName("Invoice");
+* var folder = itFolders.first();
+* if (folder == null)
+* {
+*    context.returnType = "html";
+*    return "<h1>Unable to find folder Invoice</h1>";
+* }
+* context.returnType = "showFolder";
+* return folder.id;
+* @example
+* // Example 4:
+* var csv = "row11;row12;row13\n";
+* csv += "row21;row22;row23";
+* context.returnType = "file:example.csv";
+* return csv;
 **/
 /**
 * @memberof context
 * @summary Name of the executed script. 
-* @description Note: This property is readonly.
+* @description 
+* Note: This property is readonly.
 * @member {string} scriptName
 * @instance
+* @since ELC 3.50 / otrisPORTAL 5.0 
+* @example
+* util.out(context.scriptName);
 **/
 /**
 * @memberof context
@@ -982,6 +1478,15 @@
 * Note: This property is readonly. If there is no file selected you will receive a valid empty ArchiveFileResultset. 
 * @member {ArchiveFileResultset} selectedArchiveFiles
 * @instance
+* @since ELC 3.60j / otrisPORTAL 6.0j
+* @example
+* var it = context.selectedArchiveFiles;
+* var archiveFile = it.first()
+* while (archiveFile)
+* {
+*    util.out(archiveFile.getAutoText("title"));
+*    archiveFile = it.next();
+* }
 **/
 /**
 * @memberof context
@@ -990,6 +1495,10 @@
 * Note: This property is readonly. If there is no archive file selected you will receive a valid empty array. 
 * @member {string[]} selectedArchiveKeys
 * @instance
+* @since ELC 3.60j / otrisPORTAL 6.0j
+* @example
+* var keys = context.selectedArchiveKeys;
+* util.out(keys.length)
 **/
 /**
 * @memberof context
@@ -998,6 +1507,9 @@
 * Note: This property is readonly. If there is no document inside the Register you will receive a valid empty DocumentIterator. 
 * @member {DocumentIterator} selectedDocuments
 * @instance
+* @since DOCUMENTS 4.0b HF1
+* @example
+* var it = context.selectedDocuments;
 **/
 /**
 * @memberof context
@@ -1007,6 +1519,9 @@
 * Note: This property is readonly. If there is no file selected you will receive a valid empty FileResultset. 
 * @member {FileResultset} selectedFiles
 * @instance
+* @since ELC 3.50 / otrisPORTAL 5.0
+* @example
+* var it = context.selectedFiles;
 **/
 /**
 * @memberof context
@@ -1015,40 +1530,63 @@
 * Note: This property is readonly.
 * @member {string} sourceCode
 * @instance
+* @since ELC 3.50b / otrisPORTAL 5.0b 
+* @example
+* util.out(context.sourceCode);
 **/
 /**
 * @memberof context
 * @summary Id of the locking WorkflowStep for the user for the current file. 
-* @description Note: This property is readonly.
+* @description 
+* Note: This property is readonly.
 * @member {string} workflowActionId
 * @instance
+* @since ELC 3.50 / otrisPORTAL 5.0 
+* @example
+* util.out(context.workflowActionId);
 **/
 /**
 * @memberof context
 * @summary Name of the locking WorkflowStep for the user for the current file. 
-* @description Note: This property is readonly.
+* @description 
+* Note: This property is readonly.
 * @member {string} workflowActionName
 * @instance
+* @since ELC 3.50 / otrisPORTAL 5.0 
+* @example
+* util.out(context.workflowActionName);
 **/
 /**
 * @memberof context
 * @summary Id of the ControlFlow the current file currently passes. 
-* @description Note: This property is readonly.
+* @description 
+* Note: This property is readonly.
 * @member {string} workflowControlFlowId
 * @instance
+* @since ELC 3.50 / otrisPORTAL 5.0 
+* @example
+* util.out(context.workflowControlFlowId);
 **/
 /**
 * @memberof context
 * @summary Name of the ControlFlow the current file currently passes. 
-* @description Note: This property is readonly.
+* @description 
+* Note: This property is readonly.
 * @member {string} workflowControlFlowName
 * @instance
+* @since ELC 3.50 / otrisPORTAL 5.0 
+* @example
+* util.out(context.workflowControlFlowName);
 **/
 /**
 * @memberof context
 * @summary Returns the current workflowstep if the script is run in context of a workflow. 
+* @description E.g. as guard or decision script.
+* 
+* Note: This property is readonly. 
 * @member {string} workflowStep
 * @instance
+* @since DOCUMENTS 5.0 
 **/
 /**
 * @memberof context
@@ -1060,8 +1598,8 @@
 * @param {string} value String value defining the value 
 * @returns {CustomProperty} CustomProperty
 * @since DOCUMENTS 5.0
-* @see [Context.setOrAddCustomProperty]{@link Context#setOrAddCustomProperty} 
-* @see [Context.getCustomProperties]{@link Context#getCustomProperties} 
+* @see [context.setOrAddCustomProperty]{@link context#setOrAddCustomProperty} 
+* @see [context.getCustomProperties]{@link context#getCustomProperties} 
 * @example
 * var custProp = context.addCustomProperty("favorites", "string", "peachit");
 * if (!custProp)
@@ -1072,14 +1610,21 @@
 * @function addTimeInterval
 * @instance
 * @summary Adds a time interval to a Date object. 
-* @description Since date manipulation in Javascript is odd sometimes, this useful function allows to conveniently add a given period of time to a given date, e.g. to calculate a due date based upon the current date plus xx days 
+* @description Since date manipulation in Javascript is odd sometimes, this useful function allows to conveniently add a given period of time to a given date, e.g. to calculate a due date based upon the current date plus <code>xx</code> days 
 * @param {Date} ts Date object to which the period of time should be added 
 * @param {number} amount integer value of the period of time to be added 
-* @param {string} [unit] String value representing the time unit of the period of time. You may use one of the following unit values: "minutes""hours""days""weeks"
-* @param {boolean} [useWorkCalendar] true if work calendar should be taken into account, false if not. The work calendar has to be defined at Documents->Settings 
+* @param {string} [unit] String value representing the time unit of the period of time. You may use one of the following unit values: 
+* <ul>
+* <li><code>"minutes"</code></li>
+* <li><code>"hours"</code></li>
+* <li><code>"days"</code></li>
+* <li><code>"weeks"</code></li>
+* </ul>
+* 
+* @param {boolean} [useWorkCalendar] <code>true</code> if work calendar should be taken into account, <code>false</code> if not. The work calendar has to be defined at Documents->Settings 
 * @returns {Date} Date object with the new date. 
 * @since ELC 3.50e / otrisPORTAL 5.0e
-* @see [Context.getDatesDiff]{@link Context#getDatesDiff} 
+* @see [context.getDatesDiff]{@link context#getDatesDiff} [util.convertDateToString]{@link util#convertDateToString} [util.convertStringToDate]{@link util#convertStringToDate} 
 * @example
 * var actDate = new Date();  // actDate contains now the current date
 * var newDate = context.addTimeInterval(actDate, 14, "days", false);
@@ -1092,7 +1637,7 @@
 * @summary Change the user context of the PortalScript. 
 * @description In some cases, especially if you make heavy use of access privileges both with files and file fields, it might be neccessary to run a script in a different user context than the user who triggered the script execution. For example, if the current user is not allowed to change any field values, a PortalScript running in this user's context will fail, if it tries to change a field value. In this case it is best practice to switch the user context to some superuser who is allowed to perform the restricted action before that restricted action is executed. You may change the script's user context as often as you need, a change only applies to the instructions following the changeScriptUser() call. 
 * @param {string} login String value containing the login name of the user to switch to 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since ELC 3.51b / otrisPORTAL 5.1b
 * @example
 * var currentUserLogin = context.currentUser;
@@ -1109,7 +1654,7 @@
 * @instance
 * @summary Clears the cached enumval at the specified PortalScript. 
 * @param {string} scriptName String with the name of the PortalScript 
-* @returns {boolean} true if successful, false in case of any error. 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error. 
 * @since DOCUMENTS 5.0c HF1
 * @example
 * var ret = context.clearEnumvalCache("lcmGetAllUser");
@@ -1126,7 +1671,7 @@
 * @param {string} [locale] 
 * @returns {string} 
 * @since DOCUMENTS 4.0c HF1
-* @see [Util.convertDateToString]{@link Util#convertDateToString} 
+* @see [util.convertDateToString]{@link util#convertDateToString} 
 * @example
 * var date1 = new Date(2014, 1, 14);
 * util.out(context.convertDateToString(date1, "de"));
@@ -1151,7 +1696,7 @@
 * @param {number} [precision] Precision as number (default=2) 
 * @returns {string} String representing the desired number 
 * @since ELC 3.60c / otrisPORTAL 6.0c
-* @see [Context.convertNumericToString]{@link Context#convertNumericToString} 
+* @see [context.convertNumericToString]{@link context#convertNumericToString} 
 * @example
 * var numVal = 1000 * Math.PI;
 * context.out(context.convertNumericToString(numVal, ",", ".", 2));
@@ -1168,7 +1713,7 @@
 * @param {number} [precision] 
 * @returns {string} String representing the desired number 
 * @since ELC 3.60c / otrisPORTAL 6.0c
-* @see [Context.convertNumericToString]{@link Context#convertNumericToString} 
+* @see [context.convertNumericToString]{@link context#convertNumericToString} 
 * @example
 * var numVal = 1000 * Math.PI;
 * context.out(context.convertNumericToString(numVal, "en", 2));
@@ -1180,14 +1725,14 @@
 * @instance
 * @summary Convert a String representing a date into a Date object. 
 * @description The output Date is in the date format of the specified locale. If you omit the locale parameter the current locale of the script context will be used. 
-* @param {string} dateOrTimeStamp String representing a date, e.g. "19.09.1974" 
-* @param {string} locale 
+* @param {string} dateOrTimeStamp String representing a date has to be formatted as the definition in the specified locale, e.g. "TT.MM.JJJJ" for the locale "de". 
+* @param {string} locale Optional String value with the locale abbreviation (according to the principal's configuration). 
 * @returns {Date} 
 * @since DOCUMENTS 5.0a HF2
-* @see [Util.convertStringToDate]{@link Util#convertStringToDate} 
+* @see [util.convertStringToDate]{@link util#convertStringToDate} 
 * @example
 * var dateString = "19.09.1974";
-* var birthDay = context.convertStringToDate(dateString, "en");
+* var birthDay = context.convertStringToDate(dateString, "de");
 **/
 /**
 * @memberof context
@@ -1200,7 +1745,7 @@
 * @param {string} thousandSep Thousend-Separator as String 
 * @returns {number} the numeric number (float) or NULL if fail 
 * @since ELC 3.60c / otrisPORTAL 6.0c
-* @see [Context.convertStringToNumeric]{@link Context#convertStringToNumeric} 
+* @see [context.convertStringToNumeric]{@link context#convertStringToNumeric} 
 * @example
 * var numString = "1.000,99";
 * var floatVal = context.convertStringToNumeric(numString, ",", ".");
@@ -1215,7 +1760,7 @@
 * @param {string} [locale] Locale as String 
 * @returns {number} the numeric number (float) or NULL if fail 
 * @since ELC 3.60c / otrisPORTAL 6.0c
-* @see [Context.convertStringToNumeric]{@link Context#convertStringToNumeric} 
+* @see [context.convertStringToNumeric]{@link context#convertStringToNumeric} 
 * @example
 * var numString = "1,000.99";
 * var floatVal = context.convertStringToNumeric(numString, "en");
@@ -1225,11 +1770,12 @@
 * @function countPoolFiles
 * @instance
 * @summary Retrieve the amount of pool files of the specified filetype in the system. 
-* @description Note: This function is only for experts. 
+* @description 
+* Note: This function is only for experts. 
 * @param {string} fileType the technical name of the desired filetype 
 * @returns {number} Integer amount of pool files 
 * @since ELC 3.50j / otrisPORTAL 5.0j
-* @see [Context.createPoolFile]{@link Context#createPoolFile} 
+* @see [context.createPoolFile]{@link context#createPoolFile} 
 * @example
 * var fileType = "Standard"; // filetype
 * var poolSize = context.countPoolFiles(fileType); // amount of pool files
@@ -1245,7 +1791,7 @@
 * @summary Create a new access profile in the DOCUMENTS environment. 
 * @description If the access profile already exist, the method returns an error. 
 * @param {string} profileName technical name of the access profile 
-* @returns {AccessProfile} AccessProfile object as a representation of the access profile in DOCUMENTS, null in case of any error 
+* @returns {AccessProfile} AccessProfile object as a representation of the access profile in DOCUMENTS, <code>null</code> in case of any error 
 * @since ELC 3.60i / otrisPORTAL 6.0i
 * @example
 * var office = context.createAccessProfile("office");
@@ -1259,16 +1805,16 @@
 * @summary Create a new ArchiveServer. 
 * @description This function creates a new ArchiveServer for the specified archive software on the top level. These types are available: 
 * <ul>
-* <li>EEI</li>
-* <li>EEX_native</li>
-* <li>EBIS_store</li>
-* <li>NOAH</li>
-* <li>None</li>
+* <li><code>EEI</code></li>
+* <li><code>EEX_native</code></li>
+* <li><code>EBIS_store</code></li>
+* <li><code>NOAH</code></li>
+* <li><code>None</code></li>
 * </ul>
 * 
 * @param {string} name The technical name of the ArchiveServer to be created. 
 * @param {string} type The desired archive software of the ArchiveServer. 
-* @returns {ArchiveServer} New created ArchiveServer object or null if failed. 
+* @returns {ArchiveServer} New created ArchiveServer object or <code>null</code> if failed. 
 * @since DOCUMENTS 5.0a
 * @example
 * var as = context.createArchiveServer("Invoice2016", "NOAH")   // EDA
@@ -1282,14 +1828,15 @@
 * @function createFellow
 * @instance
 * @summary Create a new fellow in the DOCUMENTS environment. 
-* @description Note: The license type "shared" is only available for pure archive retrieval users. It is not possible to create a shared user with DOCUMENTS access! 
+* @description 
+* Note: The license type "shared" is only available for pure archive retrieval users. It is not possible to create a shared user with DOCUMENTS access! 
 * Since DOCUMENTS 4.0d HF3 / DOCUMENTS 5.0 (new licenseType "concurrent_standard", "concurrent_open")
 * @param {string} loginName login of the fellow 
 * @param {boolean} isDlcUser automatically grant DOCUMENTS access (true/false) 
-* @param {string} [licenseType] optional definition of the license type for that user (allowed values are "named", "concurrent_standard", "concurrent_open" and "shared" (deprecated: "concurrent") 
-* @returns {SystemUser} SystemUser object as a representation of the newly created fellow; if the creation fails (e.g. due to a lack of appropriate licenses), the method returns null
+* @param {string} [licenseType] optional definition of the license type for that user (allowed values are <code>"named"</code>, <code>"concurrent_standard"</code>, <code>"concurrent_open"</code> and <code>"shared"</code> (deprecated: <code>"concurrent"</code>) 
+* @returns {SystemUser} SystemUser object as a representation of the newly created fellow; if the creation fails (e.g. due to a lack of appropriate licenses), the method returns <code>null</code>
 * @since ELC 3.60f / otrisPORTAL 6.0f 
-* @see [Context.deleteSystemUser]{@link Context#deleteSystemUser} 
+* @see [context.deleteSystemUser]{@link context#deleteSystemUser} 
 * @example
 * var schreiber = context.createFellow("schreiber", true, "named"); // this will create a named user with DOCUMENTS access
 **/
@@ -1300,11 +1847,11 @@
 * @summary Create a new file of the specified filetype. 
 * @description This function creates a new file of the given filetype. Since the script is executed in the context of a particular user, it is mandatory that user possesses sufficient access privileges to create new instances of the desired filetype, otherwise the method will fail. 
 * 
-* If an error occurs during creation of the file the return value will be null and you can access an error message describing the error with getLastError(). 
-* Remark:  DOCUMENTS 5.0c HF1 and newer:  The function directly creates a file for an EAS or EBIS store, if "@server" has been appended to the filetype's name and if appropriate permissions are granted. In this case the returned DocFile must be saved with DocFile.commit() instead of DocFile.sync(). 
+* If an error occurs during creation of the file the return value will be <code>null</code> and you can access an error message describing the error with getLastError(). 
+* Note:  DOCUMENTS 5.0c HF1 and newer:  The function directly creates a file for an EAS or EBIS store, if "@server" has been appended to the filetype's name and if appropriate permissions are granted. In this case the returned DocFile must be saved with DocFile.commit() instead of DocFile.sync(). 
 * Since DOCUMENTS 5.0c HF1 (support for EDA/EAS and EBIS stores)
 * @param {string} fileType Name of the filetype 
-* @returns {DocFile} New created file as DocFile object or null if failed. 
+* @returns {DocFile} New created file as DocFile object or <code>null</code> if failed. 
 * @since ELC 3.50 / otrisPORTAL 5.0 
 * @example
 * var newFile = context.createFile("Standard");
@@ -1320,14 +1867,14 @@
 * @summary Create a new folder of the specified type on the top level. 
 * @description This function creates a new folder of the specified type on the top level. There are three types available: 
 * <ul>
-* <li>public</li>
-* <li>dynamicpublic</li>
-* <li>onlysubfolder</li>
+* <li><code>public</code></li>
+* <li><code>dynamicpublic</code></li>
+* <li><code>onlysubfolder</code></li>
 * </ul>
 * 
 * @param {string} name The technical name of the folder to be created. 
 * @param {string} type The desired type of the folder. 
-* @returns {Folder} New created folder as Folder object or null if failed. 
+* @returns {Folder} New created folder as Folder object or <code>null</code> if failed. 
 * @since DOCUMENTS 4.0c
 * @example
 * var folder = context.createFolder("myFolder", "public")
@@ -1343,23 +1890,24 @@
 * @summary Create a new pool file of the specified filetype. 
 * @description The script must run in the context of a user who has sufficient access privileges to create new files of the specified filetype, otherwise this method will fail. 
 * @param {string} fileType the technical name of the desired filetype 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since ELC 3.50j / otrisPORTAL 5.0j 
-* @see [Context.countPoolFiles]{@link Context#countPoolFiles} 
+* @see [context.countPoolFiles]{@link context#countPoolFiles} 
 **/
 /**
 * @memberof context
 * @function createSystemUser
 * @instance
 * @summary Create a new user in the DOCUMENTS environment. 
-* @description Note: The license type "shared" is only available for pure archive retrieval users. It is not possible to create a shared user with DOCUMENTS access! 
+* @description 
+* Note: The license type "shared" is only available for pure archive retrieval users. It is not possible to create a shared user with DOCUMENTS access! 
 * Since DOCUMENTS 4.0d HF3 / DOCUMENTS 5.0 (new licenseType "concurrent_standard", "concurrent_open")
 * @param {string} loginName login of the user 
 * @param {boolean} isDlcUser automatically grant DOCUMENTS access (true/false) 
-* @param {string} [licenseType] optional definition of the license type for that user (allowed values are "named", "concurrent" and "shared") 
-* @returns {SystemUser} SystemUser object as a representation of the newly created user; if the creation fails (e.g. due to a lack of appropriate licenses), the method returns null
+* @param {string} [licenseType] optional definition of the license type for that user (allowed values are <code>"named"</code>, <code>"concurrent"</code> and <code>"shared"</code>) 
+* @returns {SystemUser} SystemUser object as a representation of the newly created user; if the creation fails (e.g. due to a lack of appropriate licenses), the method returns <code>null</code>
 * @since ELC 3.51e / otrisPORTAL 5.1e 
-* @see [Context.deleteSystemUser]{@link Context#deleteSystemUser} 
+* @see [context.deleteSystemUser]{@link context#deleteSystemUser} 
 * @example
 * var schreiber = context.createSystemUser("schreiber", true, "concurrent"); // this will create a concurrent user with DOCUMENTS access
 **/
@@ -1369,7 +1917,7 @@
 * @instance
 * @summary Delete a certain access profile in the DOCUMENTS environment. 
 * @param {string} profileName technical name of the access profile 
-* @returns {boolean} true in case of successful deletion, false in case of any error 
+* @returns {boolean} <code>true</code> in case of successful deletion, <code>false</code> in case of any error 
 * @since ELC 3.51b / otrisPORTAL 5.1b
 * @example
 * var profileName = "office"
@@ -1385,7 +1933,7 @@
 * @instance
 * @summary Delete a folder in DOCUMENTS. 
 * @param {Folder} folderObj an object of the Class Folder which represents the according folder in DOCUMENTS 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since ELC 3.50l01 / otrisPORTAL 5.0l01
 * @example
 * var itFD = context.getFoldersByName("Invoice");
@@ -1401,9 +1949,9 @@
 * @instance
 * @summary Delete a user in the DOCUMENTS environment. 
 * @param {string} loginName login of the user 
-* @returns {boolean} true if the deletion was successful, false in case of any error 
+* @returns {boolean} <code>true</code> if the deletion was successful, <code>false</code> in case of any error 
 * @since ELC 3.50e / otrisPORTAL 5.0e
-* @see [Context.createSystemUser]{@link Context#createSystemUser} 
+* @see [context.createSystemUser]{@link context#createSystemUser} 
 * @example
 * var login = "schreiber";
 * var success = context.deleteSystemUser(login);
@@ -1418,7 +1966,7 @@
 * @instance
 * @summary Calls the specified maintenance operation. 
 * @param {string} operationName String with the name of the maintenance operation 
-* @returns {string} String with the return message of the of the maintenance operation. 
+* @returns {string} <code>String</code> with the return message of the of the maintenance operation. 
 * @since DOCUMENTS 5.0c HF1
 * @example
 * var msg = context.doMaintenance("BuildAclCache lcmContract");
@@ -1432,7 +1980,7 @@
 * @description In the context of a work directory, an external command shell call is executed, usually a batch file. You can decide whether the scripting engine must wait for the external call to complete or whether the script execution continues asynchonously. If the script waits for the external call to complete, this method returns the errorcode of the external call as an integer value. 
 * @param {string} workDir String containing a complete directory path which should be used as the working directory 
 * @param {string} cmd String containing the full path and filename to the batch file which shall be executed 
-* @param {boolean} synced boolean value which defines whether the script must wait for the external call to finish (true) or not (false) 
+* @param {boolean} synced boolean value which defines whether the script must wait for the external call to finish (<code>true</code>) or not (<code>false</code>) 
 * @returns {boolean} integer value containing the errorcode (ERRORLEVEL) of the batch call 
 * @since ELC 3.51 / otrisPORTAL 5.1
 * @example
@@ -1462,7 +2010,7 @@
 * @instance
 * @summary Find a certain access profile in the DOCUMENTS environment. 
 * @param {string} profileName technical name of the access profile 
-* @returns {AccessProfile} AccessProfile object as a representation of the access profile in DOCUMENTS, null in case of any error 
+* @returns {AccessProfile} AccessProfile object as a representation of the access profile in DOCUMENTS, <code>null</code> in case of any error 
 * @since ELC 3.50b / otrisPORTAL 5.0b
 * @example
 * var office = context.findAccessProfile("office");
@@ -1475,7 +2023,7 @@
 * @param {string} filter Optional String value defining the search filter (specification see example) 
 * @returns {CustomPropertyIterator} CustomPropertyIterator
 * @since DOCUMENTS 5.0 
-* @see [Context.getCustomProperties]{@link Context#getCustomProperties} 
+* @see [context.getCustomProperties]{@link context#getCustomProperties} 
 * @see [AccessProfile.getCustomProperties]{@link AccessProfile#getCustomProperties} 
 * @see [SystemUser.getCustomProperties]{@link SystemUser#getCustomProperties} 
 * @example
@@ -1513,11 +2061,11 @@
 * @function findSystemUser
 * @instance
 * @summary Retrieve a user by his/her login. 
-* @description If the user does not exist, then the return value will be null. 
+* @description If the user does not exist, then the return value will be <code>null</code>. 
 * @param {string} login name of the user 
 * @returns {SystemUser} User as SystemUser object 
 * @since ELC 3.50b / otrisPORTAL 5.0b
-* @see [Context.findSystemUserByAlias]{@link Context#findSystemUserByAlias} [Context.getSystemUsers]{@link Context#getSystemUsers} 
+* @see [context.findSystemUserByAlias]{@link context#findSystemUserByAlias} [context.getSystemUser]{@link context#getSystemUser} [context.getSystemUsers]{@link context#getSystemUsers} [AccessProfile.getSystemUsers]{@link AccessProfile#getSystemUsers} 
 * @example
 * var myUser = context.findSystemUser("schreiber");
 **/
@@ -1526,11 +2074,11 @@
 * @function findSystemUserByAlias
 * @instance
 * @summary Retrieve a user by an alias name. 
-* @description If the alias does not exist or is not connected to a user then the return value will be null. 
+* @description If the alias does not exist or is not connected to a user then the return value will be <code>null</code>. 
 * @param {string} alias technical name of the desired alias 
 * @returns {SystemUser} User as SystemUser object 
 * @since ELC 3.51c / otrisPORTAL 5.1c
-* @see [Context.findSystemUser]{@link Context#findSystemUser} [Context.getSystemUsers]{@link Context#getSystemUsers} 
+* @see [context.findSystemUser]{@link context#findSystemUser} [context.getSystemUser]{@link context#getSystemUser} [context.getSystemUsers]{@link context#getSystemUsers} 
 * @example
 * var myUser = context.findSystemUserByAlias("CEO");
 **/
@@ -1539,7 +2087,8 @@
 * @function getAccessProfiles
 * @instance
 * @summary Get an iterator with all access profiles of in the DOCUMENTS environment. 
-* @description Note: This method can only return access profiles which are checkmarked as being visible in DOCUMENTS lists. 
+* @description 
+* Note: This method can only return access profiles which are checkmarked as being visible in DOCUMENTS lists. 
 * Since ELC 3.60e / otrisPORTAL 6.0e (new parameter includeInvisibleProfiles)
 * @param {boolean} [includeInvisibleProfiles] optional boolean value to define, if access profiles that are not checkmarked as being visible in DOCUMENTS lists should be included 
 * @returns {AccessProfileIterator} AccessProfileIterator object with all AccessProfile in DOCUMENTS 
@@ -1577,7 +2126,7 @@
 * @summary Get a file from the archive. 
 * @description With this method you can get a file from the archive using the archive key. You need the necessary access rights on the archive side. 
 * @param {string} key 
-* @returns {DocFile} DocFile or NULL, if failed 
+* @returns {DocFile} <code>DocFile</code> or <code>NULL</code>, if failed 
 * @since ELC 3.60e / otrisPORTAL 6.0e
 * @example
 * var key = "Unit=Default/Instance=Default/Pool=DEMO/Pool=PRESSE/Document=Waz.4E1D1F7E28C611DD9EE2000C29FACDC2@eex1";
@@ -1595,7 +2144,7 @@
 * @instance
 * @summary Get an ArchiveServer identified by its name. 
 * @param {string} name The technical name of the ArchiveServer. 
-* @returns {ArchiveServer} ArchiveServer object or null if failed. 
+* @returns {ArchiveServer} ArchiveServer object or <code>null</code> if failed. 
 * @since DOCUMENTS 5.0a
 * @example
 * var as = context.getArchiveServer("ebis1");
@@ -1635,7 +2184,7 @@
 * @description If you want to return output messages through scripting, taking into account that your users might use different portal languages, this function is useful to gain knowledge about the portal language used by the current user, who is part of the script's runtime context. This function returns the current language as the two letter abbreviation as defined in the principal's settings in the Windows Portal Client (e.g. "de" for German). 
 * @returns {string} String containing the abbreviation of the current user's portal language 
 * @since ELC 3.51 / otrisPORTAL 5.1
-* @see [Context.setClientLang]{@link Context#setClientLang} 
+* @see [context.setClientLang]{@link context#setClientLang} [context.getEnumErgValue]{@link context#getEnumErgValue} [context.getFieldErgName]{@link context#getFieldErgName} [context.getFileTypeErgName]{@link context#getFileTypeErgName} [context.getEnumValues]{@link context#getEnumValues} [context.getFromSystemTable]{@link context#getFromSystemTable} 
 * @example
 * util.out(context.getClientLang());
 **/
@@ -1646,7 +2195,7 @@
 * @summary Get the script's execution context portal language index. 
 * @returns {number} integer value of the index of the current system language 
 * @since ELC 3.51g / otrisPORTAL 5.1g
-* @see [Context.getEnumErgValue]{@link Context#getEnumErgValue} 
+* @see [context.getEnumErgValue]{@link context#getEnumErgValue} [context.getFieldErgName]{@link context#getFieldErgName} [context.getFileTypeErgName]{@link context#getFileTypeErgName} [context.getEnumValues]{@link context#getEnumValues} [context.getFromSystemTable]{@link context#getFromSystemTable} 
 * @example
 * util.out(context.getClientSystemLang());
 * var erg = context.setClientSystemLang(0); // first portal language
@@ -1657,12 +2206,22 @@
 * @instance
 * @summary Get the connection info of the client connection. 
 * @description You can analyze the connection info to identify e.g. a client thread of the HTML5 Web-Client 
-* HTML5-Client:CL[Windows7/Java1.7.0_76],POOL[SingleConnector],INF[SID[ua:docsclient,dca:2.0,docs_cv:5.0]]
-* Classic-Client:CL[Windows7/Java1.7.0_76],POOL[SingleConnector]
-* SOAP-Client:Documents-SOAP-Proxy(In-Server-Client-Library)onWin32
+* HTML5-Client:   CL[Windows 7/Java 1.7.0_76], POOL[SingleConnector], INF[SID[ua:docsclient, dca:2.0, docs_cv:5.0]]
+* Classic-Client: CL[Windows 7/Java 1.7.0_76], POOL[SingleConnector]
+* SOAP-Client:    Documents-SOAP-Proxy (In-Server-Client-Library) on Win32
+* 
 * 
 * @returns {string} 
-
+* @since DOCUMENTS 5.0
+* @example
+* function isHTML5Client()
+* {
+*     return context.getClientType().indexOf("docs_cv:5.0") > -1;
+* }
+* if (isHTML5Client())
+*    util.out("HTML5-Client");
+* else
+*    util.out("NO HTML5-Client");
 **/
 /**
 * @memberof context
@@ -1672,7 +2231,7 @@
 * @param {string} attributeName the technical name of the desired attribute 
 * @returns {string} String containing the value of the attribute 
 * @since ELC 3.50f / otrisPORTAL 5.0f
-* @see [Context.getPrincipalAttribute]{@link Context#getPrincipalAttribute} 
+* @see [context.getPrincipalAttribute]{@link context#getPrincipalAttribute} [context.setPrincipalAttribute]{@link context#setPrincipalAttribute} 
 * @example
 * util.out(context.getCurrentUserAttribute("particulars.lastName"));
 **/
@@ -1685,9 +2244,9 @@
 * @param {string} [typeFilter] String value defining an optional filter depending on the type 
 * @returns {CustomPropertyIterator} CustomPropertyIterator
 * @since DOCUMENTS 5.0
-* @see [Context.findCustomProperties]{@link Context#findCustomProperties} 
-* @see [Context.setOrAddCustomProperty]{@link Context#setOrAddCustomProperty} 
-* @see [Context.addCustomProperty]{@link Context#addCustomProperty} 
+* @see [context.findCustomProperties]{@link context#findCustomProperties} 
+* @see [context.setOrAddCustomProperty]{@link context#setOrAddCustomProperty} 
+* @see [context.addCustomProperty]{@link context#addCustomProperty} 
 * @example
 * var itProp = context.getCustomProperties();
 * for (var prop = itProp.first(); prop; prop = itProp.next())
@@ -1703,7 +2262,7 @@
 * @description This function calculates the time difference between two Date objects, for example if you need to know how many days a business trip takes. By default this function takes the work calendar into account if it is configured and enabled for the principal. 
 * @param {Date} earlierDate Date object representing the earlier date 
 * @param {Date} laterDate Date object representing the later date 
-* @param {string} [unit] optional String value defining the unit, allowed values are "minutes", "hours" and "days" (default) 
+* @param {string} [unit] optional String value defining the unit, allowed values are <code>"minutes"</code>, <code>"hours"</code> and <code>"days"</code> (default) 
 * @param {boolean} [useWorkCalendar] optional boolean to take office hours into account or not (requires enabled and configured work calendar) 
 * @returns {number} integer value representing the difference between the two dates 
 * @since ELC 3.51b / otrisPORTAL 5.1b
@@ -1743,7 +2302,7 @@
 * @param {string} locale optional String value with the locale abbreviation (according to the principal's configuration); if omitted, the current user's portal language is used automatically 
 * @returns {string} String containing the ergonomic value of the enumeration value in the appropriate portal language 
 * @since ELC 3.51 / otrisPORTAL 5.1
-* @see [Context.getEnumErgValue]{@link Context#getEnumErgValue} 
+* @see [context.getEnumErgValue]{@link context#getEnumErgValue} [context.getFieldErgName]{@link context#getFieldErgName} [context.getFileTypeErgName]{@link context#getFileTypeErgName} [context.getEnumValues]{@link context#getEnumValues} [context.getFromSystemTable]{@link context#getFromSystemTable} 
 * @example
 * util.out(context.getEnumErgValue("Standard", "Priority", "1", "de"));
 **/
@@ -1757,7 +2316,7 @@
 * @param {string} field String value containing the technical name of the desired enumeration field 
 * @returns {string} Array containing all possible values of the enumeration field 
 * @since ELC 3.51 / otrisPORTAL 5.1
-* @see [Context.getEnumErgValue]{@link Context#getEnumErgValue} 
+* @see [context.getEnumErgValue]{@link context#getEnumErgValue} [context.getFieldErgName]{@link context#getFieldErgName} [context.getFileTypeErgName]{@link context#getFileTypeErgName} [context.getEnumValues]{@link context#getEnumValues} [context.getFromSystemTable]{@link context#getFromSystemTable} 
 * @example
 * var valueList = context.getEnumValues("Standard", "Priority");
 * if (valueList.length > 0)
@@ -1779,7 +2338,7 @@
 * @param {string} locale optional String value with the locale abbreviation (according to the principal's configuration); if omitted, the current user's portal language is used automatically 
 * @returns {string} String containing the ergonomic description of the file field in the appropriate portal language 
 * @since ELC 3.51 / otrisPORTAL 5.1
-* @see [Context.getEnumErgValue]{@link Context#getEnumErgValue} 
+* @see [context.getEnumErgValue]{@link context#getEnumErgValue} [context.getFieldErgName]{@link context#getFieldErgName} [context.getFileTypeErgName]{@link context#getFileTypeErgName} [context.getEnumValues]{@link context#getEnumValues} [context.getFromSystemTable]{@link context#getFromSystemTable} 
 * @example
 * util.out(context.getFieldErgName("Standard", "Prioritaet", "de"));
 **/
@@ -1788,11 +2347,11 @@
 * @function getFileById
 * @instance
 * @summary Get the file by its unique file-id. 
-* @description If the file does not exist or the user in whose context the script is executed is not allowed to access the file, then the return value will be null. 
+* @description If the file does not exist or the user in whose context the script is executed is not allowed to access the file, then the return value will be <code>null</code>. 
 * @param {string} idFile Unique id of the file 
 * @returns {DocFile} File as DocFile object. 
 * @since ELC 3.51b / otrisPORTAL 5.1b
-* @see [Context.file]{@link Context#file} 
+* @see [context.file]{@link context#file} 
 * @example
 * var file = context.getFileById("toastupfi_20070000002081");
 * if (file)
@@ -1810,7 +2369,7 @@
 * @param {string} locale optional String value with the locale abbreviation (according to the principal's configuration); if omitted, the current user's portal language is used automatically 
 * @returns {string} String containing the ergonomic description of the filetype in the appropriate portal language 
 * @since ELC 3.51 / otrisPORTAL 5.1
-* @see [Context.getEnumErgValue]{@link Context#getEnumErgValue} 
+* @see [context.getEnumErgValue]{@link context#getEnumErgValue} [context.getFieldErgName]{@link context#getFieldErgName} [context.getFileTypeErgName]{@link context#getFileTypeErgName} [context.getEnumValues]{@link context#getEnumValues} [context.getFromSystemTable]{@link context#getFromSystemTable} 
 * @example
 * util.out(context.getFileTypeErgName("Standard", "de"));
 **/
@@ -1821,10 +2380,10 @@
 * @summary Returns the object-id of a filetype. 
 * @param {string} nameFiletype String value containing the technical name of the filetype.
 * @param {boolean} [oidLow] Optional flag: 
-* If true only the id of the filetype object (m_oid) will be returned. 
-* If false the id of the filetype object will be returned together with the id of the corresponding class in the form class-id:m_oid. 
-* The default value is false. 
-* @returns {string} String with the object-id or false if filetype does not exist 
+* If <code>true</code> only the id of the filetype object (<code>m_oid</code>) will be returned. 
+* If <code>false</code> the id of the filetype object will be returned together with the id of the corresponding class in the form <code>class-id:m_oid</code>. 
+* The default value is <code>false</code>. 
+* @returns {string} <code>String</code> with the object-id or <code>false</code> if filetype does not exist 
 * @since DOCUMENTS 5.0 
 **/
 /**
@@ -1836,7 +2395,7 @@
 * @param {Folder} folder Folder object whose position to be retrieved. 
 * @returns {number} internal position number of the folder as integer or -1 in case of any error. 
 * @since DOCUMENTS 5.0a
-* @see [Context.setFolderPosition]{@link Context#setFolderPosition} 
+* @see [context.setFolderPosition]{@link context#setFolderPosition} [Folder.getPosition]{@link Folder#getPosition} [Folder.setPosition]{@link Folder#setPosition} 
 * @example
 * var folder = context.getFoldersByName("MyPublicFolder").first();
 * var pos = context.getFolderPosition(folder);
@@ -1848,9 +2407,9 @@
 * @function getFoldersByName
 * @instance
 * @summary Retrieve a list of folders with identical name. 
-* @description Different folders might match an identical pattern, e.g. "DE_20*" for each folder like "DE_2004", "DE_2005" and so on. If you need to perform some action with the different folders or their contents, it might be useful to retrieve an iterator (a list) of all these folders to loop through that list. 
+* @description Different folders might match an identical pattern, e.g. <code>"DE_20*"</code> for each folder like <code>"DE_2004"</code>, <code>"DE_2005"</code> and so on. If you need to perform some action with the different folders or their contents, it might be useful to retrieve an iterator (a list) of all these folders to loop through that list. 
 * @param {string} folderPattern the name pattern of the desired folder(s) 
-* @param {string} type optional parameter, a String value defining the type of folders to look for; allowed values are "public", "dynamicpublic" and "onlysubfolder"
+* @param {string} type optional parameter, a String value defining the type of folders to look for; allowed values are <code>"public"</code>, <code>"dynamicpublic"</code> and <code>"onlysubfolder"</code>
 * @returns {FolderIterator} FolderIterator containing a list of all folders matching the specified name pattern 
 * @since ELC 3.50l01 / otrisPORTAL 5.0l01
 * @example
@@ -1865,7 +2424,7 @@
 * @param {string} identifier String value containing the technical identifer of a certain system message table entry 
 * @returns {string} String containing the value of the desired entry in the current user's portal language 
 * @since ELC 3.50o / otrisPORTAL 5.0o
-* @see [Context.getEnumErgValue]{@link Context#getEnumErgValue} 
+* @see [context.getEnumErgValue]{@link context#getEnumErgValue} [context.getFieldErgName]{@link context#getFieldErgName} [context.getFileTypeErgName]{@link context#getFileTypeErgName} [context.getEnumValues]{@link context#getEnumValues} [context.getFromSystemTable]{@link context#getFromSystemTable} 
 * @example
 * // requires an entry with that name in your system message table
 * util.out(context.getFromSystemTable("myOwnTableEntry"));
@@ -1891,7 +2450,8 @@
 * @function getLastError
 * @instance
 * @summary Function to get the description of the last error that occurred. 
-* @description Note: All classes have their own error functions. Only global errors are available through the context getLastError() method.
+* @description 
+* Note: All classes have their own error functions. Only global errors are available through the context getLastError() method.
 * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files 
 * @returns {string} Text of the last error as String 
 * @since ELC 3.50 / otrisPORTAL 5.0 
@@ -1906,7 +2466,7 @@
 * @summary Get the value/label of a String with the format "de:rot;en:red;fr:rouge" in the current or defined portal language. 
 * @param {string} value String with the complete value string 
 * @param {string} [locale] Optional String value with the locale abbreviation (according to the principal's configuration); if omitted, the current user's portal language is used automatically. 
-* @returns {string} String containing the valuein the appropriate portal language. 
+* @returns {string} <code>String</code> containing the valuein the appropriate portal language. 
 * @since DOCUMENTS 5.0c HF1
 * @example
 * var title = "de:Rechnung 001; en:Invoice 001"
@@ -1924,7 +2484,7 @@
 * @param {string} attributeName the technical name of the desired attribute 
 * @returns {string} String containing the value of the attribute 
 * @since ELC 3.50f / otrisPORTAL 5.0f
-* @see [Context.getCurrentUserAttribute]{@link Context#getCurrentUserAttribute} 
+* @see [context.getCurrentUserAttribute]{@link context#getCurrentUserAttribute} [context.setPrincipalAttribute]{@link context#setPrincipalAttribute} 
 * @example
 * util.out(context.getPrincipalAttribute("executive.eMail"));
 **/
@@ -1933,9 +2493,9 @@
 * @function getProgressBar
 * @instance
 * @summary Gets the current progress value in % of the progress bar in the Documents-Manager during the PortalScript execution. 
-* @returns {number} progress as float (value >= 0 and value <= 100) 
+* @returns {number} <code>progress</code> as float (value >= 0 and value <= 100) 
 * @since DOCUMENTS 5.0c
-* @see [Context.setProgressBarText]{@link Context#setProgressBarText} [Context.setProgressBar]{@link Context#setProgressBar} 
+* @see [context.setProgressBarText]{@link context#setProgressBarText} [context.setProgressBar]{@link context#setProgressBar} 
 * @example
 * context.setProgressBarText("Calculating...");
 * context.setProgressBar(0.0);  // set progress bar to 0.0%
@@ -1949,8 +2509,9 @@
 * @function getQueryParams
 * @instance
 * @summary Get the actual search parameters within an "OnSearch" or "FillSearchScript" exit. 
-* @description Remark: The return value is null, if the calling script is not running as an "OnSearch" or "FillSearchMask" handler. It can also be null, if the script has called changeScriptUser(). In order to access the search parameters, the script needs to restore the original user context. 
-* @returns {DocQueryParams} A DocQueryParams object on success, otherwise null. 
+* @description 
+* Note: The return value is null, if the calling script is not running as an "OnSearch" or "FillSearchMask" handler. It can also be null, if the script has called changeScriptUser(). In order to access the search parameters, the script needs to restore the original user context. 
+* @returns {DocQueryParams} A DocQueryParams object on success, otherwise <code>null</code>. 
 * @since DOCUMENTS 4.0c
 * @example
 * var queryParams = context.getQueryParams();
@@ -1965,7 +2526,7 @@
 * @param {string} locale optional String value with the locale abbreviation (according to the principal's configuration); if omitted, the current user's portal language is used automatically 
 * @returns {string} String containing the ergonomic description of the register in the appropriate portal language 
 * @since DOCUMENTS 4.0d HF1
-* @see [Context.getFieldErgName]{@link Context#getFieldErgName} 
+* @see [context.getFieldErgName]{@link context#getFieldErgName} [context.getFileTypeErgName]{@link context#getFileTypeErgName} 
 * @example
 * util.out(context.getRegisterErgName("Standard", "Reg1", "de"));
 **/
@@ -1987,7 +2548,7 @@
 * @summary Get the current user as a SystemUser object. 
 * @returns {SystemUser} SystemUser object representing the current user. 
 * @since ELC 3.51b / otrisPORTAL 5.1b
-* @see [Context.findSystemUser]{@link Context#findSystemUser} [Context.getSystemUsers]{@link Context#getSystemUsers} 
+* @see [context.findSystemUser]{@link context#findSystemUser} [context.findSystemUserByAlias]{@link context#findSystemUserByAlias} [context.getSystemUsers]{@link context#getSystemUsers} 
 * @example
 * var su = context.getSystemUser();
 * if (su)
@@ -1998,12 +2559,13 @@
 * @function getSystemUsers
 * @instance
 * @summary Get a list of all users created in the system. 
-* @description Note: The method can only return users which are checkmarked as being visible in DOCUMENTS lists. 
+* @description 
+* Note: The method can only return users which are checkmarked as being visible in DOCUMENTS lists. 
 * Since DOCUMENTS 4.0c new optional parameter includeLockedUsers
-* @param {boolean} [includeLockedUsers] optional defnition, if locked users also should be returned 
+* @param {boolean} [includeLockedUsers] optional definition, if locked users also should be returned 
 * @returns {SystemUserIterator} SystemUserIterator object containing a list of all (visible) users created in the system. 
 * @since ELC 3.50b / otrisPORTAL 5.0b 
-* @see [Context.findSystemUser]{@link Context#findSystemUser} 
+* @see [context.findSystemUser]{@link context#findSystemUser} [context.getSystemUser]{@link context#getSystemUser} [context.findSystemUserByAlias]{@link context#findSystemUserByAlias} 
 * @example
 * var itSU = context.getSystemUsers();
 * for (var su = itSU.first(); su; su = itSU.next())
@@ -2037,6 +2599,17 @@
 **/
 /**
 * @memberof context
+* @function hasPEMModule
+* @instance
+* @summary Function to check if a module is licenced in the pem. 
+* @param {number} moduleConst from PEM Module Constants. 
+* @returns {Boolean} <code>true</code> if licenced, otherwise \ false 
+* @since DOCUMENTS 5.0c HF2 
+* @example
+* util.out(context.hasPEMModule(context.PEM_MODULE_GADGETS));
+**/
+/**
+* @memberof context
 * @function sendTCPStringRequest
 * @instance
 * @summary Send a String as TCP-Request to a server. 
@@ -2061,9 +2634,9 @@
 * @summary Set the abbreviation of the current user's portal language. 
 * @description If you want to set the portal language different from the current users language, you can use this method. As parameter you have to use the two letter abbreviation as defined in the principal's settings in the Windows DOCUMENTS Manager (e.g. "de" for German). 
 * @param {string} locale String containing the two letter abbreviation for the locale 
-* @returns {string} true if successful, false in case of any error 
+* @returns {string} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since DOCUMENTS 4.0c
-* @see [Context.getClientLang]{@link Context#getClientLang} 
+* @see [context.getClientLang]{@link context#getClientLang} 
 * @example
 * context.setClientLang("en"));
 **/
@@ -2073,9 +2646,12 @@
 * @instance
 * @summary Set the script's execution context portal language to the desired language. 
 * @param {number} langIndex integer value of the index of the desired system language 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since ELC 3.51g / otrisPORTAL 5.1g 
 * @deprecated since DOCUMENTS 4.0c use setClientLang(String locale) instead
+* @example
+* util.out(context.getClientSystemLang());
+* var erg = context.setClientSystemLang(0); // first portal language
 **/
 /**
 * @memberof context
@@ -2085,9 +2661,9 @@
 * @description This method can be used to set the position of a top level folder (public, public dynamic or only subfolders folder with no parent) in the global context. 
 * @param {Folder} folder Folder object whose position to be set. 
 * @param {number} position new internal position number of folder. 
-* @returns {boolean} true if successful, false in case of any error. 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error. 
 * @since DOCUMENTS 5.0a
-* @see [Context.getFolderPosition]{@link Context#getFolderPosition} 
+* @see [context.getFolderPosition]{@link context#getFolderPosition} [Folder.getPosition]{@link Folder#getPosition} [Folder.setPosition]{@link Folder#setPosition} 
 * @example
 * // Create a folder B and place it before a folder A
 * var folderA = context.getFoldersByName("folderA").first();
@@ -2107,8 +2683,8 @@
 * @param {string} value String value defining the value 
 * @returns {CustomProperty} CustomProperty
 * @since DOCUMENTS 5.0
-* @see [Context.getCustomProperties]{@link Context#getCustomProperties} 
-* @see [Context.addCustomProperty]{@link Context#addCustomProperty} 
+* @see [context.getCustomProperties]{@link context#getCustomProperties} 
+* @see [context.addCustomProperty]{@link context#addCustomProperty} 
 * @example
 * var custProp = context.setOrAddCustomProperty("favorites", "string", "peachit");
 * if (!custProp)
@@ -2121,9 +2697,9 @@
 * @summary Set an attribute of the DOCUMENTS principal to the desired value. 
 * @param {string} attributeName the technical name of the desired attribute 
 * @param {string} value the value that should be assigned 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since ELC 3.51b / otrisPORTAL 5.1b
-* @see [Context.getCurrentUserAttribute]{@link Context#getCurrentUserAttribute} 
+* @see [context.getCurrentUserAttribute]{@link context#getCurrentUserAttribute} [context.getPrincipalAttribute]{@link context#getPrincipalAttribute} 
 * @example
 * context.setPrincipalAttribute("executive.eMail", "test@mail.de");
 * util.out(context.getPrincipalAttribute("executive.eMail"));
@@ -2136,7 +2712,7 @@
 * @param {number} value Float with in % of the execution (value >= 0 and value <= 100) 
 * @returns {void} 
 * @since DOCUMENTS 5.0c
-* @see [Context.setProgressBarText]{@link Context#setProgressBarText} 
+* @see [context.setProgressBarText]{@link context#setProgressBarText} [context.getProgressBar]{@link context#getProgressBar} 
 * @example
 * context.setProgressBarText("Calculating...");
 * context.setProgressBar(0.0);  // set progress bar to 0.0%
@@ -2153,7 +2729,7 @@
 * @param {string} text String with the text to displayed in the progress bar 
 * @returns {void} 
 * @since DOCUMENTS 5.0c
-* @see [Context.setProgressBar]{@link Context#setProgressBar} 
+* @see [context.setProgressBar]{@link context#setProgressBar} [context.getProgressBar]{@link context#getProgressBar} 
 * @example
 * context.setProgressBarText("Calculating...");
 * context.setProgressBar(0.0);  // set progress bar to 0.0%
@@ -2167,13 +2743,16 @@
 * @summary The ControlFlow class has been added to the DOCUMENTS PortalScripting API to gain full control over a file's workflow by scripting means. 
 * @description You may access ControlFlow objects of a certain WorkflowStep by the different methods described in the WorkflowStep chapter. The objects of this class reflect only outgoing control flows of a WorkflowStep object. 
 * Note: This class and all of its methods and attributes require a full workflow engine license, it does not work with pure submission lists. 
+* @since ELC 3.51e / otrisPORTAL 5.1e 
 */
 /**
 * @memberof ControlFlow
 * @summary String value containing the unique internal ID of the ControlFlow. 
-* @description Note: This property requires a full workflow engine license, it does not work with pure submission lists. The property is readonly. 
+* @description 
+* Note: This property requires a full workflow engine license, it does not work with pure submission lists. The property is readonly. 
 * @member {string} id
 * @instance
+* @since ELC 3.51e / otrisPORTAL 5.1e 
 **/
 /**
 * @memberof ControlFlow
@@ -2182,20 +2761,24 @@
 * Note: This property requires a full workflow engine license, it does not work with pure submission lists. The property is readonly. 
 * @member {string} label
 * @instance
+* @since ELC 3.51e / otrisPORTAL 5.1e 
 **/
 /**
 * @memberof ControlFlow
 * @summary String value containing the technical name of the ControlFlow. 
-* @description Note: This property requires a full workflow engine license, it does not work with pure submission lists. The property is readonly. 
+* @description 
+* Note: This property requires a full workflow engine license, it does not work with pure submission lists. The property is readonly. 
 * @member {string} name
 * @instance
+* @since ELC 3.51e / otrisPORTAL 5.1e 
 **/
 /**
 * @memberof ControlFlow
 * @function getAttribute
 * @instance
 * @summary Get the String value of an attribute of the ControlFlow. 
-* @description Note: This function requires a full workflow engine license, it does not work with pure submission lists. 
+* @description 
+* Note: This function requires a full workflow engine license, it does not work with pure submission lists. 
 * @param {string} attribute String containing the name of the desired attribute 
 * @returns {string} String containing the value of the desired attribute 
 * @since ELC 3.51e / otrisPORTAL 5.1e 
@@ -2205,7 +2788,8 @@
 * @function getLastError
 * @instance
 * @summary Function to get the description of the last error that occurred. 
-* @description Note: This function requires a full workflow engine license, it does not work with pure submission lists. 
+* @description 
+* Note: This function requires a full workflow engine license, it does not work with pure submission lists. 
 * @returns {string} Text of the last error as String 
 * @since ELC 3.51e / otrisPORTAL 5.1e 
 * @see [DocFile.getLastError]{@link DocFile#getLastError} 
@@ -2215,10 +2799,11 @@
 * @function setAttribute
 * @instance
 * @summary Set the String value of an attribute of the ControlFlow to the desired value. 
-* @description Note: This function requires a full workflow engine license, it does not work with pure submission lists. 
+* @description 
+* Note: This function requires a full workflow engine license, it does not work with pure submission lists. 
 * @param {string} attribute String containing the name of the desired attribute 
 * @param {string} value String containing the desired value of the attribute 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since ELC 3.51e / otrisPORTAL 5.1e 
 **/
 /**
@@ -2226,14 +2811,16 @@
 * @summary The ControlFlowIterator class has been added to the DOCUMENTS PortalScripting API to gain full control over a file's workflow by scripting means. 
 * @description You may access ControlFlowIterator objects of a certain WorkflowStep by the different methods described in the WorkflowStep chapter. The objects of this class reflect a list of outgoing control flows of a WorkflowStep object. 
 * Note: This class and all of its methods and attributes require a full workflow engine license, it does not work with pure submission lists. 
+* @since ELC 3.51e / otrisPORTAL 5.1e 
 */
 /**
 * @memberof ControlFlowIterator
 * @function first
 * @instance
 * @summary Retrieve the first ControlFlow object in the ControlFlowIterator. 
-* @description Note: This function requires a full workflow engine license, it does not work with pure submission lists. 
-* @returns {ControlFlow} ControlFlow or null in case of an empty ControlFlowIterator
+* @description 
+* Note: This function requires a full workflow engine license, it does not work with pure submission lists. 
+* @returns {ControlFlow} ControlFlow or <code>null</code> in case of an empty ControlFlowIterator
 * @since ELC 3.51e / otrisPORTAL 5.1e 
 **/
 /**
@@ -2241,8 +2828,9 @@
 * @function next
 * @instance
 * @summary Retrieve the next ControlFlow object in the ControlFlowIterator. 
-* @description Note: This function requires a full workflow engine license, it does not work with pure submission lists. 
-* @returns {ControlFlow} ControlFlow or null if end of ControlFlowIterator is reached. 
+* @description 
+* Note: This function requires a full workflow engine license, it does not work with pure submission lists. 
+* @returns {ControlFlow} ControlFlow or <code>null</code> if end of ControlFlowIterator is reached. 
 * @since ELC 3.51e / otrisPORTAL 5.1e 
 **/
 /**
@@ -2250,7 +2838,8 @@
 * @function size
 * @instance
 * @summary Get the amount of ControlFlow objects in the ControlFlowIterator. 
-* @description Note: This function requires a full workflow engine license, it does not work with pure submission lists. 
+* @description 
+* Note: This function requires a full workflow engine license, it does not work with pure submission lists. 
 * @returns {number} integer value with the amount of ControlFlow objects in the ControlFlowIterator
 * @since ELC 3.51e / otrisPORTAL 5.1e 
 **/
@@ -2265,6 +2854,41 @@
 * </ul>
 * 
 * In the DOCUMENTS-Manager you can find the CustomProperty on the relation-tab properties at the fellow and user account, access profiles and file types. The global custom properties are listed in Documents > Global properties. A global custom property must not belong to a SystemUser, an AccessProfile, a file type and another custom property. All custom properties are located in Documents > All properties. 
+* @description Since DOCUMENTS 5.0 available for AccessProfile and Context
+* @since DOCUMENTS 4.0a 
+* @see [SystemUser.getCustomProperties]{@link SystemUser#getCustomProperties} 
+* @see [SystemUser.setOrAddCustomProperty]{@link SystemUser#setOrAddCustomProperty} 
+* @see [SystemUser.addCustomProperty]{@link SystemUser#addCustomProperty} 
+* @example
+* var user = context.findSystemUser("schreiber");
+* if (!user)
+*    throw "invalid user";
+* 
+* // Creation of an unique (name, type) CustomProperty
+* var custProp = user.setOrAddCustomProperty("superior", "person", "oppen");
+* if (!custProp)
+*    throw "unable to create CustomProperty " + user.getLastError();
+* 
+* util.out("New CustomProperty: " + custProp.name);
+* custProp.deleteCustomProperty();
+* 
+* 
+* // Creation of multiple equal (name, type) CustomProperty
+* for (var i=0; i<5; i++)
+* {
+*    var custProp = user.addCustomProperty("favorites", "something", "value_" + i);
+* }
+* 
+* 
+* var name = "favorites";
+* var type = "";
+* 
+* var it = user.getCustomProperties(name, type);
+* for (var prop = it.first(); prop; prop = it.next())
+* {
+*     if (prop.type == "something")
+*        prop.deleteCustomProperty();
+* }
 */
 /**
 * @memberof CustomProperty
@@ -2311,7 +2935,7 @@
 * @function deleteCustomProperty
 * @instance
 * @summary Deletes the CustomProperty. 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since DOCUMENTS 4.0a 
 **/
 /**
@@ -2319,7 +2943,7 @@
 * @function getAttribute
 * @instance
 * @summary Get the String value of an attribute of the CustomProperty. 
-* @description Valid attribute names are name, type and value
+* @description Valid attribute names are <code>name</code>, <code>type</code> and <code>value</code>
 * @param {string} attribute String containing the name of the desired attribute 
 * @returns {string} String containing the value of the desired attribute 
 * @since DOCUMENTS 4.0a 
@@ -2364,19 +2988,27 @@
 * @instance
 * @summary Connects a custom property to an AccessProfile. 
 * @description An empty profile name disconnects the AccessProfile
+* 
 * @param {string} [nameAccessProfile] 
 * @returns {boolean} 
-
+* @since DOCUMENTS 5.0 
+* @see [CustomProperty.setSystemUser]{@link CustomProperty#setSystemUser} 
+* @see [CustomProperty.setFiletype]{@link CustomProperty#setFiletype} 
+* @example
+* if (!custProp.setAccessProfile("Service"))
+*    throw custProp.getLastError();
+* 
+* custProp.setAccessProfile("");  // disconnects AccessProfile
 **/
 /**
 * @memberof CustomProperty
 * @function setAttribute
 * @instance
 * @summary Set the String value of an attribute of the CustomProperty to the desired value. 
-* @description Valid attribute names are name, type and value
+* @description Valid attribute names are <code>name</code>, <code>type</code> and <code>value</code>
 * @param {string} attribute String containing the name of the desired attribute 
 * @param {string} value String containing the desired value of the attribute 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since DOCUMENTS 4.0a 
 **/
 /**
@@ -2384,9 +3016,18 @@
 * @function setFiletype
 * @instance
 * @summary Connects a custom property to a filetype. 
+* @description An empty filetype name disconnects the filetype
+* 
 * @param {string} [nameFiletype] 
 * @returns {boolean} 
-
+* @since DOCUMENTS 5.0 
+* @see [CustomProperty.setSystemUser]{@link CustomProperty#setSystemUser} 
+* @see [CustomProperty.setAccessProfile]{@link CustomProperty#setAccessProfile} 
+* @example
+* if (!custProp.setFiletype("ftInvoice"))
+*    throw custProp.getLastError();
+* 
+* custProp.setFiletype("");  // disconnects filetype
 **/
 /**
 * @memberof CustomProperty
@@ -2417,20 +3058,29 @@
 * @instance
 * @summary Connects a custom property to a SystemUser. 
 * @description An empty login disconnects the SystemUser
+* 
 * @param {string} [login] 
 * @returns {boolean} 
-
+* @since DOCUMENTS 5.0 
+* @see [CustomProperty.setFiletype]{@link CustomProperty#setFiletype} 
+* @see [CustomProperty.setAccessProfile]{@link CustomProperty#setAccessProfile} 
+* @example
+* if (!custProp.setSystemUser("schreiber"))
+*    throw custProp.getLastError();
+* 
+* custProp.setSystemUser("");  // disconnects SystemUser
 **/
 /**
 * @interface CustomPropertyIterator
 * @summary The CustomPropertyIterator class is an iterator that holds a list of objects of the class CustomProperty. 
+* @since DOCUMENTS 4.0a 
 */
 /**
 * @memberof CustomPropertyIterator
 * @function first
 * @instance
 * @summary Retrieve the first CustomProperty object in the CustomPropertyIterator. 
-* @returns {CustomProperty} CustomProperty or null in case of an empty CustomPropertyIterator
+* @returns {CustomProperty} CustomProperty or <code>null</code> in case of an empty CustomPropertyIterator
 * @since DOCUMENTS 4.0a 
 **/
 /**
@@ -2438,7 +3088,7 @@
 * @function next
 * @instance
 * @summary Retrieve the next CustomProperty object in the CustomPropertyIterator. 
-* @returns {CustomProperty} CustomProperty or NULL if end of CustomPropertyIterator is reached 
+* @returns {CustomProperty} CustomProperty or <code>NULL</code> if end of CustomPropertyIterator is reached 
 * @since DOCUMENTS 4.0a 
 **/
 /**
@@ -2454,14 +3104,44 @@
 * @classdesc The DBConnection class allows to connect to external databases. 
 * With the help of the DBResultSet class you can obtain information from these external databases, and it is possible to execute any other SQL statement on the external databases. 
 * Note: Important: Please consider the restrictions according the order of reading of the columns of the DBResultSet. Read the example! 
+* @since ELC 3.50 / otrisPORTAL 5.0 
+* @example
+* var myDB = null;
+* var myRS = null;
+* try {
+*    // create DB-Connection to ODBC-64 Datasource "Nordwind"
+*    myDB = new DBConnection("odbc", "Nordwind");
+*    if (myDB.getLastError() != null)
+*       throw "Error connection the database: " + myDB.getLastError();
+* 
+*    myRS = myDB.executeQuery("SELECT Nachname, Vorname FROM Personal");
+*    if (!myRS)
+*       throw "Error in SELECT statement: " + myDB.getLastError();
+* 
+*    // read all persons from the result set
+*    while (myRS.next()) {
+*       var fullName = myRS.getString(0) + ", " + myRS.getString(1);
+*       // var fullName = myRS.getString(1) + ", " + myRS.getString(0);  // Fails, because you must read the columns in the correct order!
+*       // var fullName = myRS.getString(0) + ", " + myRS.getString(0);  // Fails, because it is not allowed to read a value twice!
+*       util.out(fullName);
+*    }
+* } catch (err) {
+*    util.out(err);
+* } finally {
+*     // Important: free resources!
+*     if (myRS)
+*        myRS.close();
+*     if (myDB)
+*        myDB.close();
+* }
 * @summary The constructor is neccessary to connect to the external database. 
-* @description The resulting DBConnection object may only be used by one single DBResultSet at once, so if you need to open several DBResultSet objects at the same time, you need a separate DBConnection object for each of them. 
+* @description The resulting DBConnection object may only be used by <b>one</b> single DBResultSet at once, so if you need to open several DBResultSet objects at the same time, you need a separate DBConnection object for each of them. 
 * Note: At the usage of ODBC datasources it depends on the ODBC client driver, if the credentials for the connection has to be specified at the DSN configuration, or as parameter in the DBConnection constructor. If you have specified the credentials (user, password) at the DSN configuration (ODBC data source administrator), then leave the user and password away at the DBConnection constructor. 
-* @param {string} connType String defining the type of database connection. Allowed values are "odbc" and "oracle"
+* Since ELC 3.50 / otrisPORTAL 5.0 
+* @param {string} connType String defining the type of database connection. Allowed values are <code>"odbc"</code> and <code>"oracle"</code>
 * @param {string} connString String containing the complete connection String; for ODBC connections this is the datasource name (DSN) 
 * @param {string} user optional String containing the login name used to authenticate against the external database 
 * @param {string} password optional String containing the (plaintext) password of the user utilized to connect to the database 
-* @since ELC 3.50 / otrisPORTAL 5.0 
 * @see [DBResultSet]{@link DBResultSet} 
 */
 /**
@@ -2469,9 +3149,39 @@
 * @classdesc The DBConnection class allows to connect to external databases. 
 * With the help of the DBResultSet class you can obtain information from these external databases, and it is possible to execute any other SQL statement on the external databases. 
 * Note: Important: Please consider the restrictions according the order of reading of the columns of the DBResultSet. Read the example! 
+* @since ELC 3.50 / otrisPORTAL 5.0 
+* @example
+* var myDB = null;
+* var myRS = null;
+* try {
+*    // create DB-Connection to ODBC-64 Datasource "Nordwind"
+*    myDB = new DBConnection("odbc", "Nordwind");
+*    if (myDB.getLastError() != null)
+*       throw "Error connection the database: " + myDB.getLastError();
+* 
+*    myRS = myDB.executeQuery("SELECT Nachname, Vorname FROM Personal");
+*    if (!myRS)
+*       throw "Error in SELECT statement: " + myDB.getLastError();
+* 
+*    // read all persons from the result set
+*    while (myRS.next()) {
+*       var fullName = myRS.getString(0) + ", " + myRS.getString(1);
+*       // var fullName = myRS.getString(1) + ", " + myRS.getString(0);  // Fails, because you must read the columns in the correct order!
+*       // var fullName = myRS.getString(0) + ", " + myRS.getString(0);  // Fails, because it is not allowed to read a value twice!
+*       util.out(fullName);
+*    }
+* } catch (err) {
+*    util.out(err);
+* } finally {
+*     // Important: free resources!
+*     if (myRS)
+*        myRS.close();
+*     if (myDB)
+*        myDB.close();
+* }
 * @summary The constructor is neccessary to connect to the currently used DOCUMENTS 5 database. 
-* @description The resulting DBConnection object may only be used by one single DBResultSet at once, so if you need to open several DBResultSet objects at the same time, you need a separate DBConnection object for each of them. 
-* @since DOCUMENTS 4.0 
+* @description The resulting DBConnection object may only be used by <b>one</b> single DBResultSet at once, so if you need to open several DBResultSet objects at the same time, you need a separate DBConnection object for each of them. 
+* Since DOCUMENTS 4.0 
 * @see [DBResultSet]{@link DBResultSet} 
 */
 /**
@@ -2479,8 +3189,9 @@
 * @function close
 * @instance
 * @summary Close the database connection and free the server ressources. 
-* @description Note: It is strongly recommanded to close each DBConnection object you have created, since database connections are so-called expensive ressources and should be used carefully. 
-* @returns {boolean} true if successful, false in case of any error 
+* @description 
+* Note: It is strongly recommanded to close each DBConnection object you have created, since database connections are so-called expensive ressources and should be used carefully. 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since ELC 3.50 / otrisPORTAL 5.0 
 * @see [DBResultSet.close]{@link DBResultSet#close} 
 **/
@@ -2489,7 +3200,8 @@
 * @function executeQuery
 * @instance
 * @summary Execute a SELECT statement and retrieve a DBResultSet containing the result rows found by the statement. 
-* @description Note: This instruction should only be used to SELECT on the external database, since the method always tries to create a DBResultSet. If you need to execute different SQL statements, refer to the DBConnection.executeStatement() method. 
+* @description 
+* Note: This instruction should only be used to SELECT on the external database, since the method always tries to create a DBResultSet. If you need to execute different SQL statements, refer to the DBConnection.executeStatement() method. 
 * Note: x64/UTF-8 DOCUMENTS version: since DOCUMENTS 4.0a HF2 the method handles the statement as UTF-8-String 
 * @param {string} sqlStatement String containing the SELECT statement you want to execute in the database 
 * @returns {DBResultSet} DBResultSet containing the result rows generated by the SELECT instruction 
@@ -2501,7 +3213,8 @@
 * @function executeQueryUC
 * @instance
 * @summary Execute a SELECT statement using a x64/UTF-8 DOCUMENTS and retrieve a DBResultSet containing the result rows found by the statement. 
-* @description Note: This instruction should only be used to SELECT on the external database, since the method always tries to create a DBResultSet. If you need to execute different SQL statements, refer to the DBConnection.executeStatement() method. 
+* @description 
+* Note: This instruction should only be used to SELECT on the external database, since the method always tries to create a DBResultSet. If you need to execute different SQL statements, refer to the DBConnection.executeStatement() method. 
 * @param {string} sqlStatement String containing the SELECT statement you want to execute in the database 
 * @returns {DBResultSet} DBResultSet containing the result rows generated by the SELECT instruction 
 * @since DOCUMENTS 4.0 
@@ -2516,7 +3229,7 @@
 * @description You can execute any SQL statement, as long as the database driver used for the connection supports the type of instruction. Use this method especially if you want to INSERT or UPDATE or DELETE data rows in tables of the external database. If you need to SELECT table rows, refer to the DBConnection.executeQuery() method. 
 * Note: x64/UTF-8 DOCUMENTS version: since DOCUMENTS 4.0a HF2 the method handles the statement as UTF-8-String 
 * @param {string} sqlStatement 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since ELC 3.50 / otrisPORTAL 5.0 
 * @see [DBConnection.executeQuery]{@link DBConnection#executeQuery} 
 **/
@@ -2527,7 +3240,7 @@
 * @summary Execute any SQL statement using a x64/UTF-8 DOCUMENTS on the external database. 
 * @description You can execute any SQL statement, as long as the database driver used for the connection supports the type of instruction. Use this method especially if you want to INSERT or UPDATE or DELETE data rows in tables of the external database. If you need to SELECT table rows, refer to the DBConnection.executeQueryUC() method. 
 * @param {string} sqlStatement 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since DOCUMENTS 4.0 
 * @see [DBConnection.executeQueryUC]{@link DBConnection#executeQueryUC} 
 * @deprecated since DOCUMENTS 4.0a HF2 use DBConnection.executeStatement() instead 
@@ -2548,7 +3261,7 @@
 * Note: Important: Please consider the restrictions according the order of reading of the columns of the DBResultSet. Read the example!
 * The following data types for database columns will be supported: 
 * <table border=1 cellspacing=0>
-* <tr><td>SQL data type</td><td>access method</td></tr>
+* <tr><td><b>SQL data type</b></td><td><b>access method</b></td></tr>
 * <tr><td>SQL_INTEGER</td><td>getInt(), getString()</td></tr>
 * <tr><td>SQL_SMALLINT</td><td>getInt(), getString()</td></tr>
 * <tr><td>SQL_BIGINT</td><td>getInt(), getString()</td></tr>
@@ -2564,14 +3277,45 @@
 * <tr><td>all other types</td><td>getString()</td></tr>
 * </table>
 * 
+* @description Since DOCUMENTS 5.0c HF1 (support for SQL_GUID) 
+* @since ELC 3.50 / otrisPORTAL 5.0 
+* @see [DBConnection]{@link DBConnection} 
+* @example
+* // create DB-Connection to ODBC-64 Datasource "Nordwind"
+* var myDB = new DBConnection("odbc", "Nordwind");
+* if (myDB && myDB.getLastError() == null)
+* {
+*    var myRS = myDB.executeQuery("SELECT Nachname, Vorname FROM Personal");
+*    if (myRS)
+*    {
+*       // read all persons from the result set
+*       while (myRS.next())
+*       {
+*          var fullName = myRS.getString(0) + ", " + myRS.getString(1);
+*          // var fullName = myRS.getString(1) + ", " + myRS.getString(0);  // Fails, because you must read the columns in the correct order!
+*          // var fullName = myRS.getString(0) + ", " + myRS.getString(0);  // Fails, because it is not allowed to read a value twice!
+*          util.out(fullName);
+*       }
+*      // Important: free resource!
+*      myRS.close()
+*    }
+*    else
+*       util.out("Error in SELECT statement: " + myDB.getLastError());
+* 
+*    // Important: free resource!
+*    myDB.close();
+* }
+* else
+*    util.out("Error connection the database: " + myDB.getLastError())
 */
 /**
 * @memberof DBResultSet
 * @function close
 * @instance
 * @summary Close the DBResultSet and free the server ressources. 
-* @description Note: It is strongly recommanded to close each DBResultSet object you have created, since database connections and resultsets are so-called expensive ressources and should be used carefully. 
-* @returns {boolean} true if successful, false in case of any error 
+* @description 
+* Note: It is strongly recommanded to close each DBResultSet object you have created, since database connections and resultsets are so-called expensive ressources and should be used carefully. 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since ELC 3.50 / otrisPORTAL 5.0 
 * @see [DBConnection.close]{@link DBConnection#close} 
 **/
@@ -2598,10 +3342,11 @@
 * @function getDate
 * @instance
 * @summary Read the indicated column of the current row of the DBResultSet as a Date object. 
-* @description Note: The return value will be null if the content of the indicated column cannot be converted to a Date object. 
+* @description 
+* Note: The return value will be null if the content of the indicated column cannot be converted to a Date object. 
 * Note: every value of a DBResultSet can only be read one time and in the correct order! 
 * @param {number} colNo integer value (zero based) indicating the desired column of the current row of the DBResultSet
-* @returns {Date} Date object representing the indicated column of the current row or NULL if is null-value 
+* @returns {Date} Date object representing the indicated column of the current row or <code>NULL</code> if is null-value 
 * @since ELC 3.50 / otrisPORTAL 5.0 
 **/
 /**
@@ -2609,10 +3354,11 @@
 * @function getFloat
 * @instance
 * @summary Read the indicated column of the current row of the DBResultSet as a float value. 
-* @description Note: The return value will be NaN if the content of the indicated column cannot be converted to a float value. 
+* @description 
+* Note: The return value will be NaN if the content of the indicated column cannot be converted to a float value. 
 * Note: every value of a DBResultSet can only be read one time and in the correct order! 
 * @param {number} colNo integer value (zero based) indicating the desired column of the current row of the DBResultSet
-* @returns {number} float value representing the indicated column of the current row or NULL if is null-value 
+* @returns {number} float value representing the indicated column of the current row or <code>NULL</code> if is null-value 
 * @since ELC 3.50 / otrisPORTAL 5.0 
 **/
 /**
@@ -2620,10 +3366,11 @@
 * @function getInt
 * @instance
 * @summary Read the indicated column of the current row of the DBResultSet as an integer value. 
-* @description Note: The return value will be NaN if the content of the indicated column cannot be converted to an integer value. 
+* @description 
+* Note: The return value will be NaN if the content of the indicated column cannot be converted to an integer value. 
 * Note: every value of a DBResultSet can only be read one time and in the correct order! 
 * @param {number} colNo integer value (zero based) indicating the desired column of the current row of the DBResultSet
-* @returns {number} integer value representing the indicated column of the current row or NULL if is null-value 
+* @returns {number} integer value representing the indicated column of the current row or <code>NULL</code> if is null-value 
 * @since ELC 3.50 / otrisPORTAL 5.0 
 **/
 /**
@@ -2648,10 +3395,11 @@
 * @function getString
 * @instance
 * @summary Read the indicated column of the current row of the DBResultSet as a String. 
-* @description Note: x64/UTF-8 DOCUMENTS version: since DOCUMENTS 4.0a HF2 the method transcode the fetched data to UTF-8 
+* @description 
+* Note: x64/UTF-8 DOCUMENTS version: since DOCUMENTS 4.0a HF2 the method transcode the fetched data to UTF-8 
 * Note: every value of a DBResultSet can only be read one time and in the correct order! 
 * @param {number} colNo integer value (zero based) indicating the desired column of the current row of the DBResultSet
-* @returns {string} String representing the indicated column of the current row or NULL if is null-value 
+* @returns {string} String representing the indicated column of the current row or <code>NULL</code> if is null-value 
 * @since ELC 3.50 / otrisPORTAL 5.0 
 **/
 /**
@@ -2659,10 +3407,11 @@
 * @function getTimestamp
 * @instance
 * @summary Read the indicated column of the current row of the DBResultSet as a Date object including the time. 
-* @description Note: The return value will be null if the content of the indicated column cannot be converted to a Date object. 
+* @description 
+* Note: The return value will be null if the content of the indicated column cannot be converted to a Date object. 
 * Note: every value of a DBResultSet can only be read one time and in the correct order! 
 * @param {number} colNo integer value (zero based) indicating the desired column of the current row of the DBResultSet
-* @returns {Date} Date object (including time) representing the indicated column of the current row or NULL if is null-value 
+* @returns {Date} Date object (including time) representing the indicated column of the current row or <code>NULL</code> if is null-value 
 * @since ELC 3.50 / otrisPORTAL 5.0 
 **/
 /**
@@ -2670,9 +3419,10 @@
 * @function getUCString
 * @instance
 * @summary Read the indicated column of the current row of the DBResultSet on a x64/UTF-8 DOCUMENTS as a String. 
-* @description Note: every value of a DBResultSet can only be read one time and in the correct order! 
+* @description 
+* Note: every value of a DBResultSet can only be read one time and in the correct order! 
 * @param {number} colNo integer value (zero based) indicating the desired column of the current row of the DBResultSet
-* @returns {string} String representing the indicated column of the current row or NULL if is null-value 
+* @returns {string} String representing the indicated column of the current row or <code>NULL</code> if is null-value 
 * @since DOCUMENTS 4.0 
 * @deprecated since DOCUMENTS 4.0a HF2 use DBResultSet.getString() instead 
 **/
@@ -2683,13 +3433,13 @@
 * @summary Move the resultset pointer to the next row of the DBResultSet. 
 * @description The method must be called at least once after retrieving a DBResultSet, because the newly created object does not point to the first result row but to BOF (beginning of file). 
 * Note: every value of a DBResultSet can only be read one time and in the correct order! 
-* @returns {boolean} true if the DBResultSet now points to the next row, false if there is no further result row 
+* @returns {boolean} <code>true</code> if the DBResultSet now points to the next row, <code>false</code> if there is no further result row 
 * @since ELC 3.50 / otrisPORTAL 5.0 
 **/
 /**
 * @interface DocFile
 * @summary The DocFile class implements the file object of DOCUMENTS. 
-* @description You may access a single DocFile with the help of the attribute context.file or by creating a FileResultset. There are no special properties available, but each field of a file is mapped to an according property. You can access the different field values with their technical names.
+* @description You may access a single DocFile with the help of the attribute <code>context.file</code> or by creating a FileResultset. There are no special properties available, but each field of a file is mapped to an according property. You can access the different field values with their technical names.
 * 
 * For this reason it is mandatory to use programming language friendly technical names, meaning 
 * <ul>
@@ -2699,6 +3449,11 @@
 * <li>only the first 32 characters of the technical name are significant to identify the field.</li>
 * </ul>
 * 
+* @example
+* var myFile = context.file;
+* var priority = myFile.Priority; // read a field value
+* myFile.Remark = "Just a remark"; // assign a value to a field
+* myFile.sync(); // apply changes in field values to the file
 */
 /**
 * @memberof DocFile
@@ -2706,6 +3461,12 @@
 * @description Each field of a DocFile is mapped to an according property. You can access the field value with the technical name. 
 * @member {any} fieldName
 * @instance
+* @since ELC 3.50 / otrisPORTAL 5.0
+* @example
+* var myFile = context.file;
+* var strValue = myFile.stringField;
+* myFile.dateField = new Date();
+* myFile.sync();
 **/
 /**
 * @memberof DocFile
@@ -2713,9 +3474,10 @@
 * @instance
 * @summary Cancel edit mode for a file. 
 * @description If you switched a file to edit mode with the startEdit() method and if you want to cancel this (e.g. due to some error that has occurred in the mean time) this function should be used to destroy the scratch copy which has been created by the startEdit() instruction. 
-* @returns {boolean} true if successful, false in case of any error 
+* Internal: since ELC 3.60e available for archive files 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since ELC 3.50 / otrisPORTAL 5.0
-* @see [DocFile.startEdit]{@link DocFile#startEdit} 
+* @see [DocFile.startEdit]{@link DocFile#startEdit} [DocFile.commit]{@link DocFile#commit} 
 * @example
 * var myFile = context.file;
 * myFile.startEdit();
@@ -2735,7 +3497,7 @@
 * @param {boolean} [deleteDocumentAtFileSystem] optional boolean value to decide whether to delete the source file on the server's filesystem 
 * @param {boolean} [parseAutoText] optional boolean value to decide whether to parse the AutoText values inside the source file. Note: if you want to make use of AutoTexts in this kind of template files, you need to use double percentage signs instead of single ones, e.g. %%Field1%% instead of %Field1%! 
 * @param {DocFile} [referencFileToParse] optional DocFile object to be used to parse the AutoTexts inside the template. If you omit this parameter, the current DocFile object is used as the data source. 
-* @returns {Document} Document if successful, null in case of any error 
+* @returns {Document} <code>Document</code> if successful, <code>null</code> in case of any error 
 * @since ELC 3.51f / otrisPORTAL 5.1f 
 * @example
 * var f = context.file;
@@ -2753,7 +3515,7 @@
 * @param {string} pdfFileName String value for the desired file name of the created PDF 
 * @param {string} targetRegister String value containing the technical name of the target document register 
 * @param {any[]} sourceRegisterNames Array with the technical names of the document registers you want to include 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since ELC 3.50a / otrisPORTAL 5.0a 
 * @example
 * var source = new Array();
@@ -2777,7 +3539,7 @@
 * @instance
 * @summary Archive the DocFile object. 
 * @description The target archive has to be configured in the filetype definition (in the Windows Portal Client) as the default archive. If no default archive is defined, the execution of this operation will fail. 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since ELC 3.50 / otrisPORTAL 5.0
 * @example
 * var myFile = context.file;
@@ -2793,7 +3555,7 @@
 * Since EE.x: ELC 3.60a / otrisPORTAL 6.0a 
 * Since EAS: Documents 4.0
 * @param {string} archiveKey String value containing the complete archive key for EE.i or schema|view for EE.x of the desired target archive 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since EE.i: ELC 3.51c / otrisPORTAL 5.1c 
 * @example
 * // Example for EE.i:
@@ -2823,7 +3585,7 @@
 * Since EE.x: ELC 3.60a / otrisPORTAL 6.0a 
 * Since EAS: Documents 4.0
 * @param {ArchivingDescription} desc ArchivingDescription object that configures several archiving options 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since EE.i: ELC 3.51c / otrisPORTAL 5.1c 
 * @see [ArchivingDescription]{@link ArchivingDescription} 
 * @example
@@ -2879,7 +3641,7 @@
 * @summary Archive the DocFile object and remove the DOCUMENTS file. 
 * @description The target archive has to be configured in the filetype definition (in the Windows Portal Client) as the default archive. It depends on the filetype settings as well, whether Status and Monitor will be archived as well. If no default archive is defined, the execution of this operation will fail. 
 * Note: It is strictly forbidden to access the DocFile object after this function has been executed successfully; if you try to access it, your script will fail, because the DocFile does not exist any longer in DOCUMENTS. For the same reason it is strictly forbidden to execute this function in a signal exit PortalScript. 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since ELC 3.50 / otrisPORTAL 5.0
 * @example
 * var myFile = context.file;
@@ -2890,7 +3652,7 @@
 * @function cancelWorkflow
 * @instance
 * @summary Cancel the current workflow for the file. 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since ELC 3.51e / otrisPORTAL 5.1e
 * @example
 * var f = context.file;
@@ -2902,7 +3664,7 @@
 * @instance
 * @summary Change the filetype of this file. 
 * @param {string} nameFiletype String containing the technical name of the filetype. 
-* @returns {boolean} true if successful, false in case of any error. 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error. 
 * @since DOCUMENTS 4.0e
 * @example
 * var file = context.file;
@@ -2915,7 +3677,7 @@
 * @instance
 * @summary Checks the receive signals of the workflow for the DocFile object. 
 * @description This method can only be used for a DocFile, that runs in a workflow and the workflow has receive signals. Usually the receive signals of the workflow step will be checked by a periodic job. Use this method to trigger the check of the receive signals for the DocFile. 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since DOCUMENTS 4.0a
 * @example
 * var myFile = context.file;
@@ -2929,7 +3691,7 @@
 * @instance
 * @summary Clear a followup date for a desired user. 
 * @param {SystemUser} pUser SystemUser object of the desired user 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since ELC 3.51b / otrisPORTAL 5.1b
 * @see [DocFile.setFollowUpDate]{@link DocFile#setFollowUpDate} 
 * @example
@@ -2943,9 +3705,10 @@
 * @instance
 * @summary Commit any changes to the DocFile object. 
 * @description This method is mandatory to apply changes to a file that has been switched to edit mode with the startEdit() method. It is strictly prohibited to execute the commit() method in a script which is attached to the onSave scripting hook. 
-* @returns {boolean} true if successful, false in case of any error 
+* Internal: since ELC 3.60e available for archive files 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since ELC 3.50 / otrisPORTAL 5.0
-* @see [DocFile.startEdit]{@link DocFile#startEdit} [DocFile.sync]{@link DocFile#sync} 
+* @see [DocFile.startEdit]{@link DocFile#startEdit} [DocFile.sync]{@link DocFile#sync} [DocFile.abort]{@link DocFile#abort} 
 * @example
 * var myFile = context.file;
 * myFile.startEdit();
@@ -2959,7 +3722,7 @@
 * @summary Store a reference to the current file in the desired target folder. 
 * @description The (public) folder must be a real folder, it must not be a dynamic filter, nor a "only subfolder" object. 
 * @param {Folder} fObj Folder object representing the desired target public folder 
-* @returns {boolean} true if successful, false in case of any error. 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error. 
 * @since ELC 3.51h / otrisPORTAL 5.1h
 * @see [DocFile.disconnectFolder]{@link DocFile#disconnectFolder} 
 * @example
@@ -2972,7 +3735,8 @@
 * @function countFields
 * @instance
 * @summary Count fields with a desired name in the file. 
-* @description Note: When this function is called on an EE.x DocFile with an empty field name, the return value may be greater than expected. The DOCUMENTS image of such a file can include EE.x system fields and symbolic fields for other imported scheme attributes (blob content, notice content). 
+* @description 
+* Note: When this function is called on an EE.x DocFile with an empty field name, the return value may be greater than expected. The DOCUMENTS image of such a file can include EE.x system fields and symbolic fields for other imported scheme attributes (blob content, notice content). 
 * @param {string} fieldName String containing the technical name of the fields to be counted. 
 * @returns {number} The number of fields als an Integer. 
 * @since DOCUMENTS 4.0c HF2
@@ -3020,7 +3784,7 @@
 * @param {boolean} [moveTrash] optional boolean parameter to decide whether to move the deleted file to the trash folder 
 * @param {boolean} [movePool] optional boolean parameter to decide whether to move the deleted file's object to the file pool 
 * @param {boolean} [allVersions] optional boolean parameter to delete all versions of an EAS archive file at once. 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since ELC 3.50 / otrisPORTAL 5.0 (moveTrash parameter since ELC 3.50n / otrisPORTAL 5.0n, movePool parameter since ELC 3.51f / otrisPORTAL 5.1f, allVersions since DOCUMENTS 4.0e) 
 * @example
 * var myFile = context.file;
@@ -3031,7 +3795,7 @@
 * @function disconnectArchivedFile
 * @instance
 * @summary Uncouple an active file from the archived version. 
-* @returns {boolean} true if successful, false in case of any error. 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error. 
 * @since DOCUMENTS 4.0d
 * @see [DocFile.archive]{@link DocFile#archive} 
 * @example
@@ -3046,7 +3810,7 @@
 * @summary Remove a reference to the current file out of the desired target folder. 
 * @description The (public) folder must be a real folder, it must not be a dynamic filter, nor a "only subfolder" object. 
 * @param {Folder} fObj Folder object representing the desired target public folder 
-* @returns {boolean} true if successful, false in case of any error. 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error. 
 * @since ELC 3.51h / otrisPORTAL 5.1h
 * @see [DocFile.connectFolder]{@link DocFile#connectFolder} 
 * @example
@@ -3059,12 +3823,13 @@
 * @function exportXML
 * @instance
 * @summary Export the file as an XML file. 
+* @description
 * Since ELC 3.60e / otrisPORTAL 6.0e (Option: export of status & monitor)
 * @param {string} pathXML String containing full path and filename of the desired target xml file 
-* @param {boolean} withDocuments boolean value to include the documents. The value must be set to true in case status or monitor information are to be inserted. 
-* @param {boolean} [withStatus] boolean value to include status information. The value must be set to true in order to add the status. Status Information will then be generated into a file which will be added to the documents. Please note that therefore withDocuments must be set to true in order to get Status information. 
-* @param {boolean} [withMonitor] boolean value to include Monitor information. The value must be set to true in order to add the monitor. Monitor Information will then be generated into a file which will be added to the documents. Please note that therefore withDocuments must be set to true in order to get Monitor information.
-* @returns {boolean} true if successful, false in case of any error 
+* @param {boolean} withDocuments boolean value to include the documents. The value must be set to <code>true</code> in case status or monitor information are to be inserted. 
+* @param {boolean} [withStatus] boolean value to include status information. The value must be set to <code>true</code> in order to add the status. Status Information will then be generated into a file which will be added to the documents. Please note that therefore <code>withDocuments</code> must be set to true in order to get Status information. 
+* @param {boolean} [withMonitor] boolean value to include Monitor information. The value must be set to <code>true</code> in order to add the monitor. Monitor Information will then be generated into a file which will be added to the documents. Please note that therefore <code>withDocuments</code> must be set to true in order to get Monitor information.
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since ELC 3.50a / otrisPORTAL 5.0a 
 * @example
 * var docFile = context.file;
@@ -3079,7 +3844,7 @@
 * Note: This function requires a full workflow engine license, it does not work with pure submission lists. 
 * @param {string} controlFlowId String containing the technical ID of the outgoing control flow that should be passed 
 * @param {string} comment optional String value containing a comment to be automatically added to the file's monitor 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since ELC 3.50 / otrisPORTAL 5.0
 * @example
 * var docFile = context.file;
@@ -3096,7 +3861,7 @@
 * Note: This function requires a full workflow engine license, it does not work with pure submission lists. 
 * @returns {WorkflowStepIterator} WorkflowStepIterator object which represents a list of all locking workflow steps for the file 
 * @since ELC 3.51e / otrisPORTAL 5.1e
-* @see [DocFile.getCurrentWorkflowStep]{@link DocFile#getCurrentWorkflowStep} 
+* @see [DocFile.getCurrentWorkflowStep]{@link DocFile#getCurrentWorkflowStep} [DocFile.getFirstLockingWorkflowStep]{@link DocFile#getFirstLockingWorkflowStep} 
 * @example
 * var f = context.file;
 * var stepIter = f.getAllLockingWorkflowSteps();
@@ -3112,7 +3877,7 @@
 * Note: This function requires a full workflow engine license, it does not work with pure submission lists. 
 * @returns {WorkflowStepIterator} WorkflowStepIterator object which represents a list of all workflow steps for the file 
 * @since DOCUMENTS 5.0b
-* @see [DocFile.getCurrentWorkflowStep]{@link DocFile#getCurrentWorkflowStep} 
+* @see [DocFile.getCurrentWorkflowStep]{@link DocFile#getCurrentWorkflowStep} [DocFile.getFirstLockingWorkflowStep]{@link DocFile#getFirstLockingWorkflowStep} 
 * @example
 * var f = context.file;
 * var stepIter = f.getAllWorkflowSteps();
@@ -3122,7 +3887,8 @@
 * @function getArchiveKey
 * @instance
 * @summary After archiving of a file this method returns the key of the file in the archive. 
-* @description Note: If the file is not archived or archived without versioning or uncoupled from the achived file the key is empty. 
+* @description 
+* Note: If the file is not archived or archived without versioning or uncoupled from the achived file the key is empty. 
 * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files
 * @param {boolean} [withServer] optional boolean value to indicate, if the key should include an "@archiveServerName" appendix 
 * @returns {string} String containing the key. 
@@ -3144,7 +3910,7 @@
 * @param {string} nameCoverTemplate String containing the name of the pdf cover template defined at the filetype 
 * @param {boolean} createCover boolean whether to create a field list or to only take the documents 
 * @param {any[]} sourceRegisterNames Array with the technical names of the document registers you want to include 
-* @returns {string} String with file path of the pdf, an empty string in case of any error 
+* @returns {string} <code>String</code> with file path of the pdf, an empty string in case of any error 
 * @since DOCUMENTS 4.0b
 * @example
 * var source = new Array();
@@ -3163,6 +3929,7 @@
 * @function getAttribute
 * @instance
 * @summary Get the String value of an attribute of the file. 
+* @description
 * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files
 * @param {string} attribute String containing the name of the desired attribute 
 * @returns {string} String containing the value of the desired attribute 
@@ -3176,6 +3943,7 @@
 * @function getAutoText
 * @instance
 * @summary Get the String value of a DOCUMENTS autotext. 
+* @description
 * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files
 * @param {string} autoText the rule to be parsed 
 * @returns {string} String containing the parsed value of the autotext 
@@ -3191,7 +3959,13 @@
 * @summary Duplicate a file. 
 * @description This function creates a real 1:1 copy of the current file which may be submitted to its own workflow. 
 * @param {string} copyMode optional String that defines how to handle the documents of the originating file.
-* There are three different parameter values allowed: "NoDocs" copied DocFile does not contain any documents "ActualVersion" copied DocFile contains only the latest (published) version of each document "AllVersions" copied DocFile contains all versions (both published and locked) of each document 
+* There are three different parameter values allowed: 
+* <ul>
+* <li><code>"NoDocs"</code> copied DocFile does not contain any documents </li>
+* <li><code>"ActualVersion"</code> copied DocFile contains only the latest (published) version of each document </li>
+* <li><code>"AllVersions"</code> copied DocFile contains all versions (both published and locked) of each document </li>
+* </ul>
+* 
 * @returns {DocFile} DocFile object representing the copied file 
 * @since ELC 3.51c / otrisPORTAL 5.1c
 * @example
@@ -3203,7 +3977,7 @@
 * @function getCreationDate
 * @instance
 * @summary Returns the creation date (timestamp) of a DocFile. 
-* @returns {Date} Date object, if the date is valid, null for an invalid data. 
+* @returns {Date} <code>Date</code> object, if the date is valid, <code>null</code> for an invalid data. 
 * @since DOCUMENTS 5.0c
 * @see [DocFile.getCreator]{@link DocFile#getCreator} 
 * @see [DocFile.getLastModificationDate]{@link DocFile#getLastModificationDate} 
@@ -3219,7 +3993,7 @@
 * @instance
 * @summary Returns the SystemUser object or fullname as String of the creator of the DocFile. 
 * @param {boolean} [asObject] optional boolean value, that specifies, if the SystemUser object or the fullname should be returned. 
-* @returns {any} asObject=true:SystemUser object or null (if user does not exist anymore) 
+* @returns {any} <code>asObject=true:</code><code>SystemUser</code> object or <code>null</code> (if user does not exist anymore) 
 * @since DOCUMENTS 5.0c
 * @see [DocFile.getLastModifier]{@link DocFile#getLastModifier} 
 * @see [DocFile.getCreationDate]{@link DocFile#getCreationDate} 
@@ -3236,8 +4010,9 @@
 * @function getCurrentWorkflowStep
 * @instance
 * @summary Get the current workflow step of the current user locking the file. 
-* @description The function returns a valid WorkflowStep object if there exists one for the current user. If the current user does not lock the file, the function returns null instead. 
+* @description The function returns a valid WorkflowStep object if there exists one for the current user. If the current user does not lock the file, the function returns <code>null</code> instead. 
 * Note: This function requires a full workflow engine license, it does not work with pure submission lists.
+* 
 * @returns {WorkflowStep} WorkflowStep object 
 * @since ELC 3.51e / otrisPORTAL 5.1e
 * @see [DocFile.getFirstLockingWorkflowStep]{@link DocFile#getFirstLockingWorkflowStep} 
@@ -3273,6 +4048,7 @@
 * @function getFieldAttribute
 * @instance
 * @summary Get the String value of an attribute of the desired file field. 
+* @description
 * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files
 * @param {string} fieldName String containing the technical name of the desired field 
 * @param {string} attrName String containing the name of the desired attribute 
@@ -3289,17 +4065,17 @@
 * @summary Returns an AutoText value of a specified field of the DocFile. 
 * @description The following AutoTexts are available 
 * <ul>
-* <li>"[locale]" - field value in the user locale or specified locale. </li>
-* <li>"key" - key value (e.g. at refence fields, enumeration fields, etc.). </li>
-* <li>"fix" - fix format value (e.g. at numeric fields, date fields, etc.). </li>
-* <li>"pos" - order position of the field value at enumeration fields. </li>
-* <li>"raw" - database field value. </li>
-* <li>"label[.locale]" - label of the field in user locale or specified locale.</li>
+* <li><code>"[locale]"</code> - field value in the user locale or specified locale. </li>
+* <li><code>"key"</code> - key value (e.g. at refence fields, enumeration fields, etc.). </li>
+* <li><code>"fix"</code> - fix format value (e.g. at numeric fields, date fields, etc.). </li>
+* <li><code>"pos"</code> - order position of the field value at enumeration fields. </li>
+* <li><code>"raw"</code> - database field value. </li>
+* <li><code>"label[.locale]"</code> - label of the field in user locale or specified locale.</li>
 * </ul>
 * 
 * @param {string} fieldName Name of the field as String 
 * @param {string} [autoText] 
-* @returns {string} String with the AutoText. 
+* @returns {string} <code>String</code> with the AutoText. 
 * @since DOCUMENTS 5.0c
 * @example
 * var file = context.file;
@@ -3317,7 +4093,7 @@
 * @description This allows generic scripts to be capable of different versions of the same filetype, e.g. if you changed details of the filetype, but there are still older files of the filetype in the system. 
 * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files
 * @param {number} index integer index of the desired field 
-* @returns {string} String containing the technical name of the file field, false if index is out of range 
+* @returns {string} String containing the technical name of the file field, <code>false</code> if index is out of range 
 * @since ELC 3.50e / otrisPORTAL 5.0e 
 * @example
 * var myFile = context.file;
@@ -3346,8 +4122,10 @@
 * @function getFieldValue
 * @instance
 * @summary Get the value of the desired file field. 
+* @description
 * Since DOCUMENTS 4.0c HF2 available for multi-instance fields of an EE.i/EE.x archive file
-* @param {string} fieldName String containing the technical field name can be followed by the desired instance number in form techFieldName[i] for multi-instance fields of an EE.i/EE.x archive file. Note: The index i is zero-based. The specification of field instance is olny available for an EE.i/EE.x archive file, it will be ignored for other files. If the parameter contains no instance information, the first field instance is used. The field instance order is determined by the field order in the file. 
+* @param {string} fieldName String containing the technical field name can be followed by the desired instance number in form techFieldName[i] for multi-instance fields of an EE.i/EE.x archive file. 
+* <b>Note:</b> The index <code>i</code> is zero-based. The specification of field instance is olny available for an EE.i/EE.x archive file, it will be ignored for other files. If the parameter contains no instance information, the first field instance is used. The field instance order is determined by the field order in the file. 
 * @returns {any} The field value, its type depends on the field type, such as a Date object returned for a field of type 'Timestamp'. 
 * @since DOCUMENTS 4.0c 
 * @example
@@ -3376,7 +4154,7 @@
 * @function getFirstLockingWorkflowStep
 * @instance
 * @summary Get the first locking workflow step that currently locks the file. 
-* @description The first locking workflow step does not need to be locked by the current user executing the script, this function as well returns the first locking step if it is locked by a different user. If no locking step is found at all, the function returns null instead. 
+* @description The first locking workflow step does not need to be locked by the current user executing the script, this function as well returns the first locking step if it is locked by a different user. If no locking step is found at all, the function returns <code>null</code> instead. 
 * Note: This function requires a full workflow engine license, it does not work with pure submission lists. 
 * @returns {WorkflowStep} WorkflowStep object 
 * @since ELC 3.50e / otrisPORTAL 5.0e
@@ -3399,7 +4177,7 @@
 * @function getid
 * @instance
 * @summary Returns the file id of the DocFile. 
-* @returns {string} String with the file id. 
+* @returns {string} <code>String</code> with the file id. 
 * @since DOCUMENTS 5.0c
 * @example
 * var file = context.file;
@@ -3425,7 +4203,7 @@
 * @function getLastModificationDate
 * @instance
 * @summary Returns the last modification date (timestamp) of a DocFile. 
-* @returns {Date} Date object, if the date is valid, null for an invalid data. 
+* @returns {Date} <code>Date</code> object, if the date is valid, <code>null</code> for an invalid data. 
 * @since DOCUMENTS 5.0c
 * @see [DocFile.getLastModifier]{@link DocFile#getLastModifier} 
 * @see [DocFile.getCreationDate]{@link DocFile#getCreationDate} 
@@ -3440,7 +4218,7 @@
 * @function getLastModifier
 * @instance
 * @summary Returns the fullname as String of the last editor of the DocFile. 
-* @returns {string} String with the fullname. 
+* @returns {string} <code>String</code> with the fullname. 
 * @since DOCUMENTS 5.0c
 * @see [DocFile.getCreator]{@link DocFile#getCreator} 
 * @see [DocFile.getLastModificationDate]{@link DocFile#getLastModificationDate} 
@@ -3453,13 +4231,14 @@
 * @function getOID
 * @instance
 * @summary Returns the object-id. 
+* @description
 * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files 
 * Since DOCUMENTS 5.0 (new parameter oidLow) 
 * @param {boolean} [oidLow] Optional flag: 
-* If true only the id of the filetype object (m_oid) will be returned. 
-* If false the id of the filetype object will be returned together with the id of the corresponding class in the form class-id:m_oid. 
-* The default value is false. 
-* @returns {string} String with the object-id 
+* If <code>true</code> only the id of the filetype object (<code>m_oid</code>) will be returned. 
+* If <code>false</code> the id of the filetype object will be returned together with the id of the corresponding class in the form <code>class-id:m_oid</code>. 
+* The default value is <code>false</code>. 
+* @returns {string} <code>String</code> with the object-id 
 * @since ELC 3.60c / otrisPORTAL 6.0c 
 **/
 /**
@@ -3502,7 +4281,8 @@
 * @memberof DocFile
 * @function getRegisterByName
 * @instance
-* @description Note: Until version 5.0c this method ignored the access rights of the user to the register. With the optional parameter checkAccessRight this can now be done. For backward compatibility the default value is set to false.
+* @description 
+* Note: Until version 5.0c this method ignored the access rights of the user to the register. With the optional parameter checkAccessRight this can now be done. For backward compatibility the default value is set to false.
 * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files 
 * Since DOCUMENTS 5.0c (new optional parameter checkAccessRight) 
 * @param {string} registerName String value containing the technical name of the desired register 
@@ -3519,15 +4299,25 @@
 * @function getRegisters
 * @instance
 * @summary Get an iterator with the registers of the file for the specified type. 
-* @description Note: Until version 5.0c this method ignored the access rights of the user to the register. With the optional parameter checkAccessRight this can now be done. For backward compatibility the default value is set to false.
+* @description 
+* Note: Until version 5.0c this method ignored the access rights of the user to the register. With the optional parameter checkAccessRight this can now be done. For backward compatibility the default value is set to false.
 * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files 
 * Since DOCUMENTS 5.0c (new optional parameter checkAccessRight) 
-* @param {string} [type] optional String value to filter for a desired register type. Default type is documents
-* Allowed values: documentsfieldslinksarchiveddocumentsexternalcallall (returns all registers independent of the type) 
+* @param {string} [type] optional String value to filter for a desired register type. Default type is <code>documents</code>
+* Allowed values: 
+* <ul>
+* <li><code>documents</code></li>
+* <li><code>fields</code></li>
+* <li><code>links</code></li>
+* <li><code>archiveddocuments</code></li>
+* <li><code>externalcall</code></li>
+* <li><code>all</code> (returns all registers independent of the type) </li>
+* </ul>
+* 
 * @param {boolean} [checkAccessRight] optional boolean value, that indicates if the access rights should be considered. 
 * @returns {RegisterIterator} RegisterIterator with all registers (matching the filter) 
 * @since ELC 3.50n / otrisPORTAL 5.0n 
-* @see [RegisterIteratorDocFile.getRegisterByName]{@link RegisterIteratorDocFile#getRegisterByName} 
+* @see [RegisterIterator]{@link RegisterIterator} [DocFile.getRegisterByName]{@link DocFile#getRegisterByName} 
 * @example
 * var docFile = context.file;
 * var regIter = docFile.getRegisters("documents");
@@ -3537,9 +4327,10 @@
 * @function getTitle
 * @instance
 * @summary Returns the title of the DocFile. 
-* @description Note: the special locale raw returns the title in all locales
+* @description 
+* Note: the special locale raw returns the title in all locales
 * @param {string} [locale] 
-* @returns {string} String with the title. 
+* @returns {string} <code>String</code> with the title. 
 * @since DOCUMENTS 5.0c 
 * @example
 * var file = context.file;
@@ -3551,7 +4342,19 @@
 * @instance
 * @summary Get the status of the file for a desired user. 
 * @param {string} login String containing the login name of the desired user 
-* @returns {string} String with the status. Possible values: standardnewfromFollowuptoForwardforInfotaskworkflowCanceledbackFromDistributionconsultation
+* @returns {string} String with the status. Possible values: 
+* <ul>
+* <li><code>standard</code></li>
+* <li><code>new</code></li>
+* <li><code>fromFollowup</code></li>
+* <li><code>toForward</code></li>
+* <li><code>forInfo</code></li>
+* <li><code>task</code></li>
+* <li><code>workflowCanceled</code></li>
+* <li><code>backFromDistribution</code></li>
+* <li><code>consultation</code></li>
+* </ul>
+* 
 * @since DOCUMENTS 4.0c HF1
 * @see [DocFile.setUserStatus]{@link DocFile#setUserStatus} 
 * @example
@@ -3564,7 +4367,7 @@
 * @instance
 * @summary Gather information whether the current file has the field with the desired name. 
 * @param {string} fieldName String containing the technical name of the field. 
-* @returns {boolean} true if the file has the field, false if not 
+* @returns {boolean} <code>true</code> if the file has the field, <code>false</code> if not 
 * @since DOCUMENTS 4.0d
 * @example
 * var file = context.file;
@@ -3579,7 +4382,7 @@
 * @description This function is especially useful in connection with PortalScripts being used as decision guards in workflows, because this allows to comment and describe the decisions taken by the scripts. This increases transparency concerning the life cycle of a file in DOCUMENTS. 
 * @param {string} action String containing a brief description 
 * @param {string} comment optional String containing a descriptive comment to be added to the status entry 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since ELC 3.51b / otrisPORTAL 5.1b
 * @example
 * var docFile = context.file;
@@ -3590,7 +4393,7 @@
 * @function isArchiveFile
 * @instance
 * @summary Gather information whether the current file is an archive file. 
-* @returns {boolean} true if is an archive file, false if not 
+* @returns {boolean} <code>true</code> if is an archive file, <code>false</code> if not 
 * @since ELC 3.60i / otrisPORTAL 6.0i available for archive files
 * @example
 * var key = "Unit=Default/Instance=Default/Pool=DEMO/Pool=RECHNUNGEN/Document=RECHNUNGEN.41D3694E2B1E11DD8A9A000C29FACDC2"
@@ -3603,7 +4406,7 @@
 * @function isDeletedFile
 * @instance
 * @summary Gather information whether the current file is a deleted file of a trash folder. 
-* @returns {boolean} true if is a deleted file, false if not 
+* @returns {boolean} <code>true</code> if is a deleted file, <code>false</code> if not 
 * @since ELC 3.60e / otrisPORTAL 6.0e
 * @example
 * ...
@@ -3625,7 +4428,7 @@
 * @function isNewFile
 * @instance
 * @summary Gather information whether the current file is a new file. 
-* @returns {boolean} true if new file, false if not 
+* @returns {boolean} <code>true</code> if new file, <code>false</code> if not 
 * @since ELC 3.50l01 / otrisPORTAL 5.0l01
 * @example
 * var docFile = context.file;
@@ -3636,7 +4439,7 @@
 * @function reactivate
 * @instance
 * @summary Reactivate an archive file to a file of the correspondending filetype. 
-* @returns {boolean} true if successful, false if not - get error message with getLastError()
+* @returns {boolean} <code>true</code> if successful, <code>false</code> if not - get error message with getLastError()
 * @since ELC 3.60i / otrisPORTAL 6.0i available for archive files
 * @example
 * var key = "Unit=Default/Instance=Default/Pool=DEMO/Pool=RECHNUNGEN/Document=RECHNUNGEN.41D3694E2B1E11DD8A9A000C29FACDC2@eex1"
@@ -3654,10 +4457,15 @@
 * @instance
 * @summary Send the DocFile directly. 
 * @param {any[]} receivers Array with the names of the users or groups to which to send the DocFile. You need to specify at least one recipient. 
-* @param {string} sendMode String containing the send type. The following values are available: sequential - one after the other parallel_info - concurrently for information 
+* @param {string} sendMode String containing the send type. The following values are available: 
+* <ul>
+* <li><code>sequential</code> - one after the other </li>
+* <li><code>parallel_info</code> - concurrently for information </li>
+* </ul>
+* 
 * @param {string} task String specifying the task for the recipients of the DocFile
 * @param {boolean} backWhenFinished boolean indicating whether the DocFile should be returned to the own user account after the cycle. 
-* @returns {boolean} true if successful, false in case of any error. 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error. 
 * @since DOCUMENTS 5.0
 * @example
 * var docFile = context.createFile("Filetype1");
@@ -3679,7 +4487,7 @@
 * @param {string} cc Optional String value for an additional recipient ("cc" means "carbon copy") 
 * @param {boolean} addDocs optional boolean value whether to include the documents of the file 
 * @param {string} bcc Optional String value for the email addresses of blind carbon-copy recipients (remaining invisible to other recipients). 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since ELC 3.50b / otrisPORTAL 5.0b 
 * @example
 * var docFile = context.file;
@@ -3692,10 +4500,11 @@
 * @function setAttribute
 * @instance
 * @summary Set the String value of an attribute of the file to the desired value. 
+* @description
 * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files
 * @param {string} attribute String containing the name of the desired attribute 
 * @param {string} value String containing the desired value of the attribute 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since ELC 3.50 / otrisPORTAL 5.0 
 * @example
 * var myFile = context.file;
@@ -3706,26 +4515,28 @@
 * @function setFieldAttribute
 * @instance
 * @summary Set the value of an attribute of the desired file field. 
+* @description
 * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files
 * @param {string} fieldName String containing the technical name of the desired field 
 * @param {string} attrName String containing the name of the desired attribute 
 * @param {string} value String value containing the desired field attribute value 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since ELC 3.50 / otrisPORTAL 5.0 
 * @example
 * var myFile = context.file;
 * myFile.setFieldAttribute("Samplefield", "Value", "1");
-* myFile.sync();
 **/
 /**
 * @memberof DocFile
 * @function setFieldValue
 * @instance
 * @summary Set the value of the desired file field. 
+* @description
 * Since DOCUMENTS 4.0c HF2 available for multi-instance fields of an EE.i/EE.x archive file
-* @param {string} fieldName String containing the technical field name can be followed by the desired instance number in form techFieldName[i] for multi-instance fields of an EE.i/EE.x archive file. Note: The index i is zero-based. The specification of field instance is olny available for an EE.i/EE.x archive file, it will be ignored for other files. If the parameter contains no instance information, the first field instance is used. The field instance order is determined by the field order in the file. 
+* @param {string} fieldName String containing the technical field name can be followed by the desired instance number in form techFieldName[i] for multi-instance fields of an EE.i/EE.x archive file. 
+* <b>Note:</b> The index <code>i</code> is zero-based. The specification of field instance is olny available for an EE.i/EE.x archive file, it will be ignored for other files. If the parameter contains no instance information, the first field instance is used. The field instance order is determined by the field order in the file. 
 * @param {any} value The desired field value of the proper type according to the field type, e.g. a Date object as value of a field of type 'Timestamp'. 
-* @returns {boolean} true if successful, false in case of any error. 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error. 
 * @since DOCUMENTS 4.0c 
 * @example
 * var myFile = context.file;
@@ -3748,7 +4559,7 @@
 * @instance
 * @summary Set the file owner of the file to the desired user. 
 * @param {SystemUser} owner SystemUser object representing the desired new file owner 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since ELC 3.51d / otrisPORTAL 5.1d
 * @example
 * var docFile = context.file;
@@ -3763,7 +4574,7 @@
 * @param {SystemUser} pUser SystemUser object of the desired user 
 * @param {Date} followUpDate Date object representing the desired followup date 
 * @param {string} comment optional String value containing a comment that is displayed as a task as soon as the followup is triggered 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since ELC 3.51b / otrisPORTAL 5.1b
 * @see [DocFile.clearFollowUpDate]{@link DocFile#clearFollowUpDate} 
 * @example
@@ -3777,10 +4588,11 @@
 * @function setUserRead
 * @instance
 * @summary Mark the file as read or unread for the desired user. 
-* @description Note: This function requires a full workflow engine license, it does not work with pure submission lists. 
+* @description 
+* Note: This function requires a full workflow engine license, it does not work with pure submission lists. 
 * @param {string} login String containing the login name of the desired user 
-* @param {boolean} fileRead boolean whether the file should be markes as read (true) or unread (false) 
-* @returns {boolean} true if successful, false in case of any error 
+* @param {boolean} fileRead boolean whether the file should be markes as read (<code>true</code>) or unread (<code>false</code>) 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since ELC 3.50b / otrisPORTAL 5.0b
 * @example
 * var docFile = context.file;
@@ -3795,8 +4607,20 @@
 * Since DOCUMENTS 4.0c (status values extended)
 * @param {string} login String containing the login name of the desired user 
 * @param {string} status String value containing the desired status
-* Allowed values: standardnewfromFollowuptoForwardforInfotaskworkflowCanceledbackFromDistributionconsultation
-* @returns {boolean} true if successful, false in case of any error 
+* Allowed values: 
+* <ul>
+* <li><code>standard</code></li>
+* <li><code>new</code></li>
+* <li><code>fromFollowup</code></li>
+* <li><code>toForward</code></li>
+* <li><code>forInfo</code></li>
+* <li><code>task</code></li>
+* <li><code>workflowCanceled</code></li>
+* <li><code>backFromDistribution</code></li>
+* <li><code>consultation</code></li>
+* </ul>
+* 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since ELC 3.50b / otrisPORTAL 5.0b 
 * @see [DocFile.getUserStatus]{@link DocFile#getUserStatus} 
 * @example
@@ -3808,14 +4632,15 @@
 * @function startEdit
 * @instance
 * @summary Switch a DocFile to edit mode. 
-* @description Switching a file to edit mode with this function has the same effect as the "Edit" button in the web surface of DOCUMENTS. This means, a scratch copy of the file is created, and any changes you apply to the file are temporarily stored in the scratch copy - until you commit() your changes back to the original file. There are a few scripting event hooks which disallow the use of this function at all costs: 
+* @description Switching a file to edit mode with this function has the same effect as the "Edit" button in the web surface of DOCUMENTS. This means, a scratch copy of the file is created, and any changes you apply to the file are temporarily stored in the scratch copy - until you <code>commit()</code> your changes back to the original file. There are a few scripting event hooks which disallow the use of this function at all costs: 
 * <ul>
-* <li>onEdit hook - the system has already created the scratch copy. </li>
-* <li>onCreate hook - a newly created file is always automatically in edit mode.</li>
+* <li><code>onEdit</code> hook - the system has already created the scratch copy. </li>
+* <li><code>onCreate</code> hook - a newly created file is always automatically in edit mode.</li>
 * </ul>
 * 
 * You should avoid using this function in scripts that are executed inside a workflow (signal exits, decisions etc.). 
-* @returns {boolean} true if successful, false in case of any error 
+* Internal: since ELC 3.60e available for archive files 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since ELC 3.50 / otrisPORTAL 5.0
 * @see [DocFile.abort]{@link DocFile#abort} 
 * @example
@@ -3829,8 +4654,8 @@
 * @function startWorkflow
 * @instance
 * @summary Start a workflow for the DocFile object. 
-* @param {string} workflowName String containing the technical name and optional the version number of the workflow. The format of the workflowName is technicalName[-version]. If you don't specify the version of the workflow, the workflow with the highest workflow version number will be used. If you want to start a specific version you have to use technicalName-version e.g. (Invoice-2) as workflowName. 
-* @returns {boolean} true if successful, false in case of any error 
+* @param {string} workflowName String containing the technical name and optional the version number of the workflow. The format of the workflowName is <code>technicalName</code>[-version]. If you don't specify the version of the workflow, the workflow with the highest workflow version number will be used. If you want to start a specific version you have to use technicalName-version e.g. (Invoice-2) as workflowName. 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since ELC 3.50 / otrisPORTAL 5.0
 * @example
 * var myFile = context.file;
@@ -3842,7 +4667,7 @@
 * @function sync
 * @instance
 * @summary Synchronize any changes to the DocFile object back to the real file. 
-* @description If you want to apply changes to file fields through a script that is executed as a signal exit inside a workflow, you should rather prefer sync() than the startEdit() / commit() instruction pair. 
+* @description If you want to apply changes to file fields through a script that is executed as a signal exit inside a workflow, you should rather prefer sync() than the <code>startEdit() / commit()</code> instruction pair. 
 * Note: If there's a scratch copy of the file in the system (e.g. by some user through the web surface), committing the changes in the scratch copy results in the effect that your synced changes are lost. So be careful with the usage of this operation. 
 * Since DOCUMENTS 5.0a (new parameter updateRefFields) 
 * Since DOCUMENTS 5.0a HF2 (new parameter updateModifiedDate)
@@ -3850,9 +4675,9 @@
 * @param {boolean} [notifyHitlistChange] optional boolean parameter indicates the web client to refresh the current hitlist 
 * @param {boolean} [updateRefFields] optional boolean parameter indicates to update reference fields if using the property UpdateByRefFields 
 * @param {boolean} [updateModifiedDate] optional boolean parameter indicates to update the modification date of the file 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since ELC 3.50 / otrisPORTAL 5.0 (checkHistoryFields parameter since ELC 3.60i / otrisPORTAL 6.0i) 
-* @see [DocFile.startEdit]{@link DocFile#startEdit} 
+* @see [DocFile.startEdit]{@link DocFile#startEdit} [DocFile.commit]{@link DocFile#commit} 
 * @example
 * var myFile = context.file;
 * myFile.Field = "value";
@@ -3863,8 +4688,8 @@
 * @function undeleteFile
 * @instance
 * @summary Relive a deleted file. 
-* @description Sets the status active to a file and redraws it from the trash folder. Deleted files are not searchable by a FileResultSet. You can only retrieve deleted files by iterating throw the trash-folder of the users 
-* @returns {boolean} true if successful, false if not 
+* @description Sets the status active to a file and redraws it from the trash folder. Deleted files are not searchable by a <code>FileResultSet</code>. You can only retrieve deleted files by iterating throw the trash-folder of the users 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> if not 
 * @since ELC 3.60e / otrisPORTAL 6.0e
 * @example
 * ...
@@ -3886,14 +4711,62 @@
 * @interface DocHit
 * @summary The DocHit class presents the hit object collected by a HitResultset. 
 * @description Objects of this class cannot be created directly. You may access a single DocHit by creating a HitResultset, which provides functions to retrieve its hit entries. 
+* @since DOCUMENTS 4.0b
+* @see [HitResultset.first]{@link HitResultset#first} [HitResultset.getAt]{@link HitResultset#getAt} 
+* @example
+* var searchResource = "Standard";
+* var filter = "";
+* var sortOrder = "";
+* var myFile;
+* var myHRS = new HitResultset(searchResource, filter, sortOrder);
+* for (var myHit = myHRS.first(); myHit; myHit = myHRS.next())
+* {
+*     if (myHit.isArchiveHit())
+*         myFile = myHit.getArchiveFile();
+*     else
+*         myFile = myHit.getFile();
+* 
+*     if (myFile)
+*         util.out(myFile.getAutoText("title"));
+*     else
+*         util.out(myHit.getLastError());
+* }
 */
 /**
 * @memberof DocHit
 * @summary Field value, addressed by a known column name. 
 * @description Each field in a DocHit is mapped to an according property. You can read the value on the basis of the column name. 
-* Remark: Overwriting values in a DocHit is not allowed. Each attempt will raise an exception. To read dates and numbers in DOCUMENTS' storage format, see getTechValueByName(). 
+* Note: Overwriting values in a DocHit is not allowed. Each attempt will raise an exception. To read dates and numbers in DOCUMENTS' storage format, see getTechValueByName(). 
 * @member {any} columnName
 * @instance
+* @since DOCUMENTS 5.0HF2
+* @example
+* function logValue(label, value)
+* {
+*   util.out(label +" [" +  typeof(value) + "] "  + value);
+* }
+* 
+* var HRS = new HitResultset("ftOrder", "", "", "HL2");
+* var hitline = HRS.first();
+* if(hitline)
+* {
+*   // We assume, "ftOrder" has got a string field "company", a
+*   // date field "orderDate" and a numeric field "netPrice".
+*   var checkVal = hitline.company;
+*   logValue("company: ", checkVal);
+*   checkVal = hitline.orderDate;
+*   logValue("orderDate: ", checkVal);
+* 
+*   // The next example shows a different way to read "hitline.netPrice".
+*   // This style is necessary, if the name of a column contains
+*   // critical characters, or if the name equals a reserved JavaScript keyword.
+*   checkVal = hitline["netPrice"];
+*   logValue("orderDate: ", checkVal);
+* 
+*   // Columns can also be addressed by number (0..n-1)
+*   checkVal = hitline[0];
+*   logValue("first column: ", checkVal);
+* }
 **/
 /**
 * @memberof DocHit
@@ -3901,8 +4774,8 @@
 * @instance
 * @summary Get a file from the archive associated to the archive hit. 
 * @description You need the necessary access rights on the archive side. 
-* Remark: This function creates a complete DOCUMENTS image of the archived file, except for the content of attachments. This is a time-consuming workstep. If a script calls this function for each hit in the set, it will not run any faster than a script, which uses a conventional ArchiveFileResultset instead of this class. 
-* @returns {DocFile} DocFile or NULL, if failed. 
+* Note: This function creates a complete DOCUMENTS image of the archived file, except for the content of attachments. This is a time-consuming workstep. If a script calls this function for each hit in the set, it will not run any faster than a script, which uses a conventional ArchiveFileResultset instead of this class. 
+* @returns {DocFile} <code>DocFile</code> or <code>NULL</code>, if failed. 
 * @since DOCUMENTS 4.0b 
 * @see [getFile]{@link getFile} 
 **/
@@ -3929,8 +4802,8 @@
 * @function getFile
 * @instance
 * @summary Get the file associated to the hit. 
-* @description If the file does not exist or the user in whose context the script is executed is not allowed to access the file, then the return value will be NULL. 
-* @returns {DocFile} DocFile or NULL, if failed. 
+* @description If the file does not exist or the user in whose context the script is executed is not allowed to access the file, then the return value will be <code>NULL</code>. 
+* @returns {DocFile} <code>DocFile</code> or <code>NULL</code>, if failed. 
 * @since DOCUMENTS 4.0b 
 * @see [getArchiveFile]{@link getArchiveFile} 
 **/
@@ -3966,7 +4839,8 @@
 * @function getLocalValueByName
 * @instance
 * @summary Get the local value of an available column. 
-* @description Note: Accesing a column by its index is a bit faster than by its name. 
+* @description 
+* Note: Accesing a column by its index is a bit faster than by its name. 
 * @param {string} colName The name of the column. 
 * @returns {string} The local value of the given column as String. 
 * @since DOCUMENTS 4.0b 
@@ -3977,7 +4851,8 @@
 * @function getSchema
 * @instance
 * @summary Get a schema identifier of the archive hit. 
-* @description Remark: For EE.i, the value is an archive identifier in the XML-Server's notation. For EDA it is just the name of a filetype. All values come with an "@Servername" appendix. 
+* @description 
+* Note: For EE.i, the value is an archive identifier in the XML-Server's notation. For EDA it is just the name of a filetype. All values come with an "@Servername" appendix. 
 * @returns {string} The schema identifier as a String. 
 * @since DOCUMENTS 4.0b 
 **/
@@ -3986,7 +4861,8 @@
 * @function getTechValue
 * @instance
 * @summary Get the technical value of an available column. 
-* @description Remark: The function returns dates, timestamps and numbers in DOCUMENTS' storage format. (In the DOCUMENTS Manager see menu 'Documents/Settings', dialog page 'Locale/format', group 'Format settings'.) If you prefer JavaScript numbers and dates, simply use the object like an array: myDocHit[colIndex]. 
+* @description 
+* Note: The function returns dates, timestamps and numbers in DOCUMENTS' storage format. (In the DOCUMENTS Manager see menu 'Documents/Settings', dialog page 'Locale/format', group 'Format settings'.) If you prefer JavaScript numbers and dates, simply use the object like an array: myDocHit[colIndex]. 
 * @param {number} colIndex The zero-based index of the column. 
 * @returns {string} The technical value of the given column as a String. 
 * @since DOCUMENTS 4.0b 
@@ -3997,8 +4873,9 @@
 * @function getTechValueByName
 * @instance
 * @summary Get the technical value of an available column. 
-* @description Note: Accessing a column by its index is a bit faster than by its name. 
-* Remark: The function returns dates, timestamps and numbers in DOCUMENTS' storage format. (In the DOCUMENTS Manager see menu 'Documents/Settings', dialog page 'Locale/format', group 'Format settings'.) If you prefer JavaScript numbers and dates, you can simply read the columns as a property DocHit.columnName. 
+* @description 
+* Note: Accessing a column by its index is a bit faster than by its name. 
+* Note: The function returns dates, timestamps and numbers in DOCUMENTS' storage format. (In the DOCUMENTS Manager see menu 'Documents/Settings', dialog page 'Locale/format', group 'Format settings'.) If you prefer JavaScript numbers and dates, you can simply read the columns as a property DocHit.columnName. 
 * @param {string} colName The name of the column. 
 * @returns {string} The technical value of the given column as String. 
 * @since DOCUMENTS 4.0b 
@@ -4009,104 +4886,268 @@
 * @function isArchiveHit
 * @instance
 * @summary Function to test whether the associated file is an archive file. 
-* @returns {boolean} true, if the associated file is an archive file, false otherwise. 
+* @returns {boolean} <code>true</code>, if the associated file is an archive file, <code>false</code> otherwise. 
 * @since DOCUMENTS 4.0b 
 **/
 /**
 * @interface DocQueryParams
 * @summary This class encapsulates the basic parameters of a Documents search request. 
 * @description Only the script-exits "OnSearch" and "FillSearchMask" provide access to such an object. See also Context.getQueryParams().
+* Scripts can modify the parameters only in the following ways. 
+* <ol>
+* <li>A project-related "OnSearch" script may detect in advance, if an individual query won't find any hits in a specified searchable resource. In this case, the script can call removeSource() for each zero-hits resource to reduce the workload on the database and/or archive systems. However the very first listed resource cannot be removed, because it regularly owns the selected hit list. As a result, removeSource() is not suitable for implementing extraordinary permission restrictions. </li>
+* <li>A "OnSearch" script can substitute the relational operator or the value in a search field. This practice is not recommended, because it may make the user find something competely different than he sought for. </li>
+* <li>A "OnSearch" script may cancel some special search requests and submit a custom message. The type (or origin) of the search request determines, if and where this message will be displayed. </li>
+* <li>A "FillSearchMask" script can place default values in the search fields. </li>
+* </ol>
+* 
+* @since DOCUMENTS 4.0d 
+* @example
+* util.out("*********** onSearch start *************");
+* 
+* var params = context.getQueryParams();
+* if(params)
+* {
+*     // First write the contents of the object to the server window
+*     util.out("got retrieval parameter object");
+*     var requestType = params.requestType;
+*     util.out("queryType =  " + requestType);
+* 
+*     // Print the list of searchable resources.
+*     var count = params.sourceCount;
+*     util.out("sourceCount =  " + count);
+*     var cnt;
+*     for(cnt = 0; cnt < count; ++cnt)
+*     {
+*         var source = params.getSource(cnt);
+*         if(source)
+*         {
+*             util.out("<Source " + (cnt+1) + ">");
+*             util.out("resId = " + source.resId);
+*             util.out("type = " + source.type);
+*             util.out("server = " + source.server);
+*         }
+*         else
+*             util.out("got a NULL source");
+*     }
+* 
+*     // Print the list of all search fields.
+*     // This dump may include many empty fields.
+*     count = params.searchFieldCount;
+*     util.out("\r\nsearch fields = " + count);
+*     for(cnt = 0; cnt < count; ++cnt)
+*     {
+*         var sfield = params.getSearchField(cnt);
+*         if(sfield)
+*         {
+*             util.out("<Searchfield " + (cnt+1) + ">");
+*             var filter = sfield.name + sfield.compOp + sfield.valueExpr;
+*             util.out("Condition: " + filter);
+*             util.out("fieldType = " + sfield.type);
+*             util.out("label = " + sfield.label);
+*         }
+*         else
+*             util.out("got a NULL field");
+*     }
+* 
+*     // Print the search fields again, but this time ignore all empty
+*     // fields.
+*     count = params.filledSearchFieldCount;
+*     util.out("\r\nfilled search fields = " + count);
+*     for(cnt = 0; cnt < count; ++cnt)
+*     {
+*         sfield = params.getSearchField(cnt, true);
+*         if(sfield)
+*         {
+*             util.out("<Searchfield " + (cnt+1) + ">");
+*             var filter = sfield.name + sfield.compOp + sfield.valueExpr;
+*             util.out("Condition: " + filter);
+*             util.out("fieldType = " + sfield.type);
+*             util.out("label = " + sfield.label);
+*         }
+*         else
+*             util.out("got a NULL field");
+*     }
+* 
+*     // The subsequent test code requires at least one filled in search field
+*     if(count > 0)
+*     {
+*         sfield = params.getSearchField(0, true);
+*         var testExpr = sfield.valueExpr;
+* 
+*         // Test 1:
+*         // Let's assume we have got a bunch of EDA stores. We know,
+*         // that the value "rarely" is frequently searched across many
+*         // stores, but it never can appear in a store named "Playground".
+*         // We can try to exclude this store from the search request to
+*         // reduce the workload.
+*         if(testExpr == "rarely")
+*         {
+*             // Note: Source #0 cannot not be removed.
+*             for(cnt = 1; cnt < params.sourceCount; ++cnt)
+*             {
+*                 source = params.getSource(cnt);
+*                 if(source.server == "Playground")
+*                 {
+*                     params.removeSource(cnt--);
+*                     // About the "--": removeSource() has implicitly
+*                     // decreased the index number of all subsequent
+*                     // sources and also the "sourceCount" property.
+*                     // To skip nothing, the loop needs to run with
+*                     // the same index once again.
+*                 }
+*             }
+*         }
+* 
+*         // Test 2:
+*         // If the OnSearchScript triggers a search request itself, it
+*         // ends up in a recursive call! This section does nothing serious.
+*         // It just demonstrates the effect with a few log messages.
+*         if(testExpr == "recurse")
+*         {
+*             if(requestType == DocQueryParams.API)
+*                 util.out("OnSearchScript avoiding another recursion");
+*             else
+*             {
+*                 util.out("OnSearchScript before recursion");
+*                 var iter = new FileResultset("ftEmployee", "hrRemarks=recurse", "");
+*                 var o = iter.first();
+*                 util.out("OnSearchScript after recursion");
+*             }
+*         }
+* 
+*         // Test 3:
+*         // Generate an error for a specific search expression.
+*         if((requestType == DocQueryParams.DIRECT
+*             || requestType == DocQueryParams.EXTENDED)
+*            && testExpr == "want an error")
+*         {
+*             context.errorMessage = "Here is the error message you desired!";
+*             return -142;
+*         }
+* 
+*         // Test 4:
+*         // Substitute a search expression (not recommended; just a demo)
+*         if(requestType == DocQueryParams.EXTENDED && (testExpr == "U" ||testExpr == "u"))
+*             sfield.valueExpr = "X";
+*     }
+* }
+* else
+*     util.out("No retrieval parameters available.");
+* 
+* util.out("*********  onSearch end **************");
 */
 /**
- * @memberof DocQueryParams
- * @summary Integer code for the requestType "direct fultext search". 
- * @description 
- * <br> This constant is member of group: Request Type Constants<br>
- * These constants are equally available in each instance of DocQueryParams and in the constructor object. 
- * @instance 
- * @constant {number} DIRECT
- */
+* @memberof DocQueryParams
+* @summary Integer code for the requestType "direct fultext search". 
+* @description 
+* <br> This constant is member of constant group: Request Type Constants<br>
+* These constants are equally available in each instance of DocQueryParams and in the constructor object. 
+* @instance 
+* @constant {number} DIRECT
+
+
+*/
 /**
- * @memberof DocQueryParams
- * @summary Integer code for the requestType "extended search". 
- * @description 
- * <br> This constant is member of group: Request Type Constants<br>
- * These constants are equally available in each instance of DocQueryParams and in the constructor object. 
- * @instance 
- * @constant {number} EXTENDED
- */
+* @memberof DocQueryParams
+* @summary Integer code for the requestType "extended search". 
+* @description 
+* <br> This constant is member of constant group: Request Type Constants<br>
+* These constants are equally available in each instance of DocQueryParams and in the constructor object. 
+* @instance 
+* @constant {number} EXTENDED
+
+
+*/
 /**
- * @memberof DocQueryParams
- * @summary Integer code for the requestType "static folder". 
- * @description In the current release, this type can occur only, if the Documents setting "search field in folder" is enabled. 
- * <br> This constant is member of group: Request Type Constants<br>
- * These constants are equally available in each instance of DocQueryParams and in the constructor object. 
- * @instance 
- * @constant {number} FOLDER_S
- */
+* @memberof DocQueryParams
+* @summary Integer code for the requestType "static folder". 
+* @description In the current release, this type can occur only, if the Documents setting "search field in folder" is enabled. 
+* <br> This constant is member of constant group: Request Type Constants<br>
+* These constants are equally available in each instance of DocQueryParams and in the constructor object. 
+* @instance 
+* @constant {number} FOLDER_S
+
+
+*/
 /**
- * @memberof DocQueryParams
- * @summary Integer code for the requestType "dynamic folder". 
- * @description Listing the contents of such a folder already triggers a search request. 
- * <br> This constant is member of group: Request Type Constants<br>
- * These constants are equally available in each instance of DocQueryParams and in the constructor object. 
- * @instance 
- * @constant {number} FOLDER_D
- */
+* @memberof DocQueryParams
+* @summary Integer code for the requestType "dynamic folder". 
+* @description Listing the contents of such a folder already triggers a search request. 
+* <br> This constant is member of constant group: Request Type Constants<br>
+* These constants are equally available in each instance of DocQueryParams and in the constructor object. 
+* @instance 
+* @constant {number} FOLDER_D
+
+
+*/
 /**
- * @memberof DocQueryParams
- * @summary Integer code for the requestType "link register". 
- * @description 
- * <br> This constant is member of group: Request Type Constants<br>
- * These constants are equally available in each instance of DocQueryParams and in the constructor object. 
- * @instance 
- * @constant {number} REGISTER
- */
+* @memberof DocQueryParams
+* @summary Integer code for the requestType "link register". 
+* @description 
+* <br> This constant is member of constant group: Request Type Constants<br>
+* These constants are equally available in each instance of DocQueryParams and in the constructor object. 
+* @instance 
+* @constant {number} REGISTER
+
+
+*/
 /**
- * @memberof DocQueryParams
- * @summary Integer code for the request type "reference field destination selection". 
- * @description This request type originates from the web dialog, which opens, when a user is editing a file and presses a reference fields select button. 
- * <br> This constant is member of group: Request Type Constants<br>
- * These constants are equally available in each instance of DocQueryParams and in the constructor object. 
- * @instance 
- * @constant {number} REFERENCE
- */
+* @memberof DocQueryParams
+* @summary Integer code for the request type "reference field destination selection". 
+* @description This request type originates from the web dialog, which opens, when a user is editing a file and presses a reference fields select button. 
+* <br> This constant is member of constant group: Request Type Constants<br>
+* These constants are equally available in each instance of DocQueryParams and in the constructor object. 
+* @instance 
+* @constant {number} REFERENCE
+
+
+*/
 /**
- * @memberof DocQueryParams
- * @summary Integer code for the requestType "API search". 
- * @description (Archive-)FileResultsets, HitResultSets and the SOAP report functions belong to this category. 
- * <br> This constant is member of group: Request Type Constants<br>
- * These constants are equally available in each instance of DocQueryParams and in the constructor object. 
- * @instance 
- * @constant {number} API
- */
+* @memberof DocQueryParams
+* @summary Integer code for the requestType "API search". 
+* @description (Archive-)FileResultsets, HitResultSets and the SOAP report functions belong to this category. 
+* <br> This constant is member of constant group: Request Type Constants<br>
+* These constants are equally available in each instance of DocQueryParams and in the constructor object. 
+* @instance 
+* @constant {number} API
+
+
+*/
 /**
- * @memberof DocQueryParams
- * @summary Integer code for the requestType "filing plan node". 
- * @description 
- * <br> This constant is member of group: Request Type Constants<br>
- * These constants are equally available in each instance of DocQueryParams and in the constructor object. 
- * @instance 
- * @constant {number} FILING_PLAN
- */
+* @memberof DocQueryParams
+* @summary Integer code for the requestType "filing plan node". 
+* @description 
+* <br> This constant is member of constant group: Request Type Constants<br>
+* These constants are equally available in each instance of DocQueryParams and in the constructor object. 
+* @instance 
+* @constant {number} FILING_PLAN
+
+
+*/
 /**
- * @memberof DocQueryParams
- * @summary Integer code for the requestType "quick view". 
- * @description Quick view URLs with just an id-Parameter do not trigger a search. 
- * <br> This constant is member of group: Request Type Constants<br>
- * These constants are equally available in each instance of DocQueryParams and in the constructor object. 
- * @instance 
- * @constant {number} QUICK_VIEW
- */
+* @memberof DocQueryParams
+* @summary Integer code for the requestType "quick view". 
+* @description 
+* Note: Quick view URLs with just an id-Parameter do not trigger a search. 
+* <br> This constant is member of constant group: Request Type Constants<br>
+* These constants are equally available in each instance of DocQueryParams and in the constructor object. 
+* @instance 
+* @constant {number} QUICK_VIEW
+
+
+*/
 /**
- * @memberof DocQueryParams
- * @summary Integer code for the request type "script controlled hit tree generation". 
- * @description This is a special feature, where a script in the web server process sends a seach request and immediately generates a hit tree from the results. The tabular list is not displayed in this case. 
- * <br> This constant is member of group: Request Type Constants<br>
- * These constants are equally available in each instance of DocQueryParams and in the constructor object. 
- * @instance 
- * @constant {number} SCRIPT_TREE
- */
+* @memberof DocQueryParams
+* @summary Integer code for the request type "script controlled hit tree generation". 
+* @description This is a special feature, where a script in the web server process sends a seach request and immediately generates a hit tree from the results. The tabular list is not displayed in this case. 
+* <br> This constant is member of constant group: Request Type Constants<br>
+* These constants are equally available in each instance of DocQueryParams and in the constructor object. 
+* @instance 
+* @constant {number} SCRIPT_TREE
+
+
+*/
 /**
 * @memberof DocQueryParams
 * @summary The number of filled in search fields in the query (read-only). 
@@ -4114,6 +5155,7 @@
 * Note: Attaching a default value to a search field does not fill it in this context. Default values are being stored separately from concrete search values, for technical reasons. 
 * @member {number} filledSearchFieldCount
 * @instance
+* @since DOCUMENTS 4.0c 
 **/
 /**
 * @memberof DocQueryParams
@@ -4121,6 +5163,7 @@
 * @description See the enumeration constants in this class. If Documents encounters a request, which it cannot categorize exactly, it will return the nearest match with respect to the server's internal interfaces. 
 * @member {number} requestType
 * @instance
+* @since DOCUMENTS 4.0c 
 **/
 /**
 * @memberof DocQueryParams
@@ -4128,22 +5171,30 @@
 * @description This count may include fields from a search mask, which have not been filled in. 
 * @member {number} searchFieldCount
 * @instance
+* @since DOCUMENTS 4.0c 
 **/
 /**
 * @memberof DocQueryParams
 * @summary The (technical) name of the selected search mask, if available (read only). 
-* @description Remark: The value is an empty string, if the query has been prepared without a search mask or with an anonymous mask (controlled by "show in search mask" checkboxes). 
+* @description 
+* Note: The value is an empty string, if the query has been prepared without a search mask or with an anonymous mask (controlled by "show in search mask" checkboxes). 
+* 
 * Search mask names are unique with regard to a single searchable resource. As soon as multiple resources are involved, the names are often ambiguous, because each resource may supply a search mask with the same name. 
+* 
 * To obtain a better identifier, the script may combine the mask's name and the resId of the first selected resource. 
+* 
 * However, even this identifier is not always unique. If a user has selected multiple EE.x views and the DOCUMENTS property "UseMainArchives" is undefined or zero, the query does not specify a main resource. DOCUMENTS then passes the RetrievalSource objects with random order. In this case the script cannot distinguish search masks with equal names. 
 * @member {string} searchMaskName
 * @instance
+* @since DOCUMENTS 4.0e 
+* @see [getSource,sourceCount]{@link getSource,sourceCount} 
 **/
 /**
 * @memberof DocQueryParams
 * @summary The number of searchable resources involved in the query (read-only). 
 * @member {number} sourceCount
 * @instance
+* @since DOCUMENTS 4.0c undefined
 **/
 /**
 * @memberof DocQueryParams
@@ -4158,10 +5209,13 @@
 * @function getSearchField
 * @instance
 * @summary Get a descriptive object of one of the search fields (conditions), which are declared in the query. 
-* @description Remark: If the request has been prepared with any kind of searck mask in the background, all available fields of that mask appear in the internal list, not only those, which the user has filled in. The skipEmpty flag provides a simple opportunity to examine only effective search conditions. 
+* @description 
+* Note: If the request has been prepared with any kind of searck mask in the background, all available fields of that mask appear in the internal list, not only those, which the user has filled in. The skipEmpty flag provides a simple opportunity to examine only effective search conditions. 
+* 
 *  Internally generated conditions (for example ACL-filters) cannot be returned by this function. 
+* 
 * Attaching a default value to a field does not modify its "empty" state in terms of this function. 
-* @param {number} index The index of the desired search field. The valid range is 0 to (filledSearchFieldCount - 1), if the flag skipEmpty is set. Otherwise the range is 0 to (searchFieldCount - 1). 
+* @param {number} index The index of the desired search field. The valid range is 0 to (filledSearchFieldCount - 1), if the flag <code>skipEmpty</code> is set. Otherwise the range is 0 to (searchFieldCount - 1). 
 * @param {boolean} skipEmpty An optional boolean to treat all empty search fields as non-existing. By default all fields can be examined. 
 * @returns {RetrievalField} A RetrievalField object, which contains a search field name, an operator and (sometimes) a value expression. 
 * @since DOCUMENTS 4.0c 
@@ -4172,7 +5226,7 @@
 * @instance
 * @summary Get a descriptive object of one selected search resource. 
 * @param {number} index The integer index of the resource in the internal list. Range: 0 to (sourceCount - 1) 
-* @returns {RetrievalSource} A RetrievalSource object on success, otherwise null. 
+* @returns {RetrievalSource} A RetrievalSource object on success, otherwise <code>null</code>. 
 * @since DOCUMENTS 4.0c 
 **/
 /**
@@ -4180,8 +5234,10 @@
 * @function removeSource
 * @instance
 * @summary Remove a search resource from the query. 
-* @description Note: The access to this function is restricted. Only the "OnSearchScript" can effectively use it. 
-* Remark: The id can be read from the property RetrievalSource.resId. Valid index values range from 1 to (sourceCount - 1). The resource at index 0 cannot be removed (see the class details). After a succesful call, the sourceCount and the index of each subsequent resource in the list are decreased by one. 
+* @description 
+* Note: The access to this function is restricted. Only the "OnSearchScript" can effectively use it. 
+* Note: The id can be read from the property RetrievalSource.resId. Valid index values range from 1 to (sourceCount - 1). The resource at index 0 cannot be removed (see the class details). After a succesful call, the sourceCount and the index of each subsequent resource in the list are decreased by one. 
+* 
 *  The method does not perform type-checking on the refSource parameter. It interprets a value like "12345" always as an index, even when this value has been passed as a string. 
 * @param {any} refSource Either the current integer index or the id of the resource. 
 * @returns {boolean} A boolean value, which indicates a succesful call. 
@@ -4190,42 +5246,58 @@
 /**
 * @interface Document
 * @summary The Document class has been added to the DOCUMENTS PortalScripting API to gain full access to the documents stored on registers of a DOCUMENTS file by scripting means. 
+* @description Since ELC 3.60i / otrisPORTAL 6.0i available for archive files 
+* @since ELC 3.50n / otrisPORTAL 5.0n 
 */
 /**
 * @memberof Document
 * @summary The file size of the Document object. 
 * @member {string} bytes
 * @instance
+* @since DOCUMENTS 4.0e 
 **/
 /**
 * @memberof Document
 * @summary Info, if the blob is encrypted in the repository. 
 * @member {boolean} encrypted
 * @instance
+* @since DOCUMENTS 4.0d HF3 
 **/
 /**
 * @memberof Document
 * @summary The extension of the Document object. 
+* @description
+* Since ELC 3.60i / otrisPORTAL 6.0i available for archive files 
 * @member {string} extension
 * @instance
+* @since ELC 3.50n / otrisPORTAL 5.0n 
 **/
 /**
 * @memberof Document
 * @summary The complete filename (name plus extension) of the Document object. 
+* @description
+* Since ELC 3.50n / otrisPORTAL 5.0n 
 * @member {string} fullname
 * @instance
+* @since ELC 3.60i / otrisPORTAL 6.0i available for archive files 
 **/
 /**
 * @memberof Document
 * @summary The name (without extension) of the Document object. 
+* @description
+* Since ELC 3.60i / otrisPORTAL 6.0i available for archive files 
 * @member {string} name
 * @instance
+* @since ELC 3.50n / otrisPORTAL 5.0n 
 **/
 /**
 * @memberof Document
 * @summary The file size of the Document object. 
+* @description
+* Since ELC 3.60i / otrisPORTAL 6.0i available for archive files 
 * @member {string} size
 * @instance
+* @since ELC 3.50n / otrisPORTAL 5.0n 
 **/
 /**
 * @memberof Document
@@ -4235,7 +5307,7 @@
 * @description With the necessary rights you can delete a document of the file. Do this only on scratch copies (startEdit, commit) 
 * Note: It is strictly forbidden to access the Document object after this function has been executed successfully; if you try to access it, your script will fail, because the Document does not exist any longer in DOCUMENTS. 
 * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since ELC 3.60b / otrisPORTAL 6.0b 
 * @example
 * // Deletion of the first document of the register "docs"
@@ -4285,6 +5357,7 @@
 * @function downloadDocument
 * @instance
 * @summary Download the Document to the server's filesystem for further use. 
+* @description
 * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files 
 * Since DOCUMENTS 4.0 (new parameter filePath) 
 * Since DOCUMENTS 4.0d (new parameter version)
@@ -4330,7 +5403,7 @@
 * @instance
 * @summary Create a PDF file containing the current Document's contents and return the path in the file system. 
 * @description The different document types of your documents require the appropriate PDF filter programs to be installed and configured in DOCUMENTS. 
-* @returns {string} String with file path of the PDF, an empty string in case of any error. 
+* @returns {string} <code>String</code> with file path of the PDF, an empty string in case of any error. 
 * @since DOCUMENTS 4.0c
 * @example
 * var docFile = context.file;
@@ -4350,6 +5423,7 @@
 * @function getAttribute
 * @instance
 * @summary Get the String value of an attribute of the Document. 
+* @description
 * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files 
 * @param {string} attribute String containing the name of the desired attribute 
 * @returns {string} String containing the value of the desired attribute 
@@ -4360,6 +5434,7 @@
 * @function getLastError
 * @instance
 * @summary Function to get the description of the last error that occurred. 
+* @description
 * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files 
 * @returns {string} Text of the last error as String 
 * @since ELC 3.50n / otrisPORTAL 5.0n 
@@ -4370,13 +5445,14 @@
 * @function getOID
 * @instance
 * @summary Returns the object-id. 
+* @description
 * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files 
 * Since DOCUMENTS 5.0 (new parameter oidLow) 
 * @param {boolean} [oidLow] Optional flag: 
-* If true only the id of the filetype object (m_oid) will be returned. 
-* If false the id of the filetype object will be returned together with the id of the corresponding class in the form class-id:m_oid. 
-* The default value is false. 
-* @returns {string} String with the object-id 
+* If <code>true</code> only the id of the filetype object (<code>m_oid</code>) will be returned. 
+* If <code>false</code> the id of the filetype object will be returned together with the id of the corresponding class in the form <code>class-id:m_oid</code>. 
+* The default value is <code>false</code>. 
+* @returns {string} <code>String</code> with the object-id 
 * @since ELC 3.60c / otrisPORTAL 6.0c 
 **/
 /**
@@ -4384,7 +5460,7 @@
 * @function getRegister
 * @instance
 * @summary Returns the Register the Document belongs to. 
-* @returns {Register} Register object or null if missing 
+* @returns {Register} Register object or <code>null</code> if missing 
 * @since DOCUMENTS 5.0c HF1
 * @example
 * var file = context.file;
@@ -4405,7 +5481,7 @@
 * @description With the necessary rights you can move the Document to another document Register of the file. 
 * Note: This operation is not available for a Document located in an archive file. 
 * @param {Register} regObj The Register this Document will be moved to. 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since DOCUMENTS 4.0c
 * @example
 * var file = context.file;
@@ -4426,10 +5502,11 @@
 * @function setAttribute
 * @instance
 * @summary Set the String value of an attribute of the Document to the desired value. 
+* @description
 * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files 
 * @param {string} attribute String containing the name of the desired attribute 
 * @param {string} value String containing the desired value of the attribute 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since ELC 3.50n / otrisPORTAL 5.0n 
 **/
 /**
@@ -4437,11 +5514,12 @@
 * @function uploadDocument
 * @instance
 * @summary Upload a file stored on the server's filesystem for replacing or versioning this Document. 
-* @description Note: After successful upload of the Document the source file on the server's directory structure is removed! 
+* @description 
+* Note: After successful upload of the Document the source file on the server's directory structure is removed! 
 * @param {string} sourceFilePath String containing the path of the desired file to be uploaded. 
 * Note: Backslashes contained in the filepath must be quoted with a leading backslash, since the backslash is a special char in ECMAScript! 
-* @param {boolean} [versioning] Optional flag: true for versioning the Document and false for replacing it. 
-* @returns {boolean} true if successful, false in case of any error 
+* @param {boolean} [versioning] Optional flag: <code>true</code> for versioning the Document and <code>false</code> for replacing it. 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since DOCUMENTS 4.0d
 * @example
 * var docFile = context.file;
@@ -4457,14 +5535,34 @@
 /**
 * @interface DocumentIterator
 * @summary The DocumentIterator class has been added to the DOCUMENTS PortalScripting API to gain full access to the documents stored on registers of a DOCUMENTS file by scripting means. 
+* @description Since ELC 3.60i / otrisPORTAL 6.0i available for archive files
+* @since ELC 3.50n / otrisPORTAL 5.0n 
+* @example
+* var docFile = context.file;
+* if (docFile)
+* {
+*    var docreg = docFile.getRegisterByName("Documents");
+*    if (docreg)
+*    {
+*       var docs = docreg.getDocuments();
+*       if (docs && docs.size() > 0)
+*       {
+*          for (var d = docs.first(); d; d = docs.next())
+*          {
+*             util.out(d.Fullname);
+*          }
+*       }
+*    }
+* }
 */
 /**
 * @memberof DocumentIterator
 * @function first
 * @instance
 * @summary Retrieve the first Document object in the DocumentIterator. 
+* @description
 * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files 
-* @returns {Document} Document or null in case of an empty DocumentIterator
+* @returns {Document} Document or <code>null</code> in case of an empty DocumentIterator
 * @since ELC 3.50n / otrisPORTAL 5.0n 
 **/
 /**
@@ -4481,8 +5579,9 @@
 * @function next
 * @instance
 * @summary Retrieve the next Document object in the DocumentIterator. 
+* @description
 * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files 
-* @returns {Document} Document or null if end of DocumentIterator is reached. 
+* @returns {Document} Document or <code>null</code> if end of DocumentIterator is reached. 
 * @since ELC 3.50n / otrisPORTAL 5.0n 
 **/
 /**
@@ -4490,6 +5589,7 @@
 * @function size
 * @instance
 * @summary Get the amount of Document objects in the DocumentIterator. 
+* @description
 * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files 
 * @returns {number} integer value with the amount of Document objects in the DocumentIterator
 * @since ELC 3.50n / otrisPORTAL 5.0n 
@@ -4497,6 +5597,11 @@
 /**
 * @interface DOMAttr
 * @summary This class models a single attribute of a DOMElement. 
+* @description DOMAttrs cannot be created directly. This applies to all kinds of DOMNodes.
+* <b>Remarks about W3C conformity</b>
+* 
+*  The class covers the Attribute interface of DOM level 1. The underlying native library already supports at least level 2. 
+* @since DOCUMENTS 4.0c 
 */
 /**
 * @memberof DOMAttr
@@ -4504,13 +5609,15 @@
 * @description This property is readonly. 
 * @member {string} name
 * @instance
+* @since DOCUMENTS 4.0c 
 **/
 /**
 * @memberof DOMAttr
 * @summary A flag to test, whether the attribute's value has been explicitly specified. 
-* @description The flag is true, if the value was explicitly contained in a parsed document. The flag is also true, if the script has set the property "value" of this DOMAttr object. The flag is false, if the value came from a default value declared in a DTD. The flag is readonly. 
+* @description The flag is <code>true</code>, if the value was explicitly contained in a parsed document. The flag is also <code>true</code>, if the script has set the property "value" of this DOMAttr object. The flag is <code>false</code>, if the value came from a default value declared in a DTD. The flag is readonly. 
 * @member {boolean} specified
 * @instance
+* @since DOCUMENTS 4.0c 
 **/
 /**
 * @memberof DOMAttr
@@ -4518,16 +5625,25 @@
 * @description Character and general entity references are replaced with their values. 
 * @member {string} value
 * @instance
+* @since DOCUMENTS 4.0c 
 **/
 /**
 * @interface DOMCharacterData
 * @summary DOMCharacterData represents text-like nodes in the DOM tree. 
+* @description An object of this class can represent either a text node, a comment node or a CDATA section. Scripts should use the inherited nodeType attribute to distinguish these node types.
+* <b>Remarks about W3C conformity</b>
+* 
+*  The class covers the CharacterData interface of DOM level 1. The underlying native library already supports at least level 2. The W3C has defined several derived interfaces, namely "Text", "Comment" and "CDATASection". With respect to code size (and work) this API omits the corresponding subclasses "DOMText", "DOMComment" and "DOMCDATASection". The only additional method "DOMText.splitText()" has been moved into this class. 
+* 
+* This simplification has got only one little disadvantage. Scripts cannot distinguish the three node types using the JavaScript <code>instanceof</code> operator. They must use the nodeType attribute instead. 
+* @since DOCUMENTS 4.0c 
 */
 /**
 * @memberof DOMCharacterData
 * @summary The text data in the node. 
 * @member {string} data
 * @instance
+* @since DOCUMENTS 4.0c 
 **/
 /**
 * @memberof DOMCharacterData
@@ -4535,6 +5651,7 @@
 * @description This property is readonly. 
 * @member {number} length
 * @instance
+* @since DOCUMENTS 4.0c 
 **/
 /**
 * @memberof DOMCharacterData
@@ -4601,17 +5718,42 @@
 * @class DOMDocument
 * @classdesc The DOMDocument is the root of a DOM tree. 
 * The constructor of this class always creates an empty document structure. Use the class DOMParser to obtain the structure of an existing XML. To create any new child nodes, a script must call the appropriate create method of the DOMDocument. It is not possible to create child nodes standalone.
-* @summary Create a new empty XML document structure. 
-* @param {string} rootElementName A qualified name for the document element. 
+* After a DOMDocument has been deleted by the scripting engine's garbage collector, accessing any nodes and lists of that document may issue an error. You should avoid code like the following. 
+* function buildSomeElement()
+* {
+*    var domDoc = new DOMDocument("root");
+*    var someElement = domDoc.createElement("Test");
+* 
+*    // This is an error: Some operations on the DOMElement may no
+*    // longer work, when the owning DOMDocument has already died.
+*    return someElement;
+* }
+* 
+* <b>Remarks about W3C conformity</b>
+* 
+*  The class covers much of the Document interface of DOM level 1, but the following properties and functions have not been implemented until now.
+* <ul>
+* <li>DocumentType doctype</li>
+* <li>DOMImplementation implementation</li>
+* <li>DocumentFragment createDocumentFragment()</li>
+* <li>ProcessingInstruction createProcessingInstruction(String target, String data)</li>
+* <li>EntityReference createEntityReference(in String name)</li>
+* </ul>
+* 
+* The native DOM library behind the scripting API already supports at least DOM level 2. This is worth knowing, because the behaviour of a few operations might have changed with level 2. 
 * @since DOCUMENTS 4.0c 
+* @summary Create a new empty XML document structure. 
+* Since DOCUMENTS 4.0c 
+* @param {string} rootElementName A qualified name for the document element. 
 */
 /**
 * @memberof DOMDocument
 * @summary The node, which represents the outermost structure element of the document. 
 * @description This property is readonly. 
-* Remark: Unlike written in older versions of this document, the documentElement is not necessarily the first child of the DOMDocument. A DocumentType node, for example, may precede it in the list of direct children. 
+* Note: Unlike written in older versions of this document, the documentElement is not necessarily the first child of the DOMDocument. A DocumentType node, for example, may precede it in the list of direct children. 
 * @member {DOMElement} documentElement
 * @instance
+* @since DOCUMENTS 4.0d 
 **/
 /**
 * @memberof DOMDocument
@@ -4628,7 +5770,7 @@
 * @function createCDATASection
 * @instance
 * @summary Create a new CDATA section within this document. 
-* @description Remarks about W3C conformity
+* @description <b>Remarks about W3C conformity</b>
 * 
 *  The W3C specifies the return type as "CDATASection". Considering code size (and work) the actual implementation omits a class CDATASection and presents the only additional member (splitText(), inherited from "Text") directly in the second level base class. Scripts can examine DOMNode.nodeType to distinguish different types of character data, if necessary. 
 * @param {string} data The data for the node 
@@ -4641,7 +5783,7 @@
 * @function createComment
 * @instance
 * @summary Create a new comment node within this document. 
-* @description Remarks about W3C conformity
+* @description <b>Remarks about W3C conformity</b>
 * 
 *  The W3C specifies the return type as "Comment". Considering code size (and work) the actual implementation omits a class DOMComment, which would not get any more members apart from the inherited ones. Scripts can examine DOMNode.nodeType to distinguish different types of character data, if necessary. 
 * @param {string} data The data for the node 
@@ -4664,7 +5806,7 @@
 * @function createTextNode
 * @instance
 * @summary Create a new text node within this document. 
-* @description Remarks about W3C conformity
+* @description <b>Remarks about W3C conformity</b>
 * 
 *  The W3C specifies the return type as "Text". Considering code size (and work) the actual implementation omits a class DOMText and presents the only additional member (splitText()) directly in the base class. Scripts can examine DOMNode.nodeType to distinguish different types of character data, if necessary. 
 * @param {string} data The data for the node 
@@ -4686,6 +5828,11 @@
 /**
 * @interface DOMElement
 * @summary An object of this class represents a HTML or XML element in the DOM. 
+* @description DOMElements cannot be created directly. This applies to all kinds of DOMNodes.
+* <b>Remarks about W3C conformity</b>
+* 
+*  The class covers the Element interface of DOM level 1. The underlying native library already supports at least level 2. 
+* @since DOCUMENTS 4.0c 
 */
 /**
 * @memberof DOMElement
@@ -4693,6 +5840,7 @@
 * @description This property is readonly. 
 * @member {string} tagName
 * @instance
+* @since DOCUMENTS 4.0c 
 **/
 /**
 * @memberof DOMElement
@@ -4709,7 +5857,7 @@
 * @instance
 * @summary Get an attribute of this element. 
 * @param {string} name The attribute's name 
-* @returns {DOMAttr} The object, which represents the attribute in the DOM. If no attribute of the given name exists, the value is null. 
+* @returns {DOMAttr} The object, which represents the attribute in the DOM. If no attribute of the given name exists, the value is <code>null</code>. 
 
 **/
 /**
@@ -4758,160 +5906,209 @@
 * @instance
 * @summary Attach an attribute node to this element. 
 * @param {DOMAttr} newAttr The DOMAttr object, which defines the attribute to add or replace. 
-* @returns {DOMAttr} The formerly attached DOMAttr, if the call has replaced an attribute with the same name. Otherwise the method returns null. 
+* @returns {DOMAttr} The formerly attached DOMAttr, if the call has replaced an attribute with the same name. Otherwise the method returns <code>null</code>. 
 * @since DOCUMENTS 4.0c 
 **/
 /**
 * @interface DOMException
 * @summary Many of the DOM API functions throw a DOMException, when an error has occurred. 
-* @description Remarks about W3C conformity
+* @description <b>Remarks about W3C conformity</b>
 * 
 *  The class implements the DOMException exception type with the error codes specified in DOM level 2. 
+* @since DOCUMENTS 4.0c 
 */
 /**
- * @memberof DOMException
- * @summary The index or size is negative, or greater than the allowed value. 
- * @description 
- * <br> This constant is member of group: Error Code Constants<br>
- * All these constants are also available as properties of the constructor.DOCUMENTS 4.0c 
- * @instance 
- * @constant {number} INDEX_SIZE_ERR
- */
+* @memberof DOMException
+* @summary The index or size is negative, or greater than the allowed value. 
+* @description 
+* <br> This constant is member of constant group: Error Code Constants<br>
+* All these constants are also available as properties of the constructor.
+* @instance 
+* @constant {number} INDEX_SIZE_ERR
+* @since DOCUMENTS 4.0c 
+
+
+*/
 /**
- * @memberof DOMException
- * @summary The specified range of text does not fit into a DOMString. 
- * @description 
- * <br> This constant is member of group: Error Code Constants<br>
- * All these constants are also available as properties of the constructor.DOCUMENTS 4.0c 
- * @instance 
- * @constant {number} DOMSTRING_SIZE_ERR
- */
+* @memberof DOMException
+* @summary The specified range of text does not fit into a DOMString. 
+* @description 
+* <br> This constant is member of constant group: Error Code Constants<br>
+* All these constants are also available as properties of the constructor.
+* @instance 
+* @constant {number} DOMSTRING_SIZE_ERR
+* @since DOCUMENTS 4.0c 
+
+
+*/
 /**
- * @memberof DOMException
- * @summary Any node is inserted somewhere it doesn't belong. 
- * @description 
- * <br> This constant is member of group: Error Code Constants<br>
- * All these constants are also available as properties of the constructor.DOCUMENTS 4.0c 
- * @instance 
- * @constant {number} HIERARCHY_REQUEST_ERR
- */
+* @memberof DOMException
+* @summary Any node is inserted somewhere it doesn't belong. 
+* @description 
+* <br> This constant is member of constant group: Error Code Constants<br>
+* All these constants are also available as properties of the constructor.
+* @instance 
+* @constant {number} HIERARCHY_REQUEST_ERR
+* @since DOCUMENTS 4.0c 
+
+
+*/
 /**
- * @memberof DOMException
- * @summary A node is used in a different document than the one that created it. 
- * @description 
- * <br> This constant is member of group: Error Code Constants<br>
- * All these constants are also available as properties of the constructor.DOCUMENTS 4.0c 
- * @instance 
- * @constant {number} WRONG_DOCUMENT_ERR
- */
+* @memberof DOMException
+* @summary A node is used in a different document than the one that created it. 
+* @description 
+* <br> This constant is member of constant group: Error Code Constants<br>
+* All these constants are also available as properties of the constructor.
+* @instance 
+* @constant {number} WRONG_DOCUMENT_ERR
+* @since DOCUMENTS 4.0c 
+
+
+*/
 /**
- * @memberof DOMException
- * @summary An invalid or illegal character is specified, such as in a name. 
- * @description 
- * <br> This constant is member of group: Error Code Constants<br>
- * All these constants are also available as properties of the constructor.DOCUMENTS 4.0c 
- * @instance 
- * @constant {number} INVALID_CHARACTER_ERR
- */
+* @memberof DOMException
+* @summary An invalid or illegal character is specified, such as in a name. 
+* @description 
+* <br> This constant is member of constant group: Error Code Constants<br>
+* All these constants are also available as properties of the constructor.
+* @instance 
+* @constant {number} INVALID_CHARACTER_ERR
+* @since DOCUMENTS 4.0c 
+
+
+*/
 /**
- * @memberof DOMException
- * @summary Data is specified for a node which does not support data. 
- * @description 
- * <br> This constant is member of group: Error Code Constants<br>
- * All these constants are also available as properties of the constructor.DOCUMENTS 4.0c 
- * @instance 
- * @constant {number} NO_DATA_ALLOWED_ERR
- */
+* @memberof DOMException
+* @summary Data is specified for a node which does not support data. 
+* @description 
+* <br> This constant is member of constant group: Error Code Constants<br>
+* All these constants are also available as properties of the constructor.
+* @instance 
+* @constant {number} NO_DATA_ALLOWED_ERR
+* @since DOCUMENTS 4.0c 
+
+
+*/
 /**
- * @memberof DOMException
- * @summary An attempt is made to modify an object where modifications are not allowed. 
- * @description 
- * <br> This constant is member of group: Error Code Constants<br>
- * All these constants are also available as properties of the constructor.DOCUMENTS 4.0c 
- * @instance 
- * @constant {number} NO_MODIFICATION_ALLOWED_ERR
- */
+* @memberof DOMException
+* @summary An attempt is made to modify an object where modifications are not allowed. 
+* @description 
+* <br> This constant is member of constant group: Error Code Constants<br>
+* All these constants are also available as properties of the constructor.
+* @instance 
+* @constant {number} NO_MODIFICATION_ALLOWED_ERR
+* @since DOCUMENTS 4.0c 
+
+
+*/
 /**
- * @memberof DOMException
- * @summary An attempt is made to reference a node in a context where it does not exist. 
- * @description 
- * <br> This constant is member of group: Error Code Constants<br>
- * All these constants are also available as properties of the constructor.DOCUMENTS 4.0c 
- * @instance 
- * @constant {number} NOT_FOUND_ERR
- */
+* @memberof DOMException
+* @summary An attempt is made to reference a node in a context where it does not exist. 
+* @description 
+* <br> This constant is member of constant group: Error Code Constants<br>
+* All these constants are also available as properties of the constructor.
+* @instance 
+* @constant {number} NOT_FOUND_ERR
+* @since DOCUMENTS 4.0c 
+
+
+*/
 /**
- * @memberof DOMException
- * @summary The implementation does not support the requested type of object or operation. 
- * @description 
- * <br> This constant is member of group: Error Code Constants<br>
- * All these constants are also available as properties of the constructor.DOCUMENTS 4.0c 
- * @instance 
- * @constant {number} NOT_SUPPORTED_ERR
- */
+* @memberof DOMException
+* @summary The implementation does not support the requested type of object or operation. 
+* @description 
+* <br> This constant is member of constant group: Error Code Constants<br>
+* All these constants are also available as properties of the constructor.
+* @instance 
+* @constant {number} NOT_SUPPORTED_ERR
+* @since DOCUMENTS 4.0c 
+
+
+*/
 /**
- * @memberof DOMException
- * @summary An attempt is made to add an attribute that is already in use elsewhere. 
- * @description 
- * <br> This constant is member of group: Error Code Constants<br>
- * All these constants are also available as properties of the constructor.DOCUMENTS 4.0c 
- * @instance 
- * @constant {number} INUSE_ATTRIBUTE_ERR
- */
+* @memberof DOMException
+* @summary An attempt is made to add an attribute that is already in use elsewhere. 
+* @description 
+* <br> This constant is member of constant group: Error Code Constants<br>
+* All these constants are also available as properties of the constructor.
+* @instance 
+* @constant {number} INUSE_ATTRIBUTE_ERR
+* @since DOCUMENTS 4.0c 
+
+
+*/
 /**
- * @memberof DOMException
- * @summary An attempt is made to use an object that is not, or is no longer, usable. 
- * @description 
- * <br> This constant is member of group: Error Code Constants<br>
- * All these constants are also available as properties of the constructor.DOCUMENTS 4.0c 
- * @instance 
- * @constant {number} INVALID_STATE_ERR
- */
+* @memberof DOMException
+* @summary An attempt is made to use an object that is not, or is no longer, usable. 
+* @description 
+* <br> This constant is member of constant group: Error Code Constants<br>
+* All these constants are also available as properties of the constructor.
+* @instance 
+* @constant {number} INVALID_STATE_ERR
+* @since DOCUMENTS 4.0c 
+
+
+*/
 /**
- * @memberof DOMException
- * @summary An invalid or illegal string is specified. 
- * @description 
- * <br> This constant is member of group: Error Code Constants<br>
- * All these constants are also available as properties of the constructor.DOCUMENTS 4.0c 
- * @instance 
- * @constant {number} SYNTAX_ERR
- */
+* @memberof DOMException
+* @summary An invalid or illegal string is specified. 
+* @description 
+* <br> This constant is member of constant group: Error Code Constants<br>
+* All these constants are also available as properties of the constructor.
+* @instance 
+* @constant {number} SYNTAX_ERR
+* @since DOCUMENTS 4.0c 
+
+
+*/
 /**
- * @memberof DOMException
- * @summary An attempt is made to modify the type of the underlying object. 
- * @description 
- * <br> This constant is member of group: Error Code Constants<br>
- * All these constants are also available as properties of the constructor.DOCUMENTS 4.0c 
- * @instance 
- * @constant {number} INVALID_MODIFICATION_ERR
- */
+* @memberof DOMException
+* @summary An attempt is made to modify the type of the underlying object. 
+* @description 
+* <br> This constant is member of constant group: Error Code Constants<br>
+* All these constants are also available as properties of the constructor.
+* @instance 
+* @constant {number} INVALID_MODIFICATION_ERR
+* @since DOCUMENTS 4.0c 
+
+
+*/
 /**
- * @memberof DOMException
- * @summary An attempt is made to create or change an object in a way which is incorrect with regard to namespaces. 
- * @description 
- * <br> This constant is member of group: Error Code Constants<br>
- * All these constants are also available as properties of the constructor.DOCUMENTS 4.0c 
- * @instance 
- * @constant {number} NAMESPACE_ERR
- */
+* @memberof DOMException
+* @summary An attempt is made to create or change an object in a way which is incorrect with regard to namespaces. 
+* @description 
+* <br> This constant is member of constant group: Error Code Constants<br>
+* All these constants are also available as properties of the constructor.
+* @instance 
+* @constant {number} NAMESPACE_ERR
+* @since DOCUMENTS 4.0c 
+
+
+*/
 /**
- * @memberof DOMException
- * @summary A parameter or an operation is not supported by the underlying object. 
- * @description 
- * <br> This constant is member of group: Error Code Constants<br>
- * All these constants are also available as properties of the constructor.DOCUMENTS 4.0c 
- * @instance 
- * @constant {number} INVALID_ACCESS_ERR
- */
+* @memberof DOMException
+* @summary A parameter or an operation is not supported by the underlying object. 
+* @description 
+* <br> This constant is member of constant group: Error Code Constants<br>
+* All these constants are also available as properties of the constructor.
+* @instance 
+* @constant {number} INVALID_ACCESS_ERR
+* @since DOCUMENTS 4.0c 
+
+
+*/
 /**
- * @memberof DOMException
- * @summary A call to a method such as insertBefore or removeChild would make the Node invalid with respect to "partial validity", this exception would be raised and the operation would not be done. 
- * @description 
- * <br> This constant is member of group: Error Code Constants<br>
- * All these constants are also available as properties of the constructor.DOCUMENTS 4.0c 
- * @instance 
- * @constant {number} VALIDATION_ERR
- */
+* @memberof DOMException
+* @summary A call to a method such as insertBefore or removeChild would make the Node invalid with respect to "partial validity", this exception would be raised and the operation would not be done. 
+* @description 
+* <br> This constant is member of constant group: Error Code Constants<br>
+* All these constants are also available as properties of the constructor.
+* @instance 
+* @constant {number} VALIDATION_ERR
+* @since DOCUMENTS 4.0c 
+
+
+*/
 /**
 * @memberof DOMException
 * @readonly
@@ -4919,6 +6116,7 @@
 * @description See the error constants in this class. 
 * @member {number} code
 * @instance
+* @since DOCUMENTS 4.0c 
 **/
 /**
 * @memberof DOMException
@@ -4926,11 +6124,16 @@
 * @summary An error message. 
 * @member {string} message
 * @instance
+* @since DOCUMENTS 4.0c 
 **/
 /**
 * @interface DOMNamedNodeMap
 * @summary A DOMNamedNodeMap is a kind of index for a set of DOMNodes, in which each node has got a unique name. 
 * @description The attributes of a DOMElement are organized in a DOMNamedNodeMap. See DOMElement.attributes. The attached nodes can be accessed either by the name or by an integer index. When using an index, the output order of the nodes is not determined. Objects of this class cannot be created directly.
+* <b>Remarks about W3C conformity</b>
+* 
+*  The class covers the NamedNodeMap interface of DOM level 1. The underlying native library already supports at least level 2. 
+* @since DOCUMENTS 4.0c 
 */
 /**
 * @memberof DOMNamedNodeMap
@@ -4938,6 +6141,7 @@
 * @description This property is readonly. 
 * @member {number} length
 * @instance
+* @since DOCUMENTS 4.0c 
 **/
 /**
 * @memberof DOMNamedNodeMap
@@ -4945,7 +6149,7 @@
 * @instance
 * @summary Get a node from the map by its unique name. 
 * @param {string} name The name. 
-* @returns {DOMNode} The node, respectively null, if no node with the name is in the map. 
+* @returns {DOMNode} The node, respectively <code>null</code>, if no node with the name is in the map. 
 * @since DOCUMENTS 4.0c 
 **/
 /**
@@ -4954,9 +6158,9 @@
 * @instance
 * @summary Get the a node from the map at a certain position. 
 * @description This is useful only to iterate over all nodes in the map. 
-* Remark: It is also possible to access the nodes using square brackets, as if the object would be an array. 
+* Note: It is also possible to access the nodes using square brackets, as if the object would be an array. 
 * @param {number} index the zero based index of the element. 
-* @returns {DOMNode} The requested DOMNode Object. If the index is invalid, the method returns null. 
+* @returns {DOMNode} The requested DOMNode Object. If the index is invalid, the method returns <code>null</code>. 
 * @since DOCUMENTS 4.0c 
 **/
 /**
@@ -4974,125 +6178,150 @@
 * @instance
 * @summary Add a node to the map or replace an existing one. 
 * @param {DOMNode} arg The node to add. The name for indexing is the value of the attribute DOMNode.nodeName, 
-* @returns {DOMNode} If a node with the same name has already been added, the method removes that node and returns it. Otherwise it returns null. 
+* @returns {DOMNode} If a node with the same name has already been added, the method removes that node and returns it. Otherwise it returns <code>null</code>. 
 * @since DOCUMENTS 4.0c 
 **/
 /**
 * @interface DOMNode
 * @summary DOMNode is the base class of all tree elements in a DOMDocument. 
-* @description DOMNodes cannot be created with new. Different create methods of DOMDocument can be used to create different types of nodes. 
-* Note: Accessing any node may generate a JavaScript error, when the owning document has been deleted or "garbage collected". See the negative example at class DOMDocument.Remarks about W3C conformity
+* @description DOMNodes cannot be created with <code>new</code>. Different create methods of DOMDocument can be used to create different types of nodes. 
+* Note: Accessing any node may generate a JavaScript error, when the owning document has been deleted or "garbage collected". See the negative example at class DOMDocument.<b>Remarks about W3C conformity</b>
 * 
 *  The class covers the Node interface of DOM level 1. The underlying native library already supports at least level 2. 
+* @since DOCUMENTS 4.0c 
 */
 /**
- * @memberof DOMNode
- * @summary Constant for the nodeType "Element". The actual subclass is DOMElement. 
- * @description 
- * <br> This constant is member of group: Node Type Constants<br>
- * These constants build an enumeration of the possible values of the property nodeType. The constants are also properties of the constructor, so it is possible to read them in the style DOMNode.ELEMENT_NODE. 
- * @instance 
- * @constant {number} ELEMENT_NODE
- */
+* @memberof DOMNode
+* @summary Constant for the nodeType "Element". The actual subclass is DOMElement. 
+* @description 
+* <br> This constant is member of constant group: Node Type Constants<br>
+* These constants build an enumeration of the possible values of the property nodeType. The constants are also properties of the constructor, so it is possible to read them in the style . 
+* @instance 
+* @constant {number} ELEMENT_NODE
+
+
+*/
 /**
- * @memberof DOMNode
- * @summary Constant for the nodeType "Attr". The actual subclass is DOMAttr. 
- * @description 
- * <br> This constant is member of group: Node Type Constants<br>
- * These constants build an enumeration of the possible values of the property nodeType. The constants are also properties of the constructor, so it is possible to read them in the style DOMNode.ELEMENT_NODE. 
- * @instance 
- * @constant {number} ATTRIBUTE_NODE
- */
+* @memberof DOMNode
+* @summary Constant for the nodeType "Attr". The actual subclass is DOMAttr. 
+* @description 
+* <br> This constant is member of constant group: Node Type Constants<br>
+* These constants build an enumeration of the possible values of the property nodeType. The constants are also properties of the constructor, so it is possible to read them in the style . 
+* @instance 
+* @constant {number} ATTRIBUTE_NODE
+
+
+*/
 /**
- * @memberof DOMNode
- * @summary Constant for the nodeType "Text". The actual subclass is DOMCharacterData, differing from the standard. 
- * @description 
- * <br> This constant is member of group: Node Type Constants<br>
- * These constants build an enumeration of the possible values of the property nodeType. The constants are also properties of the constructor, so it is possible to read them in the style DOMNode.ELEMENT_NODE. 
- * @instance 
- * @constant {number} TEXT_NODE
- */
+* @memberof DOMNode
+* @summary Constant for the nodeType "Text". The actual subclass is DOMCharacterData, differing from the standard. 
+* @description 
+* <br> This constant is member of constant group: Node Type Constants<br>
+* These constants build an enumeration of the possible values of the property nodeType. The constants are also properties of the constructor, so it is possible to read them in the style . 
+* @instance 
+* @constant {number} TEXT_NODE
+
+
+*/
 /**
- * @memberof DOMNode
- * @summary Constant for the nodeType "CDATASection". The actual subclass is DOMCharacterData, differing from the standard. 
- * @description 
- * <br> This constant is member of group: Node Type Constants<br>
- * These constants build an enumeration of the possible values of the property nodeType. The constants are also properties of the constructor, so it is possible to read them in the style DOMNode.ELEMENT_NODE. 
- * @instance 
- * @constant {number} CDATA_SECTION_NODE
- */
+* @memberof DOMNode
+* @summary Constant for the nodeType "CDATASection". The actual subclass is DOMCharacterData, differing from the standard. 
+* @description 
+* <br> This constant is member of constant group: Node Type Constants<br>
+* These constants build an enumeration of the possible values of the property nodeType. The constants are also properties of the constructor, so it is possible to read them in the style . 
+* @instance 
+* @constant {number} CDATA_SECTION_NODE
+
+
+*/
 /**
- * @memberof DOMNode
- * @summary Constant for the nodeType "EntityReference". The actual implementation does not provide a subclass for this type. 
- * @description 
- * <br> This constant is member of group: Node Type Constants<br>
- * These constants build an enumeration of the possible values of the property nodeType. The constants are also properties of the constructor, so it is possible to read them in the style DOMNode.ELEMENT_NODE. 
- * @instance 
- * @constant {number} ENTITY_REFERENCE_NODE
- */
+* @memberof DOMNode
+* @summary Constant for the nodeType "EntityReference". The actual implementation does not provide a subclass for this type. 
+* @description 
+* <br> This constant is member of constant group: Node Type Constants<br>
+* These constants build an enumeration of the possible values of the property nodeType. The constants are also properties of the constructor, so it is possible to read them in the style . 
+* @instance 
+* @constant {number} ENTITY_REFERENCE_NODE
+
+
+*/
 /**
- * @memberof DOMNode
- * @summary Constant for the nodeType "Entity". The actual implementation does not provide a subclass for this type. 
- * @description 
- * <br> This constant is member of group: Node Type Constants<br>
- * These constants build an enumeration of the possible values of the property nodeType. The constants are also properties of the constructor, so it is possible to read them in the style DOMNode.ELEMENT_NODE. 
- * @instance 
- * @constant {number} ENTITY_NODE
- */
+* @memberof DOMNode
+* @summary Constant for the nodeType "Entity". The actual implementation does not provide a subclass for this type. 
+* @description 
+* <br> This constant is member of constant group: Node Type Constants<br>
+* These constants build an enumeration of the possible values of the property nodeType. The constants are also properties of the constructor, so it is possible to read them in the style . 
+* @instance 
+* @constant {number} ENTITY_NODE
+
+
+*/
 /**
- * @memberof DOMNode
- * @summary Constant for the nodeType "ProcessingInstruction". The actual implementation does not provide a subclass for this type. 
- * @description 
- * <br> This constant is member of group: Node Type Constants<br>
- * These constants build an enumeration of the possible values of the property nodeType. The constants are also properties of the constructor, so it is possible to read them in the style DOMNode.ELEMENT_NODE. 
- * @instance 
- * @constant {number} PROCESSING_INSTRUCTION_NODE
- */
+* @memberof DOMNode
+* @summary Constant for the nodeType "ProcessingInstruction". The actual implementation does not provide a subclass for this type. 
+* @description 
+* <br> This constant is member of constant group: Node Type Constants<br>
+* These constants build an enumeration of the possible values of the property nodeType. The constants are also properties of the constructor, so it is possible to read them in the style . 
+* @instance 
+* @constant {number} PROCESSING_INSTRUCTION_NODE
+
+
+*/
 /**
- * @memberof DOMNode
- * @summary Constant for the nodeType "Comment". The actual subclass is DOMCharacterData, differing from the standard. 
- * @description 
- * <br> This constant is member of group: Node Type Constants<br>
- * These constants build an enumeration of the possible values of the property nodeType. The constants are also properties of the constructor, so it is possible to read them in the style DOMNode.ELEMENT_NODE. 
- * @instance 
- * @constant {number} COMMENT_NODE
- */
+* @memberof DOMNode
+* @summary Constant for the nodeType "Comment". The actual subclass is DOMCharacterData, differing from the standard. 
+* @description 
+* <br> This constant is member of constant group: Node Type Constants<br>
+* These constants build an enumeration of the possible values of the property nodeType. The constants are also properties of the constructor, so it is possible to read them in the style . 
+* @instance 
+* @constant {number} COMMENT_NODE
+
+
+*/
 /**
- * @memberof DOMNode
- * @summary Constant for the nodeType "Document". The actual subclass is DOMDocument. 
- * @description 
- * <br> This constant is member of group: Node Type Constants<br>
- * These constants build an enumeration of the possible values of the property nodeType. The constants are also properties of the constructor, so it is possible to read them in the style DOMNode.ELEMENT_NODE. 
- * @instance 
- * @constant {number} DOCUMENT_NODE
- */
+* @memberof DOMNode
+* @summary Constant for the nodeType "Document". The actual subclass is DOMDocument. 
+* @description 
+* <br> This constant is member of constant group: Node Type Constants<br>
+* These constants build an enumeration of the possible values of the property nodeType. The constants are also properties of the constructor, so it is possible to read them in the style . 
+* @instance 
+* @constant {number} DOCUMENT_NODE
+
+
+*/
 /**
- * @memberof DOMNode
- * @summary Constant for the nodeType "DocumentType". The actual implementation does not provide a subclass for this type. 
- * @description 
- * <br> This constant is member of group: Node Type Constants<br>
- * These constants build an enumeration of the possible values of the property nodeType. The constants are also properties of the constructor, so it is possible to read them in the style DOMNode.ELEMENT_NODE. 
- * @instance 
- * @constant {number} DOCUMENT_TYPE_NODE
- */
+* @memberof DOMNode
+* @summary Constant for the nodeType "DocumentType". The actual implementation does not provide a subclass for this type. 
+* @description 
+* <br> This constant is member of constant group: Node Type Constants<br>
+* These constants build an enumeration of the possible values of the property nodeType. The constants are also properties of the constructor, so it is possible to read them in the style . 
+* @instance 
+* @constant {number} DOCUMENT_TYPE_NODE
+
+
+*/
 /**
- * @memberof DOMNode
- * @summary Constant for the nodeType "DocumentFragment". The actual implementation does not provide a subclass for this type. 
- * @description 
- * <br> This constant is member of group: Node Type Constants<br>
- * These constants build an enumeration of the possible values of the property nodeType. The constants are also properties of the constructor, so it is possible to read them in the style DOMNode.ELEMENT_NODE. 
- * @instance 
- * @constant {number} DOCUMENT_FRAGMENT_NODE
- */
+* @memberof DOMNode
+* @summary Constant for the nodeType "DocumentFragment". The actual implementation does not provide a subclass for this type. 
+* @description 
+* <br> This constant is member of constant group: Node Type Constants<br>
+* These constants build an enumeration of the possible values of the property nodeType. The constants are also properties of the constructor, so it is possible to read them in the style . 
+* @instance 
+* @constant {number} DOCUMENT_FRAGMENT_NODE
+
+
+*/
 /**
- * @memberof DOMNode
- * @summary Constant for the nodeType "Notation". The actual implementation does not provide a subclass for this type. 
- * @description 
- * <br> This constant is member of group: Node Type Constants<br>
- * These constants build an enumeration of the possible values of the property nodeType. The constants are also properties of the constructor, so it is possible to read them in the style DOMNode.ELEMENT_NODE. 
- * @instance 
- * @constant {number} NOTATION_NODE
- */
+* @memberof DOMNode
+* @summary Constant for the nodeType "Notation". The actual implementation does not provide a subclass for this type. 
+* @description 
+* <br> This constant is member of constant group: Node Type Constants<br>
+* These constants build an enumeration of the possible values of the property nodeType. The constants are also properties of the constructor, so it is possible to read them in the style . 
+* @instance 
+* @constant {number} NOTATION_NODE
+
+
+*/
 /**
 * @memberof DOMNode
 * @summary A map of DOM attributes. If this node is not a DOMElement, the value is null. The property is readonly. 
@@ -5138,7 +6367,7 @@
 /**
 * @memberof DOMNode
 * @summary The value of the node, which depends on the type. 
-* @description For several node types, the value is constantly an empty string. See also the W3C documentation in the internet. 
+* @description For several node types, the value is constantly an empty string. See also the [W3C documentation in the internet]{@link http://www.w3.org/TR/2000/REC-DOM-Level-2-Core-20001113/core.html}. 
 * @member {string} nodeValue
 * @instance
 **/
@@ -5156,7 +6385,7 @@
 **/
 /**
 * @memberof DOMNode
-* @summary The previous sibling node, otherwise null. The property is readonly. 
+* @summary The previous sibling node, otherwise null. The property is readonly. undefined
 * @member {DOMNode} previousSibling
 * @instance
 **/
@@ -5174,9 +6403,10 @@
 * @function cloneNode
 * @instance
 * @summary Create a duplicate of this node. 
-* @description Remark: The returned node initially has not got a parent. 
-* @param {boolean} deep true to clone also the whole subtree, false to clone only the node (including the attributes, if it is a DOMElement). 
-* @returns {DOMNode} The copy. The actual type equals the type of this. 
+* @description 
+* Note: The returned node initially has not got a parent. 
+* @param {boolean} deep <code>true</code> to clone also the whole subtree, <code>false</code> to clone only the node (including the attributes, if it is a DOMElement). 
+* @returns {DOMNode} The copy. The actual type equals the type of <code>this</code>. 
 * @since DOCUMENTS 4.0c 
 **/
 /**
@@ -5201,7 +6431,7 @@
 * @instance
 * @summary Insert a new node into the list of child nodes. 
 * @param {DOMNode} newChild The DOMNode to insert. 
-* @param {DOMNode} refChild An existing DOMNode, which already is a child of this, and which shall become the next sibling of newChild. 
+* @param {DOMNode} refChild An existing DOMNode, which already is a child of <code>this</code>, and which shall become the next sibling of <code>newChild</code>. 
 * @returns {DOMNode} The node inserted. 
 * @since DOCUMENTS 4.0c 
 **/
@@ -5237,12 +6467,17 @@
 * @interface DOMNodeList
 * @summary A dynamic, ordered list of DOMNodes. 
 * @description These lists always reflect the actual state of the DOM tree, which can differ from that state, when the list has been created. Getting the nodes from the list works with an integer index in square brackets, as if the list object would be an Array. DOMNodeLists cannot be created directly. Some methods or properties of DOMNode and its subclasses can create them.
+* <b>Remarks about W3C conformity</b>
+* 
+*  The class covers the NodeList interface of DOM level 1. The underlying native library already supports at least level 2. 
+* @since DOCUMENTS 4.0c 
 */
 /**
 * @memberof DOMNodeList
 * @summary The actual number of nodes in the list. 
 * @member {number} length
 * @instance
+* @since DOCUMENTS 4.0c 
 **/
 /**
 * @memberof DOMNodeList
@@ -5251,60 +6486,70 @@
 * @summary Returns the element at a certain position. 
 * @description This is just the same as using the square brackets on the object. 
 * @param {number} index The zero-based position of the requested element 
-* @returns {DOMNode} The DOMNode at the requested index. In the case of an invalid index the return value is null. 
+* @returns {DOMNode} The DOMNode at the requested index. In the case of an invalid index the return value is <code>null</code>. 
 * @since DOCUMENTS 4.0c 
 **/
 /**
 * @class DOMParser
 * @classdesc This class provides basic methods to parse or synthesize XML documents using the Document Object Model (DOM). 
+* @since DOCUMENTS 4.0c 
 * @summary The constructor actually takes no arguments. 
+*/
+/**
+* @memberof DOMParser
+* @summary This constant with the value zero indicates "no error". 
+* @description 
+* <br> This constant is member of constant group: Error Constants<br>
+* In contrast to many other methods of the DOM API, the  method does not forward exceptions of the native parser to the calling script. It rather stores the error text in a buffer, which the script can read with . The return value signals the type of the exception, which equals one of these constants. The constants are also properties of the constructor, so it is possible to read them in the style  . 
+* @instance 
+* @constant {number} ErrCatNone
+
 
 */
 /**
- * @memberof DOMParser
- * @summary This constant with the value zero indicates "no error". 
- * @description 
- * <br> This constant is member of group: Error Constants<br>
- * In contrast to many other methods of the DOM API, the parse() method does not forward exceptions of the native parser to the calling script. It rather stores the error text in a buffer, which the script can read with getLastError(). The return value signals the type of the exception, which equals one of these constants. The constants are also properties of the constructor, so it is possible to read them in the style DOMParser.ErrCatDOM . 
- * @instance 
- * @constant {number} ErrCatNone
- */
+* @memberof DOMParser
+* @summary This constant represents errors detected by interface code outside the native parser. 
+* @description 
+* <br> This constant is member of constant group: Error Constants<br>
+* In contrast to many other methods of the DOM API, the  method does not forward exceptions of the native parser to the calling script. It rather stores the error text in a buffer, which the script can read with . The return value signals the type of the exception, which equals one of these constants. The constants are also properties of the constructor, so it is possible to read them in the style  . 
+* @instance 
+* @constant {number} ErrCatEnv
+
+
+*/
 /**
- * @memberof DOMParser
- * @summary This constant represents errors detected by interface code outside the native parser. 
- * @description 
- * <br> This constant is member of group: Error Constants<br>
- * In contrast to many other methods of the DOM API, the parse() method does not forward exceptions of the native parser to the calling script. It rather stores the error text in a buffer, which the script can read with getLastError(). The return value signals the type of the exception, which equals one of these constants. The constants are also properties of the constructor, so it is possible to read them in the style DOMParser.ErrCatDOM . 
- * @instance 
- * @constant {number} ErrCatEnv
- */
+* @memberof DOMParser
+* @summary This constant represents a caught exception of the type "XMLException". 
+* @description 
+* <br> This constant is member of constant group: Error Constants<br>
+* In contrast to many other methods of the DOM API, the  method does not forward exceptions of the native parser to the calling script. It rather stores the error text in a buffer, which the script can read with . The return value signals the type of the exception, which equals one of these constants. The constants are also properties of the constructor, so it is possible to read them in the style  . 
+* @instance 
+* @constant {number} ErrCatXML
+
+
+*/
 /**
- * @memberof DOMParser
- * @summary This constant represents a caught exception of the type "XMLException". 
- * @description 
- * <br> This constant is member of group: Error Constants<br>
- * In contrast to many other methods of the DOM API, the parse() method does not forward exceptions of the native parser to the calling script. It rather stores the error text in a buffer, which the script can read with getLastError(). The return value signals the type of the exception, which equals one of these constants. The constants are also properties of the constructor, so it is possible to read them in the style DOMParser.ErrCatDOM . 
- * @instance 
- * @constant {number} ErrCatXML
- */
+* @memberof DOMParser
+* @summary This constant represents a caught exception of the type "SAXException". 
+* @description 
+* <br> This constant is member of constant group: Error Constants<br>
+* In contrast to many other methods of the DOM API, the  method does not forward exceptions of the native parser to the calling script. It rather stores the error text in a buffer, which the script can read with . The return value signals the type of the exception, which equals one of these constants. The constants are also properties of the constructor, so it is possible to read them in the style  . 
+* @instance 
+* @constant {number} ErrCatSAX
+
+
+*/
 /**
- * @memberof DOMParser
- * @summary This constant represents a caught exception of the type "SAXException". 
- * @description 
- * <br> This constant is member of group: Error Constants<br>
- * In contrast to many other methods of the DOM API, the parse() method does not forward exceptions of the native parser to the calling script. It rather stores the error text in a buffer, which the script can read with getLastError(). The return value signals the type of the exception, which equals one of these constants. The constants are also properties of the constructor, so it is possible to read them in the style DOMParser.ErrCatDOM . 
- * @instance 
- * @constant {number} ErrCatSAX
- */
-/**
- * @memberof DOMParser
- * @summary This constant represents a caught exception of the type "DOMException". 
- * @description 
- * <br> This constant is member of group: Error Constants<br>
- * In contrast to many other methods of the DOM API, the parse() method does not forward exceptions of the native parser to the calling script. It rather stores the error text in a buffer, which the script can read with getLastError(). The return value signals the type of the exception, which equals one of these constants. The constants are also properties of the constructor, so it is possible to read them in the style DOMParser.ErrCatDOM . 
- * @instance 
- * @constant {number} ErrCatDOM
- */
+* @memberof DOMParser
+* @summary This constant represents a caught exception of the type "DOMException". 
+* @description 
+* <br> This constant is member of constant group: Error Constants<br>
+* In contrast to many other methods of the DOM API, the  method does not forward exceptions of the native parser to the calling script. It rather stores the error text in a buffer, which the script can read with . The return value signals the type of the exception, which equals one of these constants. The constants are also properties of the constructor, so it is possible to read them in the style  . 
+* @instance 
+* @constant {number} ErrCatDOM
+
+
+*/
 /**
 * @memberof DOMParser
 * @function getDocument
@@ -5326,10 +6571,12 @@
 * @function parse
 * @instance
 * @summary Parse an XML document, either from a String or from a local file. 
-* @description Remark: On success, call getDocument() to access the DOM tree. On error use getLastError() to obtain an error text. 
+* @description 
+* Note: On success, call getDocument() to access the DOM tree. On error use getLastError() to obtain an error text. 
+* 
 *  The encapsulated native DOM library supports the following character encodings: ASCII, UTF-8, UTF-16, UCS4, EBCDIC code pages IBM037, IBM1047 and IBM1140, ISO-8859-1 (aka Latin1) and Windows-1252. (no guarantee)
 * @param {string} xml Either the XML itself or the path and file name of a local file 
-* @param {boolean} fromFile true to parse a local file, otherwise false. 
+* @param {boolean} fromFile <code>true</code> to parse a local file, otherwise <code>false</code>. 
 * @returns {number} An integer, which describes an error category. See ErrCatNone and further constants. 
 * @since DOCUMENTS 4.0c 
 **/
@@ -5338,13 +6585,15 @@
 * @function write
 * @instance
 * @summary Build an XML document from a DOM tree. 
-* @description Note: Saving to a local file is not supported on all platforms. If a script tries it while the version of the native DOM library is too old, the method just throws a JavaScript error. 
-* Remark: To obtain an error message use getLastError(). When the message is just "NULL pointer", the native DOM library may have failed to open the output file for writing. When the method writes to a string, the encoding is always the server application's internal encoding. 
+* @description 
+* Note: Saving to a local file is not supported on all platforms. If a script tries it while the version of the native DOM library is too old, the method just throws a JavaScript error. 
+* Note: To obtain an error message use getLastError(). When the message is just "NULL pointer", the native DOM library may have failed to open the output file for writing. When the method writes to a string, the encoding is always the server application's internal encoding. 
+* 
 *  The encapsulated native DOM library supports the following character encodings: ASCII, UTF-8, UTF-16, UCS4, EBCDIC code pages IBM037, IBM1047 and IBM1140, ISO-8859-1 (aka Latin1) and Windows-1252. (no guarantee)
 * Since Parameter prettyPrint since DOCUMENTS 5.0b HF3 
 * @param {DOMNode} node The root node to build the document from. Though the interface accepts any DOMNode, only a DOMDocument should be passed. Otherwise the output may be a fragment which is not a valid XML. 
 * @param {string} path Optional path and filename to save the XML in the local file system. 
-* @param {string} encoding Optional encoding specification for the file. Only used when path is also specified. 
+* @param {string} encoding Optional encoding specification for the file. Only used when <em>path</em> is also specified. 
 * @param {boolean} prettyPrint Optional boolean value. 
 * @returns {any} The return type depends on the parameters. After saving to a local file, the method returns a boolean value, which indicates the success of the operation. Otherwise the return value is a String with the XML itself, or an empty string after an error. 
 * @since DOCUMENTS 4.0c 
@@ -5352,19 +6601,29 @@
 /**
 * @interface E4X
 * @description Use DOMParser instead. 
+* @deprecated XMLParser E4X is deprecated since DOCUMENTS 4.0c and was removed in DOCUMENTS 5.0.
 */
 /**
 * @class Email
 * @classdesc The Email class allows to create and send an email. 
 * All the email settings for the principal (such as SMTP server and authentication) are used when sending an email. 
+* @since DOCUMENTS 4.0d
+* @example
+* var mail = new Email("receiver@domain.de", "sender@domain.de", "Test", "This is a test email.");
+* mail.addAttachment("log.txt", "C:\\tmp\\changelog.txt");
+* mail.setBCC("somebody1@domain.de,somebody2@domain.com");
+* mail.setDeleteAfterSending(true);
+* if (!mail.send())
+*   util.out(mail.getLastError());
 * @summary Create a new instance of the Email class. 
-* @description In case of multiple recipients for the parameters to, cc or bcc, the individual email addresses are to be separated by a comma (,). It is not allowed to send an email without any primary recipients specified by the parameter to. To send a HTML email the body must begin with the <HTML> tag. Emails in following cases are stored in the folder Administration > Sent eMails in the DOCUMENTS Manager: 
+* @description In case of multiple recipients for the parameters <code>to</code>, <code>cc</code> or <code>bcc</code>, the individual email addresses are to be separated by a comma (,). It is not allowed to send an email without any primary recipients specified by the parameter <code>to</code>. To send a HTML email the body must begin with the <HTML> tag. Emails in following cases are stored in the folder <code>Administration > Sent eMails</code> in the DOCUMENTS Manager: 
 * <ul>
-* <li>They are to be sent in the future (specified by sendingTime); </li>
+* <li>They are to be sent in the future (specified by <code>sendingTime</code>); </li>
 * <li>Sending them failed; </li>
-* <li>The parameter deleteAfterSending is set to false.</li>
+* <li>The parameter <code>deleteAfterSending</code> is set to <code>false</code>.</li>
 * </ul>
 * 
+* Since DOCUMENTS 4.0d 
 * @param {string} to String value containing the email addresses of primary recipients. 
 * @param {string} from Optional string value containing the sender's email address. If no sender is specified, the default sender for the principal is used. 
 * @param {string} subject Optional string value containing the subject of the email. 
@@ -5372,8 +6631,7 @@
 * @param {string} cc Optional string value containing the email addresses of carbon-copy recipients (appearing in the header of the email). 
 * @param {string} bcc Optional string value containing the email addresses of blind carbon-copy recipients (remaining invisible to other recipients). 
 * @param {Date} sendingTime Optional Date object specifying when the email is to be sent. If sending time is not specified, the email will be sent immediately by calling send(). 
-* @param {boolean} deleteAfterSending Optional flag indicating whether the email is to be deleted after successful sending. The default value is true.
-* @since DOCUMENTS 4.0d 
+* @param {boolean} deleteAfterSending Optional flag indicating whether the email is to be deleted after successful sending. The default value is <code>true</code>.
 */
 /**
 * @memberof Email
@@ -5383,7 +6641,7 @@
 * @param {any} attachment Document object or string value containing the attachment name of the Email. 
 * @param {string} sourceFilePath Optional string value containing the path of the file to be attached and stored on the server's filesystem in case the first parameter is a string specifying the attachment name. You may only delete this file after calling the function send(). 
 * Note: This Parameter is ignored in case the first parameter is a Document object.
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since DOCUMENTS 4.0d
 * @example
 * var mail = new Email("receiver@domain.de", "sender@domain.de", "Test", "This is a test.");
@@ -5403,7 +6661,7 @@
 * @function send
 * @instance
 * @summary Send the email to recipients. 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since DOCUMENTS 4.0d
 * @example
 * var mail = new Email("receiver@domain.de");
@@ -5418,7 +6676,7 @@
 * @instance
 * @summary Set blind carbon-copy recipients of the email. 
 * @param {string} bcc String containing the email addresses of blind carbon-copy recipients. 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since DOCUMENTS 4.0d 
 **/
 /**
@@ -5428,7 +6686,7 @@
 * @summary Set the content of the email. 
 * @param {string} body String containing the content of the email. 
 * Note: To send a HTML email the body must begin with the <HTML> tag. 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since DOCUMENTS 4.0d
 * @example
 * var mail = new Email("receiver@domain.de");
@@ -5443,7 +6701,7 @@
 * @instance
 * @summary Set carbon-copy recipients of the email. 
 * @param {string} cc String containing the email addresses of carbon-copy recipients. 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since DOCUMENTS 4.0d 
 **/
 /**
@@ -5452,7 +6710,7 @@
 * @instance
 * @summary Decide on whether the email is to be deleted after successful sending. 
 * @param {boolean} deleteAfterSending boolean value indicating whether the email is to be deleted after successful sending. 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since DOCUMENTS 4.0d 
 **/
 /**
@@ -5461,7 +6719,7 @@
 * @instance
 * @summary Set the sender's email address. 
 * @param {string} from String containing the sender's email address. 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since DOCUMENTS 4.0d 
 **/
 /**
@@ -5470,7 +6728,7 @@
 * @instance
 * @summary Set sending time of the email. 
 * @param {Date} sendingTime Date object representing the sending time. 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since DOCUMENTS 4.0d
 * @example
 * var mail = new Email("receiver@domain.de", "sender@domain.de", "Test", "This is a test.");
@@ -5484,7 +6742,7 @@
 * @instance
 * @summary Set the subject of the email. 
 * @param {string} subject String containing the desired subject of the email. 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since DOCUMENTS 4.0d 
 **/
 /**
@@ -5493,18 +6751,30 @@
 * @instance
 * @summary Set the primary recipients of the email. 
 * @param {string} to String containing the email addresses of primary recipients. 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since DOCUMENTS 4.0d 
 **/
 /**
 * @class File
 * @classdesc The File class allows full access to files stored on the Portal Server's filesystem. 
+* @since ELC 3.50 / otrisPORTAL 5.0 
 * @summary The constructor has the purpose to open a file handle to the desired file. 
 * @description Once created, you cannot change the access mode of the file handle. If you need to change the access mode, you would have to close the file and reopen it. 
 * Note: File handles are so-called expensive ressources, thus it is strongly recommanded to close them as soon as possible. Refer to File.close() for further information. 
+* Since ELC 3.50 / otrisPORTAL 5.0 
 * @param {string} pathFileName String value containing the complete path and filename of the desired file 
-* @param {string} mode String representing the access mode for the file handle. Allowed values are: r read mode r+ read mode plus write access; if the file does not yet exist, an error is raised w write mode; if the file already exists, it will be completely overwritten w+ write mode plus read access; if the file already exists, it will be completely overwritten a write mode with append; if the file does not yet exist, it is created, otherwise the data you write to the file will be appended a+ write mode with append plus read access; if the file does not yet exist, it is created, otherwise the data you write to the file will be appended t open the file in text mode (ASCII 127) b open the file in binary mode 
-* @since ELC 3.50 / otrisPORTAL 5.0 
+* @param {string} mode String representing the access mode for the file handle. Allowed values are: 
+* <ul>
+* <li><code>r</code> read mode </li>
+* <li><code>r+</code> read mode plus write access; if the file does not yet exist, an error is raised </li>
+* <li><code>w</code> write mode; if the file already exists, it will be completely overwritten </li>
+* <li><code>w+</code> write mode plus read access; if the file already exists, it will be completely overwritten </li>
+* <li><code>a</code> write mode with append; if the file does not yet exist, it is created, otherwise the data you write to the file will be appended </li>
+* <li><code>a+</code> write mode with append plus read access; if the file does not yet exist, it is created, otherwise the data you write to the file will be appended </li>
+* <li><code>t</code> open the file in text mode (ASCII 127) </li>
+* <li><code>b</code> open the file in binary mode </li>
+* </ul>
+* 
 * @see [File.close]{@link File#close} 
 * @example
 * // Text-Sample
@@ -5550,8 +6820,9 @@
 * @function close
 * @instance
 * @summary Close the file handle. 
-* @description Note: Since file handles are so-called expensive ressources it is strongly recommanded to close each file handle you prior created in your scripts as soon as possible. 
-* @returns {boolean} true if successful, false in case of any error 
+* @description 
+* Note: Since file handles are so-called expensive ressources it is strongly recommanded to close each file handle you prior created in your scripts as soon as possible. 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since ELC 3.50 / otrisPORTAL 5.0 
 * @see [File.File]{@link File#File} 
 **/
@@ -5560,7 +6831,7 @@
 * @function eof
 * @instance
 * @summary Report whether the file pointer points to EOF (end of file). 
-* @returns {boolean} true if EOF, false if not 
+* @returns {boolean} <code>true</code> if EOF, <code>false</code> if not 
 * @since ELC 3.50 / otrisPORTAL 5.0 
 **/
 /**
@@ -5568,8 +6839,8 @@
 * @function error
 * @instance
 * @summary Retrieve the error message of the last file access error as String. 
-* @description The error message (as long there is one) and its language depend on the operating system used on the Portal Server's machine. If there is no error, the method returns null. 
-* @returns {string} String with the content of the last file access error message, null in case of no error 
+* @description The error message (as long there is one) and its language depend on the operating system used on the Portal Server's machine. If there is no error, the method returns <code>null</code>. 
+* @returns {string} String with the content of the last file access error message, <code>null</code> in case of no error 
 * @since ELC 3.50 / otrisPORTAL 5.0 
 **/
 /**
@@ -5577,7 +6848,7 @@
 * @function ok
 * @instance
 * @summary Report whether an error occurred while accessing the file handle. 
-* @returns {boolean} true if no error occurred, false in case of any error 
+* @returns {boolean} <code>true</code> if no error occurred, <code>false</code> in case of any error 
 * @since ELC 3.50 / otrisPORTAL 5.0 
 **/
 /**
@@ -5587,7 +6858,7 @@
 * @summary Retrieve a block of data from the file, containing a maximum of charsNo byte. 
 * @description After the method has been performed, the data pointer of the file handle is moved right after the block which has been read. This might as well trigger the EOF flag, if the end of file has been reached. 
 * @param {number} charsNo integer value indicating how many characters (resp. byte in binary mode) should be read 
-* @returns {string} String containing up to charsNo characters/byte of data of the file. 
+* @returns {string} String containing up to <code>charsNo</code> characters/byte of data of the file. 
 * @since ELC 3.50 / otrisPORTAL 5.0 
 **/
 /**
@@ -5604,9 +6875,9 @@
 * @function write
 * @instance
 * @summary Write binary data to the file. 
-* @description This requires to have the file handle opened with write access (meaning modes r+, w/w+, a/a+) and binary mode b. 
+* @description This requires to have the file handle opened with write access (meaning modes <code>r+</code>, <code>w/w+</code>, <code>a/a+</code>) and binary mode <code>b</code>. 
 * @param {number[]} byteArray Array of integers containing any data you want to write to the file 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since DOCUMENTS 4.0 
 * @see [File.close]{@link File#close} 
 * @example
@@ -5635,11 +6906,11 @@
 * @function write
 * @instance
 * @summary Write data to the file. 
-* @description This requires to have the file handle opened with write access (meaning modes r+, w/w+, a/a+). You may concatenate as many strings as you want. 
+* @description This requires to have the file handle opened with write access (meaning modes <code>r+</code>, <code>w/w+</code>, <code>a/a+</code>). You may concatenate as many strings as you want. 
 * @param {string} a String containing any data you want to write to the file 
 * @param {string} b String containing any data you want to write to the file 
 * @param {any[]} ...restParams 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since ELC 3.50 / otrisPORTAL 5.0 
 **/
 /**
@@ -5647,19 +6918,20 @@
 * @function writeBuffer
 * @instance
 * @summary Write data to the file. 
-* @description This requires to have the file handle opened with write access (meaning modes r+, w/w+, a/a+). 
+* @description This requires to have the file handle opened with write access (meaning modes <code>r+</code>, <code>w/w+</code>, <code>a/a+</code>). 
 * @param {string} data String containing any data you want to write to the file. 
 * @param {number} charsNo integer value indicating how many characters should be written. 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since ELC 3.50 / otrisPORTAL 5.0 
 **/
 /**
 * @class FileResultset
 * @classdesc The FileResultset class supports basic functions to loop through a list of DocFile objects. 
 * You can manually create a FileResultset as well as access the (selected) files of a (public) Folder. 
+
 * @summary Create a new FileResultset object. 
-* @description Like in other programming languages you create a new object with the new operator (refer to example below). 
-* Note: Details for the filter expression you find in section Filter expressions with FileResultset
+* @description Like in other programming languages you create a new object with the <code>new</code> operator (refer to example below). 
+* Note: Details for the filter expression you find in section Using filter expressions with FileResultSets
 * Note: Further samples are in FileResultset filter examples
 * @param {string} fileType String containing the technical name of the desired filetype 
 * @param {string} filter String containing an optional filter criterium; use empty String ('') if you don't want to filter at all 
@@ -5676,7 +6948,7 @@
 * @function first
 * @instance
 * @summary Retrieve the first DocFile object in the FileResultset. 
-* @returns {DocFile} DocFile or null in case of an empty FileResultset
+* @returns {DocFile} DocFile or <code>null</code> in case of an empty FileResultset
 * @since ELC 3.50 / otrisPORTAL 5.0
 * @example
 * var myFRS = new FileResultset("Standard", "", "");
@@ -5698,7 +6970,7 @@
 * @function last
 * @instance
 * @summary Retrieve the last DocFile object in the FileResultset. 
-* @returns {DocFile} DocFile or null if end of FileResultset is reached. 
+* @returns {DocFile} DocFile or <code>null</code> if end of FileResultset is reached. 
 * @since ELC 3.60j / otrisPORTAL 6.0j 
 **/
 /**
@@ -5706,7 +6978,7 @@
 * @function next
 * @instance
 * @summary Retrieve the next DocFile object in the FileResultset. 
-* @returns {DocFile} DocFile or null if end of FileResultset is reached. 
+* @returns {DocFile} DocFile or <code>null</code> if end of FileResultset is reached. 
 * @since ELC 3.50 / otrisPORTAL 5.0
 * @example
 * var myFRS = new FileResultset("Standard", "", "");
@@ -5729,95 +7001,112 @@
 /**
 * @interface Folder
 * @summary The Folder class has been added to the DOCUMENTS PortalScripting API to gain full access to the DOCUMENTS folders by scripting means. 
+* @since ELC 3.50l01 / otrisPORTAL 5.0l01 
 */
 /**
 * @memberof Folder
 * @summary This property specifies whether the action 'Archive' is available for the folder. 
 * @member {boolean} allowArchive
 * @instance
+* @since DOCUMENTS 4.0c 
 **/
 /**
 * @memberof Folder
 * @summary This property specifies whether the action 'Copy to' is available for the folder. 
 * @member {boolean} allowCopyTo
 * @instance
+* @since DOCUMENTS 4.0c 
 **/
 /**
 * @memberof Folder
 * @summary This property specifies whether the action 'PDF creation (Print)' is available for the folder. 
 * @member {boolean} allowCreatePDF
 * @instance
+* @since DOCUMENTS 4.0c 
 **/
 /**
 * @memberof Folder
 * @summary This property specifies whether the action 'Delete' is available for the folder. 
 * @member {boolean} allowDelete
 * @instance
+* @since DOCUMENTS 4.0c 
 **/
 /**
 * @memberof Folder
 * @summary This property specifies whether the action 'Export' is available for the folder. 
 * @member {boolean} allowExport
 * @instance
+* @since DOCUMENTS 4.0c 
 **/
 /**
 * @memberof Folder
 * @summary This property specifies whether the action 'Forward' is available for the folder. 
 * @member {boolean} allowForward
 * @instance
+* @since DOCUMENTS 4.0c 
 **/
 /**
 * @memberof Folder
 * @summary This property specifies whether the action 'Store in' is available for the folder. 
 * @member {boolean} allowMoveTo
 * @instance
+* @since DOCUMENTS 4.0c 
 **/
 /**
 * @memberof Folder
 * @summary The comparator for the first filter of the Folder object. 
-* @description Note: This attribute only exists if the Folder represents a dynamic folder 
+* @description 
+* Note: This attribute only exists if the Folder represents a dynamic folder 
 * @member {string} comparator1
 * @instance
 **/
 /**
 * @memberof Folder
 * @summary The comparator for the second filter of the Folder object. 
-* @description Note: This attribute only exists if the Folder represents a dynamic folder 
+* @description 
+* Note: This attribute only exists if the Folder represents a dynamic folder 
 * @member {string} comparator2
 * @instance
 **/
 /**
 * @memberof Folder
 * @summary The comparator for the third filter of the Folder object. 
-* @description Note: This attribute only exists if the Folder represents a dynamic folder 
+* @description 
+* Note: This attribute only exists if the Folder represents a dynamic folder 
 * @member {string} comparator3
 * @instance
 **/
 /**
 * @memberof Folder
 * @summary The expression of the filter of the folder. 
-* @description Note: This property is only available if the Folder represents a dynamic folder and the filter style 'Extended' is used. 
+* @description 
+* Note: This property is only available if the Folder represents a dynamic folder and the filter style 'Extended' is used. 
 * @member {string} filterExpression
 * @instance
+* @since DOCUMENTS 4.0c 
+* @see [UsingfilterexpressionswithFileResultSets]{@link UsingfilterexpressionswithFileResultSets} 
 **/
 /**
 * @memberof Folder
 * @summary The field to use for the first filter of the Folder object. 
-* @description Note: This attribute only exists if the Folder represents a dynamic folder 
+* @description 
+* Note: This attribute only exists if the Folder represents a dynamic folder 
 * @member {string} filterfieldname1
 * @instance
 **/
 /**
 * @memberof Folder
 * @summary The field to use for the second filter of the Folder object. 
-* @description Note: This attribute only exists if the Folder represents a dynamic folder 
+* @description 
+* Note: This attribute only exists if the Folder represents a dynamic folder 
 * @member {string} filterfieldname2
 * @instance
 **/
 /**
 * @memberof Folder
 * @summary The field to use for the third filter of the Folder object. 
-* @description Note: This attribute only exists if the Folder represents a dynamic folder 
+* @description 
+* Note: This attribute only exists if the Folder represents a dynamic folder 
 * @member {string} filterfieldname3
 * @instance
 **/
@@ -5826,103 +7115,120 @@
 * @summary The filter style of the folder. 
 * @description There are two filter styles available: 
 * <ul>
-* <li>Standard</li>
-* <li>Extended</li>
+* <li><code>Standard</code></li>
+* <li><code>Extended</code></li>
 * </ul>
 * 
 * @member {string} filterStyle
 * @instance
+* @since DOCUMENTS 4.0c 
 **/
 /**
 * @memberof Folder
 * @summary The icon to use in the folder tree. 
 * @member {string} icon
 * @instance
+* @since DOCUMENTS 4.0c 
 **/
 /**
 * @memberof Folder
 * @summary The internal id of the Folder object. 
 * @member {string} id
 * @instance
+* @since ELC 3.50l01 / otrisPORTAL 5.0l01 
 **/
 /**
 * @memberof Folder
 * @summary This property specifies whether the folder is invisible to the users. 
-* @description Note: This property is not operative if the folder is not released. 
+* @description 
+* Note: This property is not operative if the folder is not released. 
 * @member {boolean} invisible
 * @instance
+* @since DOCUMENTS 4.0c 
 **/
 /**
 * @memberof Folder
 * @summary The entire label defined for the Folder object. 
 * @member {string} label
 * @instance
+* @since ELC 3.50l01 / otrisPORTAL 5.0l01 
+* @see [Folder.getLocaleLabel]{@link Folder#getLocaleLabel} 
 **/
 /**
 * @memberof Folder
 * @summary The technical name of the Folder object. 
 * @member {string} name
 * @instance
+* @since ELC 3.50l01 / otrisPORTAL 5.0l01 
 **/
 /**
 * @memberof Folder
 * @summary This property specifies whether the folder is available to the users. 
 * @member {boolean} released
 * @instance
+* @since DOCUMENTS 4.0c 
 **/
 /**
 * @memberof Folder
 * @summary The column used to sort the entries in the folder. 
 * @description The following sort columns are available: 
 * <ul>
-* <li>Title</li>
-* <li>LastModifiedAt</li>
-* <li>LastEditor</li>
-* <li>CreateAt</li>
-* <li>Owner</li>
-* <li>CustomField</li>
+* <li><code>Title</code></li>
+* <li><code>LastModifiedAt</code></li>
+* <li><code>LastEditor</code></li>
+* <li><code>CreateAt</code></li>
+* <li><code>Owner</code></li>
+* <li><code>CustomField</code></li>
 * </ul>
 * 
 * @member {string} sortColumn
 * @instance
+* @since DOCUMENTS 4.0c 
 **/
 /**
 * @memberof Folder
 * @summary This property specifies the sort order of the entries in the folder. 
 * @member {boolean} sortDescending
 * @instance
+* @since DOCUMENTS 4.0c 
 **/
 /**
 * @memberof Folder
 * @summary The technical name of the custom field used to sort the entries in the folder. 
-* @description Note: This field is only available if the Folder.sortColumn is set to 'CustomField'. 
+* @description 
+* Note: This field is only available if the Folder.sortColumn is set to 'CustomField'. 
 * @member {string} sortFieldName
 * @instance
+* @since DOCUMENTS 4.0c 
 **/
 /**
 * @memberof Folder
 * @summary The type of the Folder object. 
 * @member {string} type
 * @instance
+* @since ELC 3.50l01 / otrisPORTAL 5.0l01 
 **/
 /**
 * @memberof Folder
 * @summary The desired field value to use for the first filter of the Folder object. 
-* @description Note: This attribute only exists if the Folder represents a dynamic folder 
+* @description 
+* Note: This attribute only exists if the Folder represents a dynamic folder 
 * @member {string} value1
 * @instance
 **/
 /**
 * @memberof Folder
 * @summary The desired field value to use for the second filter of the Folder object. 
-* @description Note: This attribute only exists if the Folder represents a dynamic folder 
+* @description 
+* Note: This attribute only exists if the Folder represents a dynamic folder 
 * @member {string} value2
 * @instance
 **/
 /**
 * @memberof Folder
 * @summary The desired field value to use for the third filter of the Folder object. 
-* @description Note: This attribute only exists if the Folder represents a dynamic folder 
+* @description 
+* Note: This attribute only exists if the Folder represents a dynamic folder 
 * @member {string} value3
 * @instance
 **/
@@ -5934,7 +7240,7 @@
 * @param {string} accessProfileName The technical name of the access profile. 
 * @param {boolean} allowInsertFiles Flag indicating whether inserting files into the folder is allowed. 
 * @param {boolean} allowRemoveFiles Flag indicating whether removing files from the folder is allowed. 
-* @returns {boolean} true if successful, false in case of any error. 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error. 
 * @since DOCUMENTS 4.0c
 * @example
 * var folder = context.createFolder("testFolder", "public");
@@ -5947,9 +7253,10 @@
 * @function addFile
 * @instance
 * @summary Store a reference to a desired DocFile object in the current Folder. 
-* @description Note: This only works in case the Folder is a real public Folder. The Folder must not represent a dynamic folder, since a dynamic folder is sort of a hardcoded search, not a "real" folder. 
+* @description 
+* Note: This only works in case the Folder is a real public Folder. The Folder must not represent a dynamic folder, since a dynamic folder is sort of a hardcoded search, not a "real" folder. 
 * @param {DocFile} docFile DocFile object which shall be available in the given Folder
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since ELC 3.51h / otrisPORTAL 5.1h 
 **/
 /**
@@ -5957,9 +7264,10 @@
 * @function addFilterEDAServer
 * @instance
 * @summary Add an EDA server to the filter of the folder. 
-* @description Note: This function is only available for a Folder of type 'dynamicpublic'. 
+* @description 
+* Note: This function is only available for a Folder of type 'dynamicpublic'. 
 * @param {string} serverName The technical name of the desired EDA server. 
-* @returns {boolean} true if successful, false in case of any error. 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error. 
 * @since DOCUMENTS 4.0c
 * @example
 * var folder = context.createFolder("testFolder", "dynamicpublic");
@@ -5972,9 +7280,10 @@
 * @function addFilterEEiArchive
 * @instance
 * @summary Add an EE.i archive to the filter of the folder. 
-* @description Note: This function is only available for a Folder of type 'dynamicpublic'. 
+* @description 
+* Note: This function is only available for a Folder of type 'dynamicpublic'. 
 * @param {string} archiveKey The key of the desired EE.i archive. 
-* @returns {boolean} true if successful, false in case of any error. 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error. 
 * @since DOCUMENTS 4.0c
 * @example
 * var folder = context.createFolder("testFolder", "dynamicpublic");
@@ -5988,9 +7297,10 @@
 * @function addFilterEExView
 * @instance
 * @summary Add an EE.x view to the filter of the folder. 
-* @description Note: This function is only available for a Folder of type 'dynamicpublic'. 
+* @description 
+* Note: This function is only available for a Folder of type 'dynamicpublic'. 
 * @param {string} viewKey The key of the desired EE.x view. 
-* @returns {boolean} true if successful, false in case of any error. 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error. 
 * @since DOCUMENTS 4.0c
 * @example
 * var folder = context.createFolder("testFolder", "dynamicpublic");
@@ -6004,9 +7314,10 @@
 * @function addFilterFileType
 * @instance
 * @summary Add a file type to the filter of the folder. 
-* @description Note: This function is only available for a Folder of type 'dynamicpublic'. 
+* @description 
+* Note: This function is only available for a Folder of type 'dynamicpublic'. 
 * @param {string} fileType The technical name of the desired file type. 
-* @returns {boolean} true if successful, false in case of any error. 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error. 
 * @since DOCUMENTS 4.0c
 * @example
 * var folder = context.createFolder("testFolder", "dynamicpublic");
@@ -6022,7 +7333,7 @@
 * @param {string} loginName The login name of the system user. 
 * @param {boolean} allowInsertFiles Flag indicating whether inserting files into the folder is allowed. 
 * @param {boolean} allowRemoveFiles Flag indicating whether removing files from the folder is allowed. 
-* @returns {boolean} true if successful, false in case of any error. 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error. 
 * @since DOCUMENTS 4.0c
 * @example
 * var folder = context.createFolder("testFolder", "public");
@@ -6036,7 +7347,7 @@
 * @instance
 * @summary Add the folder to an outbar. 
 * @param {string} outbarName The technical name of the outbar. 
-* @returns {boolean} true if successful, false in case of any error. 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error. 
 * @since DOCUMENTS 4.0d HF2
 * @example
 * var folder = context.createFolder("testFolder", "public");
@@ -6061,12 +7372,19 @@
 * @function createSubFolder
 * @instance
 * @summary Create a new subfolder of the specified folder type. 
-* @description Note: There are three possible types available: publicdynamicpubliconlysubfolder
+* @description 
+* Note: There are three possible types available: 
+* <ul>
+* <li><code>public</code></li>
+* <li><code>dynamicpublic</code></li>
+* <li><code>onlysubfolder</code></li>
+* </ul>
+* 
 * @param {string} name The technical name of the subfolder to be created. 
 * @param {string} type The desired type of the subfolder. 
-* @returns {Folder} New created subfolder as Folder object or null if failed. 
+* @returns {Folder} New created subfolder as Folder object or <code>null</code> if failed. 
 * @since DOCUMENTS 4.0c
-* @see [Context.createFolder]{@link Context#createFolder} 
+* @see [context.createFolder]{@link context#createFolder} 
 * @example
 * var parentFolder = context.createFolder("parentFolder", "public");
 * if (parentFolder)
@@ -6083,10 +7401,11 @@
 * @function deleteFolder
 * @instance
 * @summary Delete the folder in DOCUMENTS. 
-* @description Note: All subfolders are also deleted recursively. 
-* @returns {boolean} true if successful, false in case of any error. 
+* @description 
+* Note: All subfolders are also deleted recursively. 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error. 
 * @since DOCUMENTS 4.0c
-* @see [Context.deleteFolder]{@link Context#deleteFolder} 
+* @see [context.deleteFolder]{@link context#deleteFolder} 
 * @example
 * var folder = context.createFolder("testFolder", "onlysubfolder");
 * if (folder)
@@ -6136,7 +7455,8 @@
 * @function getFiles
 * @instance
 * @summary Retrieve a FileResultset of all the DocFile objects stored in the Folder. 
-* @description Note: It does not matter whether the Folder is a real public folder or a dynamic folder. 
+* @description 
+* Note: It does not matter whether the Folder is a real public folder or a dynamic folder. 
 * @returns {FileResultset} FileResultset containing a list of all DocFile objects stored in the Folder
 * @since ELC 3.51b / otrisPORTAL 5.1b 
 **/
@@ -6171,7 +7491,7 @@
 * @summary Create a HitResultset, which summarizes all DocFiles in the folder. 
 * @description This function executes an empty (=unfiltered) search in the folder. It creates a HitResultset, which summarizes all the Folder's files. The Resultset contains the same columns as the folder's default web view. 
 * Note: The function operates on dynamic and on static folders, but not on the special folders "tasks" and "resubmision". 
-* Remark: Reading from a lean HitResultset with only a few columns can be faster than reading from a FileResultset. Sometimes this effect outweighs the time-related costs of a search. If the folder addresses an archive, the time needed to create temporary DocFiles can be saved with this function. On a failed search request the function does not throw errors. To detect this kind of errors scripts should read the returned object's properties lastErrorCode and lastError. 
+* Note: Reading from a lean HitResultset with only a few columns can be faster than reading from a FileResultset. Sometimes this effect outweighs the time-related costs of a search. If the folder addresses an archive, the time needed to create temporary DocFiles can be saved with this function. On a failed search request the function does not throw errors. To detect this kind of errors scripts should read the returned object's properties lastErrorCode and lastError. 
 * @returns {HitResultset} A HitResultset, which contains column headers and a list of DocHit objects. 
 * @since DOCUMENTS 5.0c 
 * @see [getFiles]{@link getFiles} 
@@ -6191,7 +7511,7 @@
 * @instance
 * @summary Get the ergonomic label of the Folder. 
 * @param {string} locale Optional String value with the locale abbreviation (according to the principal's configuration); if omitted, the current user's portal language is used automatically. 
-* @returns {string} String containing the ergonomic label of the Folder in the appropriate portal language. 
+* @returns {string} <code>String</code> containing the ergonomic label of the Folder in the appropriate portal language. 
 * @since DOCUMENTS 4.0b HF2 
 **/
 /**
@@ -6199,12 +7519,13 @@
 * @function getOID
 * @instance
 * @summary Returns the object-id. 
+* @description
 * Since DOCUMENTS 5.0 (new parameter oidLow) 
 * @param {boolean} [oidLow] Optional flag: 
-* If true only the id of the filetype object (m_oid) will be returned. 
-* If false the id of the filetype object will be returned together with the id of the corresponding class in the form class-id:m_oid. 
-* The default value is false. 
-* @returns {string} String with the object-id 
+* If <code>true</code> only the id of the filetype object (<code>m_oid</code>) will be returned. 
+* If <code>false</code> the id of the filetype object will be returned together with the id of the corresponding class in the form <code>class-id:m_oid</code>. 
+* The default value is <code>false</code>. 
+* @returns {string} <code>String</code> with the object-id 
 * @since ELC 3.60c / otrisPORTAL 6.0c 
 **/
 /**
@@ -6215,7 +7536,7 @@
 * @param {Folder} subFolder Folder object whose position to be retrieved. 
 * @returns {number} The zero-based position of the subfolder as integer or -1 in case of any error. 
 * @since DOCUMENTS 4.0c
-* @see [Folder.setPosition]{@link Folder#setPosition} 
+* @see [Folder.setPosition]{@link Folder#setPosition} [context.setFolderPosition]{@link context#setFolderPosition} 
 * @example
 * var parentFolder = context.createFolder("parentFolder", "public");
 * if (parentFolder)
@@ -6242,7 +7563,7 @@
 * @function hasFiles
 * @instance
 * @summary Retrieve information whether the Folder is empty or not. 
-* @returns {boolean} true if DocFile objects available inside the Folder, false in case the Folder is empty 
+* @returns {boolean} <code>true</code> if DocFile objects available inside the Folder, <code>false</code> in case the Folder is empty 
 * @since ELC 3.50l01 / otrisPORTAL 5.0l01 
 **/
 /**
@@ -6251,7 +7572,7 @@
 * @instance
 * @summary Remove all folder access rights of the user group defined by an access profile from the folder. 
 * @param {string} accessProfileName The technical name of the access profile. 
-* @returns {boolean} true if successful, false in case of any error. 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error. 
 * @since DOCUMENTS 4.0c
 * @example
 * var folder = context.createFolder("testFolder", "public");
@@ -6268,9 +7589,10 @@
 * @function removeFile
 * @instance
 * @summary Remove the reference to a desired DocFile object out of the current Folder. 
-* @description Note: This only works in case the Folder is a real public Folder. The Folder must not represent a dynamic folder, since a dynamic folder is sort of a hardcoded search, not a "real" folder. 
+* @description 
+* Note: This only works in case the Folder is a real public Folder. The Folder must not represent a dynamic folder, since a dynamic folder is sort of a hardcoded search, not a "real" folder. 
 * @param {DocFile} docFile DocFile object which shall be removed from the given Folder
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since ELC 3.51h / otrisPORTAL 5.1h 
 **/
 /**
@@ -6278,9 +7600,10 @@
 * @function removeFilterEDAServer
 * @instance
 * @summary Remove an EDA server from the filter of the folder. 
-* @description Note: This function is only available for a Folder of type 'dynamicpublic'. 
+* @description 
+* Note: This function is only available for a Folder of type 'dynamicpublic'. 
 * @param {string} serverName The technical name of the desired EDA server. 
-* @returns {boolean} true if successful, false in case of any error. 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error. 
 * @since DOCUMENTS 4.0c
 * @example
 * var folder = context.createFolder("testFolder", "dynamicpublic");
@@ -6297,9 +7620,10 @@
 * @function removeFilterEEiArchive
 * @instance
 * @summary Remove an EE.i archive from the filter of the folder. 
-* @description Note: This function is only available for a Folder of type 'dynamicpublic'. 
+* @description 
+* Note: This function is only available for a Folder of type 'dynamicpublic'. 
 * @param {string} archiveKey The key of the desired EE.i archive. 
-* @returns {boolean} true if successful, false in case of any error. 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error. 
 * @since DOCUMENTS 4.0c
 * @example
 * var folder = context.createFolder("testFolder", "dynamicpublic");
@@ -6317,9 +7641,10 @@
 * @function removeFilterEExView
 * @instance
 * @summary Remove an EE.x view from the filter of the folder. 
-* @description Note: This function is only available for a Folder of type 'dynamicpublic'. 
+* @description 
+* Note: This function is only available for a Folder of type 'dynamicpublic'. 
 * @param {string} viewKey The key of the desired EE.x view. 
-* @returns {boolean} true if successful, false in case of any error. 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error. 
 * @since DOCUMENTS 4.0c
 * @example
 * var folder = context.createFolder("testFolder", "dynamicpublic");
@@ -6337,9 +7662,10 @@
 * @function removeFilterFileType
 * @instance
 * @summary Remove a file type from the filter of the folder. 
-* @description Note: This function is only available for a Folder of type 'dynamicpublic'. 
+* @description 
+* Note: This function is only available for a Folder of type 'dynamicpublic'. 
 * @param {string} fileType The technical name of the desired file type. 
-* @returns {boolean} true if successful, false in case of any error. 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error. 
 * @since DOCUMENTS 4.0c
 * @example
 * var folder = context.createFolder("testFolder", "dynamicpublic");
@@ -6357,7 +7683,7 @@
 * @instance
 * @summary Remove the folder from an outbar. 
 * @param {string} outbarName The technical name of the outbar. 
-* @returns {boolean} true if successful, false in case of any error. 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error. 
 * @since DOCUMENTS 4.0d HF2
 * @example
 * var itFolder = context.getFoldersByName("testFolder", "public");
@@ -6375,7 +7701,7 @@
 * @instance
 * @summary Remove all folder access rights of a system user from the folder. 
 * @param {string} loginName The login name of the system user. 
-* @returns {boolean} true if successful, false in case of any error. 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error. 
 * @since DOCUMENTS 4.0c
 * @example
 * var folder = context.createFolder("testFolder", "public");
@@ -6393,7 +7719,7 @@
 * @instance
 * @summary Set the script containing the allowed user-defined actions. 
 * @param {string} scriptName The name of the desired script; use empty string ('') if you want to remove the associated action script. 
-* @returns {boolean} true if successful, false in case of any error. 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error. 
 * @since DOCUMENTS 4.0c
 * @example
 * var folder = context.createFolder("testFolder", "public");
@@ -6411,7 +7737,7 @@
 * @summary Set the String value of an attribute of the Folder to the desired value. 
 * @param {string} attribute String containing the name of the desired attribute 
 * @param {string} value String containing the desired value of the attribute 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since ELC 3.51b / otrisPORTAL 5.1b 
 **/
 /**
@@ -6420,7 +7746,7 @@
 * @instance
 * @summary Set the parent folder of the current folder. 
 * @param {Folder} parentFolder optional Folder object being the parent folder of the current folder. If no parent folder is defined, the current folder will be moved to the top level. 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since DOCUMENTS 4.0c
 * @example
 * var parentFolder = context.createFolder("parentFolder", "public");
@@ -6443,12 +7769,13 @@
 * @function setPosition
 * @instance
 * @summary Place a subfolder at the given position in the subfolder list. 
-* @description Note: 0 at the beginning and -1 at the end. 
+* @description 
+* Note: 0 at the beginning and -1 at the end. 
 * @param {Folder} subFolder Folder object to be placed at the given position. 
 * @param {number} position The 0-based position for the subfolder. 
-* @returns {boolean} true if successful, false in case of any error. 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error. 
 * @since DOCUMENTS 4.0c
-* @see [Folder.getPosition]{@link Folder#getPosition} 
+* @see [Folder.getPosition]{@link Folder#getPosition} [context.setFolderPosition]{@link context#setFolderPosition} 
 * @example
 * var parentFolder = context.createFolder("parentFolder", "public");
 * if (parentFolder)
@@ -6468,13 +7795,27 @@
 /**
 * @interface FolderIterator
 * @summary The FolderIterator class has been added to the DOCUMENTS PortalScripting API to gain full access to the DOCUMENTS folders by scripting means. 
+* @since ELC 3.50l01 / otrisPORTAL 5.0l01
+* @example
+* if (context.getFoldersByName(lstName, "public").size() == 0)
+* {
+*    var folderIter = context.getFoldersByName("TemplateFolder", "public");
+*    if (folderIter && folderIter.size() > 0)
+*    {
+*       var source = folderIter.first(); // fetch list folder
+*       var target = source.copyFolder(true, true, true);
+*       target.Name = lstName;
+*       target.Label = docFile.crmName;
+*       target.Type = "public";
+*    }
+* }
 */
 /**
 * @memberof FolderIterator
 * @function first
 * @instance
 * @summary Retrieve the first Folder object in the FolderIterator. 
-* @returns {Folder} Folder or null in case of an empty FolderIterator
+* @returns {Folder} Folder or <code>null</code> in case of an empty FolderIterator
 * @since ELC 3.50l01 / otrisPORTAL 5.0l01 
 **/
 /**
@@ -6491,7 +7832,7 @@
 * @function next
 * @instance
 * @summary Retrieve the next Folder object in the FolderIterator. 
-* @returns {Folder} Folder or null if end of FolderIterator is reached. 
+* @returns {Folder} Folder or <code>null</code> if end of FolderIterator is reached. 
 * @since ELC 3.50l01 / otrisPORTAL 5.0l01 
 **/
 /**
@@ -6505,24 +7846,101 @@
 /**
 * @class HitResultset
 * @classdesc The HitResultset class allows comprehensive search operations in Documents and in connected archives. 
-* While the constructor of this class launches a search operation, the created object stores the results and exposes them as a list of DocHit objects. Compared with the classes FileResultset and ArchiveFileResultset this class has got the following characteristics.
+* While the constructor of this class launches a search operation, the created object stores the results and exposes them as a list of DocHit objects. Compared with the classes <code>FileResultset</code> and <code>ArchiveFileResultset</code> this class has got the following characteristics.
 * <ul>
 * <li>Several filetypes and archives can be searched at one time.</li>
 * <li>Extracting archive hits from a HitResultSet does not make DOCUMENTS create a temporary DocFile for each hit. This can save a lot of time.</li>
 * <li>Objects of this class may allocate large amounts of memory, because they sustain a complete hit list instead of a lean id-list. To save memory, scripts should prefer hit lists with as few columns as possible.</li>
 * </ul>
 * 
+* 
+* @since DOCUMENTS 4.0b
+* @example
+*   var searchResources = "Filetype1  Filetype2";
+*   var filter = "";
+*   var sortOrder = "";
+*   var myFile;
+*   var myHRS = new HitResultset(searchResources, filter, sortOrder);
+*   for (var myHit = myHRS.first(); myHit; myHit = myHRS.next())
+*   {
+*       myFile = myHit.getFile();
+*       if (myFile)
+*           util.out(myFile.getAutoText("id"));
+*       else
+*           util.out(myHit.getLastError());
+* }
+* @example
+* var searchResources = ["$(#STANDARD)\\REGTEST@myeei", "Filetype1@myeas", "Filetype1"];
+* var filter = "";
+* var sortOrder = "";
+* var hitlist = "MYHITLIST";
+* var pageSize = 3;
+* var pos = 6;
+* var unlimitedHits = true;
+* var fullColumnLength = true;
+* var myHRS = new HitResultset(searchResources, filter, sortOrder, hitlist, pageSize, unlimitedHits, fullColumnLength);
+* if (myHRS.size() > pos)
+* {
+*     while (pos >= myHRS.fetchedSize())
+*         myHRS.fetchNextPage();
+*     var myHit = myHRS.getAt(pos);
+*     if (myHit)
+*     {
+*         if (myHit.isArchiveHit())
+*             util.out(myHit.getArchiveKey());
+*         else
+*             util.out(myHit.getFileId());
+*     }
+* }
+* @example
+* var searchResources = "Unit=Default/Instance=Default/View=REGTEST@myeex";
+* var filter = "";
+* var sortOrder = "myField+";
+* var hitlist = "myHitlist";
+* var pageSize = 10;
+* var myFile;
+* var myHRS = new HitResultset(searchResources, filter, sortOrder, hitlist, pageSize);
+* // Iterate only the hit entries on the first page.
+* for (var myHit = myHRS.first(); myHit; myHit = myHRS.next())
+* {
+*     myFile = myHit.getArchiveFile();
+*     if (myFile)
+*         util.out(myFile.getAttribute("Key"));
+*     else
+*         util.out(myHit.getLastError());
+* }
 * @summary Perform a search and create a new HitResultset object. 
-* @description Remark: On a failed search request the constructor does not throw errors. To detect this kind of errors scripts should read the object's properties lastErrorCode and lastError.Resource identifiers: 
+* @description 
+* Note: On a failed search request the constructor does not throw errors. To detect this kind of errors scripts should read the object's properties lastErrorCode and lastError.<b>Resource identifiers: </b>
+* A "resource identifier" can be one of the following: [ examples in brackets ]
+* <ul>
+* <li>a filetype name [ ftOrder ]</li>
+* <li>a filetype name for use with an EDA store [ ftOrder@peachitStore1 ]</li>
+* <li>a filetype name for use with all EDA stores [ ftOrder@ALLEAS ]</li>
+* <li>a EE.x view key [ Unit=Default/Instance=Default/View=Orders@MyEEX ]</li>
+* <li>a EE.i archive key [ $(#STANDARD)\ORDERS@STDARC_360 ]</li>
+* </ul>
+* 
+* Archive resource identifiers should always get a "@Servername" appendix, though Documents recognizes EE.x and EE.i resources of the primary archive server without that appendix.
+* <b>Resource ordering and hitlist specification</b>
+* The resource, which owns a specified hitlist, has to be passed in the first position of the list. Search requests in EE.i/EE.x-archives do not work with a filetype's hitlist. These archives require a hitlist of their own. For this reason, a list of resources of different types must be ordered in the following way: EE.x before EE.i before anything else. Requests, which involve more than one Easy Enterprise server can work only, if a hitlist of the given name exists in each resource of these servers.
+* <b>Automatic hitlist selection</b>
+* If the parameter "hitlist" is an empty string, Documents scans the search resources for a named hitlist. If no named hitlist exists, Documents initializes an old-fashioned anonymous hitlist, which is based on the "Display in hit list" option of fields in the Documents Manager and on corresponding options for particular DocFile attributes (title, created, owner, last modified, last editor). An anonymous hitlist does actually not work with EE.x. It partially works with EE.i. In this case, Documents externally uses the setting "CommonDefaultHitlist" of the configuration file "ArchiveXML.ini" and transfers matching columns into the internal hitlist. As long as named hitlists become imported with the archive structure, it does not matter.
+* Search requests, which involve more than one Easy Enterprise server cannot rely on the automatic selection feature. Scripts should always pass an appropriate hitlist name for these requests.
+* 
+* Since DOCUMENTS 4.0b 
+* Since DOCUMENTS 4.0d HF1 new parameter fullColumnLength
+* Since DOCUMENTS 5.0 (New option for hitlist parameter: an array of field names instead of a hitlist name) 
 * @param {any} searchResources The list of resources to search through. The resource identifiers may be passed either as an array of strings or as an ordinary string with one identifier per line of text. Please read the remarks section about restrictions. 
 * @param {string} filter A filter expression. Pass an empty string, if no filter ist required. 
 * @param {string} sortOrder A sort expression. Pass an empty string, if no sorting is required. 
-* @param {any} hitlist The technical name of a hitlist or an array of field names, which specifies the available columns in the resultset. If the parameter is left empty, Documents tries to choose a hitlist automatically. Details follow in the remarks section. Note: If this parameter is an array of field names, a search in EE.i or EE.x is not allowed and the field names must not contain commas (,). 
+* @param {any} hitlist The technical name of a hitlist or an array of field names, which specifies the available columns in the resultset. If the parameter is left empty, Documents tries to choose a hitlist automatically. Details follow in the remarks section. 
+* <b>Note:</b> If this parameter is an array of field names, a search in EE.i or EE.x is not allowed and the field names must not contain commas (,). 
 * @param {number} [pageSize] This is a memory-saving and performance-tuning option. If the parameter is zero, Documents will load all available hits at once. If the parameter is a positive value, Documents will initially load only the requested number of hits as a first page. In order to access each further page, a call to fetchNextPage() is necessary. A negative pageSize value will be replaced by the current user's "hits per page" preference setting. 
 * @param {boolean} [unlimitedHits] A boolean that indicates, if the general hit limitations on filetypes and archives must be ignored. A wasteful use of this option may cause issues with the system performance or situations with low free memory. 
-* @param {boolean} [fullColumnLength] A boolean that indicates, if the general hit column length limitations must be ignored. The default column length is 50 characters (if not a different value is defined by the property Documents-Settings: MaxHitfieldLength). If a field value exeeds this size, the first 50 characters will be displayed followed by '...'. If the parameter fullColumnLength is set to true, no truncation will be done. 
+* @param {boolean} [fullColumnLength] A boolean that indicates, if the general hit column length limitations must be ignored. The default column length is 50 characters (if not a different value is defined by the property Documents-Settings: MaxHitfieldLength). If a field value exeeds this size, the first 50 characters will be displayed followed by '...'. If the parameter fullColumnLength is set to <code>true</code>, no truncation will be done. 
 * @param {boolean} [withBlobInfo] A boolean that indicates, if the HitResultset should contain blob-information that can be fetched with DocHit.getBlobInfo()
-
+* @see [UsingfilterexpressionswithFileResultSets,Filterexamples]{@link UsingfilterexpressionswithFileResultSets,Filterexamples} 
 */
 /**
 * @memberof HitResultset
@@ -6538,7 +7956,8 @@
 * @function fetchedSize
 * @instance
 * @summary Get the number of already loaded hits in the set. 
-* @description Remark: If the object has been created with a non-zero page size, this value is often smaller than the total amount of hits. 
+* @description 
+* Note: If the object has been created with a non-zero page size, this value is often smaller than the total amount of hits. 
 * @returns {number} integer value with the number of hits, which can actually be read from the resultset. 
 * @since DOCUMENTS 4.0b 
 * @see [size]{@link size} 
@@ -6557,7 +7976,7 @@
 * @function first
 * @instance
 * @summary Retrieve the first DocHit in the HitResultset. 
-* @returns {DocHit} DocHit object, null in case of an empty HitResultset
+* @returns {DocHit} DocHit object, <code>null</code> in case of an empty HitResultset
 * @since DOCUMENTS 4.0b 
 * @see [next]{@link next} 
 **/
@@ -6566,9 +7985,10 @@
 * @function getAt
 * @instance
 * @summary Retrieve the DocHit object at a given position in the HitResultset. 
-* @description Remark: Valid positions range from 0 to fetchedSize()-1. 
+* @description 
+* Note: Valid positions range from 0 to fetchedSize()-1. 
 * @param {number} pos Integer position of the hit, beginning with 0 
-* @returns {DocHit} DocHit object or null if the position is out of bounds. 
+* @returns {DocHit} DocHit object or <code>null</code> if the position is out of bounds. 
 * @since DOCUMENTS 4.0b 
 **/
 /**
@@ -6584,7 +8004,8 @@
 * @function getColumnIndex
 * @instance
 * @summary Find the index of a column with a defined name. 
-* @description Remark: The function tests for a technical column name prior to a localized name. 
+* @description 
+* Note: The function tests for a technical column name prior to a localized name. 
 * @param {string} colName The name of the column. 
 * @returns {number} The zero-based index of the column or a -1, which indicates an unknown column name. 
 * @since DOCUMENTS 4.0b 
@@ -6594,7 +8015,8 @@
 * @function getColumnNames
 * @instance
 * @summary List the names of all columns in the set of hits. 
-* @description Remark: If the resultset is bases on an EE.i hitlist, the function usually returns field numbers instead of technical names, because column descriptions of an EE.i hitlist only consist of the field number and a label. The label would not be a reliable identifier of the column.
+* @description 
+* Note: If the resultset is bases on an EE.i hitlist, the function usually returns field numbers instead of technical names, because column descriptions of an EE.i hitlist only consist of the field number and a label. The label would not be a reliable identifier of the column.
 * Columns, which correspond to a DocFile attribute may be given a special constant name instead of the name in an archive's scheme. "TITLE" on EE.x and "110" on EE.i may be presented as "DlcFile_Title", for example. 
 * @param {boolean} [local] A boolean option to read the localized names instead of the technical names. 
 * @returns {any[]} Array of strings with the column names. 
@@ -6614,7 +8036,8 @@
 * @function getLastErrorCode
 * @instance
 * @summary Function to get a numeric code of the last error, that occurred. 
-* @description Remark: The value 0 means "no error". Positive values indicate warnings or minor errors, while negative values indicate serious errors. After a serious error no hits should be processed. After a minor error, the resultset may be unsorted or truncated, but the contained data is still valid. 
+* @description 
+* Note: The value 0 means "no error". Positive values indicate warnings or minor errors, while negative values indicate serious errors. After a serious error no hits should be processed. After a minor error, the resultset may be unsorted or truncated, but the contained data is still valid. 
 * @returns {number} Integer error code. 
 * @since DOCUMENTS 4.0b 
 * @see [getLastError]{@link getLastError} 
@@ -6624,8 +8047,9 @@
 * @function next
 * @instance
 * @summary Retrieve the next DocHit in the HitResultset. 
-* @description Remark: Calls of getAt() do not affect the internal cursor of next(). 
-* @returns {DocHit} DocHit object, null if either the end of the resultset or the end of the loaded pages is reached. 
+* @description 
+* Note: Calls of getAt() do not affect the internal cursor of next(). 
+* @returns {DocHit} DocHit object, <code>null</code> if either the end of the resultset or the end of the loaded pages is reached. 
 * @since DOCUMENTS 4.0b 
 * @see [first]{@link first} 
 **/
@@ -6634,7 +8058,8 @@
 * @function size
 * @instance
 * @summary Get the total amount of hits in the set. 
-* @description Remark: If the object has been created with a non-zero page size, this value is often greater than the amount of already accessible hits. 
+* @description 
+* Note: If the object has been created with a non-zero page size, this value is often greater than the amount of already accessible hits. 
 * @returns {number} integer value with the total amount of hits. The value -1 may be returned to indicate, that the search continues in the background, and the final number is not yet known. 
 * @since DOCUMENTS 4.0b 
 * @see [fetchedSize]{@link fetchedSize} 
@@ -6642,15 +8067,53 @@
 /**
 * @interface PropertyCache
 * @summary The PropertyCache class is a util class that allows it to store / cache data over the end of the run time of a script. 
-* @description There is exactly one global implicit object of the class PropertyCache which is named propCache. At the SystemUser and the AccessProfile are also PropertyCache objects (SystemUser.propCache, AccessProfile.propCache). 
+* @description There is exactly one global implicit object of the class <code>PropertyCache</code> which is named <code>propCache</code>. At the SystemUser and the AccessProfile are also PropertyCache objects (<code>SystemUser.propCache, AccessProfile.propCache</code>). 
 * <ul>
-* <li>You can define named members (properties) at this object to store the data: propCache.Name1 = one_value;propCache.Name2 = another_value;</li>
+* <li>You can define named members (properties) at this object to store the data: <code>propCache.Name1 = one_value;</code><code>propCache.Name2 = another_value;</code></li>
 * <li>The stored data can be integer, boolean, string or array values </li>
 * <li>There is no limit (except the memory of the OS) in the amount of properties or in the length of an array </li>
 * <li>Every principal has it's own propCache object </li>
 * </ul>
 * 
 * Note: It is not possible to create objects of the class PropertyCache, since the propCache object is always available.
+* @example
+* // If you have an enumeration field at a filetype and the enumeration
+* // values (enumval) are defined by a PortalScript, then every time a
+* // file of that filetype will be displayed, the PortalScript has to be
+* // excecuted. If now in the PortalScript the enum values are the result
+* // of a query on a filetype or an external DB (DBResultset), then this
+* // is a very "expensive" resource. It is recommanded to cache this data.
+* 
+* if (!propCache.hasProperty("Contacts"))
+* {
+*    util.out("Creating cache");
+*    propCache.Contacts = getEmployees();
+* }
+* 
+* util.out("Using cache");
+* 
+* // copy values to enumval "manually" - concat etc. not possible
+* // with the global object enumval
+* copyArray(propCache.Contacts, enumval);
+* 
+* return;
+* 
+* function getEmployees()
+* {
+*    var myList = new Array();
+*    var sort = "hrLastName+,hrFirstName+";
+*    var it = new FileResultset("ftEmployee", "", sort);
+*    for (var empl=it.first(); empl; empl=it.next())
+*       myList.push(empl.hrLastName + ", " + empl.hrFirstName);
+* 
+*    return myList;
+* }
+* 
+* function copyArray(srcList, trgList)
+* {
+*    for (var cnt=0; cnt<srcList.length; cnt++)
+*       trgList.push(srcList[cnt]);
+* }
 */
 /**
 * @memberof PropertyCache
@@ -6658,7 +8121,7 @@
 * @instance
 * @summary Function to check if a named property exists in the PropertyCache. 
 * @param {string} name 
-* @returns {boolean} true if the property exists, false if not 
+* @returns {boolean} <code>true</code> if the property exists, <code>false</code> if not 
 * @since DOCUMENTS 4.0 
 **/
 /**
@@ -6675,42 +8138,51 @@
 * @instance
 * @summary Function to delete a named property exists in the PropertyCache. 
 * @param {string} name 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since DOCUMENTS 4.0 
 **/
 /**
 * @interface Register
 * @summary The Register class has been added to the DOCUMENTS PortalScripting API to gain full access to the registers of a DOCUMENTS file by scripting means. 
+* @since ELC 3.50n / otrisPORTAL 5.0n 
 */
 /**
 * @memberof Register
 * @summary The ergonomic label of the Register object. 
-* @description Note: This property is readonly and cannot be overwritten. 
+* @description 
+* Note: This property is readonly and cannot be overwritten. 
+* Since ELC 3.60i / otrisPORTAL 6.0i available for archive files 
 * @member {string} label
 * @instance
+* @since ELC 3.50n / otrisPORTAL 5.0n 
 **/
 /**
 * @memberof Register
 * @summary The technical name of the Register object. 
-* @description Note: This property is readonly and cannot be overwritten. 
+* @description 
+* Note: This property is readonly and cannot be overwritten. 
+* Since ELC 3.60i / otrisPORTAL 6.0i available for archive files 
 * @member {string} name
 * @instance
+* @since ELC 3.50n / otrisPORTAL 5.0n 
 **/
 /**
 * @memberof Register
 * @summary The type of the Register object. 
 * @description The possible values of the type attribute are listed below: 
 * <ul>
-* <li>documents</li>
-* <li>fields</li>
-* <li>links</li>
-* <li>archiveddocuments</li>
-* <li>externalcall</li>
+* <li><code>documents</code></li>
+* <li><code>fields</code></li>
+* <li><code>links</code></li>
+* <li><code>archiveddocuments</code></li>
+* <li><code>externalcall</code></li>
 * </ul>
 * 
 * Note: This property is readonly and cannot be overwritten. 
+* Since ELC 3.60i / otrisPORTAL 6.0i available for archive files 
 * @member {string} type
 * @instance
+* @since ELC 3.50n / otrisPORTAL 5.0n 
 **/
 /**
 * @memberof Register
@@ -6719,7 +8191,7 @@
 * @summary Delete a Document at the Register. 
 * @description With the necessary access rights the user can delete a Document at the Register. 
 * @param {Document} doc Document to delete 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since ELC 3.60d / otrisPORTAL 6.0d
 * @example
 * // deleting all documents at a register
@@ -6737,6 +8209,7 @@
 * @function getAttribute
 * @instance
 * @summary Get the String value of an attribute of the Register. 
+* @description
 * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files 
 * @param {string} attribute String containing the name of the desired attribute 
 * @returns {string} String containing the value of the desired attribute 
@@ -6765,7 +8238,7 @@
 * @function getFile
 * @instance
 * @summary Returns the DocFile the Register belongs to. 
-* @returns {DocFile} DocFile object or null if missing 
+* @returns {DocFile} DocFile object or <code>null</code> if missing 
 * @since DOCUMENTS 5.0c HF1
 * @example
 * var file = context.file;
@@ -6794,6 +8267,7 @@
 * @function getLastError
 * @instance
 * @summary Function to get the description of the last error that occurred. 
+* @description
 * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files 
 * @returns {string} Text of the last error as String 
 * @since ELC 3.50n / otrisPORTAL 5.0n 
@@ -6804,13 +8278,14 @@
 * @function getOID
 * @instance
 * @summary Returns the object-id. 
+* @description
 * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files 
 * Since DOCUMENTS 5.0 (new parameter oidLow) 
 * @param {boolean} [oidLow] Optional flag: 
-* If true only the id of the filetype object (m_oid) will be returned. 
-* If false the id of the filetype object will be returned together with the id of the corresponding class in the form class-id:m_oid. 
-* The default value is false. 
-* @returns {string} String with the object-id 
+* If <code>true</code> only the id of the filetype object (<code>m_oid</code>) will be returned. 
+* If <code>false</code> the id of the filetype object will be returned together with the id of the corresponding class in the form <code>class-id:m_oid</code>. 
+* The default value is <code>false</code>. 
+* @returns {string} <code>String</code> with the object-id 
 * @since ELC 3.60c / otrisPORTAL 6.0c 
 **/
 /**
@@ -6818,10 +8293,11 @@
 * @function setAttribute
 * @instance
 * @summary Set the String value of an attribute of the Register to the desired value. 
+* @description
 * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files 
 * @param {string} attribute String containing the name of the desired attribute 
 * @param {string} value String containing the desired value of the attribute 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since ELC 3.50n / otrisPORTAL 5.0n 
 **/
 /**
@@ -6834,7 +8310,7 @@
 * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files
 * @param {string} filePath String containing the filePath and filename of the desired file to be uploaded. Note: Backslashes contained in the filepath must be quoted with a leading backslash, since the backslash is a special char in ECMAScript! 
 * @param {string} registerFileName String containing the desired target filename of the Document on the Register
-* @returns {Document} Document if successful, null in case of any error 
+* @returns {Document} <code>Document</code> if successful, <code>null</code> in case of any error 
 * @since ELC 3.50n / otrisPORTAL 5.0n 
 * @example
 * var docFile = context.file;
@@ -6848,14 +8324,30 @@
 /**
 * @interface RegisterIterator
 * @summary The RegisterIterator class has been added to the DOCUMENTS PortalScripting API to gain full access to the registers of a DOCUMENTS file by scripting means. 
+* @description Since ELC 3.60i / otrisPORTAL 6.0i available for archive files
+* @since ELC 3.50n / otrisPORTAL 5.0n 
+* @example
+* var docFile = context.file;
+* if (docFile)
+* {
+*    var docregs = docFile.getRegisters("documents");
+*    if (docregs && docregs.size() > 0)
+*    {
+*       for (var d = docregs.first(); d; d = docregs.next())
+*       {
+*          util.out(d.Name + ", " + d.Label);
+*       }
+*    }
+* }
 */
 /**
 * @memberof RegisterIterator
 * @function first
 * @instance
 * @summary Retrieve the first Register object in the RegisterIterator. 
+* @description
 * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files 
-* @returns {Register} Register or null in case of an empty RegisterIterator
+* @returns {Register} Register or <code>null</code> in case of an empty RegisterIterator
 * @since ELC 3.50n / otrisPORTAL 5.0n 
 **/
 /**
@@ -6863,6 +8355,7 @@
 * @function getLastError
 * @instance
 * @summary Function to get the description of the last error that occurred. 
+* @description
 * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files 
 * @returns {string} Text of the last error as String 
 * @since ELC 3.50n / otrisPORTAL 5.0n 
@@ -6873,8 +8366,9 @@
 * @function next
 * @instance
 * @summary Retrieve the next Register object in the RegisterIterator. 
+* @description
 * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files 
-* @returns {Register} Register or null if end of RegisterIterator is reached. 
+* @returns {Register} Register or <code>null</code> if end of RegisterIterator is reached. 
 * @since ELC 3.50n / otrisPORTAL 5.0n 
 **/
 /**
@@ -6882,6 +8376,7 @@
 * @function size
 * @instance
 * @summary Get the amount of Register objects in the RegisterIterator. 
+* @description
 * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files 
 * @returns {number} integer value with the amount of Register objects in the RegisterIterator
 * @since ELC 3.50n / otrisPORTAL 5.0n 
@@ -6889,196 +8384,240 @@
 /**
 * @interface RetrievalField
 * @summary This class represents one search field or one conditon within a DOCUMENTS search request. 
+* @since DOCUMENTS 4.0c HF2 
+* @see [DocQueryParams]{@link DocQueryParams} 
 */
 /**
- * @memberof RetrievalField
- * @summary Integer code for the field type "String" (single line) 
- * @description 
- * <br> This constant is member of group: Field Types<br>
- * These constants are equally available in each instance of RetrievalField and in the constructor object. 
- * @instance 
- * @constant {number} FT_STRING
- */
+* @memberof RetrievalField
+* @summary Integer code for the field type "String" (single line) 
+* @description 
+* <br> This constant is member of constant group: Field Types<br>
+* These constants are equally available in each instance of RetrievalField and in the constructor object. 
+* @instance 
+* @constant {number} FT_STRING
+
+
+*/
 /**
- * @memberof RetrievalField
- * @summary Integer code for the field type "Text" (multiple lines) 
- * @description 
- * <br> This constant is member of group: Field Types<br>
- * These constants are equally available in each instance of RetrievalField and in the constructor object. 
- * @instance 
- * @constant {number} FT_TEXT
- */
+* @memberof RetrievalField
+* @summary Integer code for the field type "Text" (multiple lines) 
+* @description 
+* <br> This constant is member of constant group: Field Types<br>
+* These constants are equally available in each instance of RetrievalField and in the constructor object. 
+* @instance 
+* @constant {number} FT_TEXT
+
+
+*/
 /**
- * @memberof RetrievalField
- * @summary Integer code for the field type "boolean". 
- * @description 
- * <br> This constant is member of group: Field Types<br>
- * These constants are equally available in each instance of RetrievalField and in the constructor object. 
- * @instance 
- * @constant {number} FT_BOOL
- */
+* @memberof RetrievalField
+* @summary Integer code for the field type "boolean". 
+* @description 
+* <br> This constant is member of constant group: Field Types<br>
+* These constants are equally available in each instance of RetrievalField and in the constructor object. 
+* @instance 
+* @constant {number} FT_BOOL
+
+
+*/
 /**
- * @memberof RetrievalField
- * @summary Integer code for the field type "Date". 
- * @description 
- * <br> This constant is member of group: Field Types<br>
- * These constants are equally available in each instance of RetrievalField and in the constructor object. 
- * @instance 
- * @constant {number} FT_DATE
- */
+* @memberof RetrievalField
+* @summary Integer code for the field type "Date". 
+* @description 
+* <br> This constant is member of constant group: Field Types<br>
+* These constants are equally available in each instance of RetrievalField and in the constructor object. 
+* @instance 
+* @constant {number} FT_DATE
+
+
+*/
 /**
- * @memberof RetrievalField
- * @summary Integer code for the field type "Enumeration" (not extensible) 
- * @description 
- * <br> This constant is member of group: Field Types<br>
- * These constants are equally available in each instance of RetrievalField and in the constructor object. 
- * @instance 
- * @constant {number} FT_ENUM
- */
+* @memberof RetrievalField
+* @summary Integer code for the field type "Enumeration" (not extensible) 
+* @description 
+* <br> This constant is member of constant group: Field Types<br>
+* These constants are equally available in each instance of RetrievalField and in the constructor object. 
+* @instance 
+* @constant {number} FT_ENUM
+
+
+*/
 /**
- * @memberof RetrievalField
- * @summary Integer code for the field type "Numeric". 
- * @description 
- * <br> This constant is member of group: Field Types<br>
- * These constants are equally available in each instance of RetrievalField and in the constructor object. 
- * @instance 
- * @constant {number} FT_NUMERIC
- */
+* @memberof RetrievalField
+* @summary Integer code for the field type "Numeric". 
+* @description 
+* <br> This constant is member of constant group: Field Types<br>
+* These constants are equally available in each instance of RetrievalField and in the constructor object. 
+* @instance 
+* @constant {number} FT_NUMERIC
+
+
+*/
 /**
- * @memberof RetrievalField
- * @summary Integer code for the field type "File reference". 
- * @description 
- * <br> This constant is member of group: Field Types<br>
- * These constants are equally available in each instance of RetrievalField and in the constructor object. 
- * @instance 
- * @constant {number} FT_REFERENCE
- */
+* @memberof RetrievalField
+* @summary Integer code for the field type "File reference". 
+* @description 
+* <br> This constant is member of constant group: Field Types<br>
+* These constants are equally available in each instance of RetrievalField and in the constructor object. 
+* @instance 
+* @constant {number} FT_REFERENCE
+
+
+*/
 /**
- * @memberof RetrievalField
- * @summary Integer code for the field type "History". 
- * @description 
- * <br> This constant is member of group: Field Types<br>
- * These constants are equally available in each instance of RetrievalField and in the constructor object. 
- * @instance 
- * @constant {number} FT_HISTORY
- */
+* @memberof RetrievalField
+* @summary Integer code for the field type "History". 
+* @description 
+* <br> This constant is member of constant group: Field Types<br>
+* These constants are equally available in each instance of RetrievalField and in the constructor object. 
+* @instance 
+* @constant {number} FT_HISTORY
+
+
+*/
 /**
- * @memberof RetrievalField
- * @summary Integer code for the field type "Double select list". 
- * @description 
- * <br> This constant is member of group: Field Types<br>
- * These constants are equally available in each instance of RetrievalField and in the constructor object. 
- * @instance 
- * @constant {number} FT_DOUBLE_LIST
- */
+* @memberof RetrievalField
+* @summary Integer code for the field type "Double select list". 
+* @description 
+* <br> This constant is member of constant group: Field Types<br>
+* These constants are equally available in each instance of RetrievalField and in the constructor object. 
+* @instance 
+* @constant {number} FT_DOUBLE_LIST
+
+
+*/
 /**
- * @memberof RetrievalField
- * @summary Integer code for the field type "Checkbox". 
- * @description 
- * <br> This constant is member of group: Field Types<br>
- * These constants are equally available in each instance of RetrievalField and in the constructor object. 
- * @instance 
- * @constant {number} FT_CHECKBOX
- */
+* @memberof RetrievalField
+* @summary Integer code for the field type "Checkbox". 
+* @description 
+* <br> This constant is member of constant group: Field Types<br>
+* These constants are equally available in each instance of RetrievalField and in the constructor object. 
+* @instance 
+* @constant {number} FT_CHECKBOX
+
+
+*/
 /**
- * @memberof RetrievalField
- * @summary Integer code for the field type "Horizontal seperator" (actually ignored by the retrieval system) 
- * @description 
- * <br> This constant is member of group: Field Types<br>
- * These constants are equally available in each instance of RetrievalField and in the constructor object. 
- * @instance 
- * @constant {number} FT_SEPARATOR
- */
+* @memberof RetrievalField
+* @summary Integer code for the field type "Horizontal seperator" (actually ignored by the retrieval system) 
+* @description 
+* <br> This constant is member of constant group: Field Types<br>
+* These constants are equally available in each instance of RetrievalField and in the constructor object. 
+* @instance 
+* @constant {number} FT_SEPARATOR
+
+
+*/
 /**
- * @memberof RetrievalField
- * @summary Integer code for the field type "User defeined". 
- * @description 
- * <br> This constant is member of group: Field Types<br>
- * These constants are equally available in each instance of RetrievalField and in the constructor object. 
- * @instance 
- * @constant {number} FT_USER_DEFINED
- */
+* @memberof RetrievalField
+* @summary Integer code for the field type "User defeined". 
+* @description 
+* <br> This constant is member of constant group: Field Types<br>
+* These constants are equally available in each instance of RetrievalField and in the constructor object. 
+* @instance 
+* @constant {number} FT_USER_DEFINED
+
+
+*/
 /**
- * @memberof RetrievalField
- * @summary Integer code for the field type "Text (fixed font)". 
- * @description 
- * <br> This constant is member of group: Field Types<br>
- * These constants are equally available in each instance of RetrievalField and in the constructor object. 
- * @instance 
- * @constant {number} FT_TEXT_FIXED_FONT
- */
+* @memberof RetrievalField
+* @summary Integer code for the field type "Text (fixed font)". 
+* @description 
+* <br> This constant is member of constant group: Field Types<br>
+* These constants are equally available in each instance of RetrievalField and in the constructor object. 
+* @instance 
+* @constant {number} FT_TEXT_FIXED_FONT
+
+
+*/
 /**
- * @memberof RetrievalField
- * @summary Integer code for the field type "E-mail address". 
- * @description 
- * <br> This constant is member of group: Field Types<br>
- * These constants are equally available in each instance of RetrievalField and in the constructor object. 
- * @instance 
- * @constant {number} FT_E_MAIL
- */
+* @memberof RetrievalField
+* @summary Integer code for the field type "E-mail address". 
+* @description 
+* <br> This constant is member of constant group: Field Types<br>
+* These constants are equally available in each instance of RetrievalField and in the constructor object. 
+* @instance 
+* @constant {number} FT_E_MAIL
+
+
+*/
 /**
- * @memberof RetrievalField
- * @summary Integer code for the field type "URL". 
- * @description 
- * <br> This constant is member of group: Field Types<br>
- * These constants are equally available in each instance of RetrievalField and in the constructor object. 
- * @instance 
- * @constant {number} FT_URL
- */
+* @memberof RetrievalField
+* @summary Integer code for the field type "URL". 
+* @description 
+* <br> This constant is member of constant group: Field Types<br>
+* These constants are equally available in each instance of RetrievalField and in the constructor object. 
+* @instance 
+* @constant {number} FT_URL
+
+
+*/
 /**
- * @memberof RetrievalField
- * @summary Integer code for the field type "Time stamp". 
- * @description 
- * <br> This constant is member of group: Field Types<br>
- * These constants are equally available in each instance of RetrievalField and in the constructor object. 
- * @instance 
- * @constant {number} FT_TIMESTAMP
- */
+* @memberof RetrievalField
+* @summary Integer code for the field type "Time stamp". 
+* @description 
+* <br> This constant is member of constant group: Field Types<br>
+* These constants are equally available in each instance of RetrievalField and in the constructor object. 
+* @instance 
+* @constant {number} FT_TIMESTAMP
+
+
+*/
 /**
- * @memberof RetrievalField
- * @summary Integer code for the field type "Filing plan". 
- * @description 
- * <br> This constant is member of group: Field Types<br>
- * These constants are equally available in each instance of RetrievalField and in the constructor object. 
- * @instance 
- * @constant {number} FT_FILING_PLAN
- */
+* @memberof RetrievalField
+* @summary Integer code for the field type "Filing plan". 
+* @description 
+* <br> This constant is member of constant group: Field Types<br>
+* These constants are equally available in each instance of RetrievalField and in the constructor object. 
+* @instance 
+* @constant {number} FT_FILING_PLAN
+
+
+*/
 /**
- * @memberof RetrievalField
- * @summary Integer code for the field type "HTML". 
- * @description 
- * <br> This constant is member of group: Field Types<br>
- * These constants are equally available in each instance of RetrievalField and in the constructor object. 
- * @instance 
- * @constant {number} FT_HTML
- */
+* @memberof RetrievalField
+* @summary Integer code for the field type "HTML". 
+* @description 
+* <br> This constant is member of constant group: Field Types<br>
+* These constants are equally available in each instance of RetrievalField and in the constructor object. 
+* @instance 
+* @constant {number} FT_HTML
+
+
+*/
 /**
- * @memberof RetrievalField
- * @summary Reserved constant for a possible future use. 
- * @description 
- * <br> This constant is member of group: Field Types<br>
- * These constants are equally available in each instance of RetrievalField and in the constructor object. 
- * @instance 
- * @constant {number} FT_FILING_STRUCTURE
- */
+* @memberof RetrievalField
+* @summary Reserved constant for a possible future use. 
+* @description 
+* <br> This constant is member of constant group: Field Types<br>
+* These constants are equally available in each instance of RetrievalField and in the constructor object. 
+* @instance 
+* @constant {number} FT_FILING_STRUCTURE
+
+
+*/
 /**
- * @memberof RetrievalField
- * @summary Integer code for the field type "Gadget" (actually ignored by the retrieval system) 
- * @description 
- * <br> This constant is member of group: Field Types<br>
- * These constants are equally available in each instance of RetrievalField and in the constructor object. 
- * @instance 
- * @constant {number} FT_GADGET
- */
+* @memberof RetrievalField
+* @summary Integer code for the field type "Gadget" (actually ignored by the retrieval system) 
+* @description 
+* <br> This constant is member of constant group: Field Types<br>
+* These constants are equally available in each instance of RetrievalField and in the constructor object. 
+* @instance 
+* @constant {number} FT_GADGET
+
+
+*/
 /**
- * @memberof RetrievalField
- * @summary Integer code for fields with an unspecified data type. 
- * @description This constant has been added for completeness. Fields in this state should never appear in the retrieval system. 
- * <br> This constant is member of group: Field Types<br>
- * These constants are equally available in each instance of RetrievalField and in the constructor object. 
- * @instance 
- * @constant {number} FT_UNDEFINED
- */
+* @memberof RetrievalField
+* @summary Integer code for fields with an unspecified data type. 
+* @description This constant has been added for completeness. Fields in this state should never appear in the retrieval system. 
+* <br> This constant is member of constant group: Field Types<br>
+* These constants are equally available in each instance of RetrievalField and in the constructor object. 
+* @instance 
+* @constant {number} FT_UNDEFINED
+
+
+*/
 /**
 * @memberof RetrievalField
 * @summary The comparison operator / relational operator as a String. 
@@ -7086,32 +8625,40 @@
 * Note: The access to this property is restricted. Only the "OnSearchScript" can effectively modify it. Modifying the operator is risky, since it can produce unexpected results from the user's point of view. 
 * @member {string} compOp
 * @instance
+* @since DOCUMENTS 4.0c HF2 
 **/
 /**
 * @memberof RetrievalField
 * @summary The actual default value of the field (read-only). 
-* @description Remark: Actually only the "FillSearchMask" exit can attach default values (see setDefault()). There might exist another method in a future version. To improve upward compatibility a "FillSearchMask" script may check for external default values, and leave them unmodified. 
+* @description 
+* Note: Actually only the "FillSearchMask" exit can attach default values (see setDefault()). There might exist another method in a future version. To improve upward compatibility a "FillSearchMask" script may check for external default values, and leave them unmodified. 
 * @member {string} defaultValue
 * @instance
+* @since DOCUMENTS 4.0d 
 **/
 /**
 * @memberof RetrievalField
 * @summary The UI write protection state of the defautValue (read-only) 
 * @member {boolean} defValWriteProt
 * @instance
+* @since DOCUMENTS 4.0d 
+* @see [setDefault]{@link setDefault} 
 **/
 /**
 * @memberof RetrievalField
 * @summary The localized label of the field. Maybe an empty String. 
-* @description Remark: If the field has not got a label, DOCUMENTS falls back to the technical name. So there is no need to specify a label always. A few reserved internal fields, which are usualli never displayed on a search mask or a hit list, also come along without any label. An example is the special field "Search_EEIFileNr", which DOCUMENTS uses internally to implement a version listing for an ENTERPRISE.i file. 
+* @description 
+* Note: If the field has not got a label, DOCUMENTS falls back to the technical name. So there is no need to specify a label always. A few reserved internal fields, which are usualli never displayed on a search mask or a hit list, also come along without any label. An example is the special field "Search_EEIFileNr", which DOCUMENTS uses internally to implement a version listing for an ENTERPRISE.i file. 
 * @member {string} label
 * @instance
+* @since DOCUMENTS 4.0c HF2 
 **/
 /**
 * @memberof RetrievalField
 * @summary The name of the look-up field (read-only). 
 * @member {string} name
 * @instance
+* @since DOCUMENTS 4.0c HF2 
 **/
 /**
 * @memberof RetrievalField
@@ -7119,13 +8666,16 @@
 * @description See the enumeration constants in this class. 
 * @member {number} type
 * @instance
+* @since DOCUMENTS 4.0c HF2 
 **/
 /**
 * @memberof RetrievalField
 * @summary The value sought after. If the operator is "~", it can be a composed value expression. 
-* @description Note: The access to this property is restricted. Only the "OnSearchScript" can effectively modify it. Modifying the value is risky, because it can produce unexpected results from the user's point of view. Within a "FillSearchMask" exit this property contains always an empty string. 
+* @description 
+* Note: The access to this property is restricted. Only the "OnSearchScript" can effectively modify it. Modifying the value is risky, because it can produce unexpected results from the user's point of view. Within a "FillSearchMask" exit this property contains always an empty string. 
 * @member {string} valueExpr
 * @instance
+* @since DOCUMENTS 4.0c HF2 
 **/
 /**
 * @memberof RetrievalField
@@ -7134,6 +8684,7 @@
 * @summary Place a default value in a search field. 
 * @description A "FillSearchMask" script-exit can call this function to place default values in an extended search formular. Calls from other scripts will rather deposit a "LastError" message in the superior DocQueryParams object. 
 * Note: The DocumentsServer only forwards these parameters to the client application. If a special client implementation will ignore them, the server would not enforce the defaults, because such a behaviour would confuse users. 
+* 
 *  Calling this function does not modify the "empty" state in terms of DocQueryParams.getSearchField(). 
 * @param {string} value The initial text in the search field. Dates and numbers must be formatted with the current user's locale settings. 
 * @param {boolean} writeProtect Indicates, if the user interface shall write-protect the field. 
@@ -7143,70 +8694,86 @@
 /**
 * @interface RetrievalSource
 * @summary This class describes a searchable resource in the DOCUMENTS retrieval system. 
+* @since DOCUMENTS 4.0c HF2 
 */
 /**
- * @memberof RetrievalSource
- * @summary Integer code of the source type "DOCUMENTS file type". 
- * @description 
- * <br> This constant is member of group: Searchable Resource<br>
- * These constants are equally available in each instance of RetrievalSource and in the constructor object. Resource macroes can only occur in the "FillSearchMask" exit. Within an "OnSearch" exit they have already been replaced by their single components. 
- * @instance 
- * @constant {number} ST_DLC_FILETYPE
- */
+* @memberof RetrievalSource
+* @summary Integer code of the source type "DOCUMENTS file type". 
+* @description 
+* <br> This constant is member of constant group: Searchable Resource<br>
+* These constants are equally available in each instance of RetrievalSource and in the constructor object. Resource macroes can only occur in the "FillSearchMask" exit. Within an "OnSearch" exit they have already been replaced by their single components. 
+* @instance 
+* @constant {number} ST_DLC_FILETYPE
+
+
+*/
 /**
- * @memberof RetrievalSource
- * @summary Integer code of the source type "EASY ENTERPRISE.i archive". 
- * @description 
- * <br> This constant is member of group: Searchable Resource<br>
- * These constants are equally available in each instance of RetrievalSource and in the constructor object. Resource macroes can only occur in the "FillSearchMask" exit. Within an "OnSearch" exit they have already been replaced by their single components. 
- * @instance 
- * @constant {number} ST_EEI_ARCHIVE
- */
+* @memberof RetrievalSource
+* @summary Integer code of the source type "EASY ENTERPRISE.i archive". 
+* @description 
+* <br> This constant is member of constant group: Searchable Resource<br>
+* These constants are equally available in each instance of RetrievalSource and in the constructor object. Resource macroes can only occur in the "FillSearchMask" exit. Within an "OnSearch" exit they have already been replaced by their single components. 
+* @instance 
+* @constant {number} ST_EEI_ARCHIVE
+
+
+*/
 /**
- * @memberof RetrievalSource
- * @summary Integer code of the source type "EASY ENTERPRISE.x view". 
- * @description 
- * <br> This constant is member of group: Searchable Resource<br>
- * These constants are equally available in each instance of RetrievalSource and in the constructor object. Resource macroes can only occur in the "FillSearchMask" exit. Within an "OnSearch" exit they have already been replaced by their single components. 
- * @instance 
- * @constant {number} ST_EEX_VIEW
- */
+* @memberof RetrievalSource
+* @summary Integer code of the source type "EASY ENTERPRISE.x view". 
+* @description 
+* <br> This constant is member of constant group: Searchable Resource<br>
+* These constants are equally available in each instance of RetrievalSource and in the constructor object. Resource macroes can only occur in the "FillSearchMask" exit. Within an "OnSearch" exit they have already been replaced by their single components. 
+* @instance 
+* @constant {number} ST_EEX_VIEW
+
+
+*/
 /**
- * @memberof RetrievalSource
- * @summary Integer code of the source type "EASY ENTERPRISE.x user specific view". 
- * @description 
- * <br> This constant is member of group: Searchable Resource<br>
- * These constants are equally available in each instance of RetrievalSource and in the constructor object. Resource macroes can only occur in the "FillSearchMask" exit. Within an "OnSearch" exit they have already been replaced by their single components. 
- * @instance 
- * @constant {number} ST_EEX_USERVIEW
- */
+* @memberof RetrievalSource
+* @summary Integer code of the source type "EASY ENTERPRISE.x user specific view". 
+* @description 
+* <br> This constant is member of constant group: Searchable Resource<br>
+* These constants are equally available in each instance of RetrievalSource and in the constructor object. Resource macroes can only occur in the "FillSearchMask" exit. Within an "OnSearch" exit they have already been replaced by their single components. 
+* @instance 
+* @constant {number} ST_EEX_USERVIEW
+
+
+*/
 /**
- * @memberof RetrievalSource
- * @summary Integer code of the source type "DOCUMENTS file type within an EAS/EDA store". 
- * @description 
- * <br> This constant is member of group: Searchable Resource<br>
- * These constants are equally available in each instance of RetrievalSource and in the constructor object. Resource macroes can only occur in the "FillSearchMask" exit. Within an "OnSearch" exit they have already been replaced by their single components. 
- * @instance 
- * @constant {number} ST_EAS_FILETYPE
- */
+* @memberof RetrievalSource
+* @summary Integer code of the source type "DOCUMENTS file type within an EAS/EDA store". 
+* @description 
+* <br> This constant is member of constant group: Searchable Resource<br>
+* These constants are equally available in each instance of RetrievalSource and in the constructor object. Resource macroes can only occur in the "FillSearchMask" exit. Within an "OnSearch" exit they have already been replaced by their single components. 
+* @instance 
+* @constant {number} ST_EAS_FILETYPE
+
+
+*/
 /**
- * @memberof RetrievalSource
- * @summary Integer code of the macro source type "EAS server" (Apply selected file types also to the identified EDA-store) 
- * @description 
- * <br> This constant is member of group: Searchable Resource<br>
- * These constants are equally available in each instance of RetrievalSource and in the constructor object. Resource macroes can only occur in the "FillSearchMask" exit. Within an "OnSearch" exit they have already been replaced by their single components. 
- * @instance 
- * @constant {number} MST_EAS_SERVER
- */
+* @memberof RetrievalSource
+* @summary Integer code of the macro source type "EAS server" (Apply selected file types also to the identified EDA-store) 
+* @description 
+* <br> This constant is member of constant group: Searchable Resource<br>
+* These constants are equally available in each instance of RetrievalSource and in the constructor object. Resource macroes can only occur in the "FillSearchMask" exit. Within an "OnSearch" exit they have already been replaced by their single components. 
+* @instance 
+* @constant {number} MST_EAS_SERVER
+
+
+*/
 /**
- * @memberof RetrievalSource
- * @summary Integer code of the macro source type "EAS only" (Remove standard file type sources after MST_EAS_SERVER macro expansion) 
- * @description A "FillSearchMask" script can usually find a source of this type, when the user has deselected the "actual processes" checkbox. This source has not got any parameters. If there are user accounts in the system, for which the checkbox does not show up, the script code should not interpret this source type at all. 
- * <br> This constant is member of group: Searchable Resource<br>
- * These constants are equally available in each instance of RetrievalSource and in the constructor object. Resource macroes can only occur in the "FillSearchMask" exit. Within an "OnSearch" exit they have already been replaced by their single components. 
- * @instance 
- * @constant {number} MST_EAS_ONLY
- */
+* @memberof RetrievalSource
+* @summary Integer code of the macro source type "EAS only" (Remove standard file type sources after MST_EAS_SERVER macro expansion) 
+* @description 
+* Note: A "FillSearchMask" script can usually find a source of this type, when the user has deselected the "actual processes" checkbox. This source has not got any parameters. If there are user accounts in the system, for which the checkbox does not show up, the script code should not interpret this source type at all. 
+* <br> This constant is member of constant group: Searchable Resource<br>
+* These constants are equally available in each instance of RetrievalSource and in the constructor object. Resource macroes can only occur in the "FillSearchMask" exit. Within an "OnSearch" exit they have already been replaced by their single components. 
+* @instance 
+* @constant {number} MST_EAS_ONLY
+
+
+*/
 /**
 * @memberof RetrievalSource
 * @summary A identifier of the resource. 
@@ -7214,25 +8781,31 @@
 * Note: Modifications of this property won't be forwarded to the retrieval system. 
 * @member {string} resId
 * @instance
+* @since DOCUMENTS 4.0c 
 **/
 /**
 * @memberof RetrievalSource
 * @summary For archive resources: the technical name of the archive server. Otherwise empty. 
-* @description Note: Modifications of this property won't be forwarded to the retrieval system. 
+* @description 
+* Note: Modifications of this property won't be forwarded to the retrieval system. 
 * @member {string} server
 * @instance
+* @since DOCUMENTS 4.0c 
 **/
 /**
 * @memberof RetrievalSource
 * @summary The resource type encoded as an integer. See the enumeration constants in this class. 
-* @description Note: Modifications of this property won't be forwarded to the retrieval system. 
+* @description 
+* Note: Modifications of this property won't be forwarded to the retrieval system. 
 * @member {number} type
 * @instance
+* @since DOCUMENTS 4.0c 
 **/
 /**
 * @class ScriptCall
 * @classdesc This class allows asynchronous calling a script from another script. 
 * You should deliberate whether a script call can be waitable or not. Only waitable script calls can be managed e.g. waiting for a script call to finish or checking whether a call is still running. 
+* @since DOCUMENTS 4.0d 
 * @summary Create a new ScriptCall object. 
 * @description The following properties of the execution context of the called script are carried over from the execution context of the script where this ScriptCall object is created: 
 * <ul>
@@ -7243,10 +8816,15 @@
 * </ul>
 * 
 * You can change these context properties with the available set-methods. 
-* @param {any} systemUser The system user who triggers execution of the called script and can be specified as follows: String containing the login name of the system user. SystemUser object representing the system user. 
+* Since DOCUMENTS 4.0d 
+* @param {any} systemUser The system user who triggers execution of the called script and can be specified as follows: 
+* <ul>
+* <li>String containing the login name of the system user. </li>
+* <li>SystemUser object representing the system user. </li>
+* </ul>
+* 
 * @param {string} scriptName String with the name of the called script. 
 * @param {boolean} waitable boolean flag indicating whether this script call is waitable.
-* @since DOCUMENTS 4.0d 
 */
 /**
 * @memberof ScriptCall
@@ -7255,7 +8833,7 @@
 * @summary Add a parameter to the called script. 
 * @param {string} name String value containing the parameter name. 
 * @param {string} value String value containing the parameter value. 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since DOCUMENTS 5.0
 * @example
 * var call = new ScriptCall("schreiber", "testScript", false);
@@ -7278,7 +8856,8 @@
 * @function getReturnValue
 * @instance
 * @summary Get the return value of the called script. 
-* @description Note: This function is only available for a waitable ScriptCall. 
+* @description 
+* Note: This function is only available for a waitable ScriptCall. 
 * @returns {string} The return value as String if the waitable ScriptCall was successfully completed, otherwise the string "Undefined". 
 * @since DOCUMENTS 5.0
 * @example
@@ -7294,8 +8873,9 @@
 * @function isRunning
 * @instance
 * @summary Check whether the script call is running. 
-* @description Note: This function is only available for a waitable script call. 
-* @returns {boolean} true if the script call is running, otherwise false
+* @description 
+* Note: This function is only available for a waitable script call. 
+* @returns {boolean} <code>true</code> if the script call is running, otherwise <code>false</code>
 * @since DOCUMENTS 4.0d
 * @example
 * var call = new ScriptCall("schreiber", "testScript", true);
@@ -7313,7 +8893,7 @@
 * @instance
 * @summary Launch the script call. 
 * @description In case of successful launch the script will be executed in an own context. 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since DOCUMENTS 4.0d
 * @example
 * var call = new ScriptCall("schreiber", "testScript", true);
@@ -7326,9 +8906,9 @@
 * @instance
 * @summary Set the execution context file of the called script. 
 * @param {DocFile} docFile DocFile object representing the desired execution context file. 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since DOCUMENTS 4.0d
-* @see [Context.file]{@link Context#file} 
+* @see [context.file]{@link context#file} 
 * @example
 * var user = context.findSystemUser("schreiber");
 * var call = new ScriptCall(user, "testScript", true);
@@ -7342,9 +8922,9 @@
 * @instance
 * @summary Set the execution context document of the called script. 
 * @param {Document} doc Document object representing the desired execution context document. 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since DOCUMENTS 4.0d
-* @see [Context.document]{@link Context#document} 
+* @see [context.document]{@link context#document} 
 * @example
 * var call = new ScriptCall("schreiber", "testScript", false);
 * var file = context.getFileById("peachit_fi20120000000016");
@@ -7365,9 +8945,9 @@
 * @instance
 * @summary Set the execution context event of the called script. 
 * @param {string} scriptEvent String value containing the desired script event of the execution context. 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since DOCUMENTS 4.0d
-* @see [Context.event]{@link Context#event} 
+* @see [context.event]{@link context#event} 
 * @example
 * var call = new ScriptCall("schreiber", "testScript", false);
 * call.setEvent("onArchive");
@@ -7378,9 +8958,9 @@
 * @instance
 * @summary Set the execution context register of the called script. 
 * @param {Register} register Register object representing the desired execution context register. 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since DOCUMENTS 4.0d
-* @see [Context.register]{@link Context#register} 
+* @see [context.register]{@link context#register} 
 * @example
 * var call = new ScriptCall("schreiber", "testScript", false);
 * var file = context.getFileById("peachit_fi20120000000016");
@@ -7395,8 +8975,9 @@
 * @function waitForFinish
 * @instance
 * @summary Wait for the script call to finish. 
-* @description Note: This function is only available for a waitable script call. 
-* @returns {boolean} true if successful, false in case of any error 
+* @description 
+* Note: This function is only available for a waitable script call. 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since DOCUMENTS 4.0d
 * @example
 * var call = new ScriptCall("schreiber", "testScript", true);
@@ -7414,13 +8995,16 @@
 * @interface SystemUser
 * @summary The SystemUser class has been added to the DOCUMENTS PortalScripting API to gain full access to the DOCUMENTS users by scripting means. 
 * @description There are several functions implemented in different classes to retrieve a SystemUser object. 
+* @since ELC 3.50b / otrisPORTAL 5.0b 
 */
 /**
 * @memberof SystemUser
 * @summary Annotations right flag in the access mask. 
-* @description Note: The access mask is returned by SystemUser.getAccess(DocFile)
+* @description 
+* Note: The access mask is returned by SystemUser.getAccess(DocFile)
 * @member {number} ANNOTATIONS
 * @instance
+* @see [SystemUser.getAccess]{@link SystemUser#getAccess} 
 **/
 /**
 * @memberof SystemUser
@@ -7429,6 +9013,7 @@
 * Note: The access mask is returned by SystemUser.getAccess(DocFile)
 * @member {number} ARCHIVE
 * @instance
+* @see [SystemUser.getAccess]{@link SystemUser#getAccess} 
 **/
 /**
 * @memberof SystemUser
@@ -7437,6 +9022,7 @@
 * Note: The access mask is returned by SystemUser.getAccess(DocFile)
 * @member {number} CHANGE_TYPE
 * @instance
+* @see [SystemUser.getAccess]{@link SystemUser#getAccess} 
 **/
 /**
 * @memberof SystemUser
@@ -7445,6 +9031,7 @@
 * Note: The access mask is returned by SystemUser.getAccess(DocFile)
 * @member {number} CHANGE_WORKFLOW
 * @instance
+* @see [SystemUser.getAccess]{@link SystemUser#getAccess} 
 **/
 /**
 * @memberof SystemUser
@@ -7453,6 +9040,7 @@
 * Note: The access mask is returned by SystemUser.getAccess(DocFile)
 * @member {number} COPY
 * @instance
+* @see [SystemUser.getAccess]{@link SystemUser#getAccess} 
 **/
 /**
 * @memberof SystemUser
@@ -7461,37 +9049,44 @@
 * Note: The access mask is returned by SystemUser.getAccess(DocFile)
 * @member {number} CREATE
 * @instance
+* @see [SystemUser.getAccess]{@link SystemUser#getAccess} 
 **/
 /**
 * @memberof SystemUser
 * @summary Create workflow right flag in the access mask. 
-* @description Note: The access mask is returned by SystemUser.getAccess(DocFile)
+* @description 
+* Note: The access mask is returned by SystemUser.getAccess(DocFile)
 * @member {number} CREATE_WORKFLOW
 * @instance
+* @see [SystemUser.getAccess]{@link SystemUser#getAccess} 
 **/
 /**
 * @memberof SystemUser
 * @summary String value containing the email address of the SystemUser. 
 * @member {string} email
 * @instance
+* @since DOCUMENTS 5.0a 
 **/
 /**
 * @memberof SystemUser
 * @summary String value containing the first name of the SystemUser. 
 * @member {string} firstName
 * @instance
+* @since ELC 3.50b / otrisPORTAL 5.0b 
 **/
 /**
 * @memberof SystemUser
 * @summary String value containing the last name of the SystemUser. 
 * @member {string} lastName
 * @instance
+* @since ELC 3.50b / otrisPORTAL 5.0b 
 **/
 /**
 * @memberof SystemUser
 * @summary String value containing the unique login name of the SystemUser. 
 * @member {string} login
 * @instance
+* @since ELC 3.50b / otrisPORTAL 5.0b 
 **/
 /**
 * @memberof SystemUser
@@ -7500,6 +9095,7 @@
 * Note: The access mask is returned by SystemUser.getAccess(DocFile)
 * @member {number} MAIL
 * @instance
+* @see [SystemUser.getAccess]{@link SystemUser#getAccess} 
 **/
 /**
 * @memberof SystemUser
@@ -7508,6 +9104,7 @@
 * Note: The access mask is returned by SystemUser.getAccess(DocFile)
 * @member {number} MOVE
 * @instance
+* @see [SystemUser.getAccess]{@link SystemUser#getAccess} 
 **/
 /**
 * @memberof SystemUser
@@ -7516,20 +9113,23 @@
 * Note: The access mask is returned by SystemUser.getAccess(DocFile)
 * @member {number} PDF
 * @instance
+* @see [SystemUser.getAccess]{@link SystemUser#getAccess} 
 **/
 /**
 * @memberof SystemUser
 * @summary Access to the property cache of the SystemUser. 
 * @description 
-* varuser=context.getSystemUser();
-* if(!user.propCache.hasProperty("Contacts"))
+* var user = context.getSystemUser();
+* if (!user.propCache.hasProperty("Contacts"))
 * {
-* util.out("Creatingcache");
-* user.propCache.Contacts=["Peter","Paul","Marry"];
+*    util.out("Creating cache");
+*    user.propCache.Contacts = ["Peter", "Paul", "Marry"];
 * }
 * 
 * @member {PropertyCache} propCache
 * @instance
+* @since DOCUMENTS 5.0 
+* @see [PropertyCache,AccessProfile.propCache]{@link PropertyCache,AccessProfile#propCache} 
 **/
 /**
 * @memberof SystemUser
@@ -7538,6 +9138,7 @@
 * Note: the access mask is returned by SystemUser.getAccess(DocFile)
 * @member {number} READ
 * @instance
+* @see [SystemUser.getAccess]{@link SystemUser#getAccess} 
 **/
 /**
 * @memberof SystemUser
@@ -7546,20 +9147,25 @@
 * Note: the access mask is returned by SystemUser.getAccess(DocFile)
 * @member {number} REMOVE
 * @instance
+* @see [SystemUser.getAccess]{@link SystemUser#getAccess} 
 **/
 /**
 * @memberof SystemUser
 * @summary Start workflow flag in the access mask. 
-* @description Note: The access mask is returned by SystemUser.getAccess(DocFile)
+* @description 
+* Note: The access mask is returned by SystemUser.getAccess(DocFile)
 * @member {number} START_WORKFLOW
 * @instance
+* @see [SystemUser.getAccess]{@link SystemUser#getAccess} 
 **/
 /**
 * @memberof SystemUser
 * @summary Versioning right flag in the access mask. 
-* @description Note: The access mask is returned by SystemUser.getAccess(DocFile)
+* @description 
+* Note: The access mask is returned by SystemUser.getAccess(DocFile)
 * @member {number} VERSION
 * @instance
+* @see [SystemUser.getAccess]{@link SystemUser#getAccess} 
 **/
 /**
 * @memberof SystemUser
@@ -7568,6 +9174,7 @@
 * Note: the access mask is returned by SystemUser.getAccess(DocFile)
 * @member {number} WRITE
 * @instance
+* @see [SystemUser.getAccess]{@link SystemUser#getAccess} 
 **/
 /**
 * @memberof SystemUser
@@ -7594,9 +9201,15 @@
 * @function addFileTypeAgent
 * @instance
 * @summary Create file type agents for the user. 
-* @param {any} fileTypes The desired file types may be passed as follows: String containing the technical name of the desired file type; Array of strings containing the technical names of the desired file types; String constant "*" indicating all file types. 
+* @param {any} fileTypes The desired file types may be passed as follows: 
+* <ul>
+* <li>String containing the technical name of the desired file type; </li>
+* <li>Array of strings containing the technical names of the desired file types; </li>
+* <li>String constant "*" indicating all file types. </li>
+* </ul>
+* 
 * @param {any[]} loginNames Array of strings containing the login names of the agents. 
-* @returns {boolean} true if successful, false in case of any error. 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error. 
 * @since DOCUMENTS 5.0a
 * @example
 * var currentUser = context.getSystemUser();
@@ -7615,9 +9228,15 @@
 * @function addFileTypeAgentScript
 * @instance
 * @summary Create file type agents for the user, whereby the agents are specified by the desired script. 
-* @param {any} fileTypes The desired file types may be passed as follows: String containing the technical name of the desired file type; Array of strings containing the technical names of the desired file types; String constant "*" indicating all file types. 
+* @param {any} fileTypes The desired file types may be passed as follows: 
+* <ul>
+* <li>String containing the technical name of the desired file type; </li>
+* <li>Array of strings containing the technical names of the desired file types; </li>
+* <li>String constant "*" indicating all file types. </li>
+* </ul>
+* 
 * @param {string} scriptName String containing the name of the script specifying the file type agents. 
-* @returns {boolean} true if successful, false in case of any error. 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error. 
 * @since DOCUMENTS 5.0a
 * @example
 * var currentUser = context.getSystemUser();
@@ -7633,9 +9252,10 @@
 * @function addToAccessProfile
 * @instance
 * @summary Make the SystemUser a member of the desired AccessProfile. 
+* @description
 * Since DOCUMENTS 4.0b HF1 for Fellows 
 * @param {AccessProfile} ap AccessProfile the user should be a member of 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since ELC 3.50b / otrisPORTAL 5.0b for PartnerAccounts 
 **/
 /**
@@ -7644,7 +9264,7 @@
 * @instance
 * @summary Evaluate if the password is correct. 
 * @param {string} passwd String value containing the plain password 
-* @returns {boolean} true if correct, otherwise false
+* @returns {boolean} <code>true</code> if correct, otherwise <code>false</code>
 * @since ELC 3.60d / otrisPORTAL 6.0d 
 **/
 /**
@@ -7653,9 +9273,9 @@
 * @instance
 * @summary Move the files from the inbox of an absent user to his agent. 
 * @description If a Systemuser is set to absent, then all new files are redirected to his agent. The currently existing files (that came into the inbox before the was absent) can be moved to the agent with this method. If the user is not absent this method returns an error. 
-* @returns {boolean} true if succeeded, otherwise false - an error message describing the error with getLastError(). 
+* @returns {boolean} <code>true</code> if succeeded, otherwise <code>false</code> - an error message describing the error with getLastError(). 
 * @since ELC 3.60g / otrisPORTAL 6.0g
-* @see [booleansetAbsent]{@link booleansetAbsent} [booleansetAbsentMail]{@link booleansetAbsentMail} 
+* @see [booleansetAbsent]{@link booleansetAbsent} 
 * @example
 * var currentUser = context.getSystemUser();
 * if (!currentUser) throw "currentUser is NULL";
@@ -7670,11 +9290,12 @@
 * @function getAccess
 * @instance
 * @summary Retrieve an access mask whose bits correspond to the user's access rights supported by the given DocFile or filetype. 
-* @description Note: There is a constant for any right flag in the access mask (e.g. SystemUser.READ specifies the read right). 
+* @description 
+* Note: There is a constant for any right flag in the access mask (e.g. SystemUser.READ specifies the read right). 
 * @param {DocFile} docFile DocFile object to which the access rights should be retrieved. 
 * @returns {number} 32-bit value whose bits correspond to the user's access rights. 
 * @since DOCUMENTS 5.0a HF2
-* @see [e.g.SystemUser.READ]{@link e#g#SystemUser#READ} 
+* @see [e.g.]{@link e#g#} 
 * @example
 * var docFile = context.file;
 * var currentUser = context.getSystemUser();
@@ -7689,7 +9310,7 @@
 * @function getAccessProfiles
 * @instance
 * @summary Retrieve an AccessProfileIterator representing a list of all AccessProfiles the user is a member of. 
-* @returns {AccessProfileIterator} AccessProfileIterator containing a list of all AccessProfiles which are assigned to the user; null in case of any error 
+* @returns {AccessProfileIterator} AccessProfileIterator containing a list of all AccessProfiles which are assigned to the user; <code>null</code> in case of any error 
 * @since ELC 3.50b / otrisPORTAL 5.0b 
 **/
 /**
@@ -7700,7 +9321,7 @@
 * @description This method returns a SystemUserIterator with the agents of the user, if the user is absent. 
 * @returns {SystemUserIterator} SystemUserIterator
 * @since ELC 3.60g / otrisPORTAL 6.0g
-* @see [booleansetAbsent]{@link booleansetAbsent} [booleansetAbsentMail]{@link booleansetAbsentMail} [booleandelegateFilesOfAbsentUser]{@link booleandelegateFilesOfAbsentUser} 
+* @see [booleansetAbsent]{@link booleansetAbsent} 
 * @example
 * var currentUser = context.getSystemUser();
 * if (!currentUser) throw "currentUser is NULL";
@@ -7742,9 +9363,9 @@
 * @summary Get back the delegated files. 
 * @description If the user is not present this method returns an error. 
 * @param {boolean} removeFromAgentInbox Optional boolean indicating whether the files are removed from agent inbox after getting back by the user. If this parameter is not specified, the value from the user settings in the absent dialog on the web is used. 
-* @returns {boolean} true if successful, false in case of any error. 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error. 
 * @since DOCUMENTS 4.0d
-* @see [booleansetAbsent]{@link booleansetAbsent} [booleandelegateFilesOfAbsentUser]{@link booleandelegateFilesOfAbsentUser} 
+* @see [booleansetAbsent]{@link booleansetAbsent} 
 * @example
 * var currentUser = context.getSystemUser();
 * if (!currentUser) throw "currentUser is NULL";
@@ -7764,7 +9385,7 @@
 * @param {string} [typeFilter] String value defining an optional filter depending on the type 
 * @returns {CustomPropertyIterator} CustomPropertyIterator
 * @since DOCUMENTS 4.0a
-* @see [Context.findCustomProperties]{@link Context#findCustomProperties} 
+* @see [context.findCustomProperties]{@link context#findCustomProperties} 
 * @see [SystemUser.setOrAddCustomProperty]{@link SystemUser#setOrAddCustomProperty} 
 * @see [SystemUser.addCustomProperty]{@link SystemUser#addCustomProperty} 
 * @example
@@ -7806,12 +9427,13 @@
 * @function getOID
 * @instance
 * @summary Returns the object-id. 
+* @description
 * Since DOCUMENTS 5.0 (new parameter oidLow) 
 * @param {boolean} [oidLow] Optional flag: 
-* If true only the id of the filetype object (m_oid) will be returned. 
-* If false the id of the filetype object will be returned together with the id of the corresponding class in the form class-id:m_oid. 
-* The default value is false. 
-* @returns {string} String with the object-id 
+* If <code>true</code> only the id of the filetype object (<code>m_oid</code>) will be returned. 
+* If <code>false</code> the id of the filetype object will be returned together with the id of the corresponding class in the form <code>class-id:m_oid</code>. 
+* The default value is <code>false</code>. 
+* @returns {string} <code>String</code> with the object-id 
 * @since ELC 3.60c / otrisPORTAL 6.0c 
 **/
 /**
@@ -7821,8 +9443,22 @@
 * @summary Try to retrieve a particular private Folder of the Systemuser. 
 * @description In addition to the public folders you may define in DOCUMENTS, each DOCUMENTS user has a set of private folders. You might need to access a particular private folder to access its contents, for example. 
 * @param {string} folderType String value defining the kind of private folder you want to access.
-*You may choose between "individual" individual folder Note: This function returns only the first individual folder on the top level. Using SystemUser.getIndividualFolders() to retrieve all individual folders. "favorites" favorites folder "inbox" the user's inbox "sent" the user's sent folder "sendingfinished" user's folder containing files which finished their workflow "inwork" folder containing the files the SystemUser created himself "resubmission" folder containing files with a resubmission defined for the SystemUser"trash" folder containing files the user has deleted "tasks" folder containing all files the user has a task to perform to "lastused" folder containing the files the SystemUser accessed latest, sorted in descending chronological order "introuble" folder containing files which ran into some workflow error. This folder is only available for editors and only if it has been added manually by the administrator. 
-* @returns {Folder} Folder object representing the desired folder, null in case of any error 
+* You may choose between 
+* <ul>
+* <li><code>"individual"</code> individual folder undefinedNote: This function returns only the first individual folder on the top level. Using SystemUser.getIndividualFolders() to retrieve all individual folders. </li>
+* <li><code>"favorites"</code> favorites folder </li>
+* <li><code>"inbox"</code> the user's inbox </li>
+* <li><code>"sent"</code> the user's sent folder </li>
+* <li><code>"sendingfinished"</code> user's folder containing files which finished their workflow </li>
+* <li><code>"inwork"</code> folder containing the files the SystemUser created himself </li>
+* <li><code>"resubmission"</code> folder containing files with a resubmission defined for the SystemUser</li>
+* <li><code>"trash"</code> folder containing files the user has deleted </li>
+* <li><code>"tasks"</code> folder containing all files the user has a task to perform to </li>
+* <li><code>"lastused"</code> folder containing the files the SystemUser accessed latest, sorted in descending chronological order </li>
+* <li><code>"introuble"</code> folder containing files which ran into some workflow error. This folder is only available for editors and only if it has been added manually by the administrator. </li>
+* </ul>
+* 
+* @returns {Folder} Folder object representing the desired folder, <code>null</code> in case of any error 
 * @since ELC 3.51b / otrisPORTAL 5.1b
 * @see [SystemUser.getIndividualFolders]{@link SystemUser#getIndividualFolders} 
 **/
@@ -7855,7 +9491,7 @@
 * @instance
 * @summary Retrieve information whether the SystemUser is a member of a particular AccessProfile which is identified by its technical name. 
 * @param {string} profileName String value containing the technical name of an AccessProfile
-* @returns {boolean} true if the SystemUser is a member of the desired profile, otherwise false
+* @returns {boolean} <code>true</code> if the SystemUser is a member of the desired profile, otherwise <code>false</code>
 * @since ELC 3.50e / otrisPORTAL 5.0e 
 **/
 /**
@@ -7863,7 +9499,7 @@
 * @function invalidateAccessProfileCache
 * @instance
 * @summary Invalidates the server sided cache of the access profiles for the SystemUser. 
-* @returns {boolean} true if successful, otherwise false
+* @returns {boolean} <code>true</code> if successful, otherwise <code>false</code>
 * @since DOCUMENTS 4.0 (HF1) 
 **/
 /**
@@ -7917,8 +9553,8 @@
 * @function notifyFileReturnedFromSending
 * @instance
 * @summary Define whether to notify the user by e-mail of files returned from sending. 
-* @param {boolean} [notifying] boolean indicating whether files returned from sending are to be notified to the user. The default value is true. 
-* @returns {boolean} true if successful, false in case of any error. 
+* @param {boolean} [notifying] boolean indicating whether files returned from sending are to be notified to the user. The default value is <code>true</code>. 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error. 
 * @since DOCUMENTS 5.0a
 * @example
 * var currentUser = context.getSystemUser();
@@ -7934,8 +9570,8 @@
 * @function notifyNewFileInInbox
 * @instance
 * @summary Define whether to notify the user by e-mail of new files in inbox. 
-* @param {boolean} [notifying] boolean indicating whether new files in inbox are to be notified to the user. The default value is true. 
-* @returns {boolean} true if successful, false in case of any error. 
+* @param {boolean} [notifying] boolean indicating whether new files in inbox are to be notified to the user. The default value is <code>true</code>. 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error. 
 * @since DOCUMENTS 5.0a
 * @example
 * var currentUser = context.getSystemUser();
@@ -7951,8 +9587,14 @@
 * @function removeFileTypeAgent
 * @instance
 * @summary Remove file type agents from the user. 
-* @param {any} fileTypes The desired file types may be passed as follows: String containing the technical name of the desired file type; Array of strings containing the technical names of the desired file types; String constant "*" indicating all file types. 
-* @returns {boolean} true if successful, false in case of any error. 
+* @param {any} fileTypes The desired file types may be passed as follows: 
+* <ul>
+* <li>String containing the technical name of the desired file type; </li>
+* <li>Array of strings containing the technical names of the desired file types; </li>
+* <li>String constant "*" indicating all file types. </li>
+* </ul>
+* 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error. 
 * @since DOCUMENTS 5.0a
 * @example
 * var currentUser = context.getSystemUser();
@@ -7971,9 +9613,10 @@
 * @function removeFromAccessProfile
 * @instance
 * @summary Clear the SystemUser's membership in the given AccessProfile. 
+* @description
 * Since DOCUMENTS 4.0b HF1 for Fellows 
 * @param {AccessProfile} ap 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since ELC 3.50b / otrisPORTAL 5.0b for PartnerAccounts 
 **/
 /**
@@ -7992,15 +9635,15 @@
 * @description If a Systemuser is on holiday with this function it is possible to set the user absent. After his return you can set him present. You can also define one or more agents for the absent user. The agent will get new files for the absent user in substitution. With the agent list you set the agents for the user (you overwrite the existing agents!). With an empty agent list you remove all agents. 
 * Since DOCUMENTS 4.0d (Option: removeFromAgentInbox) 
 * Since DOCUMENTS 5.0a (Option: from and until)
-* @param {boolean} absent boolean true, if the user should be set absent, false, if the user is present 
-* @param {boolean} [filesDueAbsenceToInfo] boolean set to true, if the user should get the files due absence to info in his inbox 
+* @param {boolean} absent boolean <code>true</code>, if the user should be set absent, <code>false</code>, if the user is present 
+* @param {boolean} [filesDueAbsenceToInfo] boolean set to <code>true</code>, if the user should get the files due absence to info in his inbox 
 * @param {string[]} [agents] Array with the login-names of the agents 
 * @param {boolean} [removeFromAgentInbox] Optional boolean indicating whether the files are removed from agent inbox after getting back by the user. If this parameter is not specified, the value from the user settings in the absent dialog on the web is used. 
 * @param {Date} [from] Optional Date object specifying when the absence begins. 
 * @param {Date} [until] Optional Date object specifying when the absence ends. 
-* @returns {boolean} true if correct, otherwise false an error message describing the error with getLastError(). 
+* @returns {boolean} <code>true</code> if correct, otherwise <code>false</code> an error message describing the error with getLastError(). 
 * @since ELC 3.60g / otrisPORTAL 6.0g 
-* @see [booleansetAbsentMail]{@link booleansetAbsentMail} [booleandelegateFilesOfAbsentUser]{@link booleandelegateFilesOfAbsentUser} [booleangetBackDelegatedFiles]{@link booleangetBackDelegatedFiles} 
+* @see [boolean]{@link boolean} 
 * @example
 * var currentUser = context.getSystemUser();
 * if (!currentUser) throw "currentUser is NULL";
@@ -8029,11 +9672,11 @@
 * @instance
 * @summary Define if an absence mail for the absent user will be sent to the sender of the file. 
 * @description If a Systemuser is absent and get a file in the inbox, an absence mail to the sender of this file can be send. 
-* @param {boolean} sendMail boolean true, if an absent mail should be sent, otherwise false
+* @param {boolean} sendMail boolean <code>true</code>, if an absent mail should be sent, otherwise <code>false</code>
 * @param {string} [message] String with an additional e-mail message from the absent user 
-* @returns {boolean} true if succeeded, otherwise false - an error message describing the error with getLastError(). 
+* @returns {boolean} <code>true</code> if succeeded, otherwise <code>false</code> - an error message describing the error with getLastError(). 
 * @since ELC 3.60g / otrisPORTAL 6.0g
-* @see [booleansetAbsent]{@link booleansetAbsent} [booleandelegateFilesOfAbsentUser]{@link booleandelegateFilesOfAbsentUser} 
+* @see [booleansetAbsent]{@link booleansetAbsent} 
 * @example
 * var currentUser = context.getSystemUser();
 * if (!currentUser) throw "currentUser is NULL";
@@ -8052,7 +9695,7 @@
 * @param {any} apNames1 String or Array with the names of the AccessProfiles 
 * @param {any} apNames2 String or Array with the names of the AccessProfiles 
 * @param {any[]} ...restParams 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since DOCUMENTS 5.0c HF2 
 * @example
 * var val1 = ["AP1", "AP2"];
@@ -8068,7 +9711,7 @@
 * @summary Set the String value of an attribute of the SystemUser to the desired value. 
 * @param {string} attribute String containing the name of the desired attribute 
 * @param {string} value String containing the desired value of the attribute 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since ELC 3.50b / otrisPORTAL 5.0b 
 **/
 /**
@@ -8098,7 +9741,7 @@
 * @instance
 * @summary Set the password of the user represented by the SystemUser object to the desired new value. 
 * @param {string} newPwd String containing the plaintext new password 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since ELC 3.50b / otrisPORTAL 5.0b 
 **/
 /**
@@ -8114,13 +9757,14 @@
 * @interface SystemUserIterator
 * @summary The SystemUserIterator class has been added to the DOCUMENTS PortalScripting API to gain full access to the DOCUMENTS users by scripting means. 
 * @description The objects of this class represent lists of Systemuser objects and allow to loop through such a list of users. 
+* @since ELC 3.50b / otrisPORTAL 5.0b 
 */
 /**
 * @memberof SystemUserIterator
 * @function first
 * @instance
 * @summary Retrieve the first SystemUser object in the SystemUserIterator. 
-* @returns {SystemUser} SystemUser or null in case of an empty SystemUserIterator
+* @returns {SystemUser} SystemUser or <code>null</code> in case of an empty SystemUserIterator
 * @since ELC 3.50b / otrisPORTAL 5.0b 
 **/
 /**
@@ -8137,7 +9781,7 @@
 * @function next
 * @instance
 * @summary Retrieve the next SystemUser object in the SystemUserIterator. 
-* @returns {SystemUser} SystemUser or null if end of SystemUserIterator is reached. 
+* @returns {SystemUser} SystemUser or <code>null</code> if end of SystemUserIterator is reached. 
 * @since ELC 3.50b / otrisPORTAL 5.0b 
 **/
 /**
@@ -8151,13 +9795,21 @@
 /**
 * @class UserAction
 * @classdesc The UserAction class represents the user-defined action of DOCUMENTS. 
+* @since DOCUMENTS 4.0d
+* @example
+* var folder = context.createFolder("test", "public");
+* var action = new UserAction("testAction");
+* action.widget = "DropdownList";
+* action.setFileTypeForNewFile("FileType1");
+* if (!action.addToFolder(folder))
+*   util.out(action.getLastError());
 * @summary Create a new instance of the UserAction class. 
+* Since DOCUMENTS 4.0d
 * @param {string} name String value containing the desired user action name. 
 * @param {string} [label] String value containing the desired user action label. 
 * @param {string} [widget] String value containing the desired user action widget. 
 * @param {string} [type] String value containing the desired user action type. 
 * @param {string} [scope] String value containting the desired user action scope. 
-* @since DOCUMENTS 4.0d
 * @see [UserAction.widget,UserAction.type,UserAction.scope]{@link UserAction#widget,UserAction#type,UserAction#scope} 
 * @example
 * var action = new UserAction("testAction", "de:Aktion;en:Action", "DropdownList", "PortalScript", "ProcessesOnly");
@@ -8167,30 +9819,35 @@
 * @summary The entire label defined for the UserAction object. 
 * @member {string} label
 * @instance
+* @since DOCUMENTS 4.0d 
 **/
 /**
 * @memberof UserAction
 * @summary The technical name of the UserAction object. 
 * @member {string} name
 * @instance
+* @since DOCUMENTS 4.0d 
 **/
 /**
 * @memberof UserAction
 * @summary The scope of the UserAction object. 
 * @member {string} scope
 * @instance
+* @since DOCUMENTS 4.0d 
 **/
 /**
 * @memberof UserAction
 * @summary The type of the UserAction object. 
 * @member {string} type
 * @instance
+* @since DOCUMENTS 4.0d 
 **/
 /**
 * @memberof UserAction
 * @summary The widget identifier of the UserAction object. 
 * @member {string} widget
 * @instance
+* @since DOCUMENTS 4.0d 
 **/
 /**
 * @memberof UserAction
@@ -8198,7 +9855,7 @@
 * @instance
 * @summary Add the user action to a Folder. 
 * @param {Folder} folder Folder object representing the desired Folder. 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since DOCUMENTS 4.0d
 * @example
 * var it = context.getFoldersByName("testFolder");
@@ -8226,12 +9883,13 @@
 * @function getOID
 * @instance
 * @summary Returns the object-id. 
+* @description
 * Since DOCUMENTS 5.0 (new parameter oidLow) 
 * @param {boolean} [oidLow] Optional flag: 
-* If true only the id of the filetype object (m_oid) will be returned. 
-* If false the id of the filetype object will be returned together with the id of the corresponding class in the form class-id:m_oid. 
-* The default value is false. 
-* @returns {string} String with the object-id or an empty string in case the user action has not yet been added to a proper parent object. 
+* If <code>true</code> only the id of the filetype object (<code>m_oid</code>) will be returned. 
+* If <code>false</code> the id of the filetype object will be returned together with the id of the corresponding class in the form <code>class-id:m_oid</code>. 
+* The default value is <code>false</code>. 
+* @returns {string} <code>String</code> with the object-id or an empty string in case the user action has not yet been added to a proper parent object. 
 * @since DOCUMENTS 4.0d 
 **/
 /**
@@ -8256,8 +9914,9 @@
 * @function remove
 * @instance
 * @summary Remove the user action from the parent object. 
-* @description Note: If the user action has not yet been added to a proper parent object, this function does nothing. 
-* @returns {boolean} true if successful, false in case of any error 
+* @description 
+* Note: If the user action has not yet been added to a proper parent object, this function does nothing. 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since DOCUMENTS 4.0d
 * @example
 * var it = context.getFoldersByName("testFolder");
@@ -8274,9 +9933,10 @@
 * @function setContext
 * @instance
 * @summary Set the context for a user action of type JSP. 
-* @description Note: This function is only available for a user action of type JSP. 
+* @description 
+* Note: This function is only available for a user action of type JSP. 
 * @param {string} context String containing the desired context. 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since DOCUMENTS 4.0d
 * @example
 * var action = new UserAction("testAction");
@@ -8289,9 +9949,10 @@
 * @function setCreateDefaultWorkflow
 * @instance
 * @summary Set the flag whether to create the default workflow for a user action of type NewFile. 
-* @description Note: This function is only available for a user action of type NewFile. 
+* @description 
+* Note: This function is only available for a user action of type NewFile. 
 * @param {boolean} createDefaultWorkflow Flag indicating whether to create the default workflow for a new file. 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since DOCUMENTS 4.0d
 * @example
 * var action = new UserAction("testAction");
@@ -8303,9 +9964,10 @@
 * @function setFileTypeForNewFile
 * @instance
 * @summary Set the file type for a user action of type NewFile. 
-* @description Note: This function is only available for a user action of type NewFile. 
+* @description 
+* Note: This function is only available for a user action of type NewFile. 
 * @param {string} fileType The technical name of the desired file type; use empty string ('') if you want to remove the associated file type. 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since DOCUMENTS 4.0d
 * @example
 * var action = new UserAction("testAction");
@@ -8320,9 +9982,10 @@
 * @function setPortalScript
 * @instance
 * @summary Set the portal script for a user action of type PortalScript. 
-* @description Note: This function is only available for a user action of type PortalScript. 
+* @description 
+* Note: This function is only available for a user action of type PortalScript. 
 * @param {string} scriptName The name of the desired portal script; use empty string ('') if you want to remove the associated script. 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since DOCUMENTS 4.0d
 * @example
 * var action = new UserAction("testAction");
@@ -8338,9 +10001,10 @@
 * @function setPosition
 * @instance
 * @summary Place the user action at the given position in the user-defined action list of the parent object. 
-* @description Note: 0 at the beginning and -1 at the end. 
+* @description 
+* Note: 0 at the beginning and -1 at the end. 
 * @param {number} position The 0-based position for the user action. 
-* @returns {boolean} true if successful, false in case of any error. 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error. 
 * @since DOCUMENTS 4.0d
 * @example
 * var it = context.getFoldersByName("testFolder");
@@ -8355,34 +10019,48 @@
 /**
 * @namespace util
 * @summary The Util class supports some functions that do not need any user or file context. 
-* @description These functions allow customizable Date/String conversions and other useful stuff. There is exactly ONE implicit object of the class Util which is named util. 
+* @description These functions allow customizable Date/String conversions and other useful stuff. There is exactly ONE implicit object of the class <code>Util</code> which is named <code>util</code>. 
 * Note: It is not possible to create objects of the class Util. There are no properties in this class, it supports only the help functions as documented below. 
 */
 /**
 * @memberof util
 * @summary Build version number of the PortalServer. 
+* @description This property allows to retrieve the build version number of the PortalServer to customize your PortalScripts in dependence of the used PortalServer.
+* 
+* Note: This property is readonly. 
 * @member {number} buildNo
 * @instance
+* @since ELC 3.50 / otrisPORTAL 5.0
+* @example
+* if (util.buildNo > 1826)
+* {
+*    // do update
+* }
 **/
 /**
 * @memberof util
 * @summary Database using by the PortalServer. 
 * @description The following databases are supported by the PortalServer: 
 * <ul>
-* <li>oracle</li>
-* <li>mysql</li>
-* <li>mssql</li>
+* <li><code>oracle</code></li>
+* <li><code>mysql</code></li>
+* <li><code>mssql</code></li>
 * </ul>
 * 
 * Note: This property is readonly. 
 * @member {string} DB
 * @instance
+* @since DOCUMENTS 4.0 
 **/
 /**
 * @memberof util
 * @summary Memory model of the PortalServer. 
+* @description There are two possible memory models available : x64 or x86.
+* 
+* Note: This property is readonly. 
 * @member {string} memoryModel
 * @instance
+* @since DOCUMENTS 4.0 
 **/
 /**
 * @memberof util
@@ -8397,6 +10075,12 @@
 * Note: This property is readonly. 
 * @member {number} version
 * @instance
+* @since ELC 3.50 / otrisPORTAL 5.0
+* @example
+* if (util.version < 6000)
+* {
+*    // do update
+* }
 **/
 /**
 * @memberof util
@@ -8476,7 +10160,7 @@
 * @summary Convert a file to a PDF file and return the path in the file system. 
 * @description The different file types require the appropriate PDF filter programs to be installed and configured in DOCUMENTS. 
 * @param {string} sourceFilePath String containing the path of the file to be converted. 
-* @returns {string} String with file path of the PDF, an empty string in case of any error. 
+* @returns {string} <code>String</code> with file path of the PDF, an empty string in case of any error. 
 * @since DOCUMENTS 4.0d HF3
 * @example
 * var pathPdfFile = util.convertBlobToPDF("C:\\tmp\\testFile.doc");
@@ -8491,12 +10175,26 @@
 * Since DOCUMENTS 5.0a (new: Special formats @date and @timestamp)
 * @param {Date} timeStamp Date object representing the desired date 
 * @param {string} format String defining the date format of the output String, e.g. "dd.mm.yyyy".
-* The possible format parts are: dd = two digit day mm = two digit month yy = two digit year yyyy = four digit year HH = two digit hour (24 hour format) MM = two digit minute SS = two digit second
-*Special formats: @date = @yyyymmdd (locale independant format for filter in a FileResultset, HitResultset) @timestamp = @yyyymmddHHMMSS (locale independant format for filter in a FileResultset, HitResultset) 
+* The possible format parts are: 
+* <ul>
+* <li><code>dd</code> = two digit day </li>
+* <li><code>mm</code> = two digit month </li>
+* <li><code>yy</code> = two digit year </li>
+* <li><code>yyyy</code> = four digit year </li>
+* <li><code>HH</code> = two digit hour (24 hour format) </li>
+* <li><code>MM</code> = two digit minute </li>
+* <li><code>SS</code> = two digit second</li>
+* </ul>
+* Special formats: 
+* <ul>
+* <li><code>@date</code> = @yyyymmdd (locale independant format for filter in a FileResultset, HitResultset) </li>
+* <li><code>@timestamp</code> = @yyyymmddHHMMSS (locale independant format for filter in a FileResultset, HitResultset) </li>
+* </ul>
+* 
 * @returns {string} String representing the desired date 
 * @since ELC 3.50e / otrisPORTAL 5.0e 
-* @see [Util.convertStringToDate]{@link Util#convertStringToDate} 
-* @see [Context.convertDateToString]{@link Context#convertDateToString} 
+* @see [util.convertStringToDate]{@link util#convertStringToDate} 
+* @see [context.convertDateToString]{@link context#convertDateToString} 
 * @example
 * var format = "dd.mm.yyyy HH:MM";
 * var now = new Date();
@@ -8511,11 +10209,25 @@
 * Since DOCUMENTS 5.0a (new: Special formats @date and @timestamp)
 * @param {string} dateOrTimeStamp String representing a date, e.g. "19.09.1974" 
 * @param {string} format String defining the date format of the input String, e.g. "dd.mm.yyyy".
-* The possible format parts are: dd = two digit day mm = two digit month yy = two digit year yyyy = four digit year HH = two digit hour (24 hour format) MM = two digit minute SS = two digit second
-*Special formats: @date = @yyyymmdd (locale independant format for filter in a FileResultset, HitResultset) @timestamp = @yyyymmddHHMMSS (locale independant format for filter in a FileResultset, HitResultset) 
+* The possible format parts are: 
+* <ul>
+* <li><code>dd</code> = two digit day </li>
+* <li><code>mm</code> = two digit month </li>
+* <li><code>yy</code> = two digit year </li>
+* <li><code>yyyy</code> = four digit year </li>
+* <li><code>HH</code> = two digit hour (24 hour format) </li>
+* <li><code>MM</code> = two digit minute </li>
+* <li><code>SS</code> = two digit second</li>
+* </ul>
+* Special formats: 
+* <ul>
+* <li><code>@date</code> = @yyyymmdd (locale independant format for filter in a FileResultset, HitResultset) </li>
+* <li><code>@timestamp</code> = @yyyymmddHHMMSS (locale independant format for filter in a FileResultset, HitResultset) </li>
+* </ul>
+* 
 * @returns {Date} Date object representing the desired date 
 * @since ELC 3.50e / otrisPORTAL 5.0e 
-* @see [Util.convertDateToString]{@link Util#convertDateToString} 
+* @see [util.convertDateToString]{@link util#convertDateToString} 
 * @example
 * var format = "dd.mm.yyyy HH:MM";
 * var dateString = "19.09.1974";
@@ -8539,9 +10251,9 @@
 * @instance
 * @summary Decode URL parameter from DOCUMENTS Urls. 
 * @param {string} encodedParam String containing the encoded URL param 
-* @returns {string} String with decoded URL param. 
+* @returns {string} <code>String</code> with decoded URL param. 
 * @since DOCUMENTS 5.0a 
-* @see [Util.encodeUrlCompatible]{@link Util#encodeUrlCompatible} 
+* @see [util.encodeUrlCompatible]{@link util#encodeUrlCompatible} 
 * @example
 * // URL with an archive key
 * var encUrl = "http://localhost:8080/documents/UserLoginSuccessAction.act;cnvid=n0RIshUTRnOH3qAn?
@@ -8566,7 +10278,7 @@
 * @param {string} input The string that will be decrypted 
 * @returns {string} String decrypted value 
 * @since DOCUMENTS 5.0b
-* @see [Util.encryptString]{@link Util#encryptString} 
+* @see [util.encryptString]{@link util#encryptString} 
 * @example
 * var text = "I'm a secret password";
 * 
@@ -8599,9 +10311,9 @@
 * @summary Encode URL parameter for DOCUMENTS Urls. 
 * @description Some parameters in DOCUMENTS urls must be encoded. E.g. the archive keys can contain invalid characters like / etc. 
 * @param {string} param String containing the value to encode 
-* @returns {string} String with encoded value. 
+* @returns {string} <code>String</code> with encoded value. 
 * @since DOCUMENTS 5.0a 
-* @see [Util.decodeUrlCompatible]{@link Util#decodeUrlCompatible} 
+* @see [util.decodeUrlCompatible]{@link util#decodeUrlCompatible} 
 * @example
 * // URL with an archive key
 * var url = "http://localhost:8080/documents/UserLoginSuccessAction.act;cnvid=n0RIshUTRnOH3qAn?
@@ -8643,7 +10355,7 @@
 * @param {string} input The string that will be encrypted 
 * @returns {string} String encrypted value 
 * @since DOCUMENTS 5.0b
-* @see [Util.decryptString]{@link Util#decryptString} 
+* @see [util.decryptString]{@link util#decryptString} 
 * @example
 * var text = "I'm a secret password";
 * 
@@ -8663,7 +10375,7 @@
 * @param {string} targetFilePath String with the target file path 
 * @returns {string} empty String if successful, the error message in case of any error 
 * @since ELC 3.60e / otrisPORTAL 6.0e 
-* @see [Util.fileMove]{@link Util#fileMove} 
+* @see [util.fileMove]{@link util#fileMove} 
 * @example
 * var errMsg = util.fileCopy("c:\\Test.log", "d:\\Test.log");
 * if (errMsg.length > 0)
@@ -8681,7 +10393,7 @@
 * @param {string} targetFilePath String with the target file path 
 * @returns {string} empty String if successful, the error message in case of any error 
 * @since ELC 3.60e / otrisPORTAL 6.0e 
-* @see [Util.fileCopy]{@link Util#fileCopy} 
+* @see [util.fileCopy]{@link util#fileCopy} 
 * @example
 * var errMsg = util.fileMove("c:\\Test.log", "d:\\Test.log");
 * if (errMsg.length > 0)
@@ -8768,9 +10480,11 @@
 * @function getQuoted
 * @instance
 * @summary Returns the input string enclosed in either double or single quotation marks. 
+* @description This function is designed to simplify the composition of filter expressions for a FileResultSet or an ArchiveFileResultSet. If the input string does not contain any double quotation mark ("), the function returns the input enclosed in double quotation marks. Otherwise the function tests if it can use single quotation marks (') instead. If both quotation styles are already used within the input, the function throws an exception.
+* 
 * @param {string} input 
 * @returns {string} 
-
+* @since DOCUMENTS 4.0b 
 **/
 /**
 * @memberof util
@@ -8818,22 +10532,22 @@
 * @summary Generates a hash-based message authentication code (hmac) of a message string using a secret key. 
 * @description These hash functions are supported: 
 * <ul>
-* <li>"sha1"</li>
-* <li>"sha224"</li>
-* <li>"sha256"</li>
-* <li>"sha384"</li>
-* <li>"sha512"</li>
-* <li>"md4"</li>
-* <li>"md5"</li>
+* <li><code>"sha1"</code></li>
+* <li><code>"sha224"</code></li>
+* <li><code>"sha256"</code></li>
+* <li><code>"sha384"</code></li>
+* <li><code>"sha512"</code></li>
+* <li><code>"md4"</code></li>
+* <li><code>"md5"</code></li>
 * </ul>
 * 
 * @param {string} hashfunction Name of the hash function. 
 * @param {string} key Secret key. 
 * @param {string} message Message string to be hashed. 
 * @param {Boolean} [rawOutput] Optional flag: 
-* If set to true, the function outputs the raw binary representation of the hmac. 
-* If set to false, the function outputs the hexadecimal representation of the hmac. 
-* The default value is false. 
+* If set to <code>true</code>, the function outputs the raw binary representation of the hmac. 
+* If set to <code>false</code>, the function outputs the hexadecimal representation of the hmac. 
+* The default value is <code>false</code>. 
 * @returns {string} String containing the hash-based message authentication code (hmac) of the message (see rawOutput for representation).
 * @since DOCUMENTS 5.0a HF2
 * @example
@@ -8848,7 +10562,7 @@
 * @instance
 * @summary Checks, if the current blob is encrypted (Repository encryption) or not. 
 * @param {string} blobFilePath String containing the path of the file to be checked. 
-* @returns {boolean} boolean value that indicates if the blob is encrypted. 
+* @returns {boolean} <code>boolean</code> value that indicates if the blob is encrypted. 
 * @since DOCUMENTS 4.0d HF3 
 **/
 /**
@@ -8862,7 +10576,7 @@
 * @returns {number} Integer with the length in characters 
 * @since DOCUMENTS 4.0a HF1 
 * @example
-* var text = "KÃ¶ln is a german city";
+* var text = "Köln is a german city";
 * util.out(text.length);          // => 22 bytes
 * util.out(util.length_u(text));  // => 21 characters
 **/
@@ -8871,7 +10585,7 @@
 * @function log
 * @instance
 * @summary Log a String to the DOCUMENTS server window. 
-* @description Same as util.out() with additional debugging information (script name and line number) You may output whatever information you want. This function is useful especially for debugging purposes. Be aware that you should run the Portalserver as an application if you want to make use of the out() function, otherwise the output is stored in the Windows Eventlog instead. 
+* @description Same as util.out() with additional debugging information (script name and line number) You may output whatever information you want. This function is useful especially for debugging purposes. Be aware that you should run the Portalserver as an application if you want to make use of the <code>out()</code> function, otherwise the output is stored in the Windows Eventlog instead. 
 * @param {string} output String you want to output to the Portalserver Window 
 * @returns {any} 
 * @since ELC 3.50e / otrisPORTAL 5.0e
@@ -8899,11 +10613,32 @@
 * @function makeGACLValue
 * @instance
 * @summary Makes a valid GACL value from the parameters. 
+* @description This method helps to create valid GACL values when set by PortalScripting.
+* As separator for the single GACL values a <code>\r\n</code> (<code>%CRLF%</code>) will be used. The values will be trimed (leading and ending whitespaces) and multiple values will be removed.
+* The method returns a String value in the format <code>\r\n</code> AP1 <code>\r\n</code> AP2 <code>\r\n</code> .... <code>\r\n</code> APx <code>\r\n</code>
+* 
 * @param {any} val1 
 * @param {any} val2 
 * @param {any[]} ...restParams 
 * @returns {string} 
-
+* @since DOCUMENTS 5.0c HF2
+* @example
+* var sep = context.getAutoText("%CRLF%");    // \r\n
+* var val1 = ["AP1", "AP2"];
+* var val2 = "AP3" + sep + "AP4";
+* var val3 = " AP5";
+* var val4 = "AP3";
+* var gaclVal = util.makeGACLValue(val1, val2, val3, val4);
+* util.out(gaclVal);
+* =>
+* 
+* AP1
+* AP2
+* AP3
+* AP4
+* AP5
+* 
+* <=
 **/
 /**
 * @memberof util
@@ -8912,11 +10647,11 @@
 * @summary Masks all HTML-elements of a String. 
 * @description This function masks the following characters for HTML output: 
 * <table border=1 cellspacing=0>
-* <tr><td>></td><td>&gt; </td></tr>
-* <tr><td><</td><td>&lt; </td></tr>
-* <tr><td>\n</td><td><br> </td></tr>
-* <tr><td>&</td><td>&amp; </td></tr>
-* <tr><td>"</td><td>&quot; </td></tr>
+* <tr><td><code>></code></td><td>&gt; </td></tr>
+* <tr><td><code><</code></td><td>&lt; </td></tr>
+* <tr><td><code>\n</code></td><td><br> </td></tr>
+* <tr><td><code>&</code></td><td>&amp; </td></tr>
+* <tr><td><code>"</code></td><td>&quot; </td></tr>
 * </table>
 * 
 * If the String is in UTF-8 Format, all UTF-8 characters will be replaced with the according HTML entities. 
@@ -8930,7 +10665,7 @@
 * @function out
 * @instance
 * @summary Output a String to the Portalserver window. 
-* @description You may output whatever information you want. This function is useful especially for debugging purposes. Be aware that you should run the Portalserver as an application if you want to make use of the out() function, otherwise the output is stored in the Windows Eventlog instead. 
+* @description You may output whatever information you want. This function is useful especially for debugging purposes. Be aware that you should run the Portalserver as an application if you want to make use of the <code>out()</code> function, otherwise the output is stored in the Windows Eventlog instead. 
 * @param {string} output String you want to output to the Portalserver Window 
 * @returns {any} 
 * @since ELC 3.50e / otrisPORTAL 5.0e
@@ -8987,22 +10722,39 @@
 * @returns {string} UTF-8 String with the wanted substring 
 * @since DOCUMENTS 4.0a HF1 
 * @example
-* var text = "KÃ¶ln is a german city";
-* util.out(util.substr_u(text, 0, 4));   // => KÃ¶ln
+* var text = "Köln is a german city";
+* util.out(util.substr_u(text, 0, 4));   // => Köln
 * util.out(util.substr_u(text, 5));      // => is a german city
 * // but
-* util.out(text.substr(0, 4));      // => KÃ¶l
+* util.out(text.substr(0, 4));      // => Köl
 **/
 /**
 * @memberof util
 * @function transcode
 * @instance
 * @summary Transcode a String from encoding a to encoding b. 
+* @description This method performs an transcoding for a String from a source encoding to a target encoding.
+* The following encodings are supported: 
+* <ul>
+* <li><code>Local</code>: The standard system encoding for Windows systems is <code>Windows-1252</code> and for Linux systems <code>ISO-8859-1</code> or <code>UTF-8</code>. </li>
+* <li><code>UTF-8</code>: Unicode-characterset as ASCII-compatible 8-Bit-coding. </li>
+* <li><code>ISO-8859-1</code>: West-European characterset without Euro-Symbol. </li>
+* <li><code>ISO-8859-15</code>: West-European characterset with Euro-Symbol. </li>
+* <li><code>Windows-1252</code></li>
+* <li><code>Windows-1250</code></li>
+* </ul>
+* 
 * @param {string} nameSourceEncoding 
 * @param {string} text 
 * @param {string} nameTargetEncoding 
 * @returns {string} 
-
+* @since ELC 3.60d / otrisPORTAL 6.0d
+* @example
+* var text = "Köln is a german city"
+* var utf8Text = util.transcode("windows-1252", text, "UTF-8");
+* util.out(utf8Text);
+* text = util.transcode("UTF-8", utf8Text, "windows-1252");
+* util.out(text);
 **/
 /**
 * @memberof util
@@ -9010,7 +10762,7 @@
 * @instance
 * @summary Delete a physical file on the server's file system. 
 * @param {string} filePath String containing the full path and filename to the desired physical file 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since ELC 3.51 / otrisPORTAL 5.1
 * @example
 * var success = util.unlinkFile("c:\\tmp\\tempfile.txt");
@@ -9024,58 +10776,74 @@
 /**
 * @memberof WorkflowStep
 * @summary String value containing the locking user group of the WorkflowStep. 
-* @description Note: This property requires a full workflow engine license, it does not work with pure submission lists. The property is readonly. 
+* @description 
+* Note: This property requires a full workflow engine license, it does not work with pure submission lists. The property is readonly. 
 * @member {string} executiveGroup
 * @instance
+* @since DOCUMENTS 4.0c 
 **/
 /**
 * @memberof WorkflowStep
 * @summary String value containing the type of recipient of the WorkflowStep. 
-* @description Note: This property requires a full workflow engine license, it does not work with pure submission lists. The property is readonly. 
+* @description 
+* Note: This property requires a full workflow engine license, it does not work with pure submission lists. The property is readonly. 
 * @member {string} executiveType
 * @instance
+* @since ELC 3.50 / otrisPORTAL 5.0 
 **/
 /**
 * @memberof WorkflowStep
 * @summary String value containing the locking user of the WorkflowStep. 
-* @description Note: This property requires a full workflow engine license, it does not work with pure submission lists. The property is readonly. 
+* @description 
+* Note: This property requires a full workflow engine license, it does not work with pure submission lists. The property is readonly. 
 * @member {string} executiveUser
 * @instance
+* @since ELC 3.50 / otrisPORTAL 5.0 
 **/
 /**
 * @memberof WorkflowStep
 * @summary String value containing the unique internal ID of the first outgoing ControlFlow. 
-* @description Note: This property requires a full workflow engine license, it does not work with pure submission lists. The property is readonly. 
+* @description 
+* Note: This property requires a full workflow engine license, it does not work with pure submission lists. The property is readonly. 
 * @member {string} firstControlFlow
 * @instance
+* @since ELC 3.50 / otrisPORTAL 5.0 
 **/
 /**
 * @memberof WorkflowStep
 * @summary String value containing the unique internal ID of the WorkflowStep. 
-* @description Note: This property requires a full workflow engine license, it does not work with pure submission lists. The property is readonly. 
+* @description 
+* Note: This property requires a full workflow engine license, it does not work with pure submission lists. The property is readonly. 
 * @member {string} id
 * @instance
+* @since ELC 3.50 / otrisPORTAL 5.0 
 **/
 /**
 * @memberof WorkflowStep
 * @summary String value containing the technical name of the WorkflowStep. 
-* @description Note: This property requires a full workflow engine license, it does not work with pure submission lists. The property is readonly. 
+* @description 
+* Note: This property requires a full workflow engine license, it does not work with pure submission lists. The property is readonly. 
 * @member {string} name
 * @instance
+* @since ELC 3.50 / otrisPORTAL 5.0 
 **/
 /**
 * @memberof WorkflowStep
 * @summary String value containing the status of the WorkflowStep. 
-* @description Note: This property requires a full workflow engine license, it does not work with pure submission lists. The property is readonly. 
+* @description 
+* Note: This property requires a full workflow engine license, it does not work with pure submission lists. The property is readonly. 
 * @member {string} status
 * @instance
+* @since ELC 3.50 / otrisPORTAL 5.0 
 **/
 /**
 * @memberof WorkflowStep
 * @summary String value containing the unique internal ID of the Workflow template. 
-* @description Note: This property requires a full workflow engine license, it does not work with pure submission lists. The property is readonly. 
+* @description 
+* Note: This property requires a full workflow engine license, it does not work with pure submission lists. The property is readonly. 
 * @member {string} templateId
 * @instance
+* @since ELC 3.50 / otrisPORTAL 5.0 
 **/
 /**
 * @memberof WorkflowStep
@@ -9084,10 +10852,11 @@
 * @summary Forward the file to its next WorkflowStep. 
 * @description This requires the internal ID (as a String value) of the ControlFlow you want the file to pass through. The optional comment parameter will be stored as a comment in the file's monitor. 
 * Note: This function requires a full workflow engine license, it does not work with pure submission lists. 
+* 
 * The current user's permissions are not checked when using this function! 
 * @param {string} controlFlowId String value containing the internal ID of the ControlFlow you want to pass through. 
 * @param {string} [comment] optional String value containing your desired comment for the file's monitor. 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since ELC 3.50e / otrisPORTAL 5.0e 
 **/
 /**
@@ -9095,7 +10864,8 @@
 * @function getAttribute
 * @instance
 * @summary Get the String value of an attribute of the WorkflowStep. 
-* @description Note: This function requires a full workflow engine license, it does not work with pure submission lists. 
+* @description 
+* Note: This function requires a full workflow engine license, it does not work with pure submission lists. 
 * @param {string} attribute String containing the name of the desired attribute 
 * @returns {string} String containing the value of the desired attribute 
 * @since ELC 3.51e / otrisPORTAL 5.1e 
@@ -9105,7 +10875,8 @@
 * @function getControlFlows
 * @instance
 * @summary Retrieve an iterator representing a list of all outgoing ControlFlows of the WorkflowStep. 
-* @description Note: This function requires a full workflow engine license, it does not work with pure submission lists. 
+* @description 
+* Note: This function requires a full workflow engine license, it does not work with pure submission lists. 
 * @returns {ControlFlowIterator} ControlFlowIterator containing the outgoing ControlFlows of the current WorkflowStep object. 
 * @since ELC 3.51e / otrisPORTAL 5.1e 
 **/
@@ -9114,7 +10885,8 @@
 * @function getLastError
 * @instance
 * @summary Function to get the description of the last error that occurred. 
-* @description Note: This function requires a full workflow engine license, it does not work with pure submission lists. 
+* @description 
+* Note: This function requires a full workflow engine license, it does not work with pure submission lists. 
 * @returns {string} Text of the last error as String 
 * @since ELC 3.50 / otrisPORTAL 5.0 
 * @see [DocFile.getLastError]{@link DocFile#getLastError} 
@@ -9124,12 +10896,13 @@
 * @function getOID
 * @instance
 * @summary Returns the object-id. 
+* @description
 * Since DOCUMENTS 5.0 (new parameter oidLow) 
 * @param {boolean} [oidLow] Optional flag: 
-* If true only the id of the filetype object (m_oid) will be returned. 
-* If false the id of the filetype object will be returned together with the id of the corresponding class in the form class-id:m_oid. 
-* The default value is false. 
-* @returns {string} String with object-id 
+* If <code>true</code> only the id of the filetype object (<code>m_oid</code>) will be returned. 
+* If <code>false</code> the id of the filetype object will be returned together with the id of the corresponding class in the form <code>class-id:m_oid</code>. 
+* The default value is <code>false</code>. 
+* @returns {string} <code>String</code> with object-id 
 * @since ELC 3.60c / otrisPORTAL 6.0c 
 **/
 /**
@@ -9137,7 +10910,8 @@
 * @function getWorkflowName
 * @instance
 * @summary Retrieve the name of the workflow, the WorkflowStep belongs to. 
-* @description Note: This function is only available for workflows, but not submission lists. 
+* @description 
+* Note: This function is only available for workflows, but not submission lists. 
 * @returns {string} String containing the workflow name 
 * @since ELC 3.60d / otrisPORTAL 6.0d 
 * @see [WorkflowStep.getWorkflowVersion]{@link WorkflowStep#getWorkflowVersion} 
@@ -9147,7 +10921,8 @@
 * @function getWorkflowProperty
 * @instance
 * @summary Retrieve a property value of the workflow action, the WorkflowStep belongs to. 
-* @description Note: This function is only available for workflows, but not submission lists. 
+* @description 
+* Note: This function is only available for workflows, but not submission lists. 
 * @param {string} propertyName String containing the name of the desired property 
 * @returns {string} String containing the property value 
 * @since DOCUMENTS 4.0a 
@@ -9157,7 +10932,8 @@
 * @function getWorkflowVersion
 * @instance
 * @summary Retrieve the version number of the workflow, the WorkflowStep belongs to. 
-* @description Note: This function is only available for workflows, but not submission lists. 
+* @description 
+* Note: This function is only available for workflows, but not submission lists. 
 * @returns {string} String containing the workflow version number 
 * @since ELC 3.60d / otrisPORTAL 6.0d 
 * @see [WorkflowStep.getWorkflowName]{@link WorkflowStep#getWorkflowName} 
@@ -9167,10 +10943,11 @@
 * @function setAttribute
 * @instance
 * @summary Set the String value of an attribute of the WorkflowStep to the desired value. 
-* @description Note: This function requires a full workflow engine license, it does not work with pure submission lists. 
+* @description 
+* Note: This function requires a full workflow engine license, it does not work with pure submission lists. 
 * @param {string} attribute String containing the name of the desired attribute 
 * @param {string} value String containing the desired value of the attribute 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since ELC 3.51e / otrisPORTAL 5.1e 
 **/
 /**
@@ -9178,9 +10955,10 @@
 * @function setNewExecutiveGroup
 * @instance
 * @summary Reassign the current WorkflowStep object to the given user group. 
-* @description Note: This function requires a full workflow engine license, it does not work with pure submission lists. 
+* @description 
+* Note: This function requires a full workflow engine license, it does not work with pure submission lists. 
 * @param {string} accessProfileName String containing the technical name of the access profile. 
-* @returns {boolean} true if successful, false in case of any error. 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error. 
 * @since DOCUMENTS 4.0c
 * @example
 * var f = context.file;
@@ -9198,9 +10976,10 @@
 * @function setNewExecutiveUser
 * @instance
 * @summary Reassigns the current WorkflowStep object to the given user. 
-* @description Note: This function requires a full workflow engine license, it does not work with pure submission lists. 
+* @description 
+* Note: This function requires a full workflow engine license, it does not work with pure submission lists. 
 * @param {string} loginUser String containing the login name of the desired user. 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since ELC 3.50e / otrisPORTAL 5.0e 
 **/
 /**
@@ -9208,13 +10987,14 @@
 * @summary The WorkflowStepIterator class has been added to the DOCUMENTS PortalScripting API to gain full control over a file's workflow by scripting means. 
 * @description You may access WorkflowStepIterator objects by the getAllLockingWorkflowSteps() method described in the DocFile chapter. 
 * Note: This class and all of its methods and attributes require a full workflow engine license, it does not work with pure submission lists. 
+* @since ELC 3.51e / otrisPORTAL 5.1e 
 */
 /**
 * @memberof WorkflowStepIterator
 * @function first
 * @instance
 * @summary Retrieve the first WorkflowStep object in the WorkflowStepIterator. 
-* @returns {WorkflowStep} WorkflowStep or null in case of an empty WorkflowStepIterator
+* @returns {WorkflowStep} WorkflowStep or <code>null</code> in case of an empty WorkflowStepIterator
 * @since ELC 3.51e / otrisPORTAL 5.1e 
 **/
 /**
@@ -9222,7 +11002,7 @@
 * @function next
 * @instance
 * @summary Retrieve the next WorkflowStep object in the WorkflowStepIterator. 
-* @returns {WorkflowStep} WorkflowStep or null if end of WorkflowStepIterator is reached. 
+* @returns {WorkflowStep} WorkflowStep or <code>null</code> if end of WorkflowStepIterator is reached. 
 * @since ELC 3.51e / otrisPORTAL 5.1e 
 **/
 /**
@@ -9253,21 +11033,59 @@
 * </ul>
 * 
 * The XML files may also be reimported into another (or the same) Portal environment by the Docimport application for DocFile objects and by the XML-import of DOCUMENTS Manager for the remaining elements, respectively. 
+* Since DOCUMENTS 4.0c available for PortalScript, Filetype, Folder, Workflow, Distribution List, Editor, AccessProfile, Alias and Filing Plan 
+* Since DOCUMENTS 4.0d available for Outbar 
+* Since DOCUMENTS 4.0e available for DocumentsSettings
+* @since ELC 3.51b / otrisPORTAL 5.1b available for DocFile
+* @example
+* var f = context.file;
+* if (f)
+* {
+*    // create a new XMLExport
+*    var xml = new XMLExport("c:\\tmp\\" + f.getAutoText("id") + ".xml");
+*    xml.addFile(f); // add the current file to the export
+*    xml.saveXML(); // perform the export operation
+*    var xmlString = xml.getXML(); // get XML as String for further use
+*    xml.clearXML(); // empty XMLExport object
+* }
 * @summary Create a new instance of the XMLExport class. 
 * @description The constructor is neccessary to initialize the XMLExport object with some basic settings. The pathFileName parameter is mandatory, the path must be an existing directory structure, and the target file should not yet exist in that directory structure. 
+* Since ELC 3.51b / otrisPORTAL 5.1b 
 * Since DOCUMENTS 4.0c (new parameter exportDocFile) 
 * @param {string} pathFileName String containing full path and file name of the desired target output XML file 
-* @param {boolean} [exportDocFile] Optional boolean value: true indicating that the created XMLExport instance is only able to export DocFile objects; false indicating the created XMLExport instance is able to export the following elements: PortalScript Filetype FolderWorkflow Distribution List Editor (Fellow) AccessProfileAlias Filing Plan Outbar DocumentsSettings 
-*The default value is true. 
-* @since ELC 3.51b / otrisPORTAL 5.1b 
+* @param {boolean} [exportDocFile] Optional boolean value: 
+* <ul>
+* <li><code>true</code> indicating that the created XMLExport instance is only able to export DocFile objects; </li>
+* <li><code>false</code> indicating the created XMLExport instance is able to export the following elements: 
+* <ul>
+* <li>PortalScript </li>
+* <li>Filetype </li>
+* <li>Folder</li>
+* <li>Workflow </li>
+* <li>Distribution List </li>
+* <li>Editor (Fellow) </li>
+* <li>AccessProfile</li>
+* <li>Alias </li>
+* <li>Filing Plan </li>
+* <li>Outbar </li>
+* <li>DocumentsSettings </li>
+* </ul>
+* </li>
+* </ul>
+* The default value is <code>true</code>. 
 */
 /**
 * @memberof XMLExport
 * @function addAccessProfile
 * @instance
 * @summary Add the desired access profile to the XMLExport. 
-* @param {any} accessProfile The desired access profile to be added to the XML output and specified as follows: String containing the technical name of the access profile AccessProfile object 
-* @returns {boolean} true if successful, false in case of any error 
+* @param {any} accessProfile The desired access profile to be added to the XML output and specified as follows: 
+* <ul>
+* <li>String containing the technical name of the access profile </li>
+* <li>AccessProfile object </li>
+* </ul>
+* 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since DOCUMENTS 4.0c
 * @example
 * var path = "C:\\temp\\expAccessProfile.xml";
@@ -9284,7 +11102,7 @@
 * @instance
 * @summary Add the desired alias to the XMLExport. 
 * @param {string} aliasName String value containing the technical name of the alias to be added to the XML output. 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since DOCUMENTS 4.0c
 * @example
 * var xmlExp = new XMLExport("C:\\temp\\expAlias.xml", false);
@@ -9300,7 +11118,7 @@
 * @instance
 * @summary Add the desired distribution list to the XMLExport. 
 * @param {string} distributionListName String containing the name of the distribution list to be added to the XML output. 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since DOCUMENTS 4.0c
 * @example
 * var path = "C:\\temp\\expDistributionList.xml";
@@ -9316,7 +11134,7 @@
 * @function addDocumentsSettings
 * @instance
 * @summary Add the DOCUMENTS settings data to the XMLExport. 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since DOCUMENTS 4.0e 
 **/
 /**
@@ -9324,10 +11142,16 @@
 * @function addFellow
 * @instance
 * @summary Add the desired editor (fellow) to the XMLExport. 
+* @description
 * Since DOCUMENTS 4.0c HF2 (new parameter includePrivateFolders)
-* @param {any} editor The editor to be added to the XML output and specified as follows: String containing the login name of the editor. SystemUser object representing the editor. 
+* @param {any} editor The editor to be added to the XML output and specified as follows: 
+* <ul>
+* <li>String containing the login name of the editor. </li>
+* <li>SystemUser object representing the editor. </li>
+* </ul>
+* 
 * @param {boolean} [includePrivateFolders] boolean value indicating whether to export the private folders of the fellow 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since DOCUMENTS 4.0c 
 * @example
 * var path = "C:\\temp\\expFellow.xml";
@@ -9344,9 +11168,13 @@
 * @instance
 * @summary Add the desired DocFile object to the XMLExport. 
 * @param {DocFile} docFile An object of the DocFile class which should be added to the XML output 
-* @param {any} [exportCondition] Optional export conditions specified as follows: boolean value indicating whether the file id should be exported as update key. XMLExportDescription object defining serveral conditions for the exporting process of the DocFile object. 
-*The default value is true. 
-* @returns {boolean} true if successful, false in case of any error 
+* @param {any} [exportCondition] Optional export conditions specified as follows: 
+* <ul>
+* <li>boolean value indicating whether the file id should be exported as update key. </li>
+* <li>XMLExportDescription object defining serveral conditions for the exporting process of the DocFile object. </li>
+* </ul>
+* The default value is true. 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since ELC 3.51b / otrisPORTAL 5.1b 
 * @example
 * var path = "C:\\temp\\expDocFile.xml";
@@ -9364,7 +11192,7 @@
 * @summary Add the desired file type to the XMLExport. 
 * @description The XML output is able to update the same file type (Update-XML). 
 * @param {string} fileTypeName The technical name of the file type to be added to the XML output. 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since DOCUMENTS 4.0c 
 * @example
 * var path = "C:\\temp\\expFileType.xml";
@@ -9382,7 +11210,7 @@
 * @summary Add the desired filing plan to the XMLExport. 
 * @description The XML output is able to update the same filing plan (Update-XML). 
 * @param {string} filingPlanName String containing the technical name of the filing plan to be added to the XML output. 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since DOCUMENTS 4.0c
 * @example
 * var path = "C:\\temp\\expFilingPlan.xml";
@@ -9401,8 +11229,18 @@
 * @description This function is able to add the folder structure or the files in the folder to the XMLExport. 
 * @param {Folder} folder The Folder object to be added to the XML output. 
 * @param {boolean} exportStructure boolean value indicating whether to export the folder structure or the files in the folder, on which the current user has read rights. If you want to export the files in the folder, an XMLExport instance being able to export DocFile should be used. 
-* @param {any} exportCondition The export conditions can be specified as follows: boolean value indicating whether the file id should be exported as update key in case of exporting files in the folder; indicating whether the subfolders should be exported in case of exporting the folder structure. XMLExportDescription object defining serveral conditions for the exporting process of the files in the folder. 
-* @returns {boolean} true if successful, false in case of any error 
+* @param {any} exportCondition The export conditions can be specified as follows: 
+* <ul>
+* <li>boolean value 
+* <ul>
+* <li>indicating whether the file id should be exported as update key in case of exporting files in the folder; </li>
+* <li>indicating whether the subfolders should be exported in case of exporting the folder structure. </li>
+* </ul>
+* </li>
+* <li>XMLExportDescription object defining serveral conditions for the exporting process of the files in the folder. </li>
+* </ul>
+* 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since DOCUMENTS 4.0c
 * @example
 * var xmlExpFiles = new XMLExport("C:\\temp\\expFolderFiles.xml", true); // for exporting the files in the folder
@@ -9427,7 +11265,7 @@
 * @summary Add the desired number range alias to the XMLExport. 
 * @param {string} name String value containing the technical name of the number range to be added to the XML output. 
 * @param {boolean} [withCounter] boolean value indicating whether to export the actual counter value of the number range 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since DOCUMENTS 4.0d HF1 
 **/
 /**
@@ -9436,7 +11274,7 @@
 * @instance
 * @summary Add the desired outbar to the XMLExport. 
 * @param {string} outbarName String value containing the technical name of the outbar to be added to the XML output. 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since DOCUMENTS 4.0d
 * @example
 * var xmlExp = new XMLExport("C:\\temp\\expOutbar.xml", false);
@@ -9451,9 +11289,14 @@
 * @function addPartnerAccount
 * @instance
 * @summary Add the desired user account (not fellow) to the XMLExport. 
-* @param {any} userAccount The user account to be added to the XML output and specified as follows: String containing the login name of the user account. SystemUser object representing the user account. 
+* @param {any} userAccount The user account to be added to the XML output and specified as follows: 
+* <ul>
+* <li>String containing the login name of the user account. </li>
+* <li>SystemUser object representing the user account. </li>
+* </ul>
+* 
 * @param {boolean} [includePrivateFolders] boolean value indicating whether to export the private folders of the user account 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since DOCUMENTS 5.0 HF2
 * @example
 * var path = "C:\\temp\\expUserAccount.xml";
@@ -9469,12 +11312,17 @@
 * @function addPortalScript
 * @instance
 * @summary Add all PortalScripts with the desired name pattern to the XMLExport. 
-* @description Note: The XML files exported in DOCUMENTS 5.0 format are incompatible with DOCUMENTS 4.0. 
+* @description 
+* Note: The XML files exported in DOCUMENTS 5.0 format are incompatible with DOCUMENTS 4.0. 
 * Since DOCUMENTS 5.0 HF1 (default format is 5.0) 
 * @param {string} namePattern The name pattern of the PortalScripts to be added to the XML output. 
-* @param {string} [format] Optional String value defining the desired export format. The following formats are available: 4.0 (DOCUMENTS 4.0) 5.0 (DOCUMENTS 5.0) 
-*The default value is "5.0". 
-* @returns {boolean} true if successful, false in case of any error 
+* @param {string} [format] Optional String value defining the desired export format. The following formats are available: 
+* <ul>
+* <li>4.0 (DOCUMENTS 4.0) </li>
+* <li>5.0 (DOCUMENTS 5.0) </li>
+* </ul>
+* The default value is "5.0". 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since DOCUMENTS 4.0c 
 * @example
 * var path = "C:\\temp\\expPortalScript.xml";
@@ -9492,7 +11340,7 @@
 * @summary Defines a PortalScript, that will be executed after the XML-import. 
 * @description This method does not export the content of a PortalScript (see XMLExport.addPortalScript()), but executes a PortalScript at the end of the XML-Import of the whole xml file. 
 * @param {string} nameScript The name of the PortalScript, that should be executed. 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since DOCUMENTS 5.0c HF1 
 * @example
 * var path = "C:\\temp\\expPortalScript.xml";
@@ -9510,12 +11358,17 @@
 * @function addPortalScriptsFromCategory
 * @instance
 * @summary Add all PortalScripts belonging to the desired category to the XMLExport. 
-* @description Note: The XML files exported in DOCUMENTS 5.0 format are incompatible with DOCUMENTS 4.0. 
+* @description 
+* Note: The XML files exported in DOCUMENTS 5.0 format are incompatible with DOCUMENTS 4.0. 
 * Since DOCUMENTS 5.0 HF1 (default format is 5.0) 
 * @param {string} nameCategory The category name of the PortalScripts to be added to the XML output. 
-* @param {string} [format] Optional String value defining the desired export format. The following formats are available: 4.0 (DOCUMENTS 4.0) 4.0 (DOCUMENTS 5.0) 
-*The default value is "5.0". 
-* @returns {boolean} true if successful, false in case of any error 
+* @param {string} [format] Optional String value defining the desired export format. The following formats are available: 
+* <ul>
+* <li>4.0 (DOCUMENTS 4.0) </li>
+* <li>4.0 (DOCUMENTS 5.0) </li>
+* </ul>
+* The default value is "5.0". 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since DOCUMENTS 4.0d HF1 
 * @example
 * var path = "C:\\temp\\expPortalScript.xml";
@@ -9531,9 +11384,14 @@
 * @function addSystemUser
 * @instance
 * @summary Add the desired SystemUser (user account or fellow) to the XMLExport. 
-* @param {any} systemUser The SystemUser to be added to the XML output and specified as follows: String containing the login name of the SystemUser. SystemUser object representing the user account. 
+* @param {any} systemUser The SystemUser to be added to the XML output and specified as follows: 
+* <ul>
+* <li>String containing the login name of the SystemUser. </li>
+* <li>SystemUser object representing the user account. </li>
+* </ul>
+* 
 * @param {boolean} [includePrivateFolders] boolean value indicating whether to export the private folders of the SystemUser
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since DOCUMENTS 5.0 HF2
 * @example
 * var path = "C:\\temp\\expSystemUser.xml";
@@ -9549,8 +11407,8 @@
 * @function addWorkflow
 * @instance
 * @summary Add the desired workflow to the XMLExport. 
-* @param {string} workflowName String containing the technical name and optional the version number of the workflow to be added to the XML output. The format of the workflowName is technicalName[-version]. If you don't specify the version of the workflow, the workflow with the highest workflow version number will be used. If you want to add a specific version, you have to use technicalName-version e.g. "Invoice-2" as workflowName. 
-* @returns {boolean} true if successful, false in case of any error 
+* @param {string} workflowName String containing the technical name and optional the version number of the workflow to be added to the XML output. The format of the workflowName is <code>technicalName</code>[-version]. If you don't specify the version of the workflow, the workflow with the highest workflow version number will be used. If you want to add a specific version, you have to use technicalName-version e.g. "Invoice-2" as workflowName. 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since DOCUMENTS 4.0c
 * @example
 * var path = "C:\\temp\\expWorkflow.xml";
@@ -9565,7 +11423,7 @@
 * @instance
 * @summary Remove all references to DocFile objects from the XMLExport object. 
 * @description After the execution of this method the XMLExport object is in the same state as right after its construction. 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since ELC 3.51b / otrisPORTAL 5.1b 
 **/
 /**
@@ -9592,16 +11450,17 @@
 * @instance
 * @summary Performs the final save process of the XML structure. 
 * @description Not earlier than when executing this instruction the XML file is created in the target file path. 
-* @returns {boolean} true if successful, false in case of any error 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since ELC 3.51b / otrisPORTAL 5.1b 
 **/
 /**
 * @class XMLExportDescription
 * @classdesc The XMLExportDescription class has been added to the DOCUMENTS PortalScripting API to improve the XML Export process of DOCUMENTS files by scripting means. 
 * For instance this allows to use different target archives for each file as well as to influence the archiving process by the file's contents itself. The XMLExportDescription object can only be used as parameter for the method XMLExport.addFile(XMLExportDescription) 
+* @since DOCUMENTS 4.0c 
 * @summary Create a new XMLExportDescription object. 
-* @description Like in other programming languages you create a new object with the new operator (refer to example below). 
-* @since DOCUMENTS 4.0c
+* @description Like in other programming languages you create a new object with the <code>new</code> operator (refer to example below). 
+* Since DOCUMENTS 4.0c
 * @see [XMLExport.addFile]{@link XMLExport#addFile} 
 * @example
 * var docFile = context.file;
@@ -9627,35 +11486,40 @@
 * @summary boolean value whether export the create timestamp of the file. 
 * @member {boolean} exportCreatedAt
 * @instance
+* @since DOCUMENTS 4.0c 
 **/
 /**
 * @memberof XMLExportDescription
 * @summary boolean value whether export the id of the file. 
 * @member {boolean} exportFileId
 * @instance
+* @since DOCUMENTS 4.0c 
 **/
 /**
 * @memberof XMLExportDescription
 * @summary boolean value whether export the timestamp of the last modification of the file. 
 * @member {boolean} exportLastModifiedAt
 * @instance
+* @since DOCUMENTS 4.0c 
 **/
 /**
 * @memberof XMLExportDescription
 * @summary boolean value whether export the name of the last editor of the file. 
 * @member {boolean} exportLastModifiedBy
 * @instance
+* @since DOCUMENTS 4.0c 
 **/
 /**
 * @memberof XMLExportDescription
 * @summary boolean value whether export the name of the owner of the file. 
 * @member {boolean} exportOwner
 * @instance
+* @since DOCUMENTS 4.0c 
 **/
 /**
 * @class XMLHTTPRequest
 * @classdesc The XMLHTTPRequest class represents a HTTP request. 
-* Though the name of this class traditionally refers to XML, it can be used to transfer arbitrary strings or binary data. The interface is based on the definition of the class IXMLHTTPRequest from MSXML. To send a HTTP request the following steps are needed: 
+* Though the name of this class traditionally refers to XML, it can be used to transfer arbitrary strings or binary data. The interface is based on the definition of the class <code>IXMLHTTPRequest</code> from MSXML. As http-library the libcurl is used. To send a HTTP request the following steps are needed: 
 * <ul>
 * <li>Creating an instance of this class. </li>
 * <li>Initializing the request via open(). Possibly also adding header data by means of addRequestHeader(). </li>
@@ -9664,34 +11528,64 @@
 * <li>Evaluating the result via e.g. XMLHTTPRequest.status, XMLHTTPRequest.response and getAllResponseHeaders().</li>
 * </ul>
 * 
+* @since DOCUMENTS 4.0 
+* @example
+* // synchron
+* var xmlHttp = new XMLHTTPRequest();
+* var async = false;
+* var url = "http://localhost:11001/";
+* xmlHttp.open("GET", url + "?wsdl", async);
+* xmlHttp.send();
+* util.out(xmlHttp.response);
+* @example
+* // asynchron
+* var xmlHttp = new XMLHTTPRequest();
+* var async = true;
+* var url = "http://localhost:11001/";
+* xmlHttp.open("GET", url + "?wsdl", async);
+* xmlHttp.send();
+* while(xmlHttp.status != xmlHttp.COMPLETED) {
+*    util.sleep(500);  // sleep 500 ms
+* }
+* util.out(xmlHttp.response);
 * @summary Create a new XMLHTTPRequest object. 
-* @description Note: On some plattforms, no proxy can be specified here. Instead, the global settings of the system will be used. 
-* @param {string} [proxy] Optional string value specifying the hostname of the proxy server being resolvable by the nameserver. If this parameter is not specified, the proxy server specified in the registry will be possibly used. E.g. the proxy server specified in Internet Explorer is used in the registry. 
-* @param {number} [proxyPort] Optional number of the port on which the proxy accepts requests. 
+* @description 
+* Note: On windows OS: If no proxy is specified as first parameter, the proxy settings of the Internet Explorer and and the WinHTTP configuration will be checked, and a defined proxy setting will be used. 
+* Since DOCUMENTS 4.0 
+* Since DOCUMENTS 5.0c (on windows OS support of system proxy configuration) 
+* @param {string} [proxy] Optional string value specifying the hostname of the proxy server being resolvable by the nameserver. On windows OS: If this parameter is not specified, the windows proxy configuration will be used. E.g. the proxy server specified in Internet Explorer is used in the <em>registry</em>. 
+* @param {number} [proxyPort] Optional number of the port on which the <em>proxy</em> accepts requests. 
 * @param {string} [proxyUser] Optional string value specifying the desired login name for the proxy 
 * @param {string} [proxyPasswd] Optional string value specifying the password for logging in to the proxy 
-* @since DOCUMENTS 4.0 
 * @see [XMLHTTPRequest.canProxy]{@link XMLHTTPRequest#canProxy} 
 */
 /**
 * @memberof XMLHTTPRequest
 * @summary Flag indicating whether asynchronous requests are possible on the used plattform. 
-* @description Note: This property is readonly. 
+* @description 
+* Note: This property is readonly. 
 * @member {boolean} canAsync
 * @instance
+* @since DOCUMENTS 4.0 
 **/
 /**
 * @memberof XMLHTTPRequest
 * @summary Flag indicating whether the implementation on the used plattform allows the direct specifying of a proxy server. 
-* @description Note: This property is readonly. 
+* @description 
+* Note: This property is readonly. 
 * @member {boolean} canProxy
 * @instance
+* @since DOCUMENTS 4.0 
 **/
 /**
 * @memberof XMLHTTPRequest
 * @summary The constant 4 for XMLHTTPRequest.readyState. 
+* @description In this state the request is completed. All the data are available now.
+* 
+* Note: This property is readonly. 
 * @member {number} COMPLETED
 * @instance
+* @since DOCUMENTS 4.0 
 **/
 /**
 * @memberof XMLHTTPRequest
@@ -9707,20 +11601,32 @@
 * <li>The value -2 disables file size detection and enforces a chunked transfer.</li>
 * </ul>
 * 
+* 
+* Note: This property serves as a hidden optional parameter to the send() function. On new objects it is undefined. Assigning an incorrect value >= 0 may trigger deadlocks or timeouts. 
 * @member {number} FileSizeHint
 * @instance
+* @since DOCUMENTS 5.0c 
+* @see [send]{@link send} 
 **/
 /**
 * @memberof XMLHTTPRequest
 * @summary The constant 3 for XMLHTTPRequest.readyState. 
+* @description In this state the request is partially completed. This means that some data has been received.
+* 
+* Note: This property is readonly. 
 * @member {number} INTERACTIVE
 * @instance
+* @since DOCUMENTS 4.0 
 **/
 /**
 * @memberof XMLHTTPRequest
 * @summary The constant 1 for XMLHTTPRequest.readyState. 
+* @description In this state the object has been initialized, but not sent yet.
+* 
+* Note: This property is readonly. 
 * @member {number} NOTSENT
 * @instance
+* @since DOCUMENTS 4.0 
 **/
 /**
 * @memberof XMLHTTPRequest
@@ -9737,20 +11643,50 @@
 * Note: This property is readonly. 
 * @member {number} readyState
 * @instance
+* @since DOCUMENTS 4.0 
 **/
 /**
 * @memberof XMLHTTPRequest
 * @summary The response received from the HTTP server or null if no response is received. 
-* @description Note: This property is readonly. Starting with DOCUMENTS 5.0c its data type is influenced by the optional property responseType. The default type is String. For requests with an attached responseFile this value can be truncated after a few kBytes. 
+* @description 
+* Note: This property is readonly. Starting with DOCUMENTS 5.0c its data type is influenced by the optional property responseType. The default type is String. For requests with an attached responseFile this value can be truncated after a few kBytes. 
 * @member {any} response
 * @instance
+* @since DOCUMENTS 4.0
+* @see [responseType,responseFile]{@link responseType,responseFile} 
+* @example
+* var xmlHttp = new XMLHTTPRequest();
+* var async = false;
+* var url = "http://localhost:11001/";
+* xmlHttp.open("POST", url, async);
+* if (xmlHttp.send(content))
+*   util.out(xmlHttp.response);
 **/
 /**
 * @memberof XMLHTTPRequest
 * @summary An optional writable file for streaming a large response. 
-* @description To achieve an efficient download scripts can create a writable File an attach it to the request. The complete response will then be written into this file. The value of the response property, however, will be truncated after the first few kBytes.
+* @description To achieve an efficient download scripts can create a writable <code>File</code> an attach it to the request. The complete response will then be written into this file. The value of the <code>response</code> property, however, will be truncated after the first few kBytes.
+* 
+* Note: On new objects this property is undefined. 
+* 
+* When send() is called, the request takes exclusive ownership of the attached file. The property will then be reset to null. Even in asynchronous mode send() seems to close the file immediately. In fact, send() detaches the native file handle from the JavaScript object to ensure exclusive access. 
+* 
+* Received content will be written to the file, disregarding the HTTP status.
 * @member {File} responseFile
 * @instance
+* @since DOCUMENTS 5.0c 
+* @see [response,responseType,File]{@link response,responseType,File} 
+* @example
+* var url = "http://localhost:8080/documents/img/documents/skin/black/module/dashboard/48/view.png";
+* var req = new XMLHTTPRequest;
+* req.open("GET", url);
+* 
+* var file = new File("E:\\test\\downloaded.png", "wb");
+* if(!file.ok())
+*     return "Cannot open response file for writing";
+* req.responseFile = file;
+* req.send();
+* return req.status;
 **/
 /**
 * @memberof XMLHTTPRequest
@@ -9759,40 +11695,55 @@
 * Note: On new objects this property is undefined. ArrayBuffer responses are created only once after each request. If a script changes the received buffer, the response property will reflect these changes until a new request starts.
 * @member {string} responseType
 * @instance
+* @since DOCUMENTS 5.0c 
+* @see [response,responseFile]{@link response,responseFile} 
 **/
 /**
 * @memberof XMLHTTPRequest
 * @summary The constant 2 for XMLHTTPRequest.readyState. 
+* @description In this state the object has been sent. No data is available yet.
+* 
+* Note: This property is readonly. 
 * @member {number} SENT
 * @instance
+* @since DOCUMENTS 4.0 
 **/
 /**
 * @memberof XMLHTTPRequest
 * @summary The HTTP status code of the request. 
-* @description Note: This property is readonly. 
+* @description 
+* Note: This property is readonly. 
 * @member {number} status
 * @instance
+* @since DOCUMENTS 4.0 
+* @see [XMLHTTPRequest.statusText]{@link XMLHTTPRequest#statusText} 
 **/
 /**
 * @memberof XMLHTTPRequest
 * @summary The HTTP status text of the request. 
-* @description Note: This property is readonly. 
+* @description 
+* Note: This property is readonly. 
 * @member {string} statusText
 * @instance
+* @since DOCUMENTS 4.0 
+* @see [XMLHTTPRequest.status]{@link XMLHTTPRequest#status} 
 **/
 /**
 * @memberof XMLHTTPRequest
 * @summary The constant 0 for XMLHTTPRequest.readyState. 
 * @description In this state the method open() has not been called.
+* 
+* Note: This property is readonly. 
 * @member {number} UNINITIALIZED
 * @instance
+* @since DOCUMENTS 4.0 
 **/
 /**
 * @memberof XMLHTTPRequest
 * @function abort
 * @instance
 * @summary Abort an asynchronous request if it already has been sent. 
-* @returns {boolean} true if successful, false in case of any error. 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error. 
 * @since DOCUMENTS 4.0
 * @example
 * var xmlHttp = new XMLHTTPRequest();
@@ -9800,18 +11751,29 @@
 * var url = "http://localhost:11001/";
 * xmlHttp.open("POST", url, async);
 * xmlHttp.send(content);
-* if (timeout)
-*    xmlHttp.abort();
+* var timeout = 3000;   // milliseconds
+* var idle = 200; // 200 ms
+* var timeoutTS = (new Date()).getTime() + timeout;
+* while (httpCon.readyState != httpCon.COMPLETED) {
+*    if ((new Date()).getTime() > timeoutTS) {
+*       xmlHttp.abort();
+*       xmlHttp = null;
+*    }
+*    util.sleep(idle);
+* }
+* if (xmlHttp)
+*    util.out(xmlHttp.status);
 **/
 /**
 * @memberof XMLHTTPRequest
 * @function addRequestHeader
 * @instance
 * @summary Add a HTTP header to the request to be sent. 
-* @description Note: The request must be initialized via open() before. 
+* @description 
+* Note: The request must be initialized via open() before. 
 * @param {string} name String specifying the header name. 
 * @param {string} value String specifying the header value. 
-* @returns {boolean} true if the header was added successfully, false in case of any error. 
+* @returns {boolean} <code>true</code> if the header was added successfully, <code>false</code> in case of any error. 
 * @since DOCUMENTS 4.0
 * @example
 * var xmlHttp = new XMLHTTPRequest();
@@ -9826,8 +11788,17 @@
 * @function getAllResponseHeaders
 * @instance
 * @summary Get all response headers as a string. 
+* @description Each entry is in a separate line and has the form 'name:value'.
+* 
 * @returns {string} 
-
+* @since DOCUMENTS 4.0
+* @example
+* var xmlHttp = new XMLHTTPRequest();
+* var async = false;
+* var url = "http://localhost:11001/";
+* xmlHttp.open("POST", url, async);
+* if (xmlHttp.send(content))
+*   util.out(xmlHttp.getAllResponseHeaders());
 **/
 /**
 * @memberof XMLHTTPRequest
@@ -9850,12 +11821,19 @@
 * @function open
 * @instance
 * @summary Initialize a HTTP request. 
-* @param {string} method String specifying the used HTTP method. The following methods are available: GET: Sending a GET request, for example, for querying a HTML file. PUT: Sending data to the HTTP server. The data must be passed in the send() call. The URI represents the name under which the data should be stored. Under this name, the data are then normally retrievable. POST: Sending data to the HTTP server. The data must be passed in the send() call. The URI represents the name of the consumer of the data. 
+* @param {string} method String specifying the used HTTP method. The following methods are available: 
+* <ul>
+* <li>GET: Sending a GET request, for example, for querying a HTML file. </li>
+* <li>PUT: Sending data to the HTTP server. The data must be passed in the send() call. The URI represents the name under which the data should be stored. Under this name, the data are then normally retrievable. </li>
+* <li>POST: Sending data to the HTTP server. The data must be passed in the send() call. The URI represents the name of the consumer of the data. </li>
+* <li>DELETE: Sending a DELETE request. </li>
+* </ul>
+* 
 * @param {string} url String containing the URL for this request. 
-* @param {boolean} [async] Optional flag indicating whether to handle the request asynchronously. In this case the operation send() returns immediately, in other word, it will not be waiting until a response is received. Asynchronous sending is only possible, when XMLHTTPRequest.canAsync returns true. If asynchronous sending is not possible, this flag will be ignored. For an asynchronous request you can use XMLHTTPRequest.readyState to get the current state of the request. 
+* @param {boolean} [async] Optional flag indicating whether to handle the request asynchronously. In this case the operation send() returns immediately, in other word, it will not be waiting until a response is received. Asynchronous sending is only possible, when XMLHTTPRequest.canAsync returns <code>true</code>. If asynchronous sending is not possible, this flag will be ignored. For an asynchronous request you can use XMLHTTPRequest.readyState to get the current state of the request. 
 * @param {string} [user] Optional user name must be specified only if the HTTP server requires authentication. 
 * @param {string} [passwd] Optional password must also be specified only if the HTTP server requires authentication. 
-* @returns {boolean} true if the request was successfully initialized, false in case of any error. 
+* @returns {boolean} <code>true</code> if the request was successfully initialized, <code>false</code> in case of any error. 
 * @since DOCUMENTS 4.0
 * @see [XMLHTTPRequest.send,XMLHTTPRequest.canAsync]{@link XMLHTTPRequest#send,XMLHTTPRequest#canAsync} 
 * @example
@@ -9863,14 +11841,61 @@
 * var async = false;
 * var url = "http://localhost:11001/";
 * xmlHttp.open("GET", url + "?wsdl", async);
+* xmlHttp.send();
 **/
 /**
 * @memberof XMLHTTPRequest
 * @function send
 * @instance
 * @summary Send the request to the HTTP server. 
-* @description The request must be prepared via open() before.
+* @description The request must be prepared via <code>open()</code> before.
+* 
+* Note: The request must be initialized via open() before. You can use XMLHTTPRequest.readyState to get the current state of an asynchronous request. The properties XMLHTTPRequest.status and XMLHTTPRequest.statusText return the status of the completed request while using getResponseHeader() and XMLHTTPRequest.response the actual result of the request can be retrieved. An asynchronous request can be canceled using abort().
+* Note: The type of the content parameter can be one of the following: String, ArrayBuffer, File. Caution: all other types will be converted to a string! Given a conventional array, the function will only send a string like "[object Array]". 
+* 
+*  About files 
+* 
+* Passed files must be opened in binary read mode. If the file is not rewindable (a named pipe, for instance), the property FileSizeHint should be set before sending. The property is useful to supress an automatic length scan. The function implicitly closes the File object, though the file may remain open for asynchronous operation. When an asynchronous request is completed, its associated files become closed outside the JavaScript environment. 
+*  About Arraybuffers 
+* 
+* Passing a TypedArray (UInt8Array, Int16Array etc.) instead of an ArrayBuffer is possible, but not recommended. The actual implementation always sends the complete associated buffer. The result can be unexpected, if the TypedArray covers only a section of a bigger buffer. This behaviour might change in future releases.
+* Since DOCUMENTS 5.0c (Support for sending File and ArrayBuffer)
 * @param {string} [content] 
 * @returns {boolean} 
-
+* @since DOCUMENTS 4.0 
+* @see [XMLHTTPRequest.open,FileSizeHint]{@link XMLHTTPRequest#open,FileSizeHint} 
+* @example
+* var xmlHttp = new XMLHTTPRequest();
+* var async = false;
+* if (xmlHttp.canAsync)
+*    async = true;
+* var url = "http://localhost:11001/";
+* xmlHttp.open("GET", url + "?wsdl", async);
+* xmlHttp.send(null);
+* if (async) {
+*    while(xmlHttp.status != xmlHttp.COMPLETED) {
+*       util.sleep(500);  // sleep 500 ms
+*    }
+* }
+* util.out(xmlHttp.status);  // should be 200
+* @example
+* var file = new File("E:\\test\\Lighthouse.jpg", "rb");
+* if(!file || !file.ok())
+*     throw "File not found";
+* var req = new XMLHTTPRequest();
+* var url = "http://localhost:8080/myUploadServlet";
+* req.open("PUT", url, false);
+* 
+* // Uncomment the following instruction to suppress the
+* // "100-continue" communication cycle, if the target server
+* // does not support it. This might also speed up very little
+* // uploads. Otherwise better keep the default behaviour.
+* // req.addRequestHeader("Expect", " ");
+* 
+* req.addRequestHeader("Filename", "Lighthouse.jpg");
+* req.send(file);
+* util.out(req.status);
+* util.out(req.response);
+* // No need to close file here; send() already did.
+* util.out(req.status);  // should be 200
 **/

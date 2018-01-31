@@ -1627,6 +1627,72 @@ export const mapping = {
   "folderName": [
     "context"
   ],
+  "PEM_MODULE_BUSINESS_UNITS": [
+    "context"
+  ],
+  "PEM_MODULE_CGC": [
+    "context"
+  ],
+  "PEM_MODULE_CGC_ENT": [
+    "context"
+  ],
+  "PEM_MODULE_CGC_ENT_PLUS": [
+    "context"
+  ],
+  "PEM_MODULE_CONTRACT": [
+    "context"
+  ],
+  "PEM_MODULE_CONTRACT_SAP": [
+    "context"
+  ],
+  "PEM_MODULE_CONTROLLING": [
+    "context"
+  ],
+  "PEM_MODULE_CREATOR": [
+    "context"
+  ],
+  "PEM_MODULE_DOC_TREE": [
+    "context"
+  ],
+  "PEM_MODULE_EASYHR": [
+    "context"
+  ],
+  "PEM_MODULE_FP_HENR": [
+    "context"
+  ],
+  "PEM_MODULE_GADGETS": [
+    "context"
+  ],
+  "PEM_MODULE_IMS": [
+    "context"
+  ],
+  "PEM_MODULE_INBOX": [
+    "context"
+  ],
+  "PEM_MODULE_INVOICE": [
+    "context"
+  ],
+  "PEM_MODULE_LDAP": [
+    "context"
+  ],
+  "PEM_MODULE_MOBILE": [
+    "context"
+  ],
+  "PEM_MODULE_OUTLOOK_SYNC": [
+    "context"
+  ],
+  "PEM_MODULE_OUTLOOK_WEB": [
+    "context"
+  ],
+  "PEM_MODULE_REPORTING": [
+    "context"
+  ],
+  "PEM_MODULE_RISK_MANAGEMENT": [
+    "context"
+  ],
+  "PEM_MODULE_WORDML": [
+    "context"
+  ],
   "register": [
     "context"
   ],
@@ -1818,6 +1884,9 @@ export const mapping = {
     "context"
   ],
   "getXMLServer": [
+    "context"
+  ],
+  "hasPEMModule": [
     "context"
   ],
   "sendTCPStringRequest": [

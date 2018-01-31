@@ -7,6 +7,7 @@
 declare class AccessProfile {
     /**
      * If an access profile with the profile name already exist, the method return the existing access profile.
+     * Since ELC 3.50b / otrisPORTAL 5.0b
      * @param nameAccessProfile
      */
     constructor(nameAccessProfile: string);
@@ -23,6 +24,7 @@ declare class AccessProfile {
     addCustomProperty(name: string, type: string, value: string): CustomProperty;
 
     /**
+     * @description
      * Note: This function is only for experts. Knowledge about the ELC-database schema is necessary!
      * @param attribute String containing the name of the desired attribute
      */
@@ -37,17 +39,25 @@ declare class AccessProfile {
     getLastError(): string;
 
     /**
+     * @description
      * Since DOCUMENTS 5.0 (new parameter oidLow)
      * @param [oidLow] Optional flag:
-     * If true only the id of the filetype object (m_oid) will be returned.
-     * If false the id of the filetype object will be returned together with the id of the corresponding class in the form class-id:m_oid.
-     * The default value is false.
+     * If <code>true</code> only the id of the filetype object (<code>m_oid</code>) will be returned.
+     * If <code>false</code> the id of the filetype object will be returned together with the id of the corresponding class in the form <code>class-id:m_oid</code>.
+     * The default value is <code>false</code>.
      */
     getOID(oidLow?: boolean): string;
 
-    getSystemUsers(): SystemUserIterator;
+    /**
+     * @description
+     * Since DOCUMENTS 5.0c HF2 (new parameters includeLockedUsers and includeInvisibleUsers)
+     * @param [includeLockedUsers] Optional flag indicating whether locked users also should be returned. The default value is <code>true</code>.
+     * @param [includeInvisibleUsers] Optional flag indicating whether the method also should return users for which the option "Display user in DOCUMENTS lists" in the Documents Manager is not checkmarked. The default value is <code>true</code>.
+     */
+    getSystemUsers(includeLockedUsers?: boolean, includeInvisibleUsers?: boolean): SystemUserIterator;
 
     /**
+     * @description
      * Note: This function is only for experts. Knowledge about the ELC-database schema is necessary!
      * @param attribute String containing the name of the desired attribute
      * @param value String containing the desired value of the attribute
@@ -77,14 +87,14 @@ declare interface AccessProfileIterator {
 declare interface ArchiveConnection {
     id: string;
     /**
-     * With this method you can download an attachment from the EASYWARE ENTERPRISE archive using the XML-Server. The method returns an object of the class ArchiveConnectionBlob. This object allows you to access the attachment. If the method fails the return value is NULL. You can retrieve the error message by executing ArchiveConnection.getLastError().
+     * With this method you can download an attachment from the EASYWARE ENTERPRISE archive using the XML-Server. The method returns an object of the class <code>ArchiveConnectionBlob</code>. This object allows you to access the attachment. If the method fails the return value is NULL. You can retrieve the error message by executing <code>ArchiveConnection.getLastError()</code>.
      * Note: Method is only available for EE.x using XML-Server
      * @param fileKey String containing the key of the file
      * @param docKey String containing the key of the attachment
      */
     downloadBlob(fileKey: string, docKey: string): ArchiveConnectionBlob;
     /**
-     * This method allows downloading multiple attachments from the EASYWARE ENTERPRISE archive using the XML-Server. The method returns an object of the class ArchiveConnectionBlobIterator. This object allows you to access the attachments. If the method fails the return value is NULL. You can retrieve the error message by executing ArchiveConnection.getLastError().
+     * This method allows downloading multiple attachments from the EASYWARE ENTERPRISE archive using the XML-Server. The method returns an object of the class <code>ArchiveConnectionBlobIterator</code>. This object allows you to access the attachments. If the method fails the return value is NULL. You can retrieve the error message by executing <code>ArchiveConnection.getLastError()</code>.
      * Note: Method is only available for EE.x using XML-Server
      * @param fileKey String Array containing the keys of the files
      * @param docKey String Array containing the keys of the attachments
@@ -92,6 +102,9 @@ declare interface ArchiveConnection {
     downloadBlobs(fileKey: string, docKey: string): ArchiveConnectionBlobIterator;
     getLastError(): string;
     /**
+     * This method performs a "putblob" request to an installed EASY XML-Server.
+     * Note: You may use util.getUniqueId() to create a blobreference. However this may be not unique enough, if several portal servers are connected to the same XML-server in this way.
+     * Note: Method is only available for EE.x using XML-Server
      * @param doc
      * @param blobreference
      */
@@ -106,7 +119,7 @@ declare interface ArchiveConnection {
     queryRawEEx(eql: string, wantedHits?: number, maxHits?: number): string;
     /**
      * With this method you can send a GET or a POST request to an EBIS interface. If the request succeeds, the return value is the HTTP-content of the response. Otherwise the function returns an empty String. Call ArchiveConnection.getLastError() subsequently to test for eventual errors. If the interface reports an error, it will be prefixed with "[EBIS] ".
-     * Remark: The function is unable to handle a response with binary data. The function does not check the parameters for illegal characters, such as linefeeds in the extraHeaders, for example.
+     * Note: The function is unable to handle a response with binary data. The function does not check the parameters for illegal characters, such as linefeeds in the extraHeaders, for example.
      * Note: Method is only available for EBIS
      * @param resourceIdentifier String containing the REST resource identifier (in other words: the back part of the URL).
      * @param [postData] A optional String with content data of a HTTP-POST request. If the parameter is missing or empty, the function generates a GET request.
@@ -122,24 +135,33 @@ declare interface ArchiveConnection {
 }
 
 /**
- * This class holds data like name, extension, size etc. of attachments in the archive. The existance of an object means, that an attachment exists in the archive. If you want to access the attachment (blob) itself in the PortalServer, you have to download the attachment from the archive with the ArchiveConnectionBlob.download() method. Then the attachment will be transferred to the PortalServer machine (localPath).
+ * This class holds data like name, extension, size etc. of attachments in the archive. The existance of an object means, that an attachment exists in the archive. If you want to access the attachment (blob) itself in the PortalServer, you have to download the attachment from the archive with the <code>ArchiveConnectionBlob.download()</code> method. Then the attachment will be transferred to the PortalServer machine (localPath).
  * Note: You can not create objects of this class. Objects of this class are available only as return value of other functions, e.g. ArchiveConnection.downloadBlob(String fileKey, String docKey).
  * Note: Class is only available for an ArchiceConnection to a XML-Server
  */
 declare interface ArchiveConnectionBlob {
+    /**
+     * This property contains the filesize of the attachment in bytes (83605).
+     */
     bytes: number;
     docKey: string;
     /**
-     * If the attachment in the archive is locally available at the PortalServer's file system, this value is true.
+     * If the attachment in the archive is locally available at the PortalServer's file system, this value is <code>true</code>.
      */
     downloaded: boolean;
     fileKey: string;
     /**
-     * This path is only available if the attribute ArchiveConnectionBlob.downloaded is true
+     * This path is only available if the attribute <code>ArchiveConnectionBlob.downloaded</code> is <code>true</code>
      */
     localPath: string;
+    /**
+     * This property contains the mime-type of the attachment, e.g image/jpeg.
+     */
     mimeType: string;
     name: string;
+    /**
+     * This property contains the filesize of the attachment in as readable way (81.6 KB).
+     */
     size: string;
     download(): boolean;
     getLastError(): string;
@@ -160,12 +182,12 @@ declare interface ArchiveConnectionBlobIterator {
  */
 declare class ArchiveFileResultset {
     /**
-     * Like in other programming languages you create a new object with the new operator (refer to example below).
+     * Like in other programming languages you create a new object with the <code>new</code> operator (refer to example below).
      * Note: Important: The resultset may contain less hits than really exist. For EE.i and EE.x the limit of returned hits is the value of the DOCUMENTS property "MaxArchiveHitsFolder". If the property is not set, the limit is the XML-Server's default hit count. For EAS, The limit is either the "MaxArchiveHitsFolder" value or the limit of free research hitlists. The method is the same for dynamic folders and link-registers.
      * @param archiveKey String containing the key of the desired view or archive
      * @param filter String containing an filter criterium; use empty String ('') if you don't want to filter at all
      * @param sortOrder String containing an sort order; use empty String ('') if you don't want to sort at all
-     * @param hitlist String containing the hitlist that you want to use (optional fÃ¼r EE.i / mandatory for EE.x
+     * @param hitlist String containing the hitlist that you want to use (optional für EE.i / mandatory for EE.x
      * @param [unlimitedHits] boolean that indicates if the archive hit limit must be ignored
      */
     constructor(archiveKey: string, filter: string, sortOrder: string, hitlist: string, unlimitedHits?: boolean);
@@ -189,6 +211,7 @@ declare interface ArchiveServer {
      */
     getArchiveConnection(): ArchiveConnection;
     /**
+     * @description
      * Note: This function is only for experts. Knowledge about the DOCUMENTS-database schema is necessary!
      * @param attribute String containing the name of the desired attribute
      */
@@ -196,12 +219,13 @@ declare interface ArchiveServer {
     getLastError(): string;
     /**
      * @param [oidLow] Optional flag:
-     * If true only the id of the filetype object (m_oid) will be returned.
-     * If false the id of the filetype object will be returned together with the id of the corresponding class in the form class-id:m_oid.
-     * The default value is false.
+     * If <code>true</code> only the id of the filetype object (<code>m_oid</code>) will be returned.
+     * If <code>false</code> the id of the filetype object will be returned together with the id of the corresponding class in the form <code>class-id:m_oid</code>.
+     * The default value is <code>false</code>.
      */
     getOID(oidLow?: boolean): string;
     /**
+     * @description
      * Note: This function is only for experts. Knowledge about the DOCUMENTS-database schema is necessary!
      * @param attribute String containing the name of the desired attribute
      * @param value String containing the desired value of the attribute
@@ -223,11 +247,14 @@ declare interface ArchiveServerIterator {
 /**
  * The ArchivingDescription class has been added to the DOCUMENTS PortalScripting API to improve the archiving process of DOCUMENTS files by scripting means. 
  * For instance this allows to use different target archives for each file as well as to influence the archiving process by the file's contents itself. The ArchivingDescription object can only be used as parameter for the method DocFile.archive(ArchivingDescription)
- * Note: By default, archiving with an ArchivingDescription does not include any attachments. To archive some attachments, the script needs to call addRegister() on this object.
+ * Note: By default, archiving with an ArchivingDescription does not include any attachments. To archive some attachments, the script needs to call addRegister() on this object. 
+ * Since EE.x: ELC 3.60a / otrisPORTAL 6a 
+ * Since EAS: ELC 4 / otrisPORTAL 7
  */
 declare class ArchivingDescription {
     /**
-     * Like in other programming languages you create a new object with the new operator (refer to example below).
+     * Like in other programming languages you create a new object with the <code>new</code> operator (refer to example below).
+     * Since EE.i: ELC 3.51c / otrisPORTAL 5.1c
      * Since EE.x: ELC 3.60a / otrisPORTAL 6a
      * Since EAS: ELC 4 / otrisPORTAL 7
      */
@@ -235,13 +262,23 @@ declare class ArchivingDescription {
 
     /**
      * Like on the filetype in the Portal Client you may decide whether you want to archive the monitor of the file along with the file. If so, the file's monitor will be transformed to a HTML file named monitor.html, and it will be part of the archived file in the desired target archive.
+     * Since EE.x: ELC 3.60a / otrisPORTAL 6a
+     * Since EAS: ELC 4 / otrisPORTAL 7
      */
     archiveMonitor: boolean;
 
+    /**
+     * You need to define the archive server if you want to archive in an archive server that is different from the main archives server. If you want to archive into the main archive you can leave this value empty.
+     * Note: This value has only to be set if you habe multiple archive servers
+     * Since EE.x: ELC 4 / otrisPORTAL 7
+     * Since EAS: ELC 4 / otrisPORTAL 7
+     */
     archiveServer: string;
 
     /**
      * Like on the filetype in the Portal Client you may decide whether you want to archive the status of the file along with the file. If so, the file's status will be transformed to a HTML file named status.html, and it will be part of the archived file in the desired target archive.
+     * Since EE.x: ELC 3.60a / otrisPORTAL 6a
+     * Since EAS: ELC 4 / otrisPORTAL 7
      */
     archiveStatus: boolean;
 
@@ -265,6 +302,8 @@ declare class ArchivingDescription {
 
     /**
      * If the DocFile has already been archived and if you define this attribute to be true, a new version of the archive file will be created otherwise a independent new file in the archive will be created.
+     * Since EE.x: ELC 3.60a / otrisPORTAL 6a
+     * Since EAS: ELC 4 / otrisPORTAL 7
      */
     versioning: boolean;
 
@@ -279,7 +318,7 @@ declare class ArchivingDescription {
 }
 
 /**
- * There is exactly ONE implicit object of the class Context which is named context. The implicit object context is the root object in any script. With the context object you are able to access to the different DOCUMENTS objects like DocFile, Folder etc. Some of the attributes are only available under certain conditions. It depends on the execution context of the PortalScript, whether a certain attribute is accessible or not. For example, context.selectedFiles is available in a folder userdefined action script, but not in a script used as a signal exit.
+ * There is exactly ONE implicit object of the class <code>Context</code> which is named <code>context</code>. The implicit object <code>context</code> is the root object in any script. With the <code>context</code> object you are able to access to the different DOCUMENTS objects like DocFile, Folder etc. Some of the attributes are only available under certain conditions. It depends on the execution context of the PortalScript, whether a certain attribute is accessible or not. For example, <code>context.selectedFiles</code> is available in a folder userdefined action script, but not in a script used as a signal exit.
  * Note: It is not possible to create objects of the class Context, since the context object is always available.
  */
 declare namespace context {
@@ -296,6 +335,7 @@ declare namespace context {
     var currentUser: string;
 
     /**
+     * @description
      * Note: This property is readonly. If the script is not executed in a document context then the return value is null.
      */
     var document: Document;
@@ -310,36 +350,38 @@ declare namespace context {
      * According to the context where the portal script has been called this property contains a key name for this event.
      * The following events are available:
      * <ul>
-     * <li>"afterMail"</li>
-     * <li>"afterSave"</li>
-     * <li>"attributeSetter"</li>
-     * <li>"autoText"</li>
-     * <li>"condition"</li>
-     * <li>"custom"</li>
-     * <li>"fileAction"</li>
-     * <li>"folderAction"</li>
-     * <li>"moveTrash"</li>
-     * <li>"newFile"</li>
-     * <li>"onAutoLogin"</li>
-     * <li>"onArchive"</li>
-     * <li>"onDelete"</li>
-     * <li>"onDeleteAll"</li>
-     * <li>"onEdit"</li>
-     * <li>"onLogin"</li>
-     * <li>"onSave"</li>
-     * <li>"test"</li>
-     * <li>"workflow"</li>
+     * <li><code>"afterMail"</code></li>
+     * <li><code>"afterSave"</code></li>
+     * <li><code>"attributeSetter"</code></li>
+     * <li><code>"autoText"</code></li>
+     * <li><code>"condition"</code></li>
+     * <li><code>"custom"</code></li>
+     * <li><code>"fileAction"</code></li>
+     * <li><code>"folderAction"</code></li>
+     * <li><code>"moveTrash"</code></li>
+     * <li><code>"newFile"</code></li>
+     * <li><code>"onAutoLogin"</code></li>
+     * <li><code>"onArchive"</code></li>
+     * <li><code>"onDelete"</code></li>
+     * <li><code>"onDeleteAll"</code></li>
+     * <li><code>"onEdit"</code></li>
+     * <li><code>"onLogin"</code></li>
+     * <li><code>"onSave"</code></li>
+     * <li><code>"test"</code></li>
+     * <li><code>"workflow"</code></li>
      * </ul>
      * Note: This property is readonly.
      */
     var event: string;
 
     /**
+     * @description
      * Note: This property is readonly.
      */
     var fieldName: string;
 
     /**
+     * @description
      * Note: This property is readonly. If the script is not executed in a file context then the return value is null.
      */
     var file: DocFile;
@@ -363,6 +405,7 @@ declare namespace context {
     var folderName: string;
 
     /**
+     * @description
      * Note: This property is readonly. If the script is not executed in a register context then the return value is null.
      */
     var register: Register;
@@ -371,21 +414,23 @@ declare namespace context {
      * User defined actions attached to a file or a folder allow to influence the behaviour of the Web-Client. As soon as you define a return type you explicitely have to return a value.
      * The following types of return values are available:
      * <ul>
-     * <li>"html" - The return value contains html-content. </li>
-     * <li>"stay" - The continues to display the current file (this is the default behaviour). </li>
-     * <li>"showFile" - The return value contains the file-id and optional the register-id of a file to be displayed after the script has been executed. Syntax: file-id[&dlcRegisterId=register-id]. </li>
-     * <li>"showFolder" - The return value contains the folder-id of a folder to be displayed. </li>
-     * <li>"updateTree" - The return value contains the folder-id of a folder to be displayed. The folder tree will be updated as well. </li>
-     * <li>"showNewFile" - The return value contains the file-id of a file to be displayed. This file will automatically open in edit mode and will be deleted at cancellation by the user. </li>
-     * <li>"showEditFile" - The return value contains the file-id of a file to be displayed. This file will automatically open in edit mode. </li>
-     * <li>"file:filename" - The web user will be asked to download the content of the return value (usually a String variable) to his client computer; The filename filename will be proposed as a default. </li>
-     * <li>"download:filename" - The web user will be asked to download the blob, that is specified in the return value (server-sided path to the blob), to his client computer; The filename filename will be proposed as a default.</li>
+     * <li><code>"html"</code> - The return value contains html-content. </li>
+     * <li><code>"stay"</code> - The continues to display the current file (this is the default behaviour). </li>
+     * <li><code>"showFile"</code> - The return value contains the file-id and optional the register-id of a file to be displayed after the script has been executed. Syntax: <code>file-id[&dlcRegisterId=register-id]</code>. </li>
+     * <li><code>"showFolder"</code> - The return value contains the folder-id of a folder to be displayed. </li>
+     * <li><code>"updateTree"</code> - The return value contains the folder-id of a folder to be displayed. The folder tree will be updated as well. </li>
+     * <li><code>"showNewFile"</code> - The return value contains the file-id of a file to be displayed. This file will automatically open in edit mode and will be deleted at cancellation by the user. </li>
+     * <li><code>"showEditFile"</code> - The return value contains the file-id of a file to be displayed. This file will automatically open in edit mode. </li>
+     * <li><code>"file:filename"</code> - The web user will be asked to download the content of the return value (usually a String variable) to his client computer; The filename <code>filename</code> will be proposed as a default. </li>
+     * <li><code>"download:filename"</code> - The web user will be asked to download the blob, that is specified in the return value (server-sided path to the blob), to his client computer; The filename <code>filename</code> will be proposed as a default.</li>
      * </ul>
      * Note: You may read from and write to this property.
+     * Since DOCUMENTS 4.0c showFile with return value of file-id and register-id
      */
     var returnType: string;
 
     /**
+     * @description
      * Note: This property is readonly.
      */
     var scriptName: string;
@@ -421,25 +466,33 @@ declare namespace context {
     var sourceCode: string;
 
     /**
+     * @description
      * Note: This property is readonly.
      */
     var workflowActionId: string;
 
     /**
+     * @description
      * Note: This property is readonly.
      */
     var workflowActionName: string;
 
     /**
+     * @description
      * Note: This property is readonly.
      */
     var workflowControlFlowId: string;
 
     /**
+     * @description
      * Note: This property is readonly.
      */
     var workflowControlFlowName: string;
 
+    /**
+     * E.g. as guard or decision script.
+     * Note: This property is readonly.
+     */
     var workflowStep: string;
 
     /**
@@ -450,11 +503,17 @@ declare namespace context {
     function addCustomProperty(name: string, type: string, value: string): CustomProperty;
 
     /**
-     * Since date manipulation in Javascript is odd sometimes, this useful function allows to conveniently add a given period of time to a given date, e.g. to calculate a due date based upon the current date plus xx days
+     * Since date manipulation in Javascript is odd sometimes, this useful function allows to conveniently add a given period of time to a given date, e.g. to calculate a due date based upon the current date plus <code>xx</code> days
      * @param ts Date object to which the period of time should be added
      * @param amount integer value of the period of time to be added
-     * @param [unit] String value representing the time unit of the period of time. You may use one of the following unit values: "minutes""hours""days""weeks"
-     * @param [useWorkCalendar] true if work calendar should be taken into account, false if not. The work calendar has to be defined at Documents->Settings
+     * @param [unit] String value representing the time unit of the period of time. You may use one of the following unit values:
+     * <ul>
+     * <li><code>"minutes"</code></li>
+     * <li><code>"hours"</code></li>
+     * <li><code>"days"</code></li>
+     * <li><code>"weeks"</code></li>
+     * </ul>
+     * @param [useWorkCalendar] <code>true</code> if work calendar should be taken into account, <code>false</code> if not. The work calendar has to be defined at Documents->Settings
      */
     function addTimeInterval(ts: Date, amount: number, unit?: string, useWorkCalendar?: boolean): Date;
 
@@ -463,11 +522,6 @@ declare namespace context {
      * @param login String value containing the login name of the user to switch to
      */
     function changeScriptUser(login: string): boolean;
-
-    /**
-     * @param scriptName String with the name of the PortalScript
-     */
-    function clearEnumvalCache(scriptName: string): boolean;
 
     /**
      * The output String is in the date format of the specified locale. If you leave the locale parameter away the current locale of the script context will be used.
@@ -495,8 +549,8 @@ declare namespace context {
 
     /**
      * The output Date is in the date format of the specified locale. If you omit the locale parameter the current locale of the script context will be used.
-     * @param dateOrTimeStamp String representing a date, e.g. "19.09.1974"
-     * @param locale
+     * @param dateOrTimeStamp String representing a date has to be formatted as the definition in the specified locale, e.g. "TT.MM.JJJJ" for the locale "de".
+     * @param locale Optional String value with the locale abbreviation (according to the principal's configuration).
      */
     function convertStringToDate(dateOrTimeStamp: string, locale: string): Date;
 
@@ -516,6 +570,7 @@ declare namespace context {
     function convertStringToNumeric(numericValue: string, locale?: string): number;
 
     /**
+     * @description
      * Note: This function is only for experts.
      * @param fileType the technical name of the desired filetype
      */
@@ -530,11 +585,11 @@ declare namespace context {
     /**
      * This function creates a new ArchiveServer for the specified archive software on the top level. These types are available:
      * <ul>
-     * <li>EEI</li>
-     * <li>EEX_native</li>
-     * <li>EBIS_store</li>
-     * <li>NOAH</li>
-     * <li>None</li>
+     * <li><code>EEI</code></li>
+     * <li><code>EEX_native</code></li>
+     * <li><code>EBIS_store</code></li>
+     * <li><code>NOAH</code></li>
+     * <li><code>None</code></li>
      * </ul>
      * @param name The technical name of the ArchiveServer to be created.
      * @param type The desired archive software of the ArchiveServer.
@@ -542,18 +597,19 @@ declare namespace context {
     function createArchiveServer(name: string, type: string): ArchiveServer;
 
     /**
+     * @description
      * Note: The license type "shared" is only available for pure archive retrieval users. It is not possible to create a shared user with DOCUMENTS access!
      * Since DOCUMENTS 4.0d HF3 / DOCUMENTS 5.0 (new licenseType "concurrent_standard", "concurrent_open")
      * @param loginName login of the fellow
      * @param isDlcUser automatically grant DOCUMENTS access (true/false)
-     * @param [licenseType] optional definition of the license type for that user (allowed values are "named", "concurrent_standard", "concurrent_open" and "shared" (deprecated: "concurrent")
+     * @param [licenseType] optional definition of the license type for that user (allowed values are <code>"named"</code>, <code>"concurrent_standard"</code>, <code>"concurrent_open"</code> and <code>"shared"</code> (deprecated: <code>"concurrent"</code>)
      */
     function createFellow(loginName: string, isDlcUser: boolean, licenseType?: string): SystemUser;
 
     /**
      * This function creates a new file of the given filetype. Since the script is executed in the context of a particular user, it is mandatory that user possesses sufficient access privileges to create new instances of the desired filetype, otherwise the method will fail.
-     * If an error occurs during creation of the file the return value will be null and you can access an error message describing the error with getLastError().
-     * Remark:  DOCUMENTS 5.0c HF1 and newer:  The function directly creates a file for an EAS or EBIS store, if "@server" has been appended to the filetype's name and if appropriate permissions are granted. In this case the returned DocFile must be saved with DocFile.commit() instead of DocFile.sync().
+     * If an error occurs during creation of the file the return value will be <code>null</code> and you can access an error message describing the error with getLastError().
+     * Note:  DOCUMENTS 5.0c HF1 and newer:  The function directly creates a file for an EAS or EBIS store, if "@server" has been appended to the filetype's name and if appropriate permissions are granted. In this case the returned DocFile must be saved with DocFile.commit() instead of DocFile.sync().
      * Since DOCUMENTS 5.0c HF1 (support for EDA/EAS and EBIS stores)
      * @param fileType Name of the filetype
      */
@@ -562,9 +618,9 @@ declare namespace context {
     /**
      * This function creates a new folder of the specified type on the top level. There are three types available:
      * <ul>
-     * <li>public</li>
-     * <li>dynamicpublic</li>
-     * <li>onlysubfolder</li>
+     * <li><code>public</code></li>
+     * <li><code>dynamicpublic</code></li>
+     * <li><code>onlysubfolder</code></li>
      * </ul>
      * @param name The technical name of the folder to be created.
      * @param type The desired type of the folder.
@@ -578,11 +634,12 @@ declare namespace context {
     function createPoolFile(fileType: string): boolean;
 
     /**
+     * @description
      * Note: The license type "shared" is only available for pure archive retrieval users. It is not possible to create a shared user with DOCUMENTS access!
      * Since DOCUMENTS 4.0d HF3 / DOCUMENTS 5.0 (new licenseType "concurrent_standard", "concurrent_open")
      * @param loginName login of the user
      * @param isDlcUser automatically grant DOCUMENTS access (true/false)
-     * @param [licenseType] optional definition of the license type for that user (allowed values are "named", "concurrent" and "shared")
+     * @param [licenseType] optional definition of the license type for that user (allowed values are <code>"named"</code>, <code>"concurrent"</code> and <code>"shared"</code>)
      */
     function createSystemUser(loginName: string, isDlcUser: boolean, licenseType?: string): SystemUser;
 
@@ -602,15 +659,10 @@ declare namespace context {
     function deleteSystemUser(loginName: string): boolean;
 
     /**
-     * @param operationName String with the name of the maintenance operation
-     */
-    function doMaintenance(operationName: string): string;
-
-    /**
      * In the context of a work directory, an external command shell call is executed, usually a batch file. You can decide whether the scripting engine must wait for the external call to complete or whether the script execution continues asynchonously. If the script waits for the external call to complete, this method returns the errorcode of the external call as an integer value.
      * @param workDir String containing a complete directory path which should be used as the working directory
      * @param cmd String containing the full path and filename to the batch file which shall be executed
-     * @param synced boolean value which defines whether the script must wait for the external call to finish (true) or not (false)
+     * @param synced boolean value which defines whether the script must wait for the external call to finish (<code>true</code>) or not (<code>false</code>)
      */
     function extCall(workDir: string, cmd: string, synced: boolean): boolean;
 
@@ -631,18 +683,19 @@ declare namespace context {
     function findCustomProperties(filter: string): CustomPropertyIterator;
 
     /**
-     * If the user does not exist, then the return value will be null.
+     * If the user does not exist, then the return value will be <code>null</code>.
      * @param login name of the user
      */
     function findSystemUser(login: string): SystemUser;
 
     /**
-     * If the alias does not exist or is not connected to a user then the return value will be null.
+     * If the alias does not exist or is not connected to a user then the return value will be <code>null</code>.
      * @param alias technical name of the desired alias
      */
     function findSystemUserByAlias(alias: string): SystemUser;
 
     /**
+     * @description
      * Note: This method can only return access profiles which are checkmarked as being visible in DOCUMENTS lists.
      * Since ELC 3.60e / otrisPORTAL 6.0e (new parameter includeInvisibleProfiles)
      * @param [includeInvisibleProfiles] optional boolean value to define, if access profiles that are not checkmarked as being visible in DOCUMENTS lists should be included
@@ -682,9 +735,9 @@ declare namespace context {
 
     /**
      * You can analyze the connection info to identify e.g. a client thread of the HTML5 Web-Client
-     * HTML5-Client:CL[Windows7/Java1.7.0_76],POOL[SingleConnector],INF[SID[ua:docsclient,dca:2.0,docs_cv:5.0]]
-     * Classic-Client:CL[Windows7/Java1.7.0_76],POOL[SingleConnector]
-     * SOAP-Client:Documents-SOAP-Proxy(In-Server-Client-Library)onWin32
+     * HTML5-Client:   CL[Windows 7/Java 1.7.0_76], POOL[SingleConnector], INF[SID[ua:docsclient, dca:2.0, docs_cv:5.0]]
+     * Classic-Client: CL[Windows 7/Java 1.7.0_76], POOL[SingleConnector]
+     * SOAP-Client:    Documents-SOAP-Proxy (In-Server-Client-Library) on Win32
      */
     function getClientType(): string;
 
@@ -703,7 +756,7 @@ declare namespace context {
      * This function calculates the time difference between two Date objects, for example if you need to know how many days a business trip takes. By default this function takes the work calendar into account if it is configured and enabled for the principal.
      * @param earlierDate Date object representing the earlier date
      * @param laterDate Date object representing the later date
-     * @param [unit] optional String value defining the unit, allowed values are "minutes", "hours" and "days" (default)
+     * @param [unit] optional String value defining the unit, allowed values are <code>"minutes"</code>, <code>"hours"</code> and <code>"days"</code> (default)
      * @param [useWorkCalendar] optional boolean to take office hours into account or not (requires enabled and configured work calendar)
      */
     function getDatesDiff(earlierDate: Date, laterDate: Date, unit?: string, useWorkCalendar?: boolean): number;
@@ -738,7 +791,7 @@ declare namespace context {
     function getFieldErgName(fileType: string, field: string, locale: string): string;
 
     /**
-     * If the file does not exist or the user in whose context the script is executed is not allowed to access the file, then the return value will be null.
+     * If the file does not exist or the user in whose context the script is executed is not allowed to access the file, then the return value will be <code>null</code>.
      * @param idFile Unique id of the file
      */
     function getFileById(idFile: string): DocFile;
@@ -753,9 +806,9 @@ declare namespace context {
     /**
      * @param nameFiletype String value containing the technical name of the filetype.
      * @param [oidLow] Optional flag:
-     * If true only the id of the filetype object (m_oid) will be returned.
-     * If false the id of the filetype object will be returned together with the id of the corresponding class in the form class-id:m_oid.
-     * The default value is false.
+     * If <code>true</code> only the id of the filetype object (<code>m_oid</code>) will be returned.
+     * If <code>false</code> the id of the filetype object will be returned together with the id of the corresponding class in the form <code>class-id:m_oid</code>.
+     * The default value is <code>false</code>.
      */
     function getFileTypeOID(nameFiletype: string, oidLow?: boolean): string;
 
@@ -766,9 +819,9 @@ declare namespace context {
     function getFolderPosition(folder: Folder): number;
 
     /**
-     * Different folders might match an identical pattern, e.g. "DE_20*" for each folder like "DE_2004", "DE_2005" and so on. If you need to perform some action with the different folders or their contents, it might be useful to retrieve an iterator (a list) of all these folders to loop through that list.
+     * Different folders might match an identical pattern, e.g. <code>"DE_20*"</code> for each folder like <code>"DE_2004"</code>, <code>"DE_2005"</code> and so on. If you need to perform some action with the different folders or their contents, it might be useful to retrieve an iterator (a list) of all these folders to loop through that list.
      * @param folderPattern the name pattern of the desired folder(s)
-     * @param type optional parameter, a String value defining the type of folders to look for; allowed values are "public", "dynamicpublic" and "onlysubfolder"
+     * @param type optional parameter, a String value defining the type of folders to look for; allowed values are <code>"public"</code>, <code>"dynamicpublic"</code> and <code>"onlysubfolder"</code>
      */
     function getFoldersByName(folderPattern: string, type: string): FolderIterator;
 
@@ -785,16 +838,11 @@ declare namespace context {
     function getJSObject(oid: string): object;
 
     /**
+     * @description
      * Note: All classes have their own error functions. Only global errors are available through the context getLastError() method.
      * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files
      */
     function getLastError(): string;
-
-    /**
-     * @param value String with the complete value string
-     * @param [locale] Optional String value with the locale abbreviation (according to the principal's configuration); if omitted, the current user's portal language is used automatically.
-     */
-    function getLocaleValue(value: string, locale?: string): string;
 
     /**
      * @param attributeName the technical name of the desired attribute
@@ -804,7 +852,8 @@ declare namespace context {
     function getProgressBar(): number;
 
     /**
-     * Remark: The return value is null, if the calling script is not running as an "OnSearch" or "FillSearchMask" handler. It can also be null, if the script has called changeScriptUser(). In order to access the search parameters, the script needs to restore the original user context.
+     * @description
+     * Note: The return value is null, if the calling script is not running as an "OnSearch" or "FillSearchMask" handler. It can also be null, if the script has called changeScriptUser(). In order to access the search parameters, the script needs to restore the original user context.
      */
     function getQueryParams(): DocQueryParams;
 
@@ -820,9 +869,10 @@ declare namespace context {
     function getSystemUser(): SystemUser;
 
     /**
+     * @description
      * Note: The method can only return users which are checkmarked as being visible in DOCUMENTS lists.
      * Since DOCUMENTS 4.0c new optional parameter includeLockedUsers
-     * @param [includeLockedUsers] optional defnition, if locked users also should be returned
+     * @param [includeLockedUsers] optional definition, if locked users also should be returned
      */
     function getSystemUsers(includeLockedUsers?: boolean): SystemUserIterator;
 
@@ -837,6 +887,11 @@ declare namespace context {
      * @param archiveServerName Optional string containing the archive server name; If the archive server is not defined, then the main archive server will be used
      */
     function getXMLServer(archiveServerName: string): ArchiveConnection;
+
+    /**
+     * @param moduleConst from PEM Module Constants.
+     */
+    function hasPEMModule(moduleConst: number): Boolean;
 
     /**
      * With this method it is possible to send a String via TCP to a server. The return value of the function is the response of the server. Optional you can define a timeout in ms this function waits for the response of a server
@@ -896,6 +951,7 @@ declare namespace context {
  */
 declare interface ControlFlow {
     /**
+     * @description
      * Note: This property requires a full workflow engine license, it does not work with pure submission lists. The property is readonly.
      */
     id: string;
@@ -905,19 +961,23 @@ declare interface ControlFlow {
      */
     label: string;
     /**
+     * @description
      * Note: This property requires a full workflow engine license, it does not work with pure submission lists. The property is readonly.
      */
     name: string;
     /**
+     * @description
      * Note: This function requires a full workflow engine license, it does not work with pure submission lists.
      * @param attribute String containing the name of the desired attribute
      */
     getAttribute(attribute: string): string;
     /**
+     * @description
      * Note: This function requires a full workflow engine license, it does not work with pure submission lists.
      */
     getLastError(): string;
     /**
+     * @description
      * Note: This function requires a full workflow engine license, it does not work with pure submission lists.
      * @param attribute String containing the name of the desired attribute
      * @param value String containing the desired value of the attribute
@@ -931,14 +991,17 @@ declare interface ControlFlow {
  */
 declare interface ControlFlowIterator {
     /**
+     * @description
      * Note: This function requires a full workflow engine license, it does not work with pure submission lists.
      */
     first(): ControlFlow;
     /**
+     * @description
      * Note: This function requires a full workflow engine license, it does not work with pure submission lists.
      */
     next(): ControlFlow;
     /**
+     * @description
      * Note: This function requires a full workflow engine license, it does not work with pure submission lists.
      */
     size(): number;
@@ -952,6 +1015,7 @@ declare interface ControlFlowIterator {
  * <li>setOrAddCustomProperty() </li>
  * </ul>
  * In the DOCUMENTS-Manager you can find the CustomProperty on the relation-tab properties at the fellow and user account, access profiles and file types. The global custom properties are listed in Documents > Global properties. A global custom property must not belong to a SystemUser, an AccessProfile, a file type and another custom property. All custom properties are located in Documents > All properties.
+ * Since DOCUMENTS 5.0 available for AccessProfile and Context
  */
 declare interface CustomProperty {
     name: string;
@@ -965,7 +1029,7 @@ declare interface CustomProperty {
     addSubProperty(name: string, type: string, value: string): CustomProperty;
     deleteCustomProperty(): boolean;
     /**
-     * Valid attribute names are name, type and value
+     * Valid attribute names are <code>name</code>, <code>type</code> and <code>value</code>
      * @param attribute String containing the name of the desired attribute
      */
     getAttribute(attribute: string): string;
@@ -981,12 +1045,13 @@ declare interface CustomProperty {
      */
     setAccessProfile(nameAccessProfile?: string): boolean;
     /**
-     * Valid attribute names are name, type and value
+     * Valid attribute names are <code>name</code>, <code>type</code> and <code>value</code>
      * @param attribute String containing the name of the desired attribute
      * @param value String containing the desired value of the attribute
      */
     setAttribute(attribute: string, value: string): boolean;
     /**
+     * An empty filetype name disconnects the filetype
      * @param [nameFiletype]
      */
     setFiletype(nameFiletype?: string): boolean;
@@ -1017,9 +1082,10 @@ declare interface CustomPropertyIterator {
  */
 declare class DBConnection {
     /**
-     * The resulting DBConnection object may only be used by one single DBResultSet at once, so if you need to open several DBResultSet objects at the same time, you need a separate DBConnection object for each of them.
+     * The resulting DBConnection object may only be used by <b>one</b> single DBResultSet at once, so if you need to open several DBResultSet objects at the same time, you need a separate DBConnection object for each of them.
      * Note: At the usage of ODBC datasources it depends on the ODBC client driver, if the credentials for the connection has to be specified at the DSN configuration, or as parameter in the DBConnection constructor. If you have specified the credentials (user, password) at the DSN configuration (ODBC data source administrator), then leave the user and password away at the DBConnection constructor.
-     * @param connType String defining the type of database connection. Allowed values are "odbc" and "oracle"
+     * Since ELC 3.50 / otrisPORTAL 5.0
+     * @param connType String defining the type of database connection. Allowed values are <code>"odbc"</code> and <code>"oracle"</code>
      * @param connString String containing the complete connection String; for ODBC connections this is the datasource name (DSN)
      * @param user optional String containing the login name used to authenticate against the external database
      * @param password optional String containing the (plaintext) password of the user utilized to connect to the database
@@ -1027,16 +1093,19 @@ declare class DBConnection {
     constructor(connType: string, connString: string, user: string, password: string);
 
     /**
-     * The resulting DBConnection object may only be used by one single DBResultSet at once, so if you need to open several DBResultSet objects at the same time, you need a separate DBConnection object for each of them.
+     * The resulting DBConnection object may only be used by <b>one</b> single DBResultSet at once, so if you need to open several DBResultSet objects at the same time, you need a separate DBConnection object for each of them.
+     * Since DOCUMENTS 4.0
      */
     constructor();
 
     /**
+     * @description
      * Note: It is strongly recommanded to close each DBConnection object you have created, since database connections are so-called expensive ressources and should be used carefully.
      */
     close(): boolean;
 
     /**
+     * @description
      * Note: This instruction should only be used to SELECT on the external database, since the method always tries to create a DBResultSet. If you need to execute different SQL statements, refer to the DBConnection.executeStatement() method.
      * Note: x64/UTF-8 DOCUMENTS version: since DOCUMENTS 4.0a HF2 the method handles the statement as UTF-8-String
      * @param sqlStatement String containing the SELECT statement you want to execute in the database
@@ -1044,6 +1113,7 @@ declare class DBConnection {
     executeQuery(sqlStatement: string): DBResultSet;
 
     /**
+     * @description
      * Note: This instruction should only be used to SELECT on the external database, since the method always tries to create a DBResultSet. If you need to execute different SQL statements, refer to the DBConnection.executeStatement() method.
      * @param sqlStatement String containing the SELECT statement you want to execute in the database
      */
@@ -1071,7 +1141,7 @@ declare class DBConnection {
  * Note: Important: Please consider the restrictions according the order of reading of the columns of the DBResultSet. Read the example!
  * The following data types for database columns will be supported:
  * <table border=1 cellspacing=0>
- * <tr><td>SQL data type</td><td>access method</td></tr>
+ * <tr><td><b>SQL data type</b></td><td><b>access method</b></td></tr>
  * <tr><td>SQL_INTEGER</td><td>getInt(), getString()</td></tr>
  * <tr><td>SQL_SMALLINT</td><td>getInt(), getString()</td></tr>
  * <tr><td>SQL_BIGINT</td><td>getInt(), getString()</td></tr>
@@ -1086,9 +1156,11 @@ declare class DBConnection {
  * <tr><td>SQL_CHAR</td><td>getString()</td></tr>
  * <tr><td>all other types</td><td>getString()</td></tr>
  * </table>
+ * Since DOCUMENTS 5.0c HF1 (support for SQL_GUID)
  */
 declare interface DBResultSet {
     /**
+     * @description
      * Note: It is strongly recommanded to close each DBResultSet object you have created, since database connections and resultsets are so-called expensive ressources and should be used carefully.
      */
     close(): boolean;
@@ -1101,18 +1173,21 @@ declare interface DBResultSet {
      */
     getColName(colNo: number): string;
     /**
+     * @description
      * Note: The return value will be null if the content of the indicated column cannot be converted to a Date object.
      * Note: every value of a DBResultSet can only be read one time and in the correct order!
      * @param colNo integer value (zero based) indicating the desired column of the current row of the DBResultSet
      */
     getDate(colNo: number): Date;
     /**
+     * @description
      * Note: The return value will be NaN if the content of the indicated column cannot be converted to a float value.
      * Note: every value of a DBResultSet can only be read one time and in the correct order!
      * @param colNo integer value (zero based) indicating the desired column of the current row of the DBResultSet
      */
     getFloat(colNo: number): number;
     /**
+     * @description
      * Note: The return value will be NaN if the content of the indicated column cannot be converted to an integer value.
      * Note: every value of a DBResultSet can only be read one time and in the correct order!
      * @param colNo integer value (zero based) indicating the desired column of the current row of the DBResultSet
@@ -1121,18 +1196,21 @@ declare interface DBResultSet {
     getLastError(): string;
     getNumCols(): number;
     /**
+     * @description
      * Note: x64/UTF-8 DOCUMENTS version: since DOCUMENTS 4.0a HF2 the method transcode the fetched data to UTF-8
      * Note: every value of a DBResultSet can only be read one time and in the correct order!
      * @param colNo integer value (zero based) indicating the desired column of the current row of the DBResultSet
      */
     getString(colNo: number): string;
     /**
+     * @description
      * Note: The return value will be null if the content of the indicated column cannot be converted to a Date object.
      * Note: every value of a DBResultSet can only be read one time and in the correct order!
      * @param colNo integer value (zero based) indicating the desired column of the current row of the DBResultSet
      */
     getTimestamp(colNo: number): Date;
     /**
+     * @description
      * Note: every value of a DBResultSet can only be read one time and in the correct order!
      * @param colNo integer value (zero based) indicating the desired column of the current row of the DBResultSet
      */
@@ -1145,7 +1223,7 @@ declare interface DBResultSet {
 }
 
 /**
- * You may access a single DocFile with the help of the attribute context.file or by creating a FileResultset. There are no special properties available, but each field of a file is mapped to an according property. You can access the different field values with their technical names.
+ * You may access a single DocFile with the help of the attribute <code>context.file</code> or by creating a FileResultset. There are no special properties available, but each field of a file is mapped to an according property. You can access the different field values with their technical names.
  * For this reason it is mandatory to use programming language friendly technical names, meaning
  * <ul>
  * <li>only letters, digits and the underscore "_" are allowed. </li>
@@ -1161,6 +1239,7 @@ declare interface DocFile {
     fieldName: any;
     /**
      * If you switched a file to edit mode with the startEdit() method and if you want to cancel this (e.g. due to some error that has occurred in the mean time) this function should be used to destroy the scratch copy which has been created by the startEdit() instruction.
+     * Internal: since ELC 3.60e available for archive files
      */
     abort(): boolean;
     /**
@@ -1223,6 +1302,7 @@ declare interface DocFile {
     clearFollowUpDate(pUser: SystemUser): boolean;
     /**
      * This method is mandatory to apply changes to a file that has been switched to edit mode with the startEdit() method. It is strictly prohibited to execute the commit() method in a script which is attached to the onSave scripting hook.
+     * Internal: since ELC 3.60e available for archive files
      */
     commit(): boolean;
     /**
@@ -1231,6 +1311,7 @@ declare interface DocFile {
      */
     connectFolder(fObj: Folder): boolean;
     /**
+     * @description
      * Note: When this function is called on an EE.x DocFile with an empty field name, the return value may be greater than expected. The DOCUMENTS image of such a file can include EE.x system fields and symbolic fields for other imported scheme attributes (blob content, notice content).
      * @param fieldName String containing the technical name of the fields to be counted.
      */
@@ -1266,11 +1347,12 @@ declare interface DocFile {
      */
     disconnectFolder(fObj: Folder): boolean;
     /**
+     * @description
      * Since ELC 3.60e / otrisPORTAL 6.0e (Option: export of status & monitor)
      * @param pathXML String containing full path and filename of the desired target xml file
-     * @param withDocuments boolean value to include the documents. The value must be set to true in case status or monitor information are to be inserted.
-     * @param [withStatus] boolean value to include status information. The value must be set to true in order to add the status. Status Information will then be generated into a file which will be added to the documents. Please note that therefore withDocuments must be set to true in order to get Status information.
-     * @param [withMonitor] boolean value to include Monitor information. The value must be set to true in order to add the monitor. Monitor Information will then be generated into a file which will be added to the documents. Please note that therefore withDocuments must be set to true in order to get Monitor information.
+     * @param withDocuments boolean value to include the documents. The value must be set to <code>true</code> in case status or monitor information are to be inserted.
+     * @param [withStatus] boolean value to include status information. The value must be set to <code>true</code> in order to add the status. Status Information will then be generated into a file which will be added to the documents. Please note that therefore <code>withDocuments</code> must be set to true in order to get Status information.
+     * @param [withMonitor] boolean value to include Monitor information. The value must be set to <code>true</code> in order to add the monitor. Monitor Information will then be generated into a file which will be added to the documents. Please note that therefore <code>withDocuments</code> must be set to true in order to get Monitor information.
      */
     exportXML(pathXML: string, withDocuments: boolean, withStatus?: boolean, withMonitor?: boolean): boolean;
     /**
@@ -1291,6 +1373,7 @@ declare interface DocFile {
      */
     getAllWorkflowSteps(): WorkflowStepIterator;
     /**
+     * @description
      * Note: If the file is not archived or archived without versioning or uncoupled from the achived file the key is empty.
      * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files
      * @param [withServer] optional boolean value to indicate, if the key should include an "@archiveServerName" appendix
@@ -1304,11 +1387,13 @@ declare interface DocFile {
      */
     getAsPDF(nameCoverTemplate: string, createCover: boolean, sourceRegisterNames: any[]): string;
     /**
+     * @description
      * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files
      * @param attribute String containing the name of the desired attribute
      */
     getAttribute(attribute: string): string;
     /**
+     * @description
      * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files
      * @param autoText the rule to be parsed
      */
@@ -1316,7 +1401,12 @@ declare interface DocFile {
     /**
      * This function creates a real 1:1 copy of the current file which may be submitted to its own workflow.
      * @param copyMode optional String that defines how to handle the documents of the originating file.
-     * There are three different parameter values allowed: "NoDocs" copied DocFile does not contain any documents "ActualVersion" copied DocFile contains only the latest (published) version of each document "AllVersions" copied DocFile contains all versions (both published and locked) of each document
+     * There are three different parameter values allowed:
+     * <ul>
+     * <li><code>"NoDocs"</code> copied DocFile does not contain any documents </li>
+     * <li><code>"ActualVersion"</code> copied DocFile contains only the latest (published) version of each document </li>
+     * <li><code>"AllVersions"</code> copied DocFile contains all versions (both published and locked) of each document </li>
+     * </ul>
      */
     getCopy(copyMode: string): DocFile;
     getCreationDate(): Date;
@@ -1325,7 +1415,7 @@ declare interface DocFile {
      */
     getCreator(asObject?: boolean): any;
     /**
-     * The function returns a valid WorkflowStep object if there exists one for the current user. If the current user does not lock the file, the function returns null instead.
+     * The function returns a valid WorkflowStep object if there exists one for the current user. If the current user does not lock the file, the function returns <code>null</code> instead.
      * Note: This function requires a full workflow engine license, it does not work with pure submission lists.
      */
     getCurrentWorkflowStep(): WorkflowStep;
@@ -1334,6 +1424,7 @@ declare interface DocFile {
      */
     getEnumAutoText(autoText: string): any[];
     /**
+     * @description
      * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files
      * @param fieldName String containing the technical name of the desired field
      * @param attrName String containing the name of the desired attribute
@@ -1342,12 +1433,12 @@ declare interface DocFile {
     /**
      * The following AutoTexts are available
      * <ul>
-     * <li>"[locale]" - field value in the user locale or specified locale. </li>
-     * <li>"key" - key value (e.g. at refence fields, enumeration fields, etc.). </li>
-     * <li>"fix" - fix format value (e.g. at numeric fields, date fields, etc.). </li>
-     * <li>"pos" - order position of the field value at enumeration fields. </li>
-     * <li>"raw" - database field value. </li>
-     * <li>"label[.locale]" - label of the field in user locale or specified locale.</li>
+     * <li><code>"[locale]"</code> - field value in the user locale or specified locale. </li>
+     * <li><code>"key"</code> - key value (e.g. at refence fields, enumeration fields, etc.). </li>
+     * <li><code>"fix"</code> - fix format value (e.g. at numeric fields, date fields, etc.). </li>
+     * <li><code>"pos"</code> - order position of the field value at enumeration fields. </li>
+     * <li><code>"raw"</code> - database field value. </li>
+     * <li><code>"label[.locale]"</code> - label of the field in user locale or specified locale.</li>
      * </ul>
      * @param fieldName Name of the field as String
      * @param [autoText]
@@ -1360,13 +1451,15 @@ declare interface DocFile {
      */
     getFieldName(index: number): string;
     /**
+     * @description
      * Since DOCUMENTS 4.0c HF2 available for multi-instance fields of an EE.i/EE.x archive file
-     * @param fieldName String containing the technical field name can be followed by the desired instance number in form techFieldName[i] for multi-instance fields of an EE.i/EE.x archive file. Note: The index i is zero-based. The specification of field instance is olny available for an EE.i/EE.x archive file, it will be ignored for other files. If the parameter contains no instance information, the first field instance is used. The field instance order is determined by the field order in the file.
+     * @param fieldName String containing the technical field name can be followed by the desired instance number in form techFieldName[i] for multi-instance fields of an EE.i/EE.x archive file.
+     * <b>Note:</b> The index <code>i</code> is zero-based. The specification of field instance is olny available for an EE.i/EE.x archive file, it will be ignored for other files. If the parameter contains no instance information, the first field instance is used. The field instance order is determined by the field order in the file.
      */
     getFieldValue(fieldName: string): any;
     getFileOwner(): SystemUser;
     /**
-     * The first locking workflow step does not need to be locked by the current user executing the script, this function as well returns the first locking step if it is locked by a different user. If no locking step is found at all, the function returns null instead.
+     * The first locking workflow step does not need to be locked by the current user executing the script, this function as well returns the first locking step if it is locked by a different user. If no locking step is found at all, the function returns <code>null</code> instead.
      * Note: This function requires a full workflow engine license, it does not work with pure submission lists.
      */
     getFirstLockingWorkflowStep(): WorkflowStep;
@@ -1375,12 +1468,13 @@ declare interface DocFile {
     getLastModificationDate(): Date;
     getLastModifier(): string;
     /**
+     * @description
      * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files
      * Since DOCUMENTS 5.0 (new parameter oidLow)
      * @param [oidLow] Optional flag:
-     * If true only the id of the filetype object (m_oid) will be returned.
-     * If false the id of the filetype object will be returned together with the id of the corresponding class in the form class-id:m_oid.
-     * The default value is false.
+     * If <code>true</code> only the id of the filetype object (<code>m_oid</code>) will be returned.
+     * If <code>false</code> the id of the filetype object will be returned together with the id of the corresponding class in the form <code>class-id:m_oid</code>.
+     * The default value is <code>false</code>.
      */
     getOID(oidLow?: boolean): string;
     /**
@@ -1394,6 +1488,7 @@ declare interface DocFile {
      */
     getReferenceFile(referenceFileField: string): DocFile;
     /**
+     * @description
      * Note: Until version 5.0c this method ignored the access rights of the user to the register. With the optional parameter checkAccessRight this can now be done. For backward compatibility the default value is set to false.
      * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files
      * Since DOCUMENTS 5.0c (new optional parameter checkAccessRight)
@@ -1402,21 +1497,42 @@ declare interface DocFile {
      */
     getRegisterByName(registerName: string, checkAccessRight?: boolean): Register;
     /**
+     * @description
      * Note: Until version 5.0c this method ignored the access rights of the user to the register. With the optional parameter checkAccessRight this can now be done. For backward compatibility the default value is set to false.
      * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files
      * Since DOCUMENTS 5.0c (new optional parameter checkAccessRight)
-     * @param [type] optional String value to filter for a desired register type. Default type is documents
-     * Allowed values: documentsfieldslinksarchiveddocumentsexternalcallall (returns all registers independent of the type)
+     * @param [type] optional String value to filter for a desired register type. Default type is <code>documents</code>
+     * Allowed values:
+     * <ul>
+     * <li><code>documents</code></li>
+     * <li><code>fields</code></li>
+     * <li><code>links</code></li>
+     * <li><code>archiveddocuments</code></li>
+     * <li><code>externalcall</code></li>
+     * <li><code>all</code> (returns all registers independent of the type) </li>
+     * </ul>
      * @param [checkAccessRight] optional boolean value, that indicates if the access rights should be considered.
      */
     getRegisters(type?: string, checkAccessRight?: boolean): RegisterIterator;
     /**
+     * @description
      * Note: the special locale raw returns the title in all locales
      * @param [locale]
      */
     getTitle(locale?: string): string;
     /**
      * @param login String containing the login name of the desired user
+     * <ul>
+     * <li><code>standard</code></li>
+     * <li><code>new</code></li>
+     * <li><code>fromFollowup</code></li>
+     * <li><code>toForward</code></li>
+     * <li><code>forInfo</code></li>
+     * <li><code>task</code></li>
+     * <li><code>workflowCanceled</code></li>
+     * <li><code>backFromDistribution</code></li>
+     * <li><code>consultation</code></li>
+     * </ul>
      */
     getUserStatus(login: string): string;
     /**
@@ -1435,7 +1551,11 @@ declare interface DocFile {
     reactivate(): boolean;
     /**
      * @param receivers Array with the names of the users or groups to which to send the DocFile. You need to specify at least one recipient.
-     * @param sendMode String containing the send type. The following values are available: sequential - one after the other parallel_info - concurrently for information
+     * @param sendMode String containing the send type. The following values are available:
+     * <ul>
+     * <li><code>sequential</code> - one after the other </li>
+     * <li><code>parallel_info</code> - concurrently for information </li>
+     * </ul>
      * @param task String specifying the task for the recipients of the DocFile
      * @param backWhenFinished boolean indicating whether the DocFile should be returned to the own user account after the cycle.
      */
@@ -1453,12 +1573,14 @@ declare interface DocFile {
      */
     sendMail(from: string, templateName: string, to: string, cc: string, addDocs: boolean, bcc: string): boolean;
     /**
+     * @description
      * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files
      * @param attribute String containing the name of the desired attribute
      * @param value String containing the desired value of the attribute
      */
     setAttribute(attribute: string, value: string): boolean;
     /**
+     * @description
      * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files
      * @param fieldName String containing the technical name of the desired field
      * @param attrName String containing the name of the desired attribute
@@ -1466,8 +1588,10 @@ declare interface DocFile {
      */
     setFieldAttribute(fieldName: string, attrName: string, value: string): boolean;
     /**
+     * @description
      * Since DOCUMENTS 4.0c HF2 available for multi-instance fields of an EE.i/EE.x archive file
-     * @param fieldName String containing the technical field name can be followed by the desired instance number in form techFieldName[i] for multi-instance fields of an EE.i/EE.x archive file. Note: The index i is zero-based. The specification of field instance is olny available for an EE.i/EE.x archive file, it will be ignored for other files. If the parameter contains no instance information, the first field instance is used. The field instance order is determined by the field order in the file.
+     * @param fieldName String containing the technical field name can be followed by the desired instance number in form techFieldName[i] for multi-instance fields of an EE.i/EE.x archive file.
+     * <b>Note:</b> The index <code>i</code> is zero-based. The specification of field instance is olny available for an EE.i/EE.x archive file, it will be ignored for other files. If the parameter contains no instance information, the first field instance is used. The field instance order is determined by the field order in the file.
      * @param value The desired field value of the proper type according to the field type, e.g. a Date object as value of a field of type 'Timestamp'.
      */
     setFieldValue(fieldName: string, value: any): boolean;
@@ -1482,9 +1606,10 @@ declare interface DocFile {
      */
     setFollowUpDate(pUser: SystemUser, followUpDate: Date, comment: string): boolean;
     /**
+     * @description
      * Note: This function requires a full workflow engine license, it does not work with pure submission lists.
      * @param login String containing the login name of the desired user
-     * @param fileRead boolean whether the file should be markes as read (true) or unread (false)
+     * @param fileRead boolean whether the file should be markes as read (<code>true</code>) or unread (<code>false</code>)
      */
     setUserRead(login: string, fileRead: boolean): boolean;
     /**
@@ -1492,24 +1617,36 @@ declare interface DocFile {
      * Since DOCUMENTS 4.0c (status values extended)
      * @param login String containing the login name of the desired user
      * @param status String value containing the desired status
-     * Allowed values: standardnewfromFollowuptoForwardforInfotaskworkflowCanceledbackFromDistributionconsultation
+     * Allowed values:
+     * <ul>
+     * <li><code>standard</code></li>
+     * <li><code>new</code></li>
+     * <li><code>fromFollowup</code></li>
+     * <li><code>toForward</code></li>
+     * <li><code>forInfo</code></li>
+     * <li><code>task</code></li>
+     * <li><code>workflowCanceled</code></li>
+     * <li><code>backFromDistribution</code></li>
+     * <li><code>consultation</code></li>
+     * </ul>
      */
     setUserStatus(login: string, status: string): boolean;
     /**
-     * Switching a file to edit mode with this function has the same effect as the "Edit" button in the web surface of DOCUMENTS. This means, a scratch copy of the file is created, and any changes you apply to the file are temporarily stored in the scratch copy - until you commit() your changes back to the original file. There are a few scripting event hooks which disallow the use of this function at all costs:
+     * Switching a file to edit mode with this function has the same effect as the "Edit" button in the web surface of DOCUMENTS. This means, a scratch copy of the file is created, and any changes you apply to the file are temporarily stored in the scratch copy - until you <code>commit()</code> your changes back to the original file. There are a few scripting event hooks which disallow the use of this function at all costs:
      * <ul>
-     * <li>onEdit hook - the system has already created the scratch copy. </li>
-     * <li>onCreate hook - a newly created file is always automatically in edit mode.</li>
+     * <li><code>onEdit</code> hook - the system has already created the scratch copy. </li>
+     * <li><code>onCreate</code> hook - a newly created file is always automatically in edit mode.</li>
      * </ul>
      * You should avoid using this function in scripts that are executed inside a workflow (signal exits, decisions etc.).
+     * Internal: since ELC 3.60e available for archive files
      */
     startEdit(): boolean;
     /**
-     * @param workflowName String containing the technical name and optional the version number of the workflow. The format of the workflowName is technicalName[-version]. If you don't specify the version of the workflow, the workflow with the highest workflow version number will be used. If you want to start a specific version you have to use technicalName-version e.g. (Invoice-2) as workflowName.
+     * @param workflowName String containing the technical name and optional the version number of the workflow. The format of the workflowName is <code>technicalName</code>[-version]. If you don't specify the version of the workflow, the workflow with the highest workflow version number will be used. If you want to start a specific version you have to use technicalName-version e.g. (Invoice-2) as workflowName.
      */
     startWorkflow(workflowName: string): boolean;
     /**
-     * If you want to apply changes to file fields through a script that is executed as a signal exit inside a workflow, you should rather prefer sync() than the startEdit() / commit() instruction pair.
+     * If you want to apply changes to file fields through a script that is executed as a signal exit inside a workflow, you should rather prefer sync() than the <code>startEdit() / commit()</code> instruction pair.
      * Note: If there's a scratch copy of the file in the system (e.g. by some user through the web surface), committing the changes in the scratch copy results in the effect that your synced changes are lost. So be careful with the usage of this operation.
      * Since DOCUMENTS 5.0a (new parameter updateRefFields)
      * Since DOCUMENTS 5.0a HF2 (new parameter updateModifiedDate)
@@ -1520,7 +1657,7 @@ declare interface DocFile {
      */
     sync(checkHistoryFields?: boolean, notifyHitlistChange?: boolean, updateRefFields?: boolean, updateModifiedDate?: boolean): boolean;
     /**
-     * Sets the status active to a file and redraws it from the trash folder. Deleted files are not searchable by a FileResultSet. You can only retrieve deleted files by iterating throw the trash-folder of the users
+     * Sets the status active to a file and redraws it from the trash folder. Deleted files are not searchable by a <code>FileResultSet</code>. You can only retrieve deleted files by iterating throw the trash-folder of the users
      */
     undeleteFile(): boolean;
 }
@@ -1531,12 +1668,12 @@ declare interface DocFile {
 declare interface DocHit {
     /**
      * Each field in a DocHit is mapped to an according property. You can read the value on the basis of the column name.
-     * Remark: Overwriting values in a DocHit is not allowed. Each attempt will raise an exception. To read dates and numbers in DOCUMENTS' storage format, see getTechValueByName().
+     * Note: Overwriting values in a DocHit is not allowed. Each attempt will raise an exception. To read dates and numbers in DOCUMENTS' storage format, see getTechValueByName().
      */
     columnName: any;
     /**
      * You need the necessary access rights on the archive side.
-     * Remark: This function creates a complete DOCUMENTS image of the archived file, except for the content of attachments. This is a time-consuming workstep. If a script calls this function for each hit in the set, it will not run any faster than a script, which uses a conventional ArchiveFileResultset instead of this class.
+     * Note: This function creates a complete DOCUMENTS image of the archived file, except for the content of attachments. This is a time-consuming workstep. If a script calls this function for each hit in the set, it will not run any faster than a script, which uses a conventional ArchiveFileResultset instead of this class.
      */
     getArchiveFile(): DocFile;
     /**
@@ -1545,7 +1682,7 @@ declare interface DocHit {
     getArchiveKey(withServer?: boolean): string;
     getBlobInfo(): string;
     /**
-     * If the file does not exist or the user in whose context the script is executed is not allowed to access the file, then the return value will be NULL.
+     * If the file does not exist or the user in whose context the script is executed is not allowed to access the file, then the return value will be <code>NULL</code>.
      */
     getFile(): DocFile;
     getFileId(): string;
@@ -1555,22 +1692,26 @@ declare interface DocHit {
      */
     getLocalValue(colIndex: number): string;
     /**
+     * @description
      * Note: Accesing a column by its index is a bit faster than by its name.
      * @param colName The name of the column.
      */
     getLocalValueByName(colName: string): string;
     /**
-     * Remark: For EE.i, the value is an archive identifier in the XML-Server's notation. For EDA it is just the name of a filetype. All values come with an "@Servername" appendix.
+     * @description
+     * Note: For EE.i, the value is an archive identifier in the XML-Server's notation. For EDA it is just the name of a filetype. All values come with an "@Servername" appendix.
      */
     getSchema(): string;
     /**
-     * Remark: The function returns dates, timestamps and numbers in DOCUMENTS' storage format. (In the DOCUMENTS Manager see menu 'Documents/Settings', dialog page 'Locale/format', group 'Format settings'.) If you prefer JavaScript numbers and dates, simply use the object like an array: myDocHit[colIndex].
+     * @description
+     * Note: The function returns dates, timestamps and numbers in DOCUMENTS' storage format. (In the DOCUMENTS Manager see menu 'Documents/Settings', dialog page 'Locale/format', group 'Format settings'.) If you prefer JavaScript numbers and dates, simply use the object like an array: myDocHit[colIndex].
      * @param colIndex The zero-based index of the column.
      */
     getTechValue(colIndex: number): string;
     /**
+     * @description
      * Note: Accessing a column by its index is a bit faster than by its name.
-     * Remark: The function returns dates, timestamps and numbers in DOCUMENTS' storage format. (In the DOCUMENTS Manager see menu 'Documents/Settings', dialog page 'Locale/format', group 'Format settings'.) If you prefer JavaScript numbers and dates, you can simply read the columns as a property DocHit.columnName.
+     * Note: The function returns dates, timestamps and numbers in DOCUMENTS' storage format. (In the DOCUMENTS Manager see menu 'Documents/Settings', dialog page 'Locale/format', group 'Format settings'.) If you prefer JavaScript numbers and dates, you can simply read the columns as a property DocHit.columnName.
      * @param colName The name of the column.
      */
     getTechValueByName(colName: string): string;
@@ -1579,6 +1720,13 @@ declare interface DocHit {
 
 /**
  * Only the script-exits "OnSearch" and "FillSearchMask" provide access to such an object. See also Context.getQueryParams().
+ * Scripts can modify the parameters only in the following ways.
+ * <ol>
+ * <li>A project-related "OnSearch" script may detect in advance, if an individual query won't find any hits in a specified searchable resource. In this case, the script can call removeSource() for each zero-hits resource to reduce the workload on the database and/or archive systems. However the very first listed resource cannot be removed, because it regularly owns the selected hit list. As a result, removeSource() is not suitable for implementing extraordinary permission restrictions. </li>
+ * <li>A "OnSearch" script can substitute the relational operator or the value in a search field. This practice is not recommended, because it may make the user find something competely different than he sought for. </li>
+ * <li>A "OnSearch" script may cancel some special search requests and submit a custom message. The type (or origin) of the search request determines, if and where this message will be displayed. </li>
+ * <li>A "FillSearchMask" script can place default values in the search fields. </li>
+ * </ol>
  */
 declare interface DocQueryParams {
     /**
@@ -1595,7 +1743,8 @@ declare interface DocQueryParams {
      */
     searchFieldCount: number;
     /**
-     * Remark: The value is an empty string, if the query has been prepared without a search mask or with an anonymous mask (controlled by "show in search mask" checkboxes).
+     * @description
+     * Note: The value is an empty string, if the query has been prepared without a search mask or with an anonymous mask (controlled by "show in search mask" checkboxes).
      * Search mask names are unique with regard to a single searchable resource. As soon as multiple resources are involved, the names are often ambiguous, because each resource may supply a search mask with the same name.
      * To obtain a better identifier, the script may combine the mask's name and the resId of the first selected resource.
      * However, even this identifier is not always unique. If a user has selected multiple EE.x views and the DOCUMENTS property "UseMainArchives" is undefined or zero, the query does not specify a main resource. DOCUMENTS then passes the RetrievalSource objects with random order. In this case the script cannot distinguish search masks with equal names.
@@ -1604,10 +1753,11 @@ declare interface DocQueryParams {
     sourceCount: number;
     getLastError(): string;
     /**
-     * Remark: If the request has been prepared with any kind of searck mask in the background, all available fields of that mask appear in the internal list, not only those, which the user has filled in. The skipEmpty flag provides a simple opportunity to examine only effective search conditions.
+     * @description
+     * Note: If the request has been prepared with any kind of searck mask in the background, all available fields of that mask appear in the internal list, not only those, which the user has filled in. The skipEmpty flag provides a simple opportunity to examine only effective search conditions.
      * Internally generated conditions (for example ACL-filters) cannot be returned by this function.
      * Attaching a default value to a field does not modify its "empty" state in terms of this function.
-     * @param index The index of the desired search field. The valid range is 0 to (filledSearchFieldCount - 1), if the flag skipEmpty is set. Otherwise the range is 0 to (searchFieldCount - 1).
+     * @param index The index of the desired search field. The valid range is 0 to (filledSearchFieldCount - 1), if the flag <code>skipEmpty</code> is set. Otherwise the range is 0 to (searchFieldCount - 1).
      * @param skipEmpty An optional boolean to treat all empty search fields as non-existing. By default all fields can be examined.
      */
     getSearchField(index: number, skipEmpty: boolean): RetrievalField;
@@ -1616,20 +1766,40 @@ declare interface DocQueryParams {
      */
     getSource(index: number): RetrievalSource;
     /**
+     * @description
      * Note: The access to this function is restricted. Only the "OnSearchScript" can effectively use it.
-     * Remark: The id can be read from the property RetrievalSource.resId. Valid index values range from 1 to (sourceCount - 1). The resource at index 0 cannot be removed (see the class details). After a succesful call, the sourceCount and the index of each subsequent resource in the list are decreased by one.
+     * Note: The id can be read from the property RetrievalSource.resId. Valid index values range from 1 to (sourceCount - 1). The resource at index 0 cannot be removed (see the class details). After a succesful call, the sourceCount and the index of each subsequent resource in the list are decreased by one.
      * The method does not perform type-checking on the refSource parameter. It interprets a value like "12345" always as an index, even when this value has been passed as a string.
      * @param refSource Either the current integer index or the id of the resource.
      */
     removeSource(refSource: any): boolean;
 }
 
+/**
+ * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files
+ */
 declare interface Document {
     bytes: string;
     encrypted: boolean;
+    /**
+     * @description
+     * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files
+     */
     extension: string;
+    /**
+     * @description
+     * Since ELC 3.50n / otrisPORTAL 5.0n
+     */
     fullname: string;
+    /**
+     * @description
+     * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files
+     */
     name: string;
+    /**
+     * @description
+     * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files
+     */
     size: string;
     /**
      * With the necessary rights you can delete a document of the file. Do this only on scratch copies (startEdit, commit)
@@ -1638,6 +1808,7 @@ declare interface Document {
      */
     deleteDocument(): boolean;
     /**
+     * @description
      * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files
      * Since DOCUMENTS 4.0 (new parameter filePath)
      * Since DOCUMENTS 4.0d (new parameter version)
@@ -1652,24 +1823,26 @@ declare interface Document {
      */
     getAsPDF(): string;
     /**
+     * @description
      * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files
      * @param attribute String containing the name of the desired attribute
      */
     getAttribute(attribute: string): string;
     /**
+     * @description
      * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files
      */
     getLastError(): string;
     /**
+     * @description
      * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files
      * Since DOCUMENTS 5.0 (new parameter oidLow)
      * @param [oidLow] Optional flag:
-     * If true only the id of the filetype object (m_oid) will be returned.
-     * If false the id of the filetype object will be returned together with the id of the corresponding class in the form class-id:m_oid.
-     * The default value is false.
+     * If <code>true</code> only the id of the filetype object (<code>m_oid</code>) will be returned.
+     * If <code>false</code> the id of the filetype object will be returned together with the id of the corresponding class in the form <code>class-id:m_oid</code>.
+     * The default value is <code>false</code>.
      */
     getOID(oidLow?: boolean): string;
-    getRegister(): Register;
     /**
      * With the necessary rights you can move the Document to another document Register of the file.
      * Note: This operation is not available for a Document located in an archive file.
@@ -1677,43 +1850,56 @@ declare interface Document {
      */
     moveToRegister(regObj: Register): boolean;
     /**
+     * @description
      * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files
      * @param attribute String containing the name of the desired attribute
      * @param value String containing the desired value of the attribute
      */
     setAttribute(attribute: string, value: string): boolean;
     /**
+     * @description
      * Note: After successful upload of the Document the source file on the server's directory structure is removed!
      * @param sourceFilePath String containing the path of the desired file to be uploaded.
      * Note: Backslashes contained in the filepath must be quoted with a leading backslash, since the backslash is a special char in ECMAScript!
-     * @param [versioning] Optional flag: true for versioning the Document and false for replacing it.
+     * @param [versioning] Optional flag: <code>true</code> for versioning the Document and <code>false</code> for replacing it.
      */
     uploadDocument(sourceFilePath: string, versioning?: boolean): boolean;
 }
 
+/**
+ * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files
+ */
 declare interface DocumentIterator {
     /**
+     * @description
      * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files
      */
     first(): Document;
     getLastError(): string;
     /**
+     * @description
      * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files
      */
     next(): Document;
     /**
+     * @description
      * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files
      */
     size(): number;
 }
 
+/**
+ * DOMAttrs cannot be created directly. This applies to all kinds of DOMNodes.
+ * <b>Remarks about W3C conformity</b>
+ * The class covers the Attribute interface of DOM level 1. The underlying native library already supports at least level 2.
+ */
 declare interface DOMAttr {
     /**
      * This property is readonly.
      */
     name: string;
     /**
-     * The flag is true, if the value was explicitly contained in a parsed document. The flag is also true, if the script has set the property "value" of this DOMAttr object. The flag is false, if the value came from a default value declared in a DTD. The flag is readonly.
+     * The flag is <code>true</code>, if the value was explicitly contained in a parsed document. The flag is also <code>true</code>, if the script has set the property "value" of this DOMAttr object. The flag is <code>false</code>, if the value came from a default value declared in a DTD. The flag is readonly.
      */
     specified: boolean;
     /**
@@ -1722,6 +1908,12 @@ declare interface DOMAttr {
     value: string;
 }
 
+/**
+ * An object of this class can represent either a text node, a comment node or a CDATA section. Scripts should use the inherited nodeType attribute to distinguish these node types.
+ * <b>Remarks about W3C conformity</b>
+ * The class covers the CharacterData interface of DOM level 1. The underlying native library already supports at least level 2. The W3C has defined several derived interfaces, namely "Text", "Comment" and "CDATASection". With respect to code size (and work) this API omits the corresponding subclasses "DOMText", "DOMComment" and "DOMCDATASection". The only additional method "DOMText.splitText()" has been moved into this class.
+ * This simplification has got only one little disadvantage. Scripts cannot distinguish the three node types using the JavaScript <code>instanceof</code> operator. They must use the nodeType attribute instead.
+ */
 declare interface DOMCharacterData {
     data: string;
     /**
@@ -1764,6 +1956,29 @@ declare interface DOMCharacterData {
 /**
  * The DOMDocument is the root of a DOM tree. 
  * The constructor of this class always creates an empty document structure. Use the class DOMParser to obtain the structure of an existing XML. To create any new child nodes, a script must call the appropriate create method of the DOMDocument. It is not possible to create child nodes standalone.
+ * After a DOMDocument has been deleted by the scripting engine's garbage collector, accessing any nodes and lists of that document may issue an error. You should avoid code like the following. 
+ * function buildSomeElement()
+ * {
+ *    var domDoc = new DOMDocument("root");
+ *    var someElement = domDoc.createElement("Test");
+ * 
+ *    // This is an error: Some operations on the DOMElement may no
+ *    // longer work, when the owning DOMDocument has already died.
+ *    return someElement;
+ * }
+ * 
+ * <b>Remarks about W3C conformity</b>
+ * 
+ *  The class covers much of the Document interface of DOM level 1, but the following properties and functions have not been implemented until now.
+ * <ul>
+ * <li>DocumentType doctype</li>
+ * <li>DOMImplementation implementation</li>
+ * <li>DocumentFragment createDocumentFragment()</li>
+ * <li>ProcessingInstruction createProcessingInstruction(String target, String data)</li>
+ * <li>EntityReference createEntityReference(in String name)</li>
+ * </ul>
+ * 
+ * The native DOM library behind the scripting API already supports at least DOM level 2. This is worth knowing, because the behaviour of a few operations might have changed with level 2.
  */
 declare class DOMDocument {
     /**
@@ -1773,7 +1988,7 @@ declare class DOMDocument {
 
     /**
      * This property is readonly.
-     * Remark: Unlike written in older versions of this document, the documentElement is not necessarily the first child of the DOMDocument. A DocumentType node, for example, may precede it in the list of direct children.
+     * Note: Unlike written in older versions of this document, the documentElement is not necessarily the first child of the DOMDocument. A DocumentType node, for example, may precede it in the list of direct children.
      */
     documentElement: DOMElement;
 
@@ -1783,14 +1998,14 @@ declare class DOMDocument {
     createAttribute(name: string): DOMAttr;
 
     /**
-     * Remarks about W3C conformity
+     * <b>Remarks about W3C conformity</b>
      * The W3C specifies the return type as "CDATASection". Considering code size (and work) the actual implementation omits a class CDATASection and presents the only additional member (splitText(), inherited from "Text") directly in the second level base class. Scripts can examine DOMNode.nodeType to distinguish different types of character data, if necessary.
      * @param data The data for the node
      */
     createCDATASection(data: string): DOMCharacterData;
 
     /**
-     * Remarks about W3C conformity
+     * <b>Remarks about W3C conformity</b>
      * The W3C specifies the return type as "Comment". Considering code size (and work) the actual implementation omits a class DOMComment, which would not get any more members apart from the inherited ones. Scripts can examine DOMNode.nodeType to distinguish different types of character data, if necessary.
      * @param data The data for the node
      */
@@ -1802,7 +2017,7 @@ declare class DOMDocument {
     createElement(tagName: string): DOMElement;
 
     /**
-     * Remarks about W3C conformity
+     * <b>Remarks about W3C conformity</b>
      * The W3C specifies the return type as "Text". Considering code size (and work) the actual implementation omits a class DOMText and presents the only additional member (splitText()) directly in the base class. Scripts can examine DOMNode.nodeType to distinguish different types of character data, if necessary.
      * @param data The data for the node
      */
@@ -1816,6 +2031,11 @@ declare class DOMDocument {
 
 }
 
+/**
+ * DOMElements cannot be created directly. This applies to all kinds of DOMNodes.
+ * <b>Remarks about W3C conformity</b>
+ * The class covers the Element interface of DOM level 1. The underlying native library already supports at least level 2.
+ */
 declare interface DOMElement {
     /**
      * This property is readonly.
@@ -1855,7 +2075,7 @@ declare interface DOMElement {
 }
 
 /**
- * Remarks about W3C conformity
+ * <b>Remarks about W3C conformity</b>
  * The class implements the DOMException exception type with the error codes specified in DOM level 2.
  */
 declare interface DOMException {
@@ -1868,6 +2088,8 @@ declare interface DOMException {
 
 /**
  * The attributes of a DOMElement are organized in a DOMNamedNodeMap. See DOMElement.attributes. The attached nodes can be accessed either by the name or by an integer index. When using an index, the output order of the nodes is not determined. Objects of this class cannot be created directly.
+ * <b>Remarks about W3C conformity</b>
+ * The class covers the NamedNodeMap interface of DOM level 1. The underlying native library already supports at least level 2.
  */
 declare interface DOMNamedNodeMap {
     /**
@@ -1880,7 +2102,7 @@ declare interface DOMNamedNodeMap {
     getNamedItem(name: string): DOMNode;
     /**
      * This is useful only to iterate over all nodes in the map.
-     * Remark: It is also possible to access the nodes using square brackets, as if the object would be an array.
+     * Note: It is also possible to access the nodes using square brackets, as if the object would be an array.
      * @param index the zero based index of the element.
      */
     item(index: number): DOMNode;
@@ -1895,8 +2117,8 @@ declare interface DOMNamedNodeMap {
 }
 
 /**
- * DOMNodes cannot be created with new. Different create methods of DOMDocument can be used to create different types of nodes.
- * Note: Accessing any node may generate a JavaScript error, when the owning document has been deleted or "garbage collected". See the negative example at class DOMDocument.Remarks about W3C conformity
+ * DOMNodes cannot be created with <code>new</code>. Different create methods of DOMDocument can be used to create different types of nodes.
+ * Note: Accessing any node may generate a JavaScript error, when the owning document has been deleted or "garbage collected". See the negative example at class DOMDocument.<b>Remarks about W3C conformity</b>
  * The class covers the Node interface of DOM level 1. The underlying native library already supports at least level 2.
  */
 declare interface DOMNode {
@@ -1908,7 +2130,7 @@ declare interface DOMNode {
     nodeName: string;
     nodeType: number;
     /**
-     * For several node types, the value is constantly an empty string. See also the W3C documentation in the internet.
+     * For several node types, the value is constantly an empty string. See also the [W3C documentation in the internet]{@link http://www.w3.org/TR/2000/REC-DOM-Level-2-Core-20001113/core.html}.
      */
     nodeValue: string;
     ownerDocument: DOMDocument;
@@ -1919,15 +2141,16 @@ declare interface DOMNode {
      */
     appendChild(newChild: DOMNode): DOMNode;
     /**
-     * Remark: The returned node initially has not got a parent.
-     * @param deep true to clone also the whole subtree, false to clone only the node (including the attributes, if it is a DOMElement).
+     * @description
+     * Note: The returned node initially has not got a parent.
+     * @param deep <code>true</code> to clone also the whole subtree, <code>false</code> to clone only the node (including the attributes, if it is a DOMElement).
      */
     cloneNode(deep: boolean): DOMNode;
     hasAttributes(): boolean;
     hasChildNodes(): boolean;
     /**
      * @param newChild The DOMNode to insert.
-     * @param refChild An existing DOMNode, which already is a child of this, and which shall become the next sibling of newChild.
+     * @param refChild An existing DOMNode, which already is a child of <code>this</code>, and which shall become the next sibling of <code>newChild</code>.
      */
     insertBefore(newChild: DOMNode, refChild: DOMNode): DOMNode;
     /**
@@ -1947,6 +2170,8 @@ declare interface DOMNode {
 
 /**
  * These lists always reflect the actual state of the DOM tree, which can differ from that state, when the list has been created. Getting the nodes from the list works with an integer index in square brackets, as if the list object would be an Array. DOMNodeLists cannot be created directly. Some methods or properties of DOMNode and its subclasses can create them.
+ * <b>Remarks about W3C conformity</b>
+ * The class covers the NodeList interface of DOM level 1. The underlying native library already supports at least level 2.
  */
 declare interface DOMNodeList {
     length: number;
@@ -1968,21 +2193,23 @@ declare class DOMParser {
     getLastError(): string;
 
     /**
-     * Remark: On success, call getDocument() to access the DOM tree. On error use getLastError() to obtain an error text.
+     * @description
+     * Note: On success, call getDocument() to access the DOM tree. On error use getLastError() to obtain an error text.
      * The encapsulated native DOM library supports the following character encodings: ASCII, UTF-8, UTF-16, UCS4, EBCDIC code pages IBM037, IBM1047 and IBM1140, ISO-8859-1 (aka Latin1) and Windows-1252. (no guarantee)
      * @param xml Either the XML itself or the path and file name of a local file
-     * @param fromFile true to parse a local file, otherwise false.
+     * @param fromFile <code>true</code> to parse a local file, otherwise <code>false</code>.
      */
     parse(xml: string, fromFile: boolean): number;
 
     /**
+     * @description
      * Note: Saving to a local file is not supported on all platforms. If a script tries it while the version of the native DOM library is too old, the method just throws a JavaScript error.
-     * Remark: To obtain an error message use getLastError(). When the message is just "NULL pointer", the native DOM library may have failed to open the output file for writing. When the method writes to a string, the encoding is always the server application's internal encoding.
+     * Note: To obtain an error message use getLastError(). When the message is just "NULL pointer", the native DOM library may have failed to open the output file for writing. When the method writes to a string, the encoding is always the server application's internal encoding.
      * The encapsulated native DOM library supports the following character encodings: ASCII, UTF-8, UTF-16, UCS4, EBCDIC code pages IBM037, IBM1047 and IBM1140, ISO-8859-1 (aka Latin1) and Windows-1252. (no guarantee)
      * Since Parameter prettyPrint since DOCUMENTS 5.0b HF3
      * @param node The root node to build the document from. Though the interface accepts any DOMNode, only a DOMDocument should be passed. Otherwise the output may be a fragment which is not a valid XML.
      * @param path Optional path and filename to save the XML in the local file system.
-     * @param encoding Optional encoding specification for the file. Only used when path is also specified.
+     * @param encoding Optional encoding specification for the file. Only used when <em>path</em> is also specified.
      * @param prettyPrint Optional boolean value.
      */
     write(node: DOMNode, path: string, encoding: string, prettyPrint: boolean): any;
@@ -2001,12 +2228,13 @@ declare interface E4X {
  */
 declare class Email {
     /**
-     * In case of multiple recipients for the parameters to, cc or bcc, the individual email addresses are to be separated by a comma (,). It is not allowed to send an email without any primary recipients specified by the parameter to. To send a HTML email the body must begin with the <HTML> tag. Emails in following cases are stored in the folder Administration > Sent eMails in the DOCUMENTS Manager:
+     * In case of multiple recipients for the parameters <code>to</code>, <code>cc</code> or <code>bcc</code>, the individual email addresses are to be separated by a comma (,). It is not allowed to send an email without any primary recipients specified by the parameter <code>to</code>. To send a HTML email the body must begin with the <HTML> tag. Emails in following cases are stored in the folder <code>Administration > Sent eMails</code> in the DOCUMENTS Manager:
      * <ul>
-     * <li>They are to be sent in the future (specified by sendingTime); </li>
+     * <li>They are to be sent in the future (specified by <code>sendingTime</code>); </li>
      * <li>Sending them failed; </li>
-     * <li>The parameter deleteAfterSending is set to false.</li>
+     * <li>The parameter <code>deleteAfterSending</code> is set to <code>false</code>.</li>
      * </ul>
+     * Since DOCUMENTS 4.0d
      * @param to String value containing the email addresses of primary recipients.
      * @param from Optional string value containing the sender's email address. If no sender is specified, the default sender for the principal is used.
      * @param subject Optional string value containing the subject of the email.
@@ -2014,7 +2242,7 @@ declare class Email {
      * @param cc Optional string value containing the email addresses of carbon-copy recipients (appearing in the header of the email).
      * @param bcc Optional string value containing the email addresses of blind carbon-copy recipients (remaining invisible to other recipients).
      * @param sendingTime Optional Date object specifying when the email is to be sent. If sending time is not specified, the email will be sent immediately by calling send().
-     * @param deleteAfterSending Optional flag indicating whether the email is to be deleted after successful sending. The default value is true.
+     * @param deleteAfterSending Optional flag indicating whether the email is to be deleted after successful sending. The default value is <code>true</code>.
      */
     constructor(to: string, from: string, subject: string, body: string, cc: string, bcc: string, sendingTime: Date, deleteAfterSending: boolean);
 
@@ -2079,12 +2307,24 @@ declare class File {
     /**
      * Once created, you cannot change the access mode of the file handle. If you need to change the access mode, you would have to close the file and reopen it.
      * Note: File handles are so-called expensive ressources, thus it is strongly recommanded to close them as soon as possible. Refer to File.close() for further information.
+     * Since ELC 3.50 / otrisPORTAL 5.0
      * @param pathFileName String value containing the complete path and filename of the desired file
-     * @param mode String representing the access mode for the file handle. Allowed values are: r read mode r+ read mode plus write access; if the file does not yet exist, an error is raised w write mode; if the file already exists, it will be completely overwritten w+ write mode plus read access; if the file already exists, it will be completely overwritten a write mode with append; if the file does not yet exist, it is created, otherwise the data you write to the file will be appended a+ write mode with append plus read access; if the file does not yet exist, it is created, otherwise the data you write to the file will be appended t open the file in text mode (ASCII 127) b open the file in binary mode
+     * @param mode String representing the access mode for the file handle. Allowed values are:
+     * <ul>
+     * <li><code>r</code> read mode </li>
+     * <li><code>r+</code> read mode plus write access; if the file does not yet exist, an error is raised </li>
+     * <li><code>w</code> write mode; if the file already exists, it will be completely overwritten </li>
+     * <li><code>w+</code> write mode plus read access; if the file already exists, it will be completely overwritten </li>
+     * <li><code>a</code> write mode with append; if the file does not yet exist, it is created, otherwise the data you write to the file will be appended </li>
+     * <li><code>a+</code> write mode with append plus read access; if the file does not yet exist, it is created, otherwise the data you write to the file will be appended </li>
+     * <li><code>t</code> open the file in text mode (ASCII 127) </li>
+     * <li><code>b</code> open the file in binary mode </li>
+     * </ul>
      */
     constructor(pathFileName: string, mode: string);
 
     /**
+     * @description
      * Note: Since file handles are so-called expensive ressources it is strongly recommanded to close each file handle you prior created in your scripts as soon as possible.
      */
     close(): boolean;
@@ -2092,7 +2332,7 @@ declare class File {
     eof(): boolean;
 
     /**
-     * The error message (as long there is one) and its language depend on the operating system used on the Portal Server's machine. If there is no error, the method returns null.
+     * The error message (as long there is one) and its language depend on the operating system used on the Portal Server's machine. If there is no error, the method returns <code>null</code>.
      */
     error(): string;
 
@@ -2110,13 +2350,13 @@ declare class File {
     readLine(): string;
 
     /**
-     * This requires to have the file handle opened with write access (meaning modes r+, w/w+, a/a+) and binary mode b.
+     * This requires to have the file handle opened with write access (meaning modes <code>r+</code>, <code>w/w+</code>, <code>a/a+</code>) and binary mode <code>b</code>.
      * @param byteArray Array of integers containing any data you want to write to the file
      */
     write(byteArray: number[]): boolean;
 
     /**
-     * This requires to have the file handle opened with write access (meaning modes r+, w/w+, a/a+). You may concatenate as many strings as you want.
+     * This requires to have the file handle opened with write access (meaning modes <code>r+</code>, <code>w/w+</code>, <code>a/a+</code>). You may concatenate as many strings as you want.
      * @param a String containing any data you want to write to the file
      * @param b String containing any data you want to write to the file
      * @param ...restParams
@@ -2124,7 +2364,7 @@ declare class File {
     write(a: string, b: string, ...restParams: any[]): boolean;
 
     /**
-     * This requires to have the file handle opened with write access (meaning modes r+, w/w+, a/a+).
+     * This requires to have the file handle opened with write access (meaning modes <code>r+</code>, <code>w/w+</code>, <code>a/a+</code>).
      * @param data String containing any data you want to write to the file.
      * @param charsNo integer value indicating how many characters should be written.
      */
@@ -2138,8 +2378,8 @@ declare class File {
  */
 declare class FileResultset {
     /**
-     * Like in other programming languages you create a new object with the new operator (refer to example below).
-     * Note: Details for the filter expression you find in section Filter expressions with FileResultset
+     * Like in other programming languages you create a new object with the <code>new</code> operator (refer to example below).
+     * Note: Details for the filter expression you find in section Using filter expressions with FileResultSets
      * Note: Further samples are in FileResultset filter examples
      * @param fileType String containing the technical name of the desired filetype
      * @param filter String containing an optional filter criterium; use empty String ('') if you don't want to filter at all
@@ -2168,44 +2408,52 @@ declare interface Folder {
     allowForward: boolean;
     allowMoveTo: boolean;
     /**
+     * @description
      * Note: This attribute only exists if the Folder represents a dynamic folder
      */
     comparator1: string;
     /**
+     * @description
      * Note: This attribute only exists if the Folder represents a dynamic folder
      */
     comparator2: string;
     /**
+     * @description
      * Note: This attribute only exists if the Folder represents a dynamic folder
      */
     comparator3: string;
     /**
+     * @description
      * Note: This property is only available if the Folder represents a dynamic folder and the filter style 'Extended' is used.
      */
     filterExpression: string;
     /**
+     * @description
      * Note: This attribute only exists if the Folder represents a dynamic folder
      */
     filterfieldname1: string;
     /**
+     * @description
      * Note: This attribute only exists if the Folder represents a dynamic folder
      */
     filterfieldname2: string;
     /**
+     * @description
      * Note: This attribute only exists if the Folder represents a dynamic folder
      */
     filterfieldname3: string;
     /**
      * There are two filter styles available:
      * <ul>
-     * <li>Standard</li>
-     * <li>Extended</li>
+     * <li><code>Standard</code></li>
+     * <li><code>Extended</code></li>
      * </ul>
      */
     filterStyle: string;
     icon: string;
     id: string;
     /**
+     * @description
      * Note: This property is not operative if the folder is not released.
      */
     invisible: boolean;
@@ -2215,30 +2463,34 @@ declare interface Folder {
     /**
      * The following sort columns are available:
      * <ul>
-     * <li>Title</li>
-     * <li>LastModifiedAt</li>
-     * <li>LastEditor</li>
-     * <li>CreateAt</li>
-     * <li>Owner</li>
-     * <li>CustomField</li>
+     * <li><code>Title</code></li>
+     * <li><code>LastModifiedAt</code></li>
+     * <li><code>LastEditor</code></li>
+     * <li><code>CreateAt</code></li>
+     * <li><code>Owner</code></li>
+     * <li><code>CustomField</code></li>
      * </ul>
      */
     sortColumn: string;
     sortDescending: boolean;
     /**
+     * @description
      * Note: This field is only available if the Folder.sortColumn is set to 'CustomField'.
      */
     sortFieldName: string;
     type: string;
     /**
+     * @description
      * Note: This attribute only exists if the Folder represents a dynamic folder
      */
     value1: string;
     /**
+     * @description
      * Note: This attribute only exists if the Folder represents a dynamic folder
      */
     value2: string;
     /**
+     * @description
      * Note: This attribute only exists if the Folder represents a dynamic folder
      */
     value3: string;
@@ -2249,26 +2501,31 @@ declare interface Folder {
      */
     addAccessProfile(accessProfileName: string, allowInsertFiles: boolean, allowRemoveFiles: boolean): boolean;
     /**
+     * @description
      * Note: This only works in case the Folder is a real public Folder. The Folder must not represent a dynamic folder, since a dynamic folder is sort of a hardcoded search, not a "real" folder.
      * @param docFile DocFile object which shall be available in the given Folder
      */
     addFile(docFile: DocFile): boolean;
     /**
+     * @description
      * Note: This function is only available for a Folder of type 'dynamicpublic'.
      * @param serverName The technical name of the desired EDA server.
      */
     addFilterEDAServer(serverName: string): boolean;
     /**
+     * @description
      * Note: This function is only available for a Folder of type 'dynamicpublic'.
      * @param archiveKey The key of the desired EE.i archive.
      */
     addFilterEEiArchive(archiveKey: string): boolean;
     /**
+     * @description
      * Note: This function is only available for a Folder of type 'dynamicpublic'.
      * @param viewKey The key of the desired EE.x view.
      */
     addFilterEExView(viewKey: string): boolean;
     /**
+     * @description
      * Note: This function is only available for a Folder of type 'dynamicpublic'.
      * @param fileType The technical name of the desired file type.
      */
@@ -2291,12 +2548,19 @@ declare interface Folder {
      */
     copyFolder(includeSubFolders: boolean, copyRights: boolean, copyActions: boolean): Folder;
     /**
-     * Note: There are three possible types available: publicdynamicpubliconlysubfolder
+     * @description
+     * Note: There are three possible types available:
+     * <ul>
+     * <li><code>public</code></li>
+     * <li><code>dynamicpublic</code></li>
+     * <li><code>onlysubfolder</code></li>
+     * </ul>
      * @param name The technical name of the subfolder to be created.
      * @param type The desired type of the subfolder.
      */
     createSubFolder(name: string, type: string): Folder;
     /**
+     * @description
      * Note: All subfolders are also deleted recursively.
      */
     deleteFolder(): boolean;
@@ -2309,6 +2573,7 @@ declare interface Folder {
      */
     getAttribute(attribute: string): string;
     /**
+     * @description
      * Note: It does not matter whether the Folder is a real public folder or a dynamic folder.
      */
     getFiles(): FileResultset;
@@ -2316,7 +2581,7 @@ declare interface Folder {
     /**
      * This function executes an empty (=unfiltered) search in the folder. It creates a HitResultset, which summarizes all the Folder's files. The Resultset contains the same columns as the folder's default web view.
      * Note: The function operates on dynamic and on static folders, but not on the special folders "tasks" and "resubmision".
-     * Remark: Reading from a lean HitResultset with only a few columns can be faster than reading from a FileResultset. Sometimes this effect outweighs the time-related costs of a search. If the folder addresses an archive, the time needed to create temporary DocFiles can be saved with this function. On a failed search request the function does not throw errors. To detect this kind of errors scripts should read the returned object's properties lastErrorCode and lastError.
+     * Note: Reading from a lean HitResultset with only a few columns can be faster than reading from a FileResultset. Sometimes this effect outweighs the time-related costs of a search. If the folder addresses an archive, the time needed to create temporary DocFiles can be saved with this function. On a failed search request the function does not throw errors. To detect this kind of errors scripts should read the returned object's properties lastErrorCode and lastError.
      */
     getHitResultset(): HitResultset;
     getLastError(): string;
@@ -2325,11 +2590,12 @@ declare interface Folder {
      */
     getLocaleLabel(locale: string): string;
     /**
+     * @description
      * Since DOCUMENTS 5.0 (new parameter oidLow)
      * @param [oidLow] Optional flag:
-     * If true only the id of the filetype object (m_oid) will be returned.
-     * If false the id of the filetype object will be returned together with the id of the corresponding class in the form class-id:m_oid.
-     * The default value is false.
+     * If <code>true</code> only the id of the filetype object (<code>m_oid</code>) will be returned.
+     * If <code>false</code> the id of the filetype object will be returned together with the id of the corresponding class in the form <code>class-id:m_oid</code>.
+     * The default value is <code>false</code>.
      */
     getOID(oidLow?: boolean): string;
     /**
@@ -2343,26 +2609,31 @@ declare interface Folder {
      */
     removeAccessProfile(accessProfileName: string): boolean;
     /**
+     * @description
      * Note: This only works in case the Folder is a real public Folder. The Folder must not represent a dynamic folder, since a dynamic folder is sort of a hardcoded search, not a "real" folder.
      * @param docFile DocFile object which shall be removed from the given Folder
      */
     removeFile(docFile: DocFile): boolean;
     /**
+     * @description
      * Note: This function is only available for a Folder of type 'dynamicpublic'.
      * @param serverName The technical name of the desired EDA server.
      */
     removeFilterEDAServer(serverName: string): boolean;
     /**
+     * @description
      * Note: This function is only available for a Folder of type 'dynamicpublic'.
      * @param archiveKey The key of the desired EE.i archive.
      */
     removeFilterEEiArchive(archiveKey: string): boolean;
     /**
+     * @description
      * Note: This function is only available for a Folder of type 'dynamicpublic'.
      * @param viewKey The key of the desired EE.x view.
      */
     removeFilterEExView(viewKey: string): boolean;
     /**
+     * @description
      * Note: This function is only available for a Folder of type 'dynamicpublic'.
      * @param fileType The technical name of the desired file type.
      */
@@ -2389,6 +2660,7 @@ declare interface Folder {
      */
     setParentFolder(parentFolder: Folder): boolean;
     /**
+     * @description
      * Note: 0 at the beginning and -1 at the end.
      * @param subFolder Folder object to be placed at the given position.
      * @param position The 0-based position for the subfolder.
@@ -2405,7 +2677,7 @@ declare interface FolderIterator {
 
 /**
  * The HitResultset class allows comprehensive search operations in Documents and in connected archives. 
- * While the constructor of this class launches a search operation, the created object stores the results and exposes them as a list of DocHit objects. Compared with the classes FileResultset and ArchiveFileResultset this class has got the following characteristics.
+ * While the constructor of this class launches a search operation, the created object stores the results and exposes them as a list of DocHit objects. Compared with the classes <code>FileResultset</code> and <code>ArchiveFileResultset</code> this class has got the following characteristics.
  * <ul>
  * <li>Several filetypes and archives can be searched at one time.</li>
  * <li>Extracting archive hits from a HitResultSet does not make DOCUMENTS create a temporary DocFile for each hit. This can save a lot of time.</li>
@@ -2414,14 +2686,33 @@ declare interface FolderIterator {
  */
 declare class HitResultset {
     /**
-     * Remark: On a failed search request the constructor does not throw errors. To detect this kind of errors scripts should read the object's properties lastErrorCode and lastError.Resource identifiers:
+     * @description
+     * Note: On a failed search request the constructor does not throw errors. To detect this kind of errors scripts should read the object's properties lastErrorCode and lastError.<b>Resource identifiers: </b>
+     * A "resource identifier" can be one of the following: [ examples in brackets ]
+     * <ul>
+     * <li>a filetype name [ ftOrder ]</li>
+     * <li>a filetype name for use with an EDA store [ ftOrder@peachitStore1 ]</li>
+     * <li>a filetype name for use with all EDA stores [ ftOrder@ALLEAS ]</li>
+     * <li>a EE.x view key [ Unit=Default/Instance=Default/View=Orders@MyEEX ]</li>
+     * <li>a EE.i archive key [ $(#STANDARD)\ORDERS@STDARC_360 ]</li>
+     * </ul>
+     * Archive resource identifiers should always get a "@Servername" appendix, though Documents recognizes EE.x and EE.i resources of the primary archive server without that appendix.
+     * <b>Resource ordering and hitlist specification</b>
+     * The resource, which owns a specified hitlist, has to be passed in the first position of the list. Search requests in EE.i/EE.x-archives do not work with a filetype's hitlist. These archives require a hitlist of their own. For this reason, a list of resources of different types must be ordered in the following way: EE.x before EE.i before anything else. Requests, which involve more than one Easy Enterprise server can work only, if a hitlist of the given name exists in each resource of these servers.
+     * <b>Automatic hitlist selection</b>
+     * If the parameter "hitlist" is an empty string, Documents scans the search resources for a named hitlist. If no named hitlist exists, Documents initializes an old-fashioned anonymous hitlist, which is based on the "Display in hit list" option of fields in the Documents Manager and on corresponding options for particular DocFile attributes (title, created, owner, last modified, last editor). An anonymous hitlist does actually not work with EE.x. It partially works with EE.i. In this case, Documents externally uses the setting "CommonDefaultHitlist" of the configuration file "ArchiveXML.ini" and transfers matching columns into the internal hitlist. As long as named hitlists become imported with the archive structure, it does not matter.
+     * Search requests, which involve more than one Easy Enterprise server cannot rely on the automatic selection feature. Scripts should always pass an appropriate hitlist name for these requests.
+     * Since DOCUMENTS 4.0b
+     * Since DOCUMENTS 4.0d HF1 new parameter fullColumnLength
+     * Since DOCUMENTS 5.0 (New option for hitlist parameter: an array of field names instead of a hitlist name)
      * @param searchResources The list of resources to search through. The resource identifiers may be passed either as an array of strings or as an ordinary string with one identifier per line of text. Please read the remarks section about restrictions.
      * @param filter A filter expression. Pass an empty string, if no filter ist required.
      * @param sortOrder A sort expression. Pass an empty string, if no sorting is required.
-     * @param hitlist The technical name of a hitlist or an array of field names, which specifies the available columns in the resultset. If the parameter is left empty, Documents tries to choose a hitlist automatically. Details follow in the remarks section. Note: If this parameter is an array of field names, a search in EE.i or EE.x is not allowed and the field names must not contain commas (,).
+     * @param hitlist The technical name of a hitlist or an array of field names, which specifies the available columns in the resultset. If the parameter is left empty, Documents tries to choose a hitlist automatically. Details follow in the remarks section.
+     * <b>Note:</b> If this parameter is an array of field names, a search in EE.i or EE.x is not allowed and the field names must not contain commas (,).
      * @param [pageSize] This is a memory-saving and performance-tuning option. If the parameter is zero, Documents will load all available hits at once. If the parameter is a positive value, Documents will initially load only the requested number of hits as a first page. In order to access each further page, a call to fetchNextPage() is necessary. A negative pageSize value will be replaced by the current user's "hits per page" preference setting.
      * @param [unlimitedHits] A boolean that indicates, if the general hit limitations on filetypes and archives must be ignored. A wasteful use of this option may cause issues with the system performance or situations with low free memory.
-     * @param [fullColumnLength] A boolean that indicates, if the general hit column length limitations must be ignored. The default column length is 50 characters (if not a different value is defined by the property Documents-Settings: MaxHitfieldLength). If a field value exeeds this size, the first 50 characters will be displayed followed by '...'. If the parameter fullColumnLength is set to true, no truncation will be done.
+     * @param [fullColumnLength] A boolean that indicates, if the general hit column length limitations must be ignored. The default column length is 50 characters (if not a different value is defined by the property Documents-Settings: MaxHitfieldLength). If a field value exeeds this size, the first 50 characters will be displayed followed by '...'. If the parameter fullColumnLength is set to <code>true</code>, no truncation will be done.
      * @param [withBlobInfo] A boolean that indicates, if the HitResultset should contain blob-information that can be fetched with DocHit.getBlobInfo()
      */
     constructor(searchResources: any, filter: string, sortOrder: string, hitlist: any, pageSize?: number, unlimitedHits?: boolean, fullColumnLength?: boolean, withBlobInfo?: boolean);
@@ -2432,7 +2723,8 @@ declare class HitResultset {
     dispose(): any;
 
     /**
-     * Remark: If the object has been created with a non-zero page size, this value is often smaller than the total amount of hits.
+     * @description
+     * Note: If the object has been created with a non-zero page size, this value is often smaller than the total amount of hits.
      */
     fetchedSize(): number;
 
@@ -2444,7 +2736,8 @@ declare class HitResultset {
     first(): DocHit;
 
     /**
-     * Remark: Valid positions range from 0 to fetchedSize()-1.
+     * @description
+     * Note: Valid positions range from 0 to fetchedSize()-1.
      * @param pos Integer position of the hit, beginning with 0
      */
     getAt(pos: number): DocHit;
@@ -2452,13 +2745,15 @@ declare class HitResultset {
     getColumnCount(): number;
 
     /**
-     * Remark: The function tests for a technical column name prior to a localized name.
+     * @description
+     * Note: The function tests for a technical column name prior to a localized name.
      * @param colName The name of the column.
      */
     getColumnIndex(colName: string): number;
 
     /**
-     * Remark: If the resultset is bases on an EE.i hitlist, the function usually returns field numbers instead of technical names, because column descriptions of an EE.i hitlist only consist of the field number and a label. The label would not be a reliable identifier of the column.
+     * @description
+     * Note: If the resultset is bases on an EE.i hitlist, the function usually returns field numbers instead of technical names, because column descriptions of an EE.i hitlist only consist of the field number and a label. The label would not be a reliable identifier of the column.
      * Columns, which correspond to a DocFile attribute may be given a special constant name instead of the name in an archive's scheme. "TITLE" on EE.x and "110" on EE.i may be presented as "DlcFile_Title", for example.
      * @param [local] A boolean option to read the localized names instead of the technical names.
      */
@@ -2467,26 +2762,29 @@ declare class HitResultset {
     getLastError(): string;
 
     /**
-     * Remark: The value 0 means "no error". Positive values indicate warnings or minor errors, while negative values indicate serious errors. After a serious error no hits should be processed. After a minor error, the resultset may be unsorted or truncated, but the contained data is still valid.
+     * @description
+     * Note: The value 0 means "no error". Positive values indicate warnings or minor errors, while negative values indicate serious errors. After a serious error no hits should be processed. After a minor error, the resultset may be unsorted or truncated, but the contained data is still valid.
      */
     getLastErrorCode(): number;
 
     /**
-     * Remark: Calls of getAt() do not affect the internal cursor of next().
+     * @description
+     * Note: Calls of getAt() do not affect the internal cursor of next().
      */
     next(): DocHit;
 
     /**
-     * Remark: If the object has been created with a non-zero page size, this value is often greater than the amount of already accessible hits.
+     * @description
+     * Note: If the object has been created with a non-zero page size, this value is often greater than the amount of already accessible hits.
      */
     size(): number;
 
 }
 
 /**
- * There is exactly one global implicit object of the class PropertyCache which is named propCache. At the SystemUser and the AccessProfile are also PropertyCache objects (SystemUser.propCache, AccessProfile.propCache).
+ * There is exactly one global implicit object of the class <code>PropertyCache</code> which is named <code>propCache</code>. At the SystemUser and the AccessProfile are also PropertyCache objects (<code>SystemUser.propCache, AccessProfile.propCache</code>).
  * <ul>
- * <li>You can define named members (properties) at this object to store the data: propCache.Name1 = one_value;propCache.Name2 = another_value;</li>
+ * <li>You can define named members (properties) at this object to store the data: <code>propCache.Name1 = one_value;</code><code>propCache.Name2 = another_value;</code></li>
  * <li>The stored data can be integer, boolean, string or array values </li>
  * <li>There is no limit (except the memory of the OS) in the amount of properties or in the length of an array </li>
  * <li>Every principal has it's own propCache object </li>
@@ -2507,23 +2805,28 @@ declare interface PropertyCache {
 
 declare interface Register {
     /**
+     * @description
      * Note: This property is readonly and cannot be overwritten.
+     * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files
      */
     label: string;
     /**
+     * @description
      * Note: This property is readonly and cannot be overwritten.
+     * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files
      */
     name: string;
     /**
      * The possible values of the type attribute are listed below:
      * <ul>
-     * <li>documents</li>
-     * <li>fields</li>
-     * <li>links</li>
-     * <li>archiveddocuments</li>
-     * <li>externalcall</li>
+     * <li><code>documents</code></li>
+     * <li><code>fields</code></li>
+     * <li><code>links</code></li>
+     * <li><code>archiveddocuments</code></li>
+     * <li><code>externalcall</code></li>
      * </ul>
      * Note: This property is readonly and cannot be overwritten.
+     * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files
      */
     type: string;
     /**
@@ -2532,6 +2835,7 @@ declare interface Register {
      */
     deleteDocument(doc: Document): boolean;
     /**
+     * @description
      * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files
      * @param attribute String containing the name of the desired attribute
      */
@@ -2541,22 +2845,24 @@ declare interface Register {
      * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files
      */
     getDocuments(): DocumentIterator;
-    getFile(): DocFile;
     getFiles(): FileResultset;
     /**
+     * @description
      * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files
      */
     getLastError(): string;
     /**
+     * @description
      * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files
      * Since DOCUMENTS 5.0 (new parameter oidLow)
      * @param [oidLow] Optional flag:
-     * If true only the id of the filetype object (m_oid) will be returned.
-     * If false the id of the filetype object will be returned together with the id of the corresponding class in the form class-id:m_oid.
-     * The default value is false.
+     * If <code>true</code> only the id of the filetype object (<code>m_oid</code>) will be returned.
+     * If <code>false</code> the id of the filetype object will be returned together with the id of the corresponding class in the form <code>class-id:m_oid</code>.
+     * The default value is <code>false</code>.
      */
     getOID(oidLow?: boolean): string;
     /**
+     * @description
      * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files
      * @param attribute String containing the name of the desired attribute
      * @param value String containing the desired value of the attribute
@@ -2572,20 +2878,27 @@ declare interface Register {
     uploadDocument(filePath: string, registerFileName: string): Document;
 }
 
+/**
+ * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files
+ */
 declare interface RegisterIterator {
     /**
+     * @description
      * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files
      */
     first(): Register;
     /**
+     * @description
      * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files
      */
     getLastError(): string;
     /**
+     * @description
      * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files
      */
     next(): Register;
     /**
+     * @description
      * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files
      */
     size(): number;
@@ -2598,12 +2911,14 @@ declare interface RetrievalField {
      */
     compOp: string;
     /**
-     * Remark: Actually only the "FillSearchMask" exit can attach default values (see setDefault()). There might exist another method in a future version. To improve upward compatibility a "FillSearchMask" script may check for external default values, and leave them unmodified.
+     * @description
+     * Note: Actually only the "FillSearchMask" exit can attach default values (see setDefault()). There might exist another method in a future version. To improve upward compatibility a "FillSearchMask" script may check for external default values, and leave them unmodified.
      */
     defaultValue: string;
     defValWriteProt: boolean;
     /**
-     * Remark: If the field has not got a label, DOCUMENTS falls back to the technical name. So there is no need to specify a label always. A few reserved internal fields, which are usualli never displayed on a search mask or a hit list, also come along without any label. An example is the special field "Search_EEIFileNr", which DOCUMENTS uses internally to implement a version listing for an ENTERPRISE.i file.
+     * @description
+     * Note: If the field has not got a label, DOCUMENTS falls back to the technical name. So there is no need to specify a label always. A few reserved internal fields, which are usualli never displayed on a search mask or a hit list, also come along without any label. An example is the special field "Search_EEIFileNr", which DOCUMENTS uses internally to implement a version listing for an ENTERPRISE.i file.
      */
     label: string;
     name: string;
@@ -2612,6 +2927,7 @@ declare interface RetrievalField {
      */
     type: number;
     /**
+     * @description
      * Note: The access to this property is restricted. Only the "OnSearchScript" can effectively modify it. Modifying the value is risky, because it can produce unexpected results from the user's point of view. Within a "FillSearchMask" exit this property contains always an empty string.
      */
     valueExpr: string;
@@ -2632,10 +2948,12 @@ declare interface RetrievalSource {
      */
     resId: string;
     /**
+     * @description
      * Note: Modifications of this property won't be forwarded to the retrieval system.
      */
     server: string;
     /**
+     * @description
      * Note: Modifications of this property won't be forwarded to the retrieval system.
      */
     type: number;
@@ -2655,7 +2973,12 @@ declare class ScriptCall {
      * <li>event </li>
      * </ul>
      * You can change these context properties with the available set-methods.
-     * @param systemUser The system user who triggers execution of the called script and can be specified as follows: String containing the login name of the system user. SystemUser object representing the system user.
+     * Since DOCUMENTS 4.0d
+     * @param systemUser The system user who triggers execution of the called script and can be specified as follows:
+     * <ul>
+     * <li>String containing the login name of the system user. </li>
+     * <li>SystemUser object representing the system user. </li>
+     * </ul>
      * @param scriptName String with the name of the called script.
      * @param waitable boolean flag indicating whether this script call is waitable.
      */
@@ -2670,11 +2993,13 @@ declare class ScriptCall {
     getLastError(): string;
 
     /**
+     * @description
      * Note: This function is only available for a waitable ScriptCall.
      */
     getReturnValue(): string;
 
     /**
+     * @description
      * Note: This function is only available for a waitable script call.
      */
     isRunning(): boolean;
@@ -2705,6 +3030,7 @@ declare class ScriptCall {
     setRegister(register: Register): boolean;
 
     /**
+     * @description
      * Note: This function is only available for a waitable script call.
      */
     waitForFinish(): boolean;
@@ -2716,6 +3042,7 @@ declare class ScriptCall {
  */
 declare interface SystemUser {
     /**
+     * @description
      * Note: The access mask is returned by SystemUser.getAccess(DocFile)
      */
     ANNOTATIONS: number;
@@ -2745,6 +3072,7 @@ declare interface SystemUser {
      */
     CREATE: number;
     /**
+     * @description
      * Note: The access mask is returned by SystemUser.getAccess(DocFile)
      */
     CREATE_WORKFLOW: number;
@@ -2769,11 +3097,11 @@ declare interface SystemUser {
     PDF: number;
     /**
      * @description
-     * varuser=context.getSystemUser();
-     * if(!user.propCache.hasProperty("Contacts"))
+     * var user = context.getSystemUser();
+     * if (!user.propCache.hasProperty("Contacts"))
      * {
-     * util.out("Creatingcache");
-     * user.propCache.Contacts=["Peter","Paul","Marry"];
+     * util.out("Creating cache");
+     * user.propCache.Contacts = ["Peter", "Paul", "Marry"];
      * }
      */
     propCache: PropertyCache;
@@ -2788,10 +3116,12 @@ declare interface SystemUser {
      */
     REMOVE: number;
     /**
+     * @description
      * Note: The access mask is returned by SystemUser.getAccess(DocFile)
      */
     START_WORKFLOW: number;
     /**
+     * @description
      * Note: The access mask is returned by SystemUser.getAccess(DocFile)
      */
     VERSION: number;
@@ -2807,16 +3137,27 @@ declare interface SystemUser {
      */
     addCustomProperty(name: string, type: string, value: string): CustomProperty;
     /**
-     * @param fileTypes The desired file types may be passed as follows: String containing the technical name of the desired file type; Array of strings containing the technical names of the desired file types; String constant "*" indicating all file types.
+     * @param fileTypes The desired file types may be passed as follows:
+     * <ul>
+     * <li>String containing the technical name of the desired file type; </li>
+     * <li>Array of strings containing the technical names of the desired file types; </li>
+     * <li>String constant "*" indicating all file types. </li>
+     * </ul>
      * @param loginNames Array of strings containing the login names of the agents.
      */
     addFileTypeAgent(fileTypes: any, loginNames: any[]): boolean;
     /**
-     * @param fileTypes The desired file types may be passed as follows: String containing the technical name of the desired file type; Array of strings containing the technical names of the desired file types; String constant "*" indicating all file types.
+     * @param fileTypes The desired file types may be passed as follows:
+     * <ul>
+     * <li>String containing the technical name of the desired file type; </li>
+     * <li>Array of strings containing the technical names of the desired file types; </li>
+     * <li>String constant "*" indicating all file types. </li>
+     * </ul>
      * @param scriptName String containing the name of the script specifying the file type agents.
      */
     addFileTypeAgentScript(fileTypes: any, scriptName: string): boolean;
     /**
+     * @description
      * Since DOCUMENTS 4.0b HF1 for Fellows
      * @param ap AccessProfile the user should be a member of
      */
@@ -2830,6 +3171,7 @@ declare interface SystemUser {
      */
     delegateFilesOfAbsentUser(): boolean;
     /**
+     * @description
      * Note: There is a constant for any right flag in the access mask (e.g. SystemUser.READ specifies the read right).
      * @param docFile DocFile object to which the access rights should be retrieved.
      */
@@ -2858,17 +3200,31 @@ declare interface SystemUser {
     getIndividualFolders(): FolderIterator;
     getLastError(): string;
     /**
+     * @description
      * Since DOCUMENTS 5.0 (new parameter oidLow)
      * @param [oidLow] Optional flag:
-     * If true only the id of the filetype object (m_oid) will be returned.
-     * If false the id of the filetype object will be returned together with the id of the corresponding class in the form class-id:m_oid.
-     * The default value is false.
+     * If <code>true</code> only the id of the filetype object (<code>m_oid</code>) will be returned.
+     * If <code>false</code> the id of the filetype object will be returned together with the id of the corresponding class in the form <code>class-id:m_oid</code>.
+     * The default value is <code>false</code>.
      */
     getOID(oidLow?: boolean): string;
     /**
      * In addition to the public folders you may define in DOCUMENTS, each DOCUMENTS user has a set of private folders. You might need to access a particular private folder to access its contents, for example.
      * @param folderType String value defining the kind of private folder you want to access.
-     * You may choose between "individual" individual folder Note: This function returns only the first individual folder on the top level. Using SystemUser.getIndividualFolders() to retrieve all individual folders. "favorites" favorites folder "inbox" the user's inbox "sent" the user's sent folder "sendingfinished" user's folder containing files which finished their workflow "inwork" folder containing the files the SystemUser created himself "resubmission" folder containing files with a resubmission defined for the SystemUser"trash" folder containing files the user has deleted "tasks" folder containing all files the user has a task to perform to "lastused" folder containing the files the SystemUser accessed latest, sorted in descending chronological order "introuble" folder containing files which ran into some workflow error. This folder is only available for editors and only if it has been added manually by the administrator.
+     * You may choose between
+     * <ul>
+     * <li><code>"individual"</code> individual folder undefinedNote: This function returns only the first individual folder on the top level. Using SystemUser.getIndividualFolders() to retrieve all individual folders. </li>
+     * <li><code>"favorites"</code> favorites folder </li>
+     * <li><code>"inbox"</code> the user's inbox </li>
+     * <li><code>"sent"</code> the user's sent folder </li>
+     * <li><code>"sendingfinished"</code> user's folder containing files which finished their workflow </li>
+     * <li><code>"inwork"</code> folder containing the files the SystemUser created himself </li>
+     * <li><code>"resubmission"</code> folder containing files with a resubmission defined for the SystemUser</li>
+     * <li><code>"trash"</code> folder containing files the user has deleted </li>
+     * <li><code>"tasks"</code> folder containing all files the user has a task to perform to </li>
+     * <li><code>"lastused"</code> folder containing the files the SystemUser accessed latest, sorted in descending chronological order </li>
+     * <li><code>"introuble"</code> folder containing files which ran into some workflow error. This folder is only available for editors and only if it has been added manually by the administrator. </li>
+     * </ul>
      */
     getPrivateFolder(folderType: string): Folder;
     getSuperior(): SystemUser;
@@ -2887,18 +3243,24 @@ declare interface SystemUser {
      */
     listFileTypeAgents(fileType: string): any[];
     /**
-     * @param [notifying] boolean indicating whether files returned from sending are to be notified to the user. The default value is true.
+     * @param [notifying] boolean indicating whether files returned from sending are to be notified to the user. The default value is <code>true</code>.
      */
     notifyFileReturnedFromSending(notifying?: boolean): boolean;
     /**
-     * @param [notifying] boolean indicating whether new files in inbox are to be notified to the user. The default value is true.
+     * @param [notifying] boolean indicating whether new files in inbox are to be notified to the user. The default value is <code>true</code>.
      */
     notifyNewFileInInbox(notifying?: boolean): boolean;
     /**
-     * @param fileTypes The desired file types may be passed as follows: String containing the technical name of the desired file type; Array of strings containing the technical names of the desired file types; String constant "*" indicating all file types.
+     * @param fileTypes The desired file types may be passed as follows:
+     * <ul>
+     * <li>String containing the technical name of the desired file type; </li>
+     * <li>Array of strings containing the technical names of the desired file types; </li>
+     * <li>String constant "*" indicating all file types. </li>
+     * </ul>
      */
     removeFileTypeAgent(fileTypes: any): boolean;
     /**
+     * @description
      * Since DOCUMENTS 4.0b HF1 for Fellows
      * @param ap
      */
@@ -2908,8 +3270,8 @@ declare interface SystemUser {
      * If a Systemuser is on holiday with this function it is possible to set the user absent. After his return you can set him present. You can also define one or more agents for the absent user. The agent will get new files for the absent user in substitution. With the agent list you set the agents for the user (you overwrite the existing agents!). With an empty agent list you remove all agents.
      * Since DOCUMENTS 4.0d (Option: removeFromAgentInbox)
      * Since DOCUMENTS 5.0a (Option: from and until)
-     * @param absent boolean true, if the user should be set absent, false, if the user is present
-     * @param [filesDueAbsenceToInfo] boolean set to true, if the user should get the files due absence to info in his inbox
+     * @param absent boolean <code>true</code>, if the user should be set absent, <code>false</code>, if the user is present
+     * @param [filesDueAbsenceToInfo] boolean set to <code>true</code>, if the user should get the files due absence to info in his inbox
      * @param [agents] Array with the login-names of the agents
      * @param [removeFromAgentInbox] Optional boolean indicating whether the files are removed from agent inbox after getting back by the user. If this parameter is not specified, the value from the user settings in the absent dialog on the web is used.
      * @param [from] Optional Date object specifying when the absence begins.
@@ -2918,10 +3280,17 @@ declare interface SystemUser {
     setAbsent(absent: boolean, filesDueAbsenceToInfo?: boolean, agents?: string[], removeFromAgentInbox?: boolean, from?: Date, until?: Date): boolean;
     /**
      * If a Systemuser is absent and get a file in the inbox, an absence mail to the sender of this file can be send.
-     * @param sendMail boolean true, if an absent mail should be sent, otherwise false
+     * @param sendMail boolean <code>true</code>, if an absent mail should be sent, otherwise <code>false</code>
      * @param [message] String with an additional e-mail message from the absent user
      */
     setAbsentMail(sendMail: boolean, message?: string): boolean;
+    /**
+     * All existing AccessProfiles will be removed and the AccessProfiles from the parameters will be set.
+     * @param apNames1 String or Array with the names of the AccessProfiles
+     * @param apNames2 String or Array with the names of the AccessProfiles
+     * @param ...restParams
+     */
+    setAccessProfiles(apNames1: any, apNames2: any, ...restParams: any[]): boolean;
     /**
      * @param attribute String containing the name of the desired attribute
      * @param value String containing the desired value of the attribute
@@ -2985,46 +3354,53 @@ declare class UserAction {
     getLastError(): string;
 
     /**
+     * @description
      * Since DOCUMENTS 5.0 (new parameter oidLow)
      * @param [oidLow] Optional flag:
-     * If true only the id of the filetype object (m_oid) will be returned.
-     * If false the id of the filetype object will be returned together with the id of the corresponding class in the form class-id:m_oid.
-     * The default value is false.
+     * If <code>true</code> only the id of the filetype object (<code>m_oid</code>) will be returned.
+     * If <code>false</code> the id of the filetype object will be returned together with the id of the corresponding class in the form <code>class-id:m_oid</code>.
+     * The default value is <code>false</code>.
      */
     getOID(oidLow?: boolean): string;
 
     getPosition(): number;
 
     /**
+     * @description
      * Note: If the user action has not yet been added to a proper parent object, this function does nothing.
      */
     remove(): boolean;
 
     /**
+     * @description
      * Note: This function is only available for a user action of type JSP.
      * @param context String containing the desired context.
      */
     setContext(context: string): boolean;
 
     /**
+     * @description
      * Note: This function is only available for a user action of type NewFile.
      * @param createDefaultWorkflow Flag indicating whether to create the default workflow for a new file.
      */
     setCreateDefaultWorkflow(createDefaultWorkflow: boolean): boolean;
 
     /**
+     * @description
      * Note: This function is only available for a user action of type NewFile.
      * @param fileType The technical name of the desired file type; use empty string ('') if you want to remove the associated file type.
      */
     setFileTypeForNewFile(fileType: string): boolean;
 
     /**
+     * @description
      * Note: This function is only available for a user action of type PortalScript.
      * @param scriptName The name of the desired portal script; use empty string ('') if you want to remove the associated script.
      */
     setPortalScript(scriptName: string): boolean;
 
     /**
+     * @description
      * Note: 0 at the beginning and -1 at the end.
      * @param position The 0-based position for the user action.
      */
@@ -3033,23 +3409,31 @@ declare class UserAction {
 }
 
 /**
- * These functions allow customizable Date/String conversions and other useful stuff. There is exactly ONE implicit object of the class Util which is named util.
+ * These functions allow customizable Date/String conversions and other useful stuff. There is exactly ONE implicit object of the class <code>Util</code> which is named <code>util</code>.
  * Note: It is not possible to create objects of the class Util. There are no properties in this class, it supports only the help functions as documented below.
  */
 declare namespace util {
+    /**
+     * This property allows to retrieve the build version number of the PortalServer to customize your PortalScripts in dependence of the used PortalServer.
+     * Note: This property is readonly.
+     */
     var buildNo: number;
 
     /**
      * The following databases are supported by the PortalServer:
      * <ul>
-     * <li>oracle</li>
-     * <li>mysql</li>
-     * <li>mssql</li>
+     * <li><code>oracle</code></li>
+     * <li><code>mysql</code></li>
+     * <li><code>mssql</code></li>
      * </ul>
      * Note: This property is readonly.
      */
     var DB: string;
 
+    /**
+     * There are two possible memory models available : x64 or x86.
+     * Note: This property is readonly.
+     */
     var memoryModel: string;
 
     /**
@@ -3099,8 +3483,21 @@ declare namespace util {
      * Since DOCUMENTS 5.0a (new: Special formats @date and @timestamp)
      * @param timeStamp Date object representing the desired date
      * @param format String defining the date format of the output String, e.g. "dd.mm.yyyy".
-     * The possible format parts are: dd = two digit day mm = two digit month yy = two digit year yyyy = four digit year HH = two digit hour (24 hour format) MM = two digit minute SS = two digit second
-     * Special formats: @date = @yyyymmdd (locale independant format for filter in a FileResultset, HitResultset) @timestamp = @yyyymmddHHMMSS (locale independant format for filter in a FileResultset, HitResultset)
+     * The possible format parts are:
+     * <ul>
+     * <li><code>dd</code> = two digit day </li>
+     * <li><code>mm</code> = two digit month </li>
+     * <li><code>yy</code> = two digit year </li>
+     * <li><code>yyyy</code> = four digit year </li>
+     * <li><code>HH</code> = two digit hour (24 hour format) </li>
+     * <li><code>MM</code> = two digit minute </li>
+     * <li><code>SS</code> = two digit second</li>
+     * </ul>
+     * Special formats:
+     * <ul>
+     * <li><code>@date</code> = @yyyymmdd (locale independant format for filter in a FileResultset, HitResultset) </li>
+     * <li><code>@timestamp</code> = @yyyymmddHHMMSS (locale independant format for filter in a FileResultset, HitResultset) </li>
+     * </ul>
      */
     function convertDateToString(timeStamp: Date, format: string): string;
 
@@ -3109,8 +3506,21 @@ declare namespace util {
      * Since DOCUMENTS 5.0a (new: Special formats @date and @timestamp)
      * @param dateOrTimeStamp String representing a date, e.g. "19.09.1974"
      * @param format String defining the date format of the input String, e.g. "dd.mm.yyyy".
-     * The possible format parts are: dd = two digit day mm = two digit month yy = two digit year yyyy = four digit year HH = two digit hour (24 hour format) MM = two digit minute SS = two digit second
-     * Special formats: @date = @yyyymmdd (locale independant format for filter in a FileResultset, HitResultset) @timestamp = @yyyymmddHHMMSS (locale independant format for filter in a FileResultset, HitResultset)
+     * The possible format parts are:
+     * <ul>
+     * <li><code>dd</code> = two digit day </li>
+     * <li><code>mm</code> = two digit month </li>
+     * <li><code>yy</code> = two digit year </li>
+     * <li><code>yyyy</code> = four digit year </li>
+     * <li><code>HH</code> = two digit hour (24 hour format) </li>
+     * <li><code>MM</code> = two digit minute </li>
+     * <li><code>SS</code> = two digit second</li>
+     * </ul>
+     * Special formats:
+     * <ul>
+     * <li><code>@date</code> = @yyyymmdd (locale independant format for filter in a FileResultset, HitResultset) </li>
+     * <li><code>@timestamp</code> = @yyyymmddHHMMSS (locale independant format for filter in a FileResultset, HitResultset) </li>
+     * </ul>
      */
     function convertStringToDate(dateOrTimeStamp: string, format: string): Date;
 
@@ -3192,6 +3602,7 @@ declare namespace util {
     function getFileContentAsString(filePath: string): string;
 
     /**
+     * This function is designed to simplify the composition of filter expressions for a FileResultSet or an ArchiveFileResultSet. If the input string does not contain any double quotation mark ("), the function returns the input enclosed in double quotation marks. Otherwise the function tests if it can use single quotation marks (') instead. If both quotation styles are already used within the input, the function throws an exception.
      * @param input
      */
     function getQuoted(input: string): string;
@@ -3213,21 +3624,21 @@ declare namespace util {
     /**
      * These hash functions are supported:
      * <ul>
-     * <li>"sha1"</li>
-     * <li>"sha224"</li>
-     * <li>"sha256"</li>
-     * <li>"sha384"</li>
-     * <li>"sha512"</li>
-     * <li>"md4"</li>
-     * <li>"md5"</li>
+     * <li><code>"sha1"</code></li>
+     * <li><code>"sha224"</code></li>
+     * <li><code>"sha256"</code></li>
+     * <li><code>"sha384"</code></li>
+     * <li><code>"sha512"</code></li>
+     * <li><code>"md4"</code></li>
+     * <li><code>"md5"</code></li>
      * </ul>
      * @param hashfunction Name of the hash function.
      * @param key Secret key.
      * @param message Message string to be hashed.
      * @param [rawOutput] Optional flag:
-     * If set to true, the function outputs the raw binary representation of the hmac.
-     * If set to false, the function outputs the hexadecimal representation of the hmac.
-     * The default value is false.
+     * If set to <code>true</code>, the function outputs the raw binary representation of the hmac.
+     * If set to <code>false</code>, the function outputs the hexadecimal representation of the hmac.
+     * The default value is <code>false</code>.
      */
     function hmac(hashfunction: string, key: string, message: string, rawOutput?: Boolean): string;
 
@@ -3244,7 +3655,7 @@ declare namespace util {
     function length_u(value: string): number;
 
     /**
-     * Same as util.out() with additional debugging information (script name and line number) You may output whatever information you want. This function is useful especially for debugging purposes. Be aware that you should run the Portalserver as an application if you want to make use of the out() function, otherwise the output is stored in the Windows Eventlog instead.
+     * Same as util.out() with additional debugging information (script name and line number) You may output whatever information you want. This function is useful especially for debugging purposes. Be aware that you should run the Portalserver as an application if you want to make use of the <code>out()</code> function, otherwise the output is stored in the Windows Eventlog instead.
      * @param output String you want to output to the Portalserver Window
      */
     function log(output: string): any;
@@ -3256,6 +3667,9 @@ declare namespace util {
     function makeFullDir(dirPath: string): string;
 
     /**
+     * This method helps to create valid GACL values when set by PortalScripting.
+     * As separator for the single GACL values a <code>\r\n</code> (<code>%CRLF%</code>) will be used. The values will be trimed (leading and ending whitespaces) and multiple values will be removed.
+     * The method returns a String value in the format <code>\r\n</code> AP1 <code>\r\n</code> AP2 <code>\r\n</code> .... <code>\r\n</code> APx <code>\r\n</code>
      * @param val1
      * @param val2
      * @param ...restParams
@@ -3265,11 +3679,11 @@ declare namespace util {
     /**
      * This function masks the following characters for HTML output:
      * <table border=1 cellspacing=0>
-     * <tr><td>></td><td>&gt; </td></tr>
-     * <tr><td><</td><td>&lt; </td></tr>
-     * <tr><td>\n</td><td><br> </td></tr>
-     * <tr><td>&</td><td>&amp; </td></tr>
-     * <tr><td>"</td><td>&quot; </td></tr>
+     * <tr><td><code>></code></td><td>&gt; </td></tr>
+     * <tr><td><code><</code></td><td>&lt; </td></tr>
+     * <tr><td><code>\n</code></td><td><br> </td></tr>
+     * <tr><td><code>&</code></td><td>&amp; </td></tr>
+     * <tr><td><code>"</code></td><td>&quot; </td></tr>
      * </table>
      * If the String is in UTF-8 Format, all UTF-8 characters will be replaced with the according HTML entities.
      * @param val String to be masked
@@ -3278,7 +3692,7 @@ declare namespace util {
     function makeHTML(val: string, isUTF8?: boolean): string;
 
     /**
-     * You may output whatever information you want. This function is useful especially for debugging purposes. Be aware that you should run the Portalserver as an application if you want to make use of the out() function, otherwise the output is stored in the Windows Eventlog instead.
+     * You may output whatever information you want. This function is useful especially for debugging purposes. Be aware that you should run the Portalserver as an application if you want to make use of the <code>out()</code> function, otherwise the output is stored in the Windows Eventlog instead.
      * @param output String you want to output to the Portalserver Window
      */
     function out(output: string): any;
@@ -3311,6 +3725,16 @@ declare namespace util {
     function substr_u(value: string, startIndex: number, length: number): string;
 
     /**
+     * This method performs an transcoding for a String from a source encoding to a target encoding.
+     * The following encodings are supported:
+     * <ul>
+     * <li><code>Local</code>: The standard system encoding for Windows systems is <code>Windows-1252</code> and for Linux systems <code>ISO-8859-1</code> or <code>UTF-8</code>. </li>
+     * <li><code>UTF-8</code>: Unicode-characterset as ASCII-compatible 8-Bit-coding. </li>
+     * <li><code>ISO-8859-1</code>: West-European characterset without Euro-Symbol. </li>
+     * <li><code>ISO-8859-15</code>: West-European characterset with Euro-Symbol. </li>
+     * <li><code>Windows-1252</code></li>
+     * <li><code>Windows-1250</code></li>
+     * </ul>
      * @param nameSourceEncoding
      * @param text
      * @param nameTargetEncoding
@@ -3330,34 +3754,42 @@ declare namespace util {
  */
 declare interface WorkflowStep {
     /**
+     * @description
      * Note: This property requires a full workflow engine license, it does not work with pure submission lists. The property is readonly.
      */
     executiveGroup: string;
     /**
+     * @description
      * Note: This property requires a full workflow engine license, it does not work with pure submission lists. The property is readonly.
      */
     executiveType: string;
     /**
+     * @description
      * Note: This property requires a full workflow engine license, it does not work with pure submission lists. The property is readonly.
      */
     executiveUser: string;
     /**
+     * @description
      * Note: This property requires a full workflow engine license, it does not work with pure submission lists. The property is readonly.
      */
     firstControlFlow: string;
     /**
+     * @description
      * Note: This property requires a full workflow engine license, it does not work with pure submission lists. The property is readonly.
      */
     id: string;
     /**
+     * @description
      * Note: This property requires a full workflow engine license, it does not work with pure submission lists. The property is readonly.
      */
     name: string;
     /**
+     * @description
      * Note: This property requires a full workflow engine license, it does not work with pure submission lists. The property is readonly.
      */
     status: string;
     /**
+     * @description
      * Note: This property requires a full workflow engine license, it does not work with pure submission lists. The property is readonly.
      */
     templateId: string;
@@ -3370,51 +3802,61 @@ declare interface WorkflowStep {
      */
     forwardFile(controlFlowId: string, comment?: string): boolean;
     /**
+     * @description
      * Note: This function requires a full workflow engine license, it does not work with pure submission lists.
      * @param attribute String containing the name of the desired attribute
      */
     getAttribute(attribute: string): string;
     /**
+     * @description
      * Note: This function requires a full workflow engine license, it does not work with pure submission lists.
      */
     getControlFlows(): ControlFlowIterator;
     /**
+     * @description
      * Note: This function requires a full workflow engine license, it does not work with pure submission lists.
      */
     getLastError(): string;
     /**
+     * @description
      * Since DOCUMENTS 5.0 (new parameter oidLow)
      * @param [oidLow] Optional flag:
-     * If true only the id of the filetype object (m_oid) will be returned.
-     * If false the id of the filetype object will be returned together with the id of the corresponding class in the form class-id:m_oid.
-     * The default value is false.
+     * If <code>true</code> only the id of the filetype object (<code>m_oid</code>) will be returned.
+     * If <code>false</code> the id of the filetype object will be returned together with the id of the corresponding class in the form <code>class-id:m_oid</code>.
+     * The default value is <code>false</code>.
      */
     getOID(oidLow?: boolean): string;
     /**
+     * @description
      * Note: This function is only available for workflows, but not submission lists.
      */
     getWorkflowName(): string;
     /**
+     * @description
      * Note: This function is only available for workflows, but not submission lists.
      * @param propertyName String containing the name of the desired property
      */
     getWorkflowProperty(propertyName: string): string;
     /**
+     * @description
      * Note: This function is only available for workflows, but not submission lists.
      */
     getWorkflowVersion(): string;
     /**
+     * @description
      * Note: This function requires a full workflow engine license, it does not work with pure submission lists.
      * @param attribute String containing the name of the desired attribute
      * @param value String containing the desired value of the attribute
      */
     setAttribute(attribute: string, value: string): boolean;
     /**
+     * @description
      * Note: This function requires a full workflow engine license, it does not work with pure submission lists.
      * @param accessProfileName String containing the technical name of the access profile.
      */
     setNewExecutiveGroup(accessProfileName: string): boolean;
     /**
+     * @description
      * Note: This function requires a full workflow engine license, it does not work with pure submission lists.
      * @param loginUser String containing the login name of the desired user.
      */
@@ -3449,20 +3891,46 @@ declare interface WorkflowStepIterator {
  * <li>DocumentsSettings </li>
  * </ul>
  * 
- * The XML files may also be reimported into another (or the same) Portal environment by the Docimport application for DocFile objects and by the XML-import of DOCUMENTS Manager for the remaining elements, respectively.
+ * The XML files may also be reimported into another (or the same) Portal environment by the Docimport application for DocFile objects and by the XML-import of DOCUMENTS Manager for the remaining elements, respectively. 
+ * Since DOCUMENTS 4.0c available for PortalScript, Filetype, Folder, Workflow, Distribution List, Editor, AccessProfile, Alias and Filing Plan 
+ * Since DOCUMENTS 4.0d available for Outbar 
+ * Since DOCUMENTS 4.0e available for DocumentsSettings
  */
 declare class XMLExport {
     /**
      * The constructor is neccessary to initialize the XMLExport object with some basic settings. The pathFileName parameter is mandatory, the path must be an existing directory structure, and the target file should not yet exist in that directory structure.
+     * Since ELC 3.51b / otrisPORTAL 5.1b
      * Since DOCUMENTS 4.0c (new parameter exportDocFile)
      * @param pathFileName String containing full path and file name of the desired target output XML file
-     * @param [exportDocFile] Optional boolean value: true indicating that the created XMLExport instance is only able to export DocFile objects; false indicating the created XMLExport instance is able to export the following elements: PortalScript Filetype FolderWorkflow Distribution List Editor (Fellow) AccessProfileAlias Filing Plan Outbar DocumentsSettings
-     * The default value is true.
+     * @param [exportDocFile] Optional boolean value:
+     * <ul>
+     * <li><code>true</code> indicating that the created XMLExport instance is only able to export DocFile objects; </li>
+     * <li><code>false</code> indicating the created XMLExport instance is able to export the following elements:
+     * <ul>
+     * <li>PortalScript </li>
+     * <li>Filetype </li>
+     * <li>Folder</li>
+     * <li>Workflow </li>
+     * <li>Distribution List </li>
+     * <li>Editor (Fellow) </li>
+     * <li>AccessProfile</li>
+     * <li>Alias </li>
+     * <li>Filing Plan </li>
+     * <li>Outbar </li>
+     * <li>DocumentsSettings </li>
+     * </ul>
+     * </li>
+     * </ul>
+     * The default value is <code>true</code>.
      */
     constructor(pathFileName: string, exportDocFile?: boolean);
 
     /**
-     * @param accessProfile The desired access profile to be added to the XML output and specified as follows: String containing the technical name of the access profile AccessProfile object
+     * @param accessProfile The desired access profile to be added to the XML output and specified as follows:
+     * <ul>
+     * <li>String containing the technical name of the access profile </li>
+     * <li>AccessProfile object </li>
+     * </ul>
      */
     addAccessProfile(accessProfile: any): boolean;
 
@@ -3479,15 +3947,24 @@ declare class XMLExport {
     addDocumentsSettings(): boolean;
 
     /**
+     * @description
      * Since DOCUMENTS 4.0c HF2 (new parameter includePrivateFolders)
-     * @param editor The editor to be added to the XML output and specified as follows: String containing the login name of the editor. SystemUser object representing the editor.
+     * @param editor The editor to be added to the XML output and specified as follows:
+     * <ul>
+     * <li>String containing the login name of the editor. </li>
+     * <li>SystemUser object representing the editor. </li>
+     * </ul>
      * @param [includePrivateFolders] boolean value indicating whether to export the private folders of the fellow
      */
     addFellow(editor: any, includePrivateFolders?: boolean): boolean;
 
     /**
      * @param docFile An object of the DocFile class which should be added to the XML output
-     * @param [exportCondition] Optional export conditions specified as follows: boolean value indicating whether the file id should be exported as update key. XMLExportDescription object defining serveral conditions for the exporting process of the DocFile object.
+     * @param [exportCondition] Optional export conditions specified as follows:
+     * <ul>
+     * <li>boolean value indicating whether the file id should be exported as update key. </li>
+     * <li>XMLExportDescription object defining serveral conditions for the exporting process of the DocFile object. </li>
+     * </ul>
      * The default value is true.
      */
     addFile(docFile: DocFile, exportCondition?: any): boolean;
@@ -3508,7 +3985,16 @@ declare class XMLExport {
      * This function is able to add the folder structure or the files in the folder to the XMLExport.
      * @param folder The Folder object to be added to the XML output.
      * @param exportStructure boolean value indicating whether to export the folder structure or the files in the folder, on which the current user has read rights. If you want to export the files in the folder, an XMLExport instance being able to export DocFile should be used.
-     * @param exportCondition The export conditions can be specified as follows: boolean value indicating whether the file id should be exported as update key in case of exporting files in the folder; indicating whether the subfolders should be exported in case of exporting the folder structure. XMLExportDescription object defining serveral conditions for the exporting process of the files in the folder.
+     * @param exportCondition The export conditions can be specified as follows:
+     * <ul>
+     * <li>boolean value
+     * <ul>
+     * <li>indicating whether the file id should be exported as update key in case of exporting files in the folder; </li>
+     * <li>indicating whether the subfolders should be exported in case of exporting the folder structure. </li>
+     * </ul>
+     * </li>
+     * <li>XMLExportDescription object defining serveral conditions for the exporting process of the files in the folder. </li>
+     * </ul>
      */
     addFolder(folder: Folder, exportStructure: boolean, exportCondition: any): boolean;
 
@@ -3524,43 +4010,55 @@ declare class XMLExport {
     addOutbar(outbarName: string): boolean;
 
     /**
-     * @param userAccount The user account to be added to the XML output and specified as follows: String containing the login name of the user account. SystemUser object representing the user account.
+     * @param userAccount The user account to be added to the XML output and specified as follows:
+     * <ul>
+     * <li>String containing the login name of the user account. </li>
+     * <li>SystemUser object representing the user account. </li>
+     * </ul>
      * @param [includePrivateFolders] boolean value indicating whether to export the private folders of the user account
      */
     addPartnerAccount(userAccount: any, includePrivateFolders?: boolean): boolean;
 
     /**
+     * @description
      * Note: The XML files exported in DOCUMENTS 5.0 format are incompatible with DOCUMENTS 4.0.
      * Since DOCUMENTS 5.0 HF1 (default format is 5.0)
      * @param namePattern The name pattern of the PortalScripts to be added to the XML output.
-     * @param [format] Optional String value defining the desired export format. The following formats are available: 4.0 (DOCUMENTS 4.0) 5.0 (DOCUMENTS 5.0)
+     * @param [format] Optional String value defining the desired export format. The following formats are available:
+     * <ul>
+     * <li>4.0 (DOCUMENTS 4.0) </li>
+     * <li>5.0 (DOCUMENTS 5.0) </li>
+     * </ul>
      * The default value is "5.0".
      */
     addPortalScript(namePattern: string, format?: string): boolean;
 
     /**
-     * This method does not export the content of a PortalScript (see XMLExport.addPortalScript()), but executes a PortalScript at the end of the XML-Import of the whole xml file.
-     * @param nameScript The name of the PortalScript, that should be executed.
-     */
-    addPortalScriptCall(nameScript: string): boolean;
-
-    /**
+     * @description
      * Note: The XML files exported in DOCUMENTS 5.0 format are incompatible with DOCUMENTS 4.0.
      * Since DOCUMENTS 5.0 HF1 (default format is 5.0)
      * @param nameCategory The category name of the PortalScripts to be added to the XML output.
-     * @param [format] Optional String value defining the desired export format. The following formats are available: 4.0 (DOCUMENTS 4.0) 4.0 (DOCUMENTS 5.0)
+     * @param [format] Optional String value defining the desired export format. The following formats are available:
+     * <ul>
+     * <li>4.0 (DOCUMENTS 4.0) </li>
+     * <li>4.0 (DOCUMENTS 5.0) </li>
+     * </ul>
      * The default value is "5.0".
      */
     addPortalScriptsFromCategory(nameCategory: string, format?: string): boolean;
 
     /**
-     * @param systemUser The SystemUser to be added to the XML output and specified as follows: String containing the login name of the SystemUser. SystemUser object representing the user account.
+     * @param systemUser The SystemUser to be added to the XML output and specified as follows:
+     * <ul>
+     * <li>String containing the login name of the SystemUser. </li>
+     * <li>SystemUser object representing the user account. </li>
+     * </ul>
      * @param [includePrivateFolders] boolean value indicating whether to export the private folders of the SystemUser
      */
     addSystemUser(systemUser: any, includePrivateFolders?: boolean): boolean;
 
     /**
-     * @param workflowName String containing the technical name and optional the version number of the workflow to be added to the XML output. The format of the workflowName is technicalName[-version]. If you don't specify the version of the workflow, the workflow with the highest workflow version number will be used. If you want to add a specific version, you have to use technicalName-version e.g. "Invoice-2" as workflowName.
+     * @param workflowName String containing the technical name and optional the version number of the workflow to be added to the XML output. The format of the workflowName is <code>technicalName</code>[-version]. If you don't specify the version of the workflow, the workflow with the highest workflow version number will be used. If you want to add a specific version, you have to use technicalName-version e.g. "Invoice-2" as workflowName.
      */
     addWorkflow(workflowName: string): boolean;
 
@@ -3589,7 +4087,8 @@ declare class XMLExport {
  */
 declare class XMLExportDescription {
     /**
-     * Like in other programming languages you create a new object with the new operator (refer to example below).
+     * Like in other programming languages you create a new object with the <code>new</code> operator (refer to example below).
+     * Since DOCUMENTS 4.0c
      */
     constructor();
 
@@ -3607,7 +4106,7 @@ declare class XMLExportDescription {
 
 /**
  * The XMLHTTPRequest class represents a HTTP request. 
- * Though the name of this class traditionally refers to XML, it can be used to transfer arbitrary strings or binary data. The interface is based on the definition of the class IXMLHTTPRequest from MSXML. To send a HTTP request the following steps are needed: 
+ * Though the name of this class traditionally refers to XML, it can be used to transfer arbitrary strings or binary data. The interface is based on the definition of the class <code>IXMLHTTPRequest</code> from MSXML. As http-library the libcurl is used. To send a HTTP request the following steps are needed: 
  * <ul>
  * <li>Creating an instance of this class. </li>
  * <li>Initializing the request via open(). Possibly also adding header data by means of addRequestHeader(). </li>
@@ -3618,24 +4117,33 @@ declare class XMLExportDescription {
  */
 declare class XMLHTTPRequest {
     /**
-     * Note: On some plattforms, no proxy can be specified here. Instead, the global settings of the system will be used.
-     * @param [proxy] Optional string value specifying the hostname of the proxy server being resolvable by the nameserver. If this parameter is not specified, the proxy server specified in the registry will be possibly used. E.g. the proxy server specified in Internet Explorer is used in the registry.
-     * @param [proxyPort] Optional number of the port on which the proxy accepts requests.
+     * @description
+     * Note: On windows OS: If no proxy is specified as first parameter, the proxy settings of the Internet Explorer and and the WinHTTP configuration will be checked, and a defined proxy setting will be used.
+     * Since DOCUMENTS 4.0
+     * Since DOCUMENTS 5.0c (on windows OS support of system proxy configuration)
+     * @param [proxy] Optional string value specifying the hostname of the proxy server being resolvable by the nameserver. On windows OS: If this parameter is not specified, the windows proxy configuration will be used. E.g. the proxy server specified in Internet Explorer is used in the <em>registry</em>.
+     * @param [proxyPort] Optional number of the port on which the <em>proxy</em> accepts requests.
      * @param [proxyUser] Optional string value specifying the desired login name for the proxy
      * @param [proxyPasswd] Optional string value specifying the password for logging in to the proxy
      */
     constructor(proxy?: string, proxyPort?: number, proxyUser?: string, proxyPasswd?: string);
 
     /**
+     * @description
      * Note: This property is readonly.
      */
     canAsync: boolean;
 
     /**
+     * @description
      * Note: This property is readonly.
      */
     canProxy: boolean;
 
+    /**
+     * In this state the request is completed. All the data are available now.
+     * Note: This property is readonly.
+     */
     COMPLETED: number;
 
     /**
@@ -3647,11 +4155,20 @@ declare class XMLHTTPRequest {
      * <li>The value -1 has the same effect as leaving the property undefined (enable auto-detection).</li>
      * <li>The value -2 disables file size detection and enforces a chunked transfer.</li>
      * </ul>
+     * Note: This property serves as a hidden optional parameter to the send() function. On new objects it is undefined. Assigning an incorrect value >= 0 may trigger deadlocks or timeouts.
      */
     FileSizeHint: number;
 
+    /**
+     * In this state the request is partially completed. This means that some data has been received.
+     * Note: This property is readonly.
+     */
     INTERACTIVE: number;
 
+    /**
+     * In this state the object has been initialized, but not sent yet.
+     * Note: This property is readonly.
+     */
     NOTSENT: number;
 
     /**
@@ -3668,12 +4185,16 @@ declare class XMLHTTPRequest {
     readyState: number;
 
     /**
+     * @description
      * Note: This property is readonly. Starting with DOCUMENTS 5.0c its data type is influenced by the optional property responseType. The default type is String. For requests with an attached responseFile this value can be truncated after a few kBytes.
      */
     response: any;
 
     /**
-     * To achieve an efficient download scripts can create a writable File an attach it to the request. The complete response will then be written into this file. The value of the response property, however, will be truncated after the first few kBytes.
+     * To achieve an efficient download scripts can create a writable <code>File</code> an attach it to the request. The complete response will then be written into this file. The value of the <code>response</code> property, however, will be truncated after the first few kBytes.
+     * Note: On new objects this property is undefined.
+     * When send() is called, the request takes exclusive ownership of the attached file. The property will then be reset to null. Even in asynchronous mode send() seems to close the file immediately. In fact, send() detaches the native file handle from the JavaScript object to ensure exclusive access.
+     * Received content will be written to the file, disregarding the HTTP status.
      */
     responseFile: File;
 
@@ -3683,32 +4204,43 @@ declare class XMLHTTPRequest {
      */
     responseType: string;
 
+    /**
+     * In this state the object has been sent. No data is available yet.
+     * Note: This property is readonly.
+     */
     SENT: number;
 
     /**
+     * @description
      * Note: This property is readonly.
      */
     status: number;
 
     /**
+     * @description
      * Note: This property is readonly.
      */
     statusText: string;
 
     /**
      * In this state the method open() has not been called.
+     * Note: This property is readonly.
      */
     UNINITIALIZED: number;
 
     abort(): boolean;
 
     /**
+     * @description
      * Note: The request must be initialized via open() before.
      * @param name String specifying the header name.
      * @param value String specifying the header value.
      */
     addRequestHeader(name: string, value: string): boolean;
 
+    /**
+     * Each entry is in a separate line and has the form 'name:value'.
+     */
     getAllResponseHeaders(): string;
 
     /**
@@ -3717,16 +4249,29 @@ declare class XMLHTTPRequest {
     getResponseHeader(name: string): string;
 
     /**
-     * @param method String specifying the used HTTP method. The following methods are available: GET: Sending a GET request, for example, for querying a HTML file. PUT: Sending data to the HTTP server. The data must be passed in the send() call. The URI represents the name under which the data should be stored. Under this name, the data are then normally retrievable. POST: Sending data to the HTTP server. The data must be passed in the send() call. The URI represents the name of the consumer of the data.
+     * @param method String specifying the used HTTP method. The following methods are available:
+     * <ul>
+     * <li>GET: Sending a GET request, for example, for querying a HTML file. </li>
+     * <li>PUT: Sending data to the HTTP server. The data must be passed in the send() call. The URI represents the name under which the data should be stored. Under this name, the data are then normally retrievable. </li>
+     * <li>POST: Sending data to the HTTP server. The data must be passed in the send() call. The URI represents the name of the consumer of the data. </li>
+     * <li>DELETE: Sending a DELETE request. </li>
+     * </ul>
      * @param url String containing the URL for this request.
-     * @param [async] Optional flag indicating whether to handle the request asynchronously. In this case the operation send() returns immediately, in other word, it will not be waiting until a response is received. Asynchronous sending is only possible, when XMLHTTPRequest.canAsync returns true. If asynchronous sending is not possible, this flag will be ignored. For an asynchronous request you can use XMLHTTPRequest.readyState to get the current state of the request.
+     * @param [async] Optional flag indicating whether to handle the request asynchronously. In this case the operation send() returns immediately, in other word, it will not be waiting until a response is received. Asynchronous sending is only possible, when XMLHTTPRequest.canAsync returns <code>true</code>. If asynchronous sending is not possible, this flag will be ignored. For an asynchronous request you can use XMLHTTPRequest.readyState to get the current state of the request.
      * @param [user] Optional user name must be specified only if the HTTP server requires authentication.
      * @param [passwd] Optional password must also be specified only if the HTTP server requires authentication.
      */
     open(method: string, url: string, async?: boolean, user?: string, passwd?: string): boolean;
 
     /**
-     * The request must be prepared via open() before.
+     * The request must be prepared via <code>open()</code> before.
+     * Note: The request must be initialized via open() before. You can use XMLHTTPRequest.readyState to get the current state of an asynchronous request. The properties XMLHTTPRequest.status and XMLHTTPRequest.statusText return the status of the completed request while using getResponseHeader() and XMLHTTPRequest.response the actual result of the request can be retrieved. An asynchronous request can be canceled using abort().
+     * Note: The type of the content parameter can be one of the following: String, ArrayBuffer, File. Caution: all other types will be converted to a string! Given a conventional array, the function will only send a string like "[object Array]".
+     * About files
+     * Passed files must be opened in binary read mode. If the file is not rewindable (a named pipe, for instance), the property FileSizeHint should be set before sending. The property is useful to supress an automatic length scan. The function implicitly closes the File object, though the file may remain open for asynchronous operation. When an asynchronous request is completed, its associated files become closed outside the JavaScript environment.
+     * About Arraybuffers
+     * Passing a TypedArray (UInt8Array, Int16Array etc.) instead of an ArrayBuffer is possible, but not recommended. The actual implementation always sends the complete associated buffer. The result can be unexpected, if the TypedArray covers only a section of a bigger buffer. This behaviour might change in future releases.
+     * Since DOCUMENTS 5.0c (Support for sending File and ArrayBuffer)
      * @param [content]
      */
     send(content?: string): boolean;
