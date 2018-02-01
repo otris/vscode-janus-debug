@@ -36,7 +36,7 @@ export async function downloadCreateProject(loginData: nodeDoc.ConnectionInforma
         }
         const src = path.join(fsPath, "src");
         fs.emptyDirSync(src);
-        vscode.window.setStatusBarMessage("Connect server...");
+        vscode.window.setStatusBarMessage("Establishing connection to server...");
         try {
             await serverCommands.downloadAllSelected(loginData, src, false);
         } catch (err) {
