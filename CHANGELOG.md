@@ -2,7 +2,7 @@
 
 You'll find a complete list of changes at our project site on [GitHub](https://github.com/otris/vscode-janus-debug).
 
-### 0.0.31
+### 0.0.31 (2018-02-01)
 
 - Improved documentation and typings.
 - Wizard to download scripts and create a project containing the downloaded scripts.
