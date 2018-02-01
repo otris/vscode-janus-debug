@@ -5,8 +5,8 @@ You'll find a complete list of changes at our project site on [GitHub](https://g
 ### 0.0.31
 
 - Improved documentation and typings.
-- Wizard to create a standard project containing all server scripts.
-- The command **Install IntelliSense: PortalScript** optionally generates the type definition file for PortalScripting in specific DOCUMENTS version.
+- Wizard to download scripts and create a project containing the downloaded scripts.
+- The command **Install IntelliSense: PortalScript** optionally gets the type definition file for PortalScripting in specific DOCUMENTS version. Old versions are generated, newer versions are stored in the extension.
 
 
 ### 0.0.30 (2018-01-18)
