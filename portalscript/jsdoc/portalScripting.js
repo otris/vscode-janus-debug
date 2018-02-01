@@ -998,8 +998,10 @@
 * <br> This constant is member of constant group: PEM Module Constants<br>
 * These constants build an enumeration of the possible values of the pem license. 
 
+
 * @instance 
 * @constant {number} PEM_MODULE_INVOICE
+* @since DOCUMENTS 5.0c HF2 
 
 * @see [context.hasPEMModule]{@link context#hasPEMModule} 
 
@@ -1009,9 +1011,11 @@
 * @description 
 * <br> This constant is member of constant group: PEM Module Constants<br>
 * These constants build an enumeration of the possible values of the pem license. 
+
 
 * @instance 
 * @constant {number} PEM_MODULE_FP_HENR
+* @since DOCUMENTS 5.0c HF2 
 
 * @see [context.hasPEMModule]{@link context#hasPEMModule} 
 
@@ -1021,9 +1025,11 @@
 * @description 
 * <br> This constant is member of constant group: PEM Module Constants<br>
 * These constants build an enumeration of the possible values of the pem license. 
+
 
 * @instance 
 * @constant {number} PEM_MODULE_LDAP
+* @since DOCUMENTS 5.0c HF2 
 
 * @see [context.hasPEMModule]{@link context#hasPEMModule} 
 
@@ -1033,9 +1039,11 @@
 * @description 
 * <br> This constant is member of constant group: PEM Module Constants<br>
 * These constants build an enumeration of the possible values of the pem license. 
+
 
 * @instance 
 * @constant {number} PEM_MODULE_CONTRACT
+* @since DOCUMENTS 5.0c HF2 
 
 * @see [context.hasPEMModule]{@link context#hasPEMModule} 
 
@@ -1045,9 +1053,11 @@
 * @description 
 * <br> This constant is member of constant group: PEM Module Constants<br>
 * These constants build an enumeration of the possible values of the pem license. 
+
 
 * @instance 
 * @constant {number} PEM_MODULE_OUTLOOK_WEB
+* @since DOCUMENTS 5.0c HF2 
 
 * @see [context.hasPEMModule]{@link context#hasPEMModule} 
 
@@ -1057,9 +1067,11 @@
 * @description 
 * <br> This constant is member of constant group: PEM Module Constants<br>
 * These constants build an enumeration of the possible values of the pem license. 
+
 
 * @instance 
 * @constant {number} PEM_MODULE_OUTLOOK_SYNC
+* @since DOCUMENTS 5.0c HF2 
 
 * @see [context.hasPEMModule]{@link context#hasPEMModule} 
 
@@ -1069,9 +1081,11 @@
 * @description 
 * <br> This constant is member of constant group: PEM Module Constants<br>
 * These constants build an enumeration of the possible values of the pem license. 
+
 
 * @instance 
 * @constant {number} PEM_MODULE_WORDML
+* @since DOCUMENTS 5.0c HF2 
 
 * @see [context.hasPEMModule]{@link context#hasPEMModule} 
 
@@ -1081,9 +1095,11 @@
 * @description 
 * <br> This constant is member of constant group: PEM Module Constants<br>
 * These constants build an enumeration of the possible values of the pem license. 
+
 
 * @instance 
 * @constant {number} PEM_MODULE_MOBILE
+* @since DOCUMENTS 5.0c HF2 
 
 * @see [context.hasPEMModule]{@link context#hasPEMModule} 
 
@@ -1093,9 +1109,11 @@
 * @description 
 * <br> This constant is member of constant group: PEM Module Constants<br>
 * These constants build an enumeration of the possible values of the pem license. 
+
 
 * @instance 
 * @constant {number} PEM_MODULE_BUSINESS_UNITS
+* @since DOCUMENTS 5.0c HF2 
 
 * @see [context.hasPEMModule]{@link context#hasPEMModule} 
 
@@ -1105,9 +1123,11 @@
 * @description 
 * <br> This constant is member of constant group: PEM Module Constants<br>
 * These constants build an enumeration of the possible values of the pem license. 
+
 
 * @instance 
 * @constant {number} PEM_MODULE_CONTROLLING
+* @since DOCUMENTS 5.0c HF2 
 
 * @see [context.hasPEMModule]{@link context#hasPEMModule} 
 
@@ -1117,9 +1137,11 @@
 * @description 
 * <br> This constant is member of constant group: PEM Module Constants<br>
 * These constants build an enumeration of the possible values of the pem license. 
+
 
 * @instance 
 * @constant {number} PEM_MODULE_REPORTING
+* @since DOCUMENTS 5.0c HF2 
 
 * @see [context.hasPEMModule]{@link context#hasPEMModule} 
 
@@ -1129,9 +1151,11 @@
 * @description 
 * <br> This constant is member of constant group: PEM Module Constants<br>
 * These constants build an enumeration of the possible values of the pem license. 
+
 
 * @instance 
 * @constant {number} PEM_MODULE_EASYHR
+* @since DOCUMENTS 5.0c HF2 
 
 * @see [context.hasPEMModule]{@link context#hasPEMModule} 
 
@@ -1141,9 +1165,11 @@
 * @description 
 * <br> This constant is member of constant group: PEM Module Constants<br>
 * These constants build an enumeration of the possible values of the pem license. 
+
 
 * @instance 
 * @constant {number} PEM_MODULE_CONTRACT_SAP
+* @since DOCUMENTS 5.0c HF2 
 
 * @see [context.hasPEMModule]{@link context#hasPEMModule} 
 
@@ -1153,9 +1179,11 @@
 * @description 
 * <br> This constant is member of constant group: PEM Module Constants<br>
 * These constants build an enumeration of the possible values of the pem license. 
+
 
 * @instance 
 * @constant {number} PEM_MODULE_GADGETS
+* @since DOCUMENTS 5.0c HF2 
 
 * @see [context.hasPEMModule]{@link context#hasPEMModule} 
 
@@ -1165,9 +1193,11 @@
 * @description 
 * <br> This constant is member of constant group: PEM Module Constants<br>
 * These constants build an enumeration of the possible values of the pem license. 
+
 
 * @instance 
 * @constant {number} PEM_MODULE_INBOX
+* @since DOCUMENTS 5.0c HF2 
 
 * @see [context.hasPEMModule]{@link context#hasPEMModule} 
 
@@ -1177,9 +1207,11 @@
 * @description 
 * <br> This constant is member of constant group: PEM Module Constants<br>
 * These constants build an enumeration of the possible values of the pem license. 
+
 
 * @instance 
 * @constant {number} PEM_MODULE_IMS
+* @since DOCUMENTS 5.0c HF2 
 
 * @see [context.hasPEMModule]{@link context#hasPEMModule} 
 
@@ -1189,9 +1221,11 @@
 * @description 
 * <br> This constant is member of constant group: PEM Module Constants<br>
 * These constants build an enumeration of the possible values of the pem license. 
+
 
 * @instance 
 * @constant {number} PEM_MODULE_CGC
+* @since DOCUMENTS 5.0c HF2 
 
 * @see [context.hasPEMModule]{@link context#hasPEMModule} 
 
@@ -1201,9 +1235,11 @@
 * @description 
 * <br> This constant is member of constant group: PEM Module Constants<br>
 * These constants build an enumeration of the possible values of the pem license. 
+
 
 * @instance 
 * @constant {number} PEM_MODULE_CGC_ENT
+* @since DOCUMENTS 5.0c HF2 
 
 * @see [context.hasPEMModule]{@link context#hasPEMModule} 
 
@@ -1213,9 +1249,11 @@
 * @description 
 * <br> This constant is member of constant group: PEM Module Constants<br>
 * These constants build an enumeration of the possible values of the pem license. 
+
 
 * @instance 
 * @constant {number} PEM_MODULE_CGC_ENT_PLUS
+* @since DOCUMENTS 5.0c HF2 
 
 * @see [context.hasPEMModule]{@link context#hasPEMModule} 
 
@@ -1225,9 +1263,11 @@
 * @description 
 * <br> This constant is member of constant group: PEM Module Constants<br>
 * These constants build an enumeration of the possible values of the pem license. 
+
 
 * @instance 
 * @constant {number} PEM_MODULE_CREATOR
+* @since DOCUMENTS 5.0c HF2 
 
 * @see [context.hasPEMModule]{@link context#hasPEMModule} 
 
@@ -1237,9 +1277,11 @@
 * @description 
 * <br> This constant is member of constant group: PEM Module Constants<br>
 * These constants build an enumeration of the possible values of the pem license. 
+
 
 * @instance 
 * @constant {number} PEM_MODULE_DOC_TREE
+* @since DOCUMENTS 5.0c HF2 
 
 * @see [context.hasPEMModule]{@link context#hasPEMModule} 
 
@@ -1250,8 +1292,10 @@
 * <br> This constant is member of constant group: PEM Module Constants<br>
 * These constants build an enumeration of the possible values of the pem license. 
 
+
 * @instance 
 * @constant {number} PEM_MODULE_RISK_MANAGEMENT
+* @since DOCUMENTS 5.0c HF2 
 
 * @see [context.hasPEMModule]{@link context#hasPEMModule} 
 
@@ -3843,12 +3887,12 @@
 * @description This method only works if the file is inside a workflow and inside a workflow action that is accessible by a user of the web interface. Based on that current workflowstep you need to gather the ID of one of the outgoing control flows of that step. The access privileges of the current user who tries to execute the script are taken into account. Forwarding the file will only work if that control flow is designed to forward without query. 
 * Note: This function requires a full workflow engine license, it does not work with pure submission lists. 
 * @param {string} controlFlowId String containing the technical ID of the outgoing control flow that should be passed 
-* @param {string} comment optional String value containing a comment to be automatically added to the file's monitor 
+* @param {string} [comment] optional String value containing a comment to be automatically added to the file's monitor 
 * @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since ELC 3.50 / otrisPORTAL 5.0
 * @example
 * var docFile = context.file;
-* var step = docFile.getCurrentStep();
+* var step = docFile.getCurrentWorkflowStep();
 * var flowId = step.firstControlFlow;
 * docFile.forwardFile(flowId);
 **/
@@ -6385,7 +6429,7 @@
 **/
 /**
 * @memberof DOMNode
-* @summary The previous sibling node, otherwise null. The property is readonly. undefined
+* @summary The previous sibling node, otherwise null. The property is readonly. 
 * @member {DOMNode} previousSibling
 * @instance
 **/

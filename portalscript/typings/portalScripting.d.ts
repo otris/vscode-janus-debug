@@ -1359,9 +1359,9 @@ declare interface DocFile {
      * This method only works if the file is inside a workflow and inside a workflow action that is accessible by a user of the web interface. Based on that current workflowstep you need to gather the ID of one of the outgoing control flows of that step. The access privileges of the current user who tries to execute the script are taken into account. Forwarding the file will only work if that control flow is designed to forward without query.
      * Note: This function requires a full workflow engine license, it does not work with pure submission lists.
      * @param controlFlowId String containing the technical ID of the outgoing control flow that should be passed
-     * @param comment optional String value containing a comment to be automatically added to the file's monitor
+     * @param [comment] optional String value containing a comment to be automatically added to the file's monitor
      */
-    forwardFile(controlFlowId: string, comment: string): boolean;
+    forwardFile(controlFlowId: string, comment?: string): boolean;
     /**
      * The locking workflow steps do not need to be locked by the current user executing the script, this function as well returns all locking steps which refer to different users.
      * Note: This function requires a full workflow engine license, it does not work with pure submission lists.
