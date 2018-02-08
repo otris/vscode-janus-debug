@@ -302,6 +302,7 @@ export function setScriptInfoJson(scripts: nodeDoc.scriptT[]) {
     if (!scriptParameters) {
         return;
     }
+    // loginData.language = nodeDoc.Language.English;
 
     const rootPath = vscode.workspace.rootPath;
     scripts.forEach((script) => {
@@ -328,6 +329,8 @@ export function getScriptInfoJson(scripts: nodeDoc.scriptT[]) {
     if (!scriptParameters) {
         return;
     }
+    // loginData.language = nodeDoc.Language.English;
+
     scripts.forEach((script) => {
         script.downloadParameters = true;
     });
@@ -679,7 +682,6 @@ export async function checkPath(scriptPath: string | undefined, allowCreateFolde
 
 
 export async function ensurePath(fileOrFolder: string | undefined, allowSubDir = false): Promise<string> {
-    console.log('ensurePath');
 
     return new Promise<string>((resolve, reject) => {
 
@@ -727,7 +729,6 @@ export async function ensurePath(fileOrFolder: string | undefined, allowSubDir =
 
 
 export async function ensureScriptName(paramScript?: string, serverScripts: string[] = []): Promise<string> {
-    console.log('ensureScriptName');
     return new Promise<string>((resolve, reject) => {
 
         if (paramScript && '.js' === path.extname(paramScript)) {
