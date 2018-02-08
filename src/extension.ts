@@ -35,7 +35,7 @@ let autoConnectServerConsole: boolean;
 
 
 
-function getExtensionLogPath(): LogConfiguration | undefined {
+function getLogConfiguration(): LogConfiguration | undefined {
     const workspaceRoot = vscode.workspace.rootPath;
     const config = vscode.workspace.getConfiguration('vscode-janus-debug');
     const log: any = config.get("log");
@@ -277,7 +277,7 @@ export function activate(context: vscode.ExtensionContext): void {
     }
 
     // set up file logging
-    const extensionLoggerConf = getExtensionLogPath();
+    const extensionLoggerConf = getLogConfiguration();
     if (extensionLoggerConf) {
         Logger.config = extensionLoggerConf;
     }
