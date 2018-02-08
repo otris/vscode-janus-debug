@@ -309,6 +309,9 @@ export async function downloadScript(loginData: nodeDoc.ConnectionInformation, c
                         helpers.writeScriptInfoJson([script]);
                         vscode.window.setStatusBarMessage('downloaded: ' + script.name);
 
+                        if (!script.path) {
+                            return resolve();
+                        }
                         const openPath = vscode.Uri.file(script.path);
                         vscode.workspace.openTextDocument(openPath).then(doc => {
                             vscode.window.showTextDocument(doc);
@@ -477,6 +480,9 @@ export async function compareScript(loginData: nodeDoc.ConnectionInformation, co
                     fs.writeFileSync(compareScriptPath, serverScript.serverCode);
                     const title = serverScript.name + '.js' + ' (DOCUMENTS Server)';
                     const lefturi = vscode.Uri.file(compareScriptPath);
+                    if (!serverScript.path) {
+                        return resolve();
+                    }
                     const righturi = vscode.Uri.file(serverScript.path);
                     vscode.commands.executeCommand('vscode.diff', lefturi, righturi, title).then(() => {
                         resolve();
