@@ -391,7 +391,7 @@ export async function downloadAllSelected(loginData: nodeDoc.ConnectionInformati
 
             // get all scripts on server
             // or if SCRIPT_NAMES_FILE exists: all scripts in that file
-            const scripts = await getSelectedScriptNames(loginData);
+            const scripts = await getSelectedScriptNames(loginData, []);
 
             // set download path to scripts
             scripts.forEach(function(script: any) {
@@ -538,7 +538,7 @@ export function getScriptnames(loginData: nodeDoc.ConnectionInformation, param: 
 
 
 
-async function getSelectedScriptNames(loginData: nodeDoc.ConnectionInformation): Promise<nodeDoc.scriptT[]> {
+async function getSelectedScriptNames(loginData: nodeDoc.ConnectionInformation, params: string[] = []): Promise<nodeDoc.scriptT[]> {
     return new Promise<nodeDoc.scriptT[]>((resolve, reject) => {
 
         const scripts: nodeDoc.scriptT[] = helpers.getDownloadScriptNamesFromList();
@@ -546,7 +546,7 @@ async function getSelectedScriptNames(loginData: nodeDoc.ConnectionInformation):
             return resolve(scripts);
         }
 
-        nodeDoc.serverSession(loginData, [], nodeDoc.getScriptsFromServer).then((serverScripts) => {
+        nodeDoc.serverSession(loginData, params, nodeDoc.getScriptsFromServer).then((serverScripts) => {
             resolve(serverScripts);
         }).catch((reason) => {
             reject(reason);
@@ -554,10 +554,11 @@ async function getSelectedScriptNames(loginData: nodeDoc.ConnectionInformation):
     });
 }
 
-async function getServerScriptNames(loginData: nodeDoc.ConnectionInformation): Promise<string[]> {
+
+async function getServerScriptNames(loginData: nodeDoc.ConnectionInformation, params: string[] = []): Promise<string[]> {
     return new Promise<string[]>((resolve, reject) => {
 
-        nodeDoc.serverSession(loginData, [], nodeDoc.getScriptNamesFromServer).then((serverScripts) => {
+        nodeDoc.serverSession(loginData, params, nodeDoc.getScriptNamesFromServer).then((serverScripts) => {
             resolve(serverScripts);
         }).catch((reason) => {
             reject(reason);
