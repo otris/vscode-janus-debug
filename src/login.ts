@@ -1,4 +1,4 @@
-﻿'use strict';
+'use strict';
 
 import * as nodeDoc from 'node-documents-scripting';
 import * as path from 'path';
