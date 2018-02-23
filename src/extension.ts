@@ -163,7 +163,7 @@ function printVersion(outputChannel: vscode.OutputChannel) {
         try {
             outputChannel.appendLine("Version: " + version.getVersion().toString(true));
         } catch (err) {
-            outputChannel.appendLine('getVersion() failed: ' + err.message);
+            /* swallow */
         }
     }
 }
