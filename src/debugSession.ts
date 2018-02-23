@@ -134,7 +134,7 @@ export class JanusDebugSession extends DebugSession {
         this.config = 'launch';
 
         const sdsPort: number = args.applicationPort || 10000;
-        const debuggerPort = 8089;
+        const debuggerPort = args.debuggerPort || 8089;
         const host: string = args.host || 'localhost';
         const username: string = args.username || '';
         const principal: string = args.principal || '';
