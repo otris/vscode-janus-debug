@@ -183,8 +183,8 @@ function initLaunchJsonWatcher(outputChannel: vscode.OutputChannel, loginData: n
             outputChannel.appendLine('launch.json created; trying to connect...');
             reconnectServerConsole(serverConsole);
         }
-        const fspath = file ? file.fsPath : '';
-        login.loadLoginInformationOnCreate(loginData, fspath);
+        const fsPath = file ? file.fsPath : '';
+        login.loadLoginInformationOnCreate(loginData, fsPath);
 
         // // check, if typings should be acquired automatically
         // const config = vscode.workspace.getConfiguration('vscode-janus-debug');
@@ -508,7 +508,7 @@ export function activate(context: vscode.ExtensionContext): void {
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.wizardDownloadProject', async (param) => {
             if (!thisExtension) {
-                vscode.window.showErrorMessage("Unfortunately an unexpectd error occurred...");
+                vscode.window.showErrorMessage("Unfortunately an unexpected error occurred...");
                 return;
             }
             await wizard.downloadCreateProject(loginData, param, thisExtension.extensionPath);

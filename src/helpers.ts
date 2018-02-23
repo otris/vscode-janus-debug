@@ -121,7 +121,7 @@ export async function askForUpload(script: nodeDoc.scriptT, all: boolean, none: 
  * @param param List of potentially conflicted scripts.
  *
  * @return Two arrays containing scripts of input array.
- * 1. arrray: scripts that are already uploaded 2. array: scripts that user marked to force upload.
+ * 1. array: scripts that are already uploaded 2. array: scripts that user marked to force upload.
  */
 export async function ensureForceUpload(scripts: nodeDoc.scriptT[]): Promise<[nodeDoc.scriptT[], nodeDoc.scriptT[]]> {
     return new Promise<[nodeDoc.scriptT[], nodeDoc.scriptT[]]>((resolve, reject) => {
