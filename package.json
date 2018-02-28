@@ -32,6 +32,7 @@
   "activationEvents": [
     "workspaceContains:.vscode-janus-debug",
     "workspaceContains:documents-scripting-settings.json",
+    "onCommand:extension.vscode-janus.debug.connectServerConsole",
     "onCommand:extension.vscode-janus-debug.provideInitialConfigurations",
     "onCommand:extension.vscode-janus-debug.askForPassword",
     "onCommand:extension.vscode-janus-debug.uploadScript",
