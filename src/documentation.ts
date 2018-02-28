@@ -54,7 +54,7 @@ export async function viewDocumentation() {
                 // function or member selected?
                 if (functionOrMember && functionOrMember.length > 0) {
                     if (!browser) {
-                        vscode.window.showWarningMessage(`Jump to **${selectedWordL}**: pecify a browser in **vscode-janus-debug.browser**`);
+                        vscode.window.showWarningMessage(`Jump to **${selectedWordL}**: specify a browser in **vscode-janus-debug.browser**`);
                     }
                     if (functionOrMember.length === 1) {
                         const classNameHtml = functionOrMember[0].replace(':', '-') + '.html';
