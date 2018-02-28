@@ -243,6 +243,7 @@
           "description": "Set to true, if the extension should upload scripts without checking the script on server."
         },
         "vscode-janus-debug.serverConsole": {
+          "description": "Settings that adjust the behavior of the Server Console window.",
           "type": "object",
           "title": "Server Console",
           "properties": {
