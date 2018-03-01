@@ -1,8 +1,11 @@
 'use strict';
 
 import * as assert from 'assert';
+import { Logger } from 'node-file-log';
 import * as uuid from 'uuid';
 import { DebugProtocol } from 'vscode-debugprotocol';
+
+const log = Logger.create('protocol.ts');
 
 export enum ErrorCode {
     UNKNOWN_COMMAND = 1,
@@ -125,15 +128,28 @@ export function variableValueToString(value: VariableValue): string {
 }
 
 export function parseResponse(responseString: string): Response {
+    log.debug(`parsing response string: "${responseString}"`);
+
     let contextId: number | undefined;
     let indexStart = 0;
+
+    // Try parse the context ID off the response
     const match = responseString.match(/^([0-9]+)\/{/);
     if (match) {
         contextId = Number.parseInt(match[1]);
         assert.ok(!Number.isNaN(contextId), 'could not parse context id');
         indexStart = match[0].length - 1;
     }
-    const obj = JSON.parse(responseString.substring(indexStart));
+
+    let obj: any;
+
+    try {
+        obj = JSON.parse(responseString.substring(indexStart));
+    } catch (e) {
+        log.error(e);
+        throw e;
+    }
+
     const response: Response = {
         content: {},
         type: obj.type,

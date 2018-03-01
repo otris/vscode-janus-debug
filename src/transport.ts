@@ -2,11 +2,14 @@
 
 import * as assert from 'assert';
 import { EventEmitter } from 'events';
+import { Logger } from 'node-file-log';
 import { SocketLike } from 'node-sds';
-import { parseResponse } from './protocol';
+import { parseResponse, Response } from './protocol';
 
 const INITIAL_BUFFER_SIZE = 4 * 1024;
 const SEPARATOR = 10; // decimal ASCII value for '\n'
+
+const log = Logger.create('DebugProtocolTransport');
 
 export class DebugProtocolTransport extends EventEmitter {
 
@@ -20,16 +23,23 @@ export class DebugProtocolTransport extends EventEmitter {
         this.bufferedLength = 0;
 
         this.socket.on('data', (chunk: Buffer) => {
+            log.debug(`received data on the socket: "${chunk}"`);
             this.scanParseAndEmit(chunk);
+        });
+
+        this.socket.on('error', () => {
+            log.error(`received an error on the socket, maybe you connected on the wrong TCP port?`);
         });
     }
 
     public sendMessage(msg: string): void {
+        log.debug(`write on the socket`);
         const buf = Buffer.from(msg, 'utf-8');
         this.socket.write(buf);
     }
 
     public disconnect(): Promise<void> {
+        log.debug(`somebody wants us to disconnect from the socket`);
         return new Promise<void>((resolve, reject) => {
             this.socket.on('close', () => resolve());
             this.socket.end();
@@ -41,8 +51,18 @@ export class DebugProtocolTransport extends EventEmitter {
 
         if ((this.bufferedLength === 0) && (sepIdx === (chunk.length - 1))) {
             // Got a mouthful. No need to copy anything
-            const response = chunk.toString('utf-8');
-            this.emit('response', parseResponse(response));
+            let response: Response;
+
+            const str = chunk.toString('utf-8');
+            try {
+                response = parseResponse(str);
+            } catch (e) {
+                log.info(`parsing response "${str}" failed; hanging up`);
+                this.disconnect();
+                return;
+            }
+
+            this.emit('response', response);
             return;
         }
 
@@ -55,8 +75,17 @@ export class DebugProtocolTransport extends EventEmitter {
         this.appendToBuffer(chunk.slice(0, sepIdx + 1));
 
         // Buffer contains a complete response. Parse and emit
-        const response = this.buffer.toString('utf-8', 0, this.bufferedLength);
-        this.emit('response', parseResponse(response));
+        let response: Response;
+        const str = this.buffer.toString('utf-8', 0, this.bufferedLength);
+        try {
+            response = parseResponse(str);
+        } catch (e) {
+            log.info(`parsing response "${str}" failed; hanging up`);
+            this.disconnect();
+            return;
+        }
+
+        this.emit('response', response);
         this.buffer.fill(0);
         this.bufferedLength = 0;
 

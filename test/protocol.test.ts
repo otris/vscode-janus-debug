@@ -115,6 +115,10 @@ suite('protocol tests', () => {
 
     suite('parse response', () => {
 
+        test('throws on garbage input', () => {
+            assert.throws(() => { parseResponse("bullshit\n"); });
+        });
+
         suite('type: error', () => {
 
             test('NO_COMMAND_NAME', () => {
