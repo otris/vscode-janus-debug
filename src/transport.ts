@@ -59,6 +59,8 @@ export class DebugProtocolTransport extends EventEmitter {
             } catch (e) {
                 log.info(`parsing response "${str}" failed; hanging up`);
                 this.disconnect();
+                this.emit('error',
+                `Could not understand the server's response. Did you connect on the right port?`);
                 return;
             }
 
@@ -82,6 +84,8 @@ export class DebugProtocolTransport extends EventEmitter {
         } catch (e) {
             log.info(`parsing response "${str}" failed; hanging up`);
             this.disconnect();
+            this.emit('error',
+                `Could not understand the server's response. Did you connect on the right port?`);
             return;
         }
 

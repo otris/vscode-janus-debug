@@ -18,7 +18,10 @@ export interface ConnectionLike {
 
 /**
  * Represents a connection to a target.
+ *
  * @fires DebugConnection.newContext
+ * @fires DebugConnection.contextPaused
+ * @fires DebugConnection.error
  */
 export class DebugConnection extends EventEmitter implements ConnectionLike {
     public readonly coordinator: ContextCoordinator;
@@ -32,6 +35,9 @@ export class DebugConnection extends EventEmitter implements ConnectionLike {
         this.coordinator = new ContextCoordinator(this);
         this.transport = new DebugProtocolTransport(socket);
         this.transport.on('response', this.handleResponse);
+        this.transport.on('error', (reason: string) => {
+            this.emit('error', reason);
+        });
     }
 
     public handleResponse = (response: Response): void => {

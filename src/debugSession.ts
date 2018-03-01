@@ -220,6 +220,16 @@ export class JanusDebugSession extends DebugSession {
                 this.connection.on('contextPaused', (ctxId: number) => {
                     this.sendEvent(new StoppedEvent("hit breakpoint", ctxId));
                 });
+
+                this.connection.on('error', (reason: string) => {
+                    log.error(`Error on connection: ${reason}`);
+                    response.success = false;
+                    response.message = reason;
+                    this.sendResponse(response);
+                    this.connection = undefined;
+                    this.sendEvent(new TerminatedEvent());
+                });
+
                 debuggerSocket.on('connect', () => {
 
                     log.info(`launchRequest: connection to ${host}:${debuggerPort} established. Testing...`);
@@ -331,6 +341,15 @@ export class JanusDebugSession extends DebugSession {
 
         this.connection.on('contextPaused', (ctxId: number) => {
             this.sendEvent(new StoppedEvent("hit breakpoint", ctxId));
+        });
+
+        this.connection.on('error', (reason: string) => {
+            log.error(`Error on connection: ${reason}`);
+            response.success = false;
+            response.message = reason;
+            this.sendResponse(response);
+            this.connection = undefined;
+            this.sendEvent(new TerminatedEvent());
         });
 
         this.logServerVersion();
