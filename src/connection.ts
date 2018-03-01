@@ -57,7 +57,7 @@ export class DebugConnection extends EventEmitter implements ConnectionLike {
             }
         }
 
-        if ( response.type === "info" && response.subtype && response.subtype === "paused") {
+        if (response.type === "info" && response.subtype && response.subtype === "paused") {
             this.emit('contextPaused', response.contextId);
         }
 
@@ -72,7 +72,7 @@ export class DebugConnection extends EventEmitter implements ConnectionLike {
     /**
      * Send given request to the target.
      * @param {Command} request - The request that is send to the target.
-     * @param {Function} responseHandler - An optional handler for the response from the target, if any.
+     * @param {Function} responseHandler - An optional handler function that is called as soon as a response arrives.
      */
     public sendRequest(request: Command, responseHandler?: (response: Response) => Promise<any>): Promise<any> {
 
@@ -101,8 +101,8 @@ export class DebugConnection extends EventEmitter implements ConnectionLike {
         });
     }
 
-    private registerResponseHandler(commandId: string, handler: (response: Response) => void): void {
-        log.debug(`registerResponseHandler: adding handler function for command id: "${commandId}"`);
-        this.responseHandlers.set(commandId, handler);
+    private registerResponseHandler(requestId: string, handler: (response: Response) => void): void {
+        log.debug(`registerResponseHandler: adding handler function for request: "${requestId}"`);
+        this.responseHandlers.set(requestId, handler);
     }
 }

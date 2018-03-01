@@ -4,7 +4,7 @@ import * as assert from 'assert';
 import { connect, Socket } from 'net';
 import { Logger } from 'node-file-log';
 import { crypt_md5, SDSConnection } from 'node-sds';
-import {v4 as uuidV4} from 'uuid';
+import { v4 as uuidV4 } from 'uuid';
 import { ContinuedEvent, DebugSession, InitializedEvent, OutputEvent, StoppedEvent, TerminatedEvent } from 'vscode-debugadapter';
 import { DebugProtocol } from 'vscode-debugprotocol';
 import { AttachRequestArguments, CommonArguments, LaunchRequestArguments } from './config';
@@ -73,7 +73,7 @@ export class JanusDebugSession extends DebugSession {
         if (this.connection) {
             await this.connection.sendRequest(new Command('server_version'), async (response: Response) => {
                 log.info(`Determined version ${response.content.version ? response.content.version : undefined} of remote debugger`);
-             });
+            });
         } else {
             log.error("Connection must not be undefined to log server version.");
             throw new Error("Connection must not be undefined to log server version.");
@@ -367,10 +367,10 @@ export class JanusDebugSession extends DebugSession {
                     throw new Error(`not connected to a remote debugger`);
                 }
 
-            } catch (err) {
-                log.error(`attachRequest: ...failed. ${err}`);
+            } catch (e) {
+                log.error(`attachRequest: ...failed. ${e}`);
                 response.success = false;
-                response.message = `Could not attach to remote process: ${err}`;
+                response.message = `Could not attach to remote JS context: ${e}`;
                 return this.sendResponse(response);
             }
 
@@ -446,20 +446,20 @@ export class JanusDebugSession extends DebugSession {
             sourceOffset = await this.connection.sendRequest(Command.getSource(
                 this.connection.coordinator.getContext(this.attachedContextId).name),
                 async (res: Response) => {
-                        const source = res.content.source;
-                        let i = 0;
-                        while (i < source.length) {
-                            const sl = source[i];
-                            if (sl.startsWith("//#") ) {
-                                const matches: any = /[\/\\]([a-zA-Z-_.]*)$/.exec(sl);
-                                if (matches !== null && matches[matches.length - 1] === args.source.name) {
-                                    return i + 1;
-                                }
+                    const source = res.content.source;
+                    let i = 0;
+                    while (i < source.length) {
+                        const sl = source[i];
+                        if (sl.startsWith("//#")) {
+                            const matches: any = /[\/\\]([a-zA-Z-_.]*)$/.exec(sl);
+                            if (matches !== null && matches[matches.length - 1] === args.source.name) {
+                                return i + 1;
                             }
-                            i++;
                         }
-                        return 0;
-                    });
+                        i++;
+                    }
+                    return 0;
+                });
         }
 
         let remoteSourceUrl = "";
