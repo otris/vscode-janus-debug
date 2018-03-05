@@ -290,7 +290,6 @@ export async function downloadScript(loginData: nodeDoc.ConnectionInformation, c
                 serverScriptNames = await getServerScriptNames(loginData);
             }
         } catch (err) {
-            vscode.window.showErrorMessage('download script failed: ' + err);
             return reject();
         }
 
@@ -333,9 +332,9 @@ export async function downloadScript(loginData: nodeDoc.ConnectionInformation, c
  * Downloads all scripts from list inputScripts to folder in downloadFolder
  * @param loginData Information to connect to the server
  * @param inputScripts the list of scripts that should be downloaded
- * @param categories if true, subfolders are created for categories
+ * @param downloadFolder the folder where the scripts should be downloaded
  */
-export async function downloadAllCommon(loginData: nodeDoc.ConnectionInformation, inputScripts: scriptT[], categories = false): Promise<number> {
+export async function downloadAllCommon(loginData: nodeDoc.ConnectionInformation, inputScripts: scriptT[], downloadFolder: string): Promise<number> {
     return new Promise<number>(async (resolve, reject) => {
 
         // set downloadParameters flag in script structure,
@@ -344,14 +343,6 @@ export async function downloadAllCommon(loginData: nodeDoc.ConnectionInformation
 
         // download scripts from server
         return nodeDoc.serverSession(loginData, inputScripts, nodeDoc.downloadAll).then((outputScripts) => {
-
-            if (categories) {
-                outputScripts.forEach((script: scriptT) => {
-                    if (script.category && script.path) {
-                        script.path = path.join(path.dirname(script.path), script.category, path.basename(script.path));
-                    }
-                });
-            }
 
             // save script to file and update hash value in script structure
             return nodeDoc.saveScriptUpdateSyncHash(outputScripts).then(() => {
@@ -407,16 +398,8 @@ export async function downloadAllSelected(loginData: nodeDoc.ConnectionInformati
                 script.path = path.join(downloadFolder, script.name + '.js');
             });
 
-            let categories = false;
-            const folderContent = fs.readdirSync(downloadFolder);
-            if (folderContent.length === 0 && Number(loginData.documentsVersion) >= Number(nodeDoc.VERSION_CATEGORIES)) {
-                const answer = await vscode.window.showQuickPick(["Yes", "No"], {placeHolder: "Create folders from categories?"});
-                if (answer === "Yes") {
-                    categories = true;
-                }
-            }
             vscode.window.setStatusBarMessage(`downloading scripts...`);
-            const numDownloaded = await downloadAllCommon(loginData, scripts, categories);
+            const numDownloaded = await downloadAllCommon(loginData, scripts, downloadFolder);
             vscode.window.setStatusBarMessage(`downloaded ${numDownloaded} scripts`);
 
             return resolve();
@@ -457,12 +440,12 @@ export async function reloadScripts(loginData: nodeDoc.ConnectionInformation, fi
             const scripts = nodeDoc.getScriptsFromFolderSync(downloadFolder);
 
             vscode.window.setStatusBarMessage(`reloading scripts...`);
-            const numDownloaded = await downloadAllCommon(loginData, scripts);
+            const numDownloaded = await downloadAllCommon(loginData, scripts, downloadFolder);
             vscode.window.setStatusBarMessage(`reloaded ${numDownloaded} scripts`);
 
             return resolve();
         } catch (err) {
-            vscode.window.showErrorMessage('reload all failed: ' + err);
+            vscode.window.showErrorMessage('download all failed: ' + err);
             return reject();
         }
     });
