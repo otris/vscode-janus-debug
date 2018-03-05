@@ -290,6 +290,7 @@ export async function downloadScript(loginData: nodeDoc.ConnectionInformation, c
                 serverScriptNames = await getServerScriptNames(loginData);
             }
         } catch (err) {
+            vscode.window.showErrorMessage('download script failed: ' + err);
             return reject();
         }
 
@@ -445,7 +446,7 @@ export async function reloadScripts(loginData: nodeDoc.ConnectionInformation, fi
 
             return resolve();
         } catch (err) {
-            vscode.window.showErrorMessage('download all failed: ' + err);
+            vscode.window.showErrorMessage('reload all failed: ' + err);
             return reject();
         }
     });

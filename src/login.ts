@@ -150,15 +150,24 @@ function createLaunchJson(loginInfo: nodeDoc.ConnectionInformation, plainPasswor
 
 
 
-
+/**
+ * Check, if user must be asked for required login information (server-ip, server-port, principal and username).
+ *
+ * @param serverInfo If launch.json exists, this parameter already contains all required login information
+ * because they're set by launchJsonWatcher.
+ */
 export async function ensureLoginInformation(serverInfo: nodeDoc.ConnectionInformation): Promise<void> {
     return new Promise<void>(async (resolve, reject) => {
 
-        let plainPassword;
-        const askForAllInfoRequired = !serverInfo.checkLoginData();
+        let askForAllInfoRequired = !serverInfo.checkAnyLoginData();
+        if (!askForAllInfoRequired && vscode.workspace && vscode.workspace.rootPath) {
+            askForAllInfoRequired = !fs.existsSync(path.join(vscode.workspace.rootPath, '.vscode', 'launch.json'));
+        }
         const askForPasswordRequired = serverInfo.password === undefined;
 
         if (askForAllInfoRequired) {
+            let plainPassword;
+
             // ask user for login information...
             try {
                 plainPassword = await askForLoginInformation(serverInfo);
@@ -180,9 +189,9 @@ export async function ensureLoginInformation(serverInfo: nodeDoc.ConnectionInfor
             }
         }
 
-        if (!serverInfo.checkLoginData() || (undefined === serverInfo.password)) {
-            return reject('getting login information or password failed');
-        }
+        // if (!serverInfo.checkLoginData() || (undefined === serverInfo.password)) {
+        //     return reject('getting login information or password failed');
+        // }
 
         resolve();
     });
