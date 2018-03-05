@@ -103,20 +103,19 @@ export function ensureJsconfigJson(): boolean {
 
     // create empty jsconfig.json, if it does not exist
     const jsconfigPath = path.join(vscode.workspace.rootPath, 'jsconfig.json');
+    const tsconfigPath = path.join(vscode.workspace.rootPath, 'tsconfig.json');
+
     let fileCreated = false;
-    try {
-        fs.readFileSync(jsconfigPath);
-    } catch (err) {
-        if (err.code === 'ENOENT') {
-            try {
-                fs.writeFileSync(jsconfigPath, '');
-                fileCreated = true;
-            } catch (reason) {
-                vscode.window.showErrorMessage('Write jsonfig.json failed: ' + reason);
-                return false;
-            }
+    if (!fs.existsSync(jsconfigPath) && !fs.existsSync(tsconfigPath)) {
+        try {
+            fs.writeFileSync(jsconfigPath, '');
+            fileCreated = true;
+        } catch (reason) {
+            vscode.window.showErrorMessage('Write jsonfig.json failed: ' + reason);
+            return false;
         }
     }
+
     return fileCreated;
 }
 
