@@ -24,27 +24,43 @@ export async function downloadCreateProject(loginData: nodeDoc.ConnectionInforma
             fsPath = param._fsPath;
         }
         if (!fsPath) {
-            fsPath = await vscode.window.showInputBox({placeHolder: uMage + "Enter the path where you want the project to be created"});
+            let workspaceFolder = "";
+            if (vscode.workspace && vscode.workspace.workspaceFolders) {
+                workspaceFolder = vscode.workspace.workspaceFolders[0].uri.fsPath;
+            }
+            fsPath = await vscode.window.showInputBox({value: workspaceFolder});
         }
         if (!fsPath) {
             return resolve();
         }
-        const folderContent = fs.readdirSync(fsPath);
-        if (folderContent.length > 1 || (folderContent.length === 1 && folderContent[0] !== ".vscode-janus-debug")) {
+        let folderContent;
+        try {
+            folderContent = fs.readdirSync(fsPath);
+        } catch (err) {
+            vscode.window.showErrorMessage(uMage + err);
+            return resolve();
+        }
+        if (folderContent && folderContent.length > 1 || (folderContent.length === 1 && folderContent[0] !== ".vscode-janus-debug")) {
             vscode.window.showErrorMessage(uMage + "Start again with an empty folder please");
             return resolve();
         }
         const src = path.join(fsPath, "src");
         fs.emptyDirSync(src);
+
+        // execute Download All command
         vscode.window.setStatusBarMessage("Establishing connection to server...");
         try {
             await serverCommands.downloadAllSelected(loginData, src, false);
         } catch (err) {
             vscode.window.setStatusBarMessage("");
             vscode.window.showErrorMessage(uMage + `The connection to ${loginData.server} cannot be established, please check if the server is runing`);
+
+            // clean up everything from Download All command
+            // but keep the activation file
             fs.emptyDirSync(fsPath);
             loginData.resetLoginData();
             fs.writeFileSync(path.join(fsPath, helpers.CACHE_FILE), "");
+
             return resolve();
         }
         helpers.showWarning(loginData);
