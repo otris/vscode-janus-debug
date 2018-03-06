@@ -159,9 +159,15 @@ function createLaunchJson(loginInfo: nodeDoc.ConnectionInformation, plainPasswor
 export async function ensureLoginInformation(serverInfo: nodeDoc.ConnectionInformation): Promise<void> {
     return new Promise<void>(async (resolve, reject) => {
 
-        let askForAllInfoRequired = !serverInfo.checkAnyLoginData();
-        if (!askForAllInfoRequired && vscode.workspace && vscode.workspace.rootPath) {
-            askForAllInfoRequired = !fs.existsSync(path.join(vscode.workspace.rootPath, '.vscode', 'launch.json'));
+        let askForAllInfoRequired = true;
+        if (vscode.workspace && vscode.workspace.rootPath) {
+            const launchJsonExists = fs.existsSync(path.join(vscode.workspace.rootPath, '.vscode', 'launch.json'));
+            if (!launchJsonExists) {
+                // call this function here because launchJsonWatcher is not
+                // called in any case when launc.json is deleted
+                serverInfo.resetLoginData();
+            }
+            askForAllInfoRequired = !launchJsonExists;
         }
         const askForPasswordRequired = serverInfo.password === undefined;
 

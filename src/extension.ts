@@ -216,6 +216,8 @@ function initLaunchJsonWatcher(outputChannel: vscode.OutputChannel, loginData: n
     });
 
     launchJsonWatcher.onDidDelete((file) => {
+        // this function is only called, if launch.json is deleted directly,
+        // if the whole folder .vscode is deleted, this function is not called!
         if (autoConnectServerConsole && serverConsole) {
             disconnectServerConsole(serverConsole);
         }
