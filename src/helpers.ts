@@ -15,6 +15,8 @@ const winattr = require('winattr');
 export const COMPARE_FOLDER = '.compare';
 export const COMPARE_FILE_PREFIX = 'compare_';
 
+export const CATEGORY_FOLDER_POSTFIX = '.cat';
+
 const FORCE_UPLOAD_YES = 'Yes';
 const FORCE_UPLOAD_NO = 'No';
 const FORCE_UPLOAD_ALL = 'All';
@@ -75,6 +77,56 @@ export function getTime(): string {
     const seconds2 = seconds < 10 ? '0' + seconds : seconds;
     return `${hours2}:${minutes2}:${seconds2}`;
 }
+
+export function setPaths(scripts: nodeDoc.scriptT[], targetDir: string) {
+    scripts.forEach(function(script: any) {
+        script.path = path.join(targetDir, script.name + '.js');
+    });
+}
+
+export function categoriesToFolders(serverInfo: nodeDoc.ConnectionInformation, scripts: nodeDoc.scriptT[], targetDir: string) {
+
+    // get extension-part of settings.json
+    const conf = vscode.workspace.getConfiguration('vscode-janus-debug');
+    if (!conf) {
+        vscode.window.showWarningMessage('vscode-janus-debug missing in settings');
+        return;
+    }
+    const categories = conf.get('categories', false);
+    if (!categories) {
+        return;
+    }
+
+    if (Number(serverInfo.documentsVersion) < Number(nodeDoc.VERSION_CATEGORIES)) {
+        throw new Error("Using categories only available with server version ${nodeDoc.VERSION_CATEGORIES} or higher");
+    }
+
+    const postfixPos = targetDir.lastIndexOf(CATEGORY_FOLDER_POSTFIX);
+    if (postfixPos > 0) {
+        // the target folder is a category-folder
+        // only save scripts from this category
+
+        const catFolder = path.normalize(targetDir.slice(0, postfixPos)).split(path.sep).pop();
+        scripts.forEach((script: nodeDoc.scriptT) => {
+            if (script.category === catFolder) {
+                script.path = path.join(targetDir, script.name + '.js');
+            } else {
+                script.path = "";
+            }
+        });
+    } else {
+        // the target folder is not a category-folder
+        // create folders from categories
+
+        scripts.forEach((script: nodeDoc.scriptT) => {
+            if (script.category) {
+                script.path = path.join(targetDir, script.category + CATEGORY_FOLDER_POSTFIX, script.name + '.js');
+            }
+        });
+    }
+
+}
+
 
 
 /**
