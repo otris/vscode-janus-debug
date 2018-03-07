@@ -277,17 +277,23 @@ export function uploadRunScript(loginData: nodeDoc.ConnectionInformation, param:
  * Download script
  *
  * @param contextMenuPath: If command is called from context menu, this variable should
- * contain the corresponding path. Otherwise it should be undefined.
+ * contain the corresponding path. Then it is either a folder or a .js file.
+ * Otherwise it is undefined.
  */
 export async function downloadScript(loginData: nodeDoc.ConnectionInformation, contextMenuPath: string | undefined): Promise<void>  {
     return new Promise<void>(async (resolve, reject) => {
         let serverScriptNames;
+        let onFolder = false;
+        let scriptDir = "";
 
         try {
             await login.ensureLoginInformation(loginData);
+            scriptDir = await helpers.ensurePath(contextMenuPath, true);
 
             if (!contextMenuPath || '.js' !== path.extname(contextMenuPath)) {
-                serverScriptNames = await getServerScriptNames(loginData);
+                onFolder = true;
+                const category = helpers.getCategoryFromPath(scriptDir);
+                serverScriptNames = await getServerScriptNames(loginData, category ? [category] : []);
             }
         } catch (err) {
             vscode.window.showErrorMessage('download script failed: ' + err);
@@ -296,29 +302,34 @@ export async function downloadScript(loginData: nodeDoc.ConnectionInformation, c
 
 
         helpers.ensureScriptName(contextMenuPath, serverScriptNames).then((scriptName) => {
-            return helpers.ensurePath(contextMenuPath, true).then((scriptDir) => {
-                const scriptPath = path.join(scriptDir, scriptName + '.js');
-                let script: nodeDoc.scriptT = new nodeDoc.scriptT(scriptName, scriptPath);
 
-                helpers.getScriptInfoJson([script]);
+            const scriptPath = path.join(scriptDir, scriptName + '.js');
+            let script: nodeDoc.scriptT = new nodeDoc.scriptT(scriptName, scriptPath);
 
-                return nodeDoc.serverSession(loginData, [script], nodeDoc.downloadScript).then((value) => {
-                    script = value[0];
+            helpers.getScriptInfoJson([script]);
 
-                    return nodeDoc.saveScriptUpdateSyncHash([script]).then(() => {
-                        helpers.updateHashValues([script], loginData.server);
-                        helpers.writeScriptInfoJson([script]);
-                        vscode.window.setStatusBarMessage('downloaded: ' + script.name);
+            return nodeDoc.serverSession(loginData, [script], nodeDoc.downloadScript).then((value) => {
+                script = value[0];
 
-                        if (!script.path) {
-                            return resolve();
-                        }
-                        const openPath = vscode.Uri.file(script.path);
-                        vscode.workspace.openTextDocument(openPath).then(doc => {
-                            vscode.window.showTextDocument(doc);
-                        });
-                        resolve();
+                if (onFolder) {
+                    // if download is called directly on a script, the path
+                    // should not be changed
+                    helpers.categoriesToFolders(loginData, [script], scriptDir);
+                }
+
+                return nodeDoc.saveScriptUpdateSyncHash([script]).then(() => {
+                    helpers.updateHashValues([script], loginData.server);
+                    helpers.writeScriptInfoJson([script]);
+                    vscode.window.setStatusBarMessage('downloaded: ' + script.name);
+
+                    if (!script.path) {
+                        return resolve();
+                    }
+                    const openPath = vscode.Uri.file(script.path);
+                    vscode.workspace.openTextDocument(openPath).then(doc => {
+                        vscode.window.showTextDocument(doc);
                     });
+                    resolve();
                 });
             });
         }).catch((reason) => {
@@ -334,8 +345,9 @@ export async function downloadScript(loginData: nodeDoc.ConnectionInformation, c
  * @param loginData Information to connect to the server
  * @param inputScripts the list of scripts that should be downloaded
  * @param downloadFolder the folder where the scripts should be downloaded
+ * @param reload set to true if called from reload, because reaload should not change any script path
  */
-export async function downloadAllCommon(loginData: nodeDoc.ConnectionInformation, inputScripts: scriptT[], downloadFolder: string): Promise<number> {
+export async function downloadAllCommon(loginData: nodeDoc.ConnectionInformation, inputScripts: scriptT[], downloadFolder: string, reload = true): Promise<number> {
     return new Promise<number>(async (resolve, reject) => {
 
         // set downloadParameters flag in script structure,
@@ -345,8 +357,13 @@ export async function downloadAllCommon(loginData: nodeDoc.ConnectionInformation
         // download scripts from server
         return nodeDoc.serverSession(loginData, inputScripts, nodeDoc.downloadAll).then((outputScripts) => {
 
+            if (!reload) {
+                // this changes the script paths
+                helpers.categoriesToFolders(loginData, outputScripts, downloadFolder);
+            }
+
             // save script to file and update hash value in script structure
-            return nodeDoc.saveScriptUpdateSyncHash(outputScripts).then(() => {
+            return nodeDoc.saveScriptUpdateSyncHash(outputScripts).then((numSavedScripts) => {
 
                 // write hash values to file
                 helpers.updateHashValues(outputScripts, loginData.server);
@@ -361,7 +378,7 @@ export async function downloadAllCommon(loginData: nodeDoc.ConnectionInformation
                     vscode.window.showWarningMessage(`couldn't download ${encryptedScripts} scripts (scripts encrypted or not found)`);
                 }
 
-                resolve(outputScripts.length);
+                resolve(numSavedScripts);
             });
         }).catch((reason) => {
             reject(reason);
@@ -394,13 +411,11 @@ export async function downloadAllSelected(loginData: nodeDoc.ConnectionInformati
             // or if SCRIPT_NAMES_FILE exists: all scripts in that file
             const scripts = await getSelectedScriptNames(loginData, []);
 
-            // set download path to scripts
-            scripts.forEach(function(script: any) {
-                script.path = path.join(downloadFolder, script.name + '.js');
-            });
+            // set download folder to scripts paths
+            helpers.setPaths(scripts, downloadFolder);
 
             vscode.window.setStatusBarMessage(`downloading scripts...`);
-            const numDownloaded = await downloadAllCommon(loginData, scripts, downloadFolder);
+            const numDownloaded = await downloadAllCommon(loginData, scripts, downloadFolder, false);
             vscode.window.setStatusBarMessage(`downloaded ${numDownloaded} scripts`);
 
             return resolve();
@@ -408,11 +423,7 @@ export async function downloadAllSelected(loginData: nodeDoc.ConnectionInformati
             if (!showError) {
                 return reject();
             }
-            if (err.code === "ECONNREFUSED") {
-                vscode.window.showErrorMessage(`Connection to ${loginData.server} cannot be established, please check if the server is runing`);
-            } else {
-                vscode.window.showErrorMessage('download all failed: ' + err);
-            }
+            vscode.window.showErrorMessage('Download All failed: ' + err);
             return reject();
         }
     });
