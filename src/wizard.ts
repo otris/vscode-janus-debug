@@ -14,7 +14,7 @@ const uMage = "\u{1F9D9}: ";
 export async function downloadCreateProject(loginData: nodeDoc.ConnectionInformation, param: any, extensionPath: string): Promise<void> {
     return new Promise<void>(async (resolve, reject) => {
         const wizard = uMage + "A project  containing all server scripts will be created! This will take a few seconds...";
-        const answer = await vscode.window.showQuickPick(["Continue", "Cancel"], {placeHolder: wizard});
+        let answer = await vscode.window.showQuickPick(["Continue", "Cancel"], {placeHolder: wizard});
         if (answer !== "Continue") {
             return resolve();
         }
@@ -47,6 +47,13 @@ export async function downloadCreateProject(loginData: nodeDoc.ConnectionInforma
         const src = path.join(fsPath, "src");
         fs.emptyDirSync(src);
 
+        const extensionSettings = vscode.workspace.getConfiguration('vscode-janus-debug');
+
+        answer = await vscode.window.showQuickPick(["Yes", "No"], {placeHolder: uMage + "Create subfolders from categories?"});
+        if ("Yes" === answer) {
+            extensionSettings.update('categories', true);
+        }
+
         // execute Download All command
         vscode.window.setStatusBarMessage("Establishing connection to server...");
         try {
@@ -70,7 +77,6 @@ export async function downloadCreateProject(loginData: nodeDoc.ConnectionInforma
         const dest = path.join(fsPath, "jsconfig.json");
         fs.copySync(source, dest);
 
-        const extensionSettings = vscode.workspace.getConfiguration('vscode-janus-debug');
         const browsers = [
             "iexplore",
             "mozilla",
