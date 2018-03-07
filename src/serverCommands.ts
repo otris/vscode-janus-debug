@@ -39,6 +39,7 @@ async function uploadScriptCommon(loginData: nodeDoc.ConnectionInformation, para
             helpers.readHashValues([_script], loginData.server);
             helpers.readEncryptionFlag([_script]);
             helpers.setScriptInfoJson([_script]);
+            helpers.foldersToCategories(loginData, [_script]);
 
             return nodeDoc.serverSession(loginData, [_script], nodeDoc.uploadScript).then((value) => {
 
@@ -158,6 +159,7 @@ export function uploadAll(loginData: nodeDoc.ConnectionInformation, paramPath: a
             helpers.readHashValues(folderScripts, loginData.server);
             helpers.readEncryptionFlag(folderScripts);
             helpers.setScriptInfoJson(folderScripts);
+            helpers.foldersToCategories(loginData, folderScripts);
 
             return nodeDoc.serverSession(loginData, folderScripts, nodeDoc.uploadAll).then((value1) => {
                 const retScripts: nodeDoc.scriptT[] = value1;
@@ -347,7 +349,7 @@ export async function downloadScript(loginData: nodeDoc.ConnectionInformation, c
  * @param downloadFolder the folder where the scripts should be downloaded
  * @param reload set to true if called from reload, because reaload should not change any script path
  */
-export async function downloadAllCommon(loginData: nodeDoc.ConnectionInformation, inputScripts: scriptT[], downloadFolder: string, reload = true): Promise<number> {
+export async function downloadAllCommon(loginData: nodeDoc.ConnectionInformation, inputScripts: scriptT[], downloadFolder: string, categories = false): Promise<number> {
     return new Promise<number>(async (resolve, reject) => {
 
         // set downloadParameters flag in script structure,
@@ -357,15 +359,21 @@ export async function downloadAllCommon(loginData: nodeDoc.ConnectionInformation
         // download scripts from server
         return nodeDoc.serverSession(loginData, inputScripts, nodeDoc.downloadAll).then((outputScripts) => {
 
-            if (!reload) {
-                // this changes the script paths
+            if (categories) {
+                // the next two functions behave differently if downloadFolder is
+                // a category folder or if it is a normal empty folder or
+                // if it is a normal folder that contains category folders
+
+                // change script paths from scripts with categories
                 helpers.categoriesToFolders(loginData, outputScripts, downloadFolder);
+                // clean up category folders
+                helpers.deleteCatFolderContents(loginData, downloadFolder);
             }
 
             // save script to file and update hash value in script structure
             return nodeDoc.saveScriptUpdateSyncHash(outputScripts).then((numSavedScripts) => {
 
-                // write hash values to file
+                // write hash values from script structure to file
                 helpers.updateHashValues(outputScripts, loginData.server);
 
                 // write parameters to file
@@ -415,7 +423,7 @@ export async function downloadAllSelected(loginData: nodeDoc.ConnectionInformati
             helpers.setPaths(scripts, downloadFolder);
 
             vscode.window.setStatusBarMessage(`downloading scripts...`);
-            const numDownloaded = await downloadAllCommon(loginData, scripts, downloadFolder, false);
+            const numDownloaded = await downloadAllCommon(loginData, scripts, downloadFolder, true);
             vscode.window.setStatusBarMessage(`downloaded ${numDownloaded} scripts`);
 
             return resolve();
@@ -452,7 +460,7 @@ export async function reloadScripts(loginData: nodeDoc.ConnectionInformation, fi
             const scripts = nodeDoc.getScriptsFromFolderSync(downloadFolder);
 
             vscode.window.setStatusBarMessage(`reloading scripts...`);
-            const numDownloaded = await downloadAllCommon(loginData, scripts, downloadFolder);
+            const numDownloaded = await downloadAllCommon(loginData, scripts, downloadFolder, false);
             vscode.window.setStatusBarMessage(`reloaded ${numDownloaded} scripts`);
 
             return resolve();
