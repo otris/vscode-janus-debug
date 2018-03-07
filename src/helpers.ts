@@ -1,6 +1,5 @@
 'use strict';
 
-import * as fs from 'fs';
 import * as nodeDoc from 'node-documents-scripting';
 import * as os from 'os';
 import * as path from 'path';
@@ -10,6 +9,8 @@ import * as vscode from 'vscode';
 const reduce = require('reduce-for-promises');
 // tslint:disable-next-line:no-var-requires
 const winattr = require('winattr');
+// tslint:disable-next-line:no-var-requires
+const fs = require('fs-extra');
 
 // like eclipse plugin
 export const COMPARE_FOLDER = '.compare';
@@ -84,12 +85,69 @@ export function setPaths(scripts: nodeDoc.scriptT[], targetDir: string) {
     });
 }
 
+
+/**
+ * This function delets folder contents from folders that ends with .cat.
+ * There are many checks in this function, just to be sure...
+ *
+ * @param serverInfo this is to check the version
+ * @param dir The folder that is a category folder or contains category folders
+ */
+export function deleteCatFolderContents(serverInfo: nodeDoc.ConnectionInformation, dir: string) {
+
+    // get extension-part of settings.json
+    const conf = vscode.workspace.getConfiguration('vscode-janus-debug');
+    if (!conf) {
+        vscode.window.showWarningMessage('vscode-janus-debug missing in settings');
+        return;
+    }
+    const categories = conf.get('categories', false);
+    if (!categories) {
+        return;
+    }
+
+    if (Number(serverInfo.documentsVersion) < Number(nodeDoc.VERSION_CATEGORIES)) {
+        throw new Error("Using categories only available with server version ${nodeDoc.VERSION_CATEGORIES} or higher");
+    }
+
+
+    if (dir.endsWith(CATEGORY_FOLDER_POSTFIX)) {
+        try {
+            if (fs.statSync(dir).isDirectory()) {
+                fs.emptyDirSync(dir);
+            }
+        } catch (err) {
+            // do nothing
+        }
+    } else {
+        const content: string[] = fs.readdirSync(dir);
+        if (content && content.length > 0) {
+            content.forEach((entry) => {
+                if (entry.endsWith(CATEGORY_FOLDER_POSTFIX)) {
+                    try {
+                        if (fs.statSync(entry).isDirectory()) {
+                            fs.emptyDirSync(entry);
+                        }
+                    } catch (err) {
+                        // do nothing
+                    }
+                }
+            });
+        }
+    }
+}
+
+
 export function getCategoryFromPath(parampath?: string) {
-    if (!parampath || !parampath.endsWith(CATEGORY_FOLDER_POSTFIX)) {
+    if (!parampath) {
         return undefined;
     }
-    const postfixPos = parampath.lastIndexOf(CATEGORY_FOLDER_POSTFIX);
-    return path.normalize(parampath.slice(0, postfixPos)).split(path.sep).pop();
+    const dir = (path.extname(parampath) === ".js") ? path.dirname(parampath) : parampath;
+    if (!dir.endsWith(CATEGORY_FOLDER_POSTFIX)) {
+        return undefined;
+    }
+    const postfixPos = dir.lastIndexOf(CATEGORY_FOLDER_POSTFIX);
+    return path.normalize(dir.slice(0, postfixPos)).split(path.sep).pop();
 }
 
 export function categoriesToFolders(serverInfo: nodeDoc.ConnectionInformation, scripts: nodeDoc.scriptT[], targetDir: string) {
@@ -132,6 +190,32 @@ export function categoriesToFolders(serverInfo: nodeDoc.ConnectionInformation, s
         });
     }
 
+}
+
+
+
+export function foldersToCategories(serverInfo: nodeDoc.ConnectionInformation, scripts: nodeDoc.scriptT[]) {
+
+    // get extension-part of settings.json
+    const conf = vscode.workspace.getConfiguration('vscode-janus-debug');
+    if (!conf) {
+        vscode.window.showWarningMessage('vscode-janus-debug missing in settings');
+        return;
+    }
+    const categories = conf.get('categories', false);
+    if (!categories) {
+        return;
+    }
+
+    if (Number(serverInfo.documentsVersion) < Number(nodeDoc.VERSION_CATEGORIES)) {
+        throw new Error("Using categories only available with server version ${nodeDoc.VERSION_CATEGORIES} or higher");
+    }
+
+    scripts.forEach((script: nodeDoc.scriptT) => {
+        if (script.path) {
+            script.category = getCategoryFromPath(script.path);
+        }
+    });
 }
 
 
@@ -646,10 +730,10 @@ export function scriptLog(scriptOutput: string | undefined) {
 
 export async function ensureHiddenFolder(_path: string): Promise<void> {
     return new Promise<void>((resolve, reject) => {
-        fs.stat(_path, (err, stats) => {
+        fs.stat(_path, (err: any, stats: any) => {
             if (err) {
                 if ('ENOENT' === err.code) {
-                    fs.mkdir(_path, (error) => {
+                    fs.mkdir(_path, (error: any) => {
                         if (error) {
                             reject(error);
                         } else {
@@ -695,13 +779,13 @@ export async function checkPath(scriptPath: string | undefined, allowCreateFolde
             return reject(`${scriptPath} is not a subfolder of ${workspaceFolder}`);
         }
 
-        fs.stat(scriptPath, function(err1, stats1) {
+        fs.stat(scriptPath, function(err1: any, stats1: any) {
             if (err1) {
                 if (allowCreateFolder && 'ENOENT' === err1.code && 'js' !== path.extname(scriptPath)) {
                     const p = scriptPath.split(path.sep);
                     const newfolder = p.pop();
                     const _path = p.join(path.sep);
-                    fs.stat(_path, (err2, stats2) => {
+                    fs.stat(_path, (err2: any, stats2: any) => {
                         if (err2) {
                             if ('ENOENT' === err2.code) {
                                 reject('can only create a single subfolder on a valid path');
