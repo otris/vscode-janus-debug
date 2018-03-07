@@ -84,6 +84,14 @@ export function setPaths(scripts: nodeDoc.scriptT[], targetDir: string) {
     });
 }
 
+export function getCategoryFromPath(parampath?: string) {
+    if (!parampath || !parampath.endsWith(CATEGORY_FOLDER_POSTFIX)) {
+        return undefined;
+    }
+    const postfixPos = parampath.lastIndexOf(CATEGORY_FOLDER_POSTFIX);
+    return path.normalize(parampath.slice(0, postfixPos)).split(path.sep).pop();
+}
+
 export function categoriesToFolders(serverInfo: nodeDoc.ConnectionInformation, scripts: nodeDoc.scriptT[], targetDir: string) {
 
     // get extension-part of settings.json
@@ -101,14 +109,13 @@ export function categoriesToFolders(serverInfo: nodeDoc.ConnectionInformation, s
         throw new Error("Using categories only available with server version ${nodeDoc.VERSION_CATEGORIES} or higher");
     }
 
-    const postfixPos = targetDir.lastIndexOf(CATEGORY_FOLDER_POSTFIX);
-    if (postfixPos > 0) {
+    const category = getCategoryFromPath(targetDir);
+    if (category) {
         // the target folder is a category-folder
         // only save scripts from this category
 
-        const catFolder = path.normalize(targetDir.slice(0, postfixPos)).split(path.sep).pop();
         scripts.forEach((script: nodeDoc.scriptT) => {
-            if (script.category === catFolder) {
+            if (script.category === category) {
                 script.path = path.join(targetDir, script.name + '.js');
             } else {
                 script.path = "";
