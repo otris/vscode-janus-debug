@@ -310,9 +310,9 @@
         },
         "vscode-janus-debug.categories": {
           "type": "boolean",
-          "title": "Associate categories with subfolders",
+          "title": "Associate categories with folders with postfix '.cat'",
           "default": false,
-          "description": "If set to true, categories will be associated with special named subfolders (with postfix '.cat')"
+          "description": "Project folders with postfix '.cat' will be created and deleted on up- or download!"
         },
         "vscode-janus-debug.scriptLog": {
           "type": "object",
