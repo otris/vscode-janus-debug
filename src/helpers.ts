@@ -27,6 +27,8 @@ const NO_CONFLICT = 'No conflict';
 export const CACHE_FILE = '.vscode-janus-debug';
 const SCRIPT_NAMES_FILE = '.documents-script-names';
 
+const invalidCharacters = /[\\\/:\*\?"<>\|]/;
+
 export enum autoUpload {
     yes,
     no,
@@ -167,6 +169,7 @@ export function categoriesToFolders(serverInfo: nodeDoc.ConnectionInformation, s
         throw new Error("Using categories only available with server version ${nodeDoc.VERSION_CATEGORIES} or higher");
     }
 
+    let invalidName;
     const category = getCategoryFromPath(targetDir);
     if (category) {
         // the target folder is a category-folder
@@ -185,11 +188,20 @@ export function categoriesToFolders(serverInfo: nodeDoc.ConnectionInformation, s
 
         scripts.forEach((script: nodeDoc.scriptT) => {
             if (script.category) {
-                script.path = path.join(targetDir, script.category + CATEGORY_FOLDER_POSTFIX, script.name + '.js');
+                if (invalidCharacters.test(script.category)) {
+                    path.parse(script.category);
+                    script.path = "";
+                    invalidName = script.category;
+                } else {
+                    script.path = path.join(targetDir, script.category + CATEGORY_FOLDER_POSTFIX, script.name + '.js');
+                }
             }
         });
     }
 
+    if (invalidName) {
+        vscode.window.showWarningMessage(`Cannot create folder from category '${invalidName}' - please remove special characters`);
+    }
 }
 
 
