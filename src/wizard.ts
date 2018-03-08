@@ -6,6 +6,8 @@ import * as helpers from './helpers';
 import * as intellisense from './intellisense';
 import * as serverCommands from './serverCommands';
 
+const SOURCE_FOLDER_NAME = "src";
+
 // tslint:disable-next-line:no-var-requires
 const fs = require('fs-extra');
 
@@ -44,15 +46,15 @@ export async function downloadCreateProject(loginData: nodeDoc.ConnectionInforma
             vscode.window.showErrorMessage(uMage + "Start again with an empty folder please");
             return resolve();
         }
-        const src = path.join(fsPath, "src");
-        fs.emptyDirSync(src);
-
         const extensionSettings = vscode.workspace.getConfiguration('vscode-janus-debug');
 
         answer = await vscode.window.showQuickPick(["Yes", "No"], {placeHolder: uMage + "Create subfolders from categories?"});
         if ("Yes" === answer) {
             extensionSettings.update('categories', true);
         }
+
+        const src = path.join(fsPath, SOURCE_FOLDER_NAME);
+        fs.ensureDirSync(src);
 
         // execute Download All command
         vscode.window.setStatusBarMessage("Establishing connection to server...");
@@ -61,12 +63,6 @@ export async function downloadCreateProject(loginData: nodeDoc.ConnectionInforma
         } catch (err) {
             vscode.window.setStatusBarMessage("");
             vscode.window.showErrorMessage(uMage + `The connection to ${loginData.server} cannot be established, please check if the server is runing`);
-
-            // clean up everything from Download All command
-            // but keep the activation file
-            fs.emptyDirSync(fsPath);
-            loginData.resetLoginData();
-            fs.writeFileSync(path.join(fsPath, helpers.CACHE_FILE), "");
 
             return resolve();
         }
@@ -87,7 +83,7 @@ export async function downloadCreateProject(loginData: nodeDoc.ConnectionInforma
         const browser = await vscode.window.showQuickPick(browsers, {placeHolder: uMage + "Please select your favourite browser for documentation"});
         extensionSettings.update('browser', browser);
 
-        vscode.window.showInformationMessage(uMage + "Finished! When you want to rename folder 'src', you should also rename it in 'jsconfig.json'");
+        vscode.window.showInformationMessage(uMage + `Finished! When you want to rename folder '${SOURCE_FOLDER_NAME}', you should also rename it in 'jsconfig.json'`);
 
         return resolve();
     });
