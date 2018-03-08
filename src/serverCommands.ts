@@ -366,8 +366,6 @@ export async function downloadAllCommon(loginData: nodeDoc.ConnectionInformation
 
                 // change script paths from scripts with categories
                 helpers.categoriesToFolders(loginData, outputScripts, downloadFolder);
-                // clean up category folders
-                helpers.deleteCatFolderContents(loginData, downloadFolder);
             }
 
             // save script to file and update hash value in script structure
