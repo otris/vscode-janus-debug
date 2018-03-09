@@ -2,6 +2,11 @@
 
 You'll find a complete list of changes at our project site on [GitHub](https://github.com/otris/vscode-janus-debug).
 
+### 0.0.32 (2018-03-09)
+
+- [Using Categories as Subfolders](https://github.com/otris/vscode-janus-debug/wiki/Using-Categories-as-Subfolders)
+- Some fixes
+
 ### 0.0.31 (2018-02-01)
 
 - Improved documentation and typings.
