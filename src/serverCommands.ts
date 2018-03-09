@@ -405,7 +405,7 @@ export async function downloadAllCommon(loginData: nodeDoc.ConnectionInformation
  * interpreted as a script name. Then only scripts from this list
  * that can be found on server will be downloaded.
  */
-export async function downloadAllSelected(loginData: nodeDoc.ConnectionInformation, fileOrfolder: string | undefined, showError = true): Promise<void> {
+export async function downloadAllSelected(loginData: nodeDoc.ConnectionInformation, fileOrfolder: string | undefined): Promise<void> {
     return new Promise<void>(async (resolve, reject) => {
         try {
             await login.ensureLoginInformation(loginData);
@@ -426,9 +426,6 @@ export async function downloadAllSelected(loginData: nodeDoc.ConnectionInformati
 
             return resolve();
         } catch (err) {
-            if (!showError) {
-                return reject();
-            }
             vscode.window.showErrorMessage('Download All failed: ' + err);
             return reject();
         }

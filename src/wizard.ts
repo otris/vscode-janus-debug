@@ -59,11 +59,10 @@ export async function downloadCreateProject(loginData: nodeDoc.ConnectionInforma
         // execute Download All command
         vscode.window.setStatusBarMessage("Establishing connection to server...");
         try {
-            await serverCommands.downloadAllSelected(loginData, src, false);
+            await serverCommands.downloadAllSelected(loginData, src);
         } catch (err) {
+            // error message is shown in downloadAllSelected
             vscode.window.setStatusBarMessage("");
-            vscode.window.showErrorMessage(uMage + `The connection to ${loginData.server} cannot be established, please check if the server is runing`);
-
             return resolve();
         }
         helpers.showWarning(loginData);
