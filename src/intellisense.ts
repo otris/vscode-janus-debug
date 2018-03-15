@@ -10,6 +10,8 @@ const fs = require('fs-extra');
 // tslint:disable-next-line:no-var-requires
 const execSync = require('child_process').execSync;
 
+const TYPINGS_FOLDER_DEFAULT = 'typings';
+
 
 
 
@@ -67,20 +69,17 @@ export function createFiletypesTSD(loginData: nodeDoc.ConnectionInformation): Pr
         if (!vscode.workspace || !vscode.workspace.rootPath) {
             return reject('Workspace folder missing');
         }
+        const typingsFolder = TYPINGS_FOLDER_DEFAULT;
 
         // get the content for fileTypes.d.ts
         let fileTypesTSD = '';
         try {
             fileTypesTSD = await commands.getFileTypesTSD(loginData);
         } catch (err) {
-            if (err.code === 'ECONNREFUSED') {
-                return reject(`Cannot load 'fileTypes.d.ts' because the server ${err.address} is not available`);
-            } else {
-                return reject(err.message);
-            }
+            return reject(err.message ? err.message : err);
         }
 
-        const projtypings = path.join(vscode.workspace.rootPath, 'typings');
+        const projtypings = path.join(vscode.workspace.rootPath, typingsFolder);
         fs.ensureDirSync(projtypings);
 
         // create fileTypes.d.ts
@@ -132,10 +131,11 @@ export function copyPortalScriptingTSD(version?: string): boolean {
         vscode.window.showErrorMessage('Extension or workspace folder missing');
         return false;
     }
+    const typingsFolder = TYPINGS_FOLDER_DEFAULT;
 
-    const outputPath = path.join(extension.extensionPath, 'portalscript', 'typings');
+    const outputPath = path.join(extension.extensionPath, 'portalscript', typingsFolder);
     const extensionTSDFile = serverVersion.ensurePortalScriptingTSD(extension.extensionPath, outputPath, version);
-    const projecttypings = path.join(vscode.workspace.rootPath, 'typings');
+    const projecttypings = path.join(vscode.workspace.rootPath, typingsFolder);
     const projectTSDFile = path.join(projecttypings, 'portalScripting.d.ts');
     fs.ensureDirSync(projecttypings);
 
@@ -159,9 +159,10 @@ export function copyScriptExtensionsTSD(): boolean {
         vscode.window.showErrorMessage('Extension or workspace folder missing');
         return false;
     }
+    const typingsFolder = TYPINGS_FOLDER_DEFAULT;
 
-    const extensionTSDFile = path.join(extension.extensionPath, 'portalscript', 'typings', "scriptExtensions.d.ts");
-    const projecttypings = path.join(vscode.workspace.rootPath, 'typings');
+    const extensionTSDFile = path.join(extension.extensionPath, 'portalscript', typingsFolder, "scriptExtensions.d.ts");
+    const projecttypings = path.join(vscode.workspace.rootPath, typingsFolder);
     const projectTSDFile = path.join(projecttypings, "scriptExtensions.d.ts");
     fs.ensureDirSync(projecttypings);
 
