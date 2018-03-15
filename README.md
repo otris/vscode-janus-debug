@@ -21,26 +21,22 @@ The following commands are supported.
 | **Command** | **Description** |
 | --- | --- |
 | **Uploading/Downloading Scripts** ||
-| Upload Script | Uploads a script to the server |
-| Upload Folder | Uploads all scripts of a folder inclusive all subfolders to the server |
-| Download Script | Downloads a script from the server |
-| Download All | Downloads all scripts from the server to a folder |
-| Download Folder (coming soon) | Downloads scripts in a folder from server |
-| Compare Script | Compares a script to the corresponding script on server |
+| Upload Script | Upload a script to the server |
+| Upload Scripts from Folder | Upload all scripts of a folder and all subfolders to the server |
+| Download Script | Download a script from the server |
+| Download All Scripts | Download all scripts from the server to a folder |
+| Reload Scripts | Download only scripts in a folder and all subfolder again |
+| Compare Script | Compare a script to the corresponding script on server |
 | **Executing Scripts** ||
-| Run Script | Executes a script |
-| Upload and Run | Uploads and executes a script |
+| Run Script | Execute a script |
+| Upload and Run | Upload and execute a script |
 | **Developing Scripts** ||
-| Install IntelliSense | Installs available TypeScript Defintion files for IntelliSense for PortalScripting |
-| View Documentation | Opens a browser with the HTML documentation |
+| Install IntelliSense | Install available TypeScript Defintion files for IntelliSense for PortalScripting |
+| View Documentation | Open a browser with the HTML documentation |
 | **DOCUMENTS Server Information** ||
 | Connect Server Console | Show all messages of the DOCUMENTS server in terminal |
 | Disonnect Server Console | Stop showing server messages in terminal |
 | Show DOCUMENTS Version | Show version of the DOCUMENTS server |
-| **Not Supported** ||
-| Upload set of scripts selected in explorer | Select a set of files in explorer not supported by VS Code |
-| Download set of scripts selected in selection list | Select a set of entries in selection list not supported by VS Code |
-| Upload all open scripts | List of all open editors not available in VS Code |
 
 
 ### Settings
@@ -48,11 +44,12 @@ The following commands are supported.
 The following features can be influenced by settings (in `settings.json`)
 
 **Encryption**
-* A script is encrypted on upload, if
-  * The corresponding script on server is encrypted
-  * The script source code contains `// #crypt`
-  * `vscode-janus-debug.encryptOnUpload = true`
-* The encryption on upload can be ignored (coming soon)
+
+* The setting `vscode-janus-debug.encryptionOnUpload` can be used to control
+encryption. There are three values.
+  * `default`: a script is encrypted on upload, if the corresponding script on server is encrypted or the script source code contains `// #crypt`
+  * `always`: scripts are always encrypted on upload.
+  * `never`: scripts are never encrypted on upload.
 
 **Script Parameters as JSON**
 * Parameters are uploaded and downloaded together with every script, if
