@@ -145,3 +145,65 @@ export class SourceMap {
             this.map.findValueIf(value => value.sourceReference === sourceReference) : undefined;
     }
 }
+
+
+class Pos {
+    constructor(public start: number, public len: number) { }
+}
+
+class Chunk {
+    constructor(public name: string, public pos: Pos) { }
+}
+
+export class ServerSource {
+    public static fromSources(sourceLines: string[]) {
+        const chunks: Chunk[] = [];
+        const pattern = /^\/\/#\s\d+\s(\w+)$/;
+        let current: Chunk | undefined;
+        sourceLines.forEach((line, index) => {
+            const match = line.match(pattern);
+            if (match) {
+                if (current) {
+                    current.pos.len = index - current.pos.start;
+                    chunks.push(current);
+                }
+                current = new Chunk(match[1], new Pos(index + 1, 0));
+            }
+        });
+
+        if (current) {
+            current.pos.len = sourceLines.length - current.pos.start;
+            chunks.push(current);
+        }
+
+        const s = new ServerSource();
+        s._chunks = chunks;
+        return s;
+    }
+
+    private _chunks: Chunk[];
+
+    constructor() {
+        this._chunks = [];
+    }
+
+    get chunks() { return this._chunks; }
+
+    public toLocalPosition(line: number): { source: string, line: number } {
+        const idx = this._chunks.findIndex(chunk =>
+            (line >= chunk.pos.start) && (line <= (chunk.pos.start + chunk.pos.len)));
+        if (idx > 0) {
+            const chunk = this._chunks[idx];
+            let localLine = line - chunk.pos.start;
+            if (localLine === 0) {
+                localLine = 1;
+            }
+            return {
+                source: chunk.name, line: localLine
+            };
+        }
+        return {
+            source: this._chunks[0].name, line: 1
+        };
+    }
+}

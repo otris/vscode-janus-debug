@@ -2,7 +2,7 @@ import * as assert from 'assert';
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
-import { LocalSource, SourceMap } from '../src/sourceMap';
+import { LocalSource, ServerSource, SourceMap } from '../src/sourceMap';
 
 suite('local source tests', () => {
 
@@ -117,6 +117,53 @@ suite('source map tests', () => {
             const result = sourceMap.getSource('remoteName');
             const path = result ? result.path : '';
             assert.equal(path, 'someScript.js');
+        });
+    });
+
+    suite('server source', () => {
+
+        suite('construct from source lines', () => {
+            const sourceLines = [
+                /* line on server                                                   file/line */
+                /*  1 not visible to user */ "debugger;",
+                /*  2                     */ "//# 0 lib",                        /* lib.js   */
+                /*  3                     */ "var x=1;",                         /*  1       */
+                /*  4                     */ "x=2;",                             /*  2       */
+                /*  5                     */ "util.out(\"lib.js: \" + x);",      /*  3       */
+                /*  6                     */ "a.push(\"0\");",                   /*  4       */
+                /*  7                     */ "",                                 /*  5       */
+                /*  8                     */ "//# 2 test1",                      /* test1.js */
+                /*  9                     */ "",                                 /*  1       */
+                /* 10                     */ "a.push(\"1\");",                   /*  2       */
+                /* 11                     */ "a.push(\"2\");",                   /*  3       */
+                /* 12                     */ "a.push(\"3\");",                   /*  4       */
+                /* 13                     */ "a.push(\"4\");",                   /*  5       */
+                /* 14                     */ "util.out(\"Done\");"               /*  6       */
+            ];
+
+            test("parse into chunks", () => {
+                const s = ServerSource.fromSources(sourceLines);
+                assert.equal(s.chunks.length, 2);
+                assert.equal(s.chunks[0].name, 'lib');
+                assert.equal(s.chunks[1].name, 'test1');
+            });
+
+            test("map to individual source files", () => {
+                const s = ServerSource.fromSources(sourceLines);
+                assert.deepEqual(s.toLocalPosition(10), { source: 'test1', line: 2 });
+                assert.deepEqual(s.toLocalPosition(3), { source: 'lib', line: 1 });
+            });
+
+            test("first line debugger; statement maps to first line of first chunk", () => {
+                const s = ServerSource.fromSources(sourceLines);
+                assert.deepEqual(s.toLocalPosition(1), { source: 'lib', line: 1 });
+            });
+
+            test("pre-processor line maps to first line of next chunk", () => {
+                const s = ServerSource.fromSources(sourceLines);
+                assert.deepEqual(s.toLocalPosition(2), { source: 'lib', line: 1 });
+                assert.deepEqual(s.toLocalPosition(8), { source: 'test1', line: 1 });
+            });
         });
     });
 });
