@@ -71,6 +71,10 @@ export class LocalSource {
             });
         });
     }
+
+    public sourceName(): string {
+        return parse(this.path).name;
+    }
 }
 
 const log = Logger.create('SourceMap');

@@ -239,17 +239,13 @@ export class JanusDebugSession extends DebugSession {
                     });
                     if (scriptIdentifier) {
                         this.sourceMap.addMapping(source, scriptIdentifier);
-                        log.debug(`sending InitializedEvent`);
-                        this.sendEvent(new InitializedEvent());
-                        this.debugConsole(`Debugger listening on ${host}:${debuggerPort}`);
-                        this.sendResponse(response);
                     } else {
-                        const reason = "script Identifier was not defined";
-                        log.error(`launchRequest: ...failed. ${reason}`);
-                        response.success = false;
-                        response.message = `Could not attach to remote process: ${reason}`;
-                        this.sendResponse(response);
+                        this.sourceMap.addMapping(source, source.sourceName());
                     }
+                    log.debug(`sending InitializedEvent`);
+                    this.sendEvent(new InitializedEvent());
+                    this.debugConsole(`Debugger listening on ${host}:${debuggerPort}`);
+                    this.sendResponse(response);
                 });
 
                 debuggerSocket.on('close', (hadError: boolean) => {
