@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import ipc = require('node-ipc');
-import { window } from 'vscode';
+import { Logger } from 'node-file-log';
+import { window, workspace } from 'vscode';
 
 // We use a UNIX Domain or Windows socket, respectively, for having a
 // communication channel from the debug adapter process back to the extension.
@@ -14,6 +15,8 @@ ipc.config.id = 'sock';
 ipc.config.retry = 1500;
 ipc.config.silent = true;
 
+const log = Logger.create('VSCodeExtensionIPC');
+
 /**
  * Acts as the server in our communication.
  *
@@ -23,6 +26,8 @@ ipc.config.silent = true;
 export class VSCodeExtensionIPC {
 
     public constructor() {
+        log.info('constructor');
+
         ipc.serve(this.serverCallback);
         ipc.server.start();
 
@@ -35,6 +40,7 @@ export class VSCodeExtensionIPC {
     }
 
     private removeStaleSocket() {
+        log.info('removeStaleSocket');
         ipc.disconnect('sock');
         const staleSocket = `${ipc.config.socketRoot}${ipc.config.appspace}${ipc.config.id}`;
         if (fs.existsSync(staleSocket)) {
@@ -47,12 +53,22 @@ export class VSCodeExtensionIPC {
     }
 
     private serverCallback(): void {
+
+        // This is the "API" that we expose via this IPC mechanism
         ipc.server.on('showContextQuickPick', async (contextList: string[], socket) => {
-            // TODO: create and pass cancellation token
+            log.info('showContextQuickPick');
+
             const picked: string | undefined = await window.showQuickPick(contextList);
             if (picked) {
                 ipc.server.emit(socket, 'contextChosen', picked);
             }
+        });
+
+        ipc.server.on('findURIsInWorkspace', async (ignored: any, socket) => {
+            log.info('findURIsInWorkspace');
+
+            const uris = await workspace.findFiles('**/*.js', '**/node_modules/**', 1000);
+            ipc.server.emit(socket, 'urisFound', uris.map(uri => uri.path));
         });
     }
 }

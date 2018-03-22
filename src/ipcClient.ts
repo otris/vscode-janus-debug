@@ -28,6 +28,7 @@ export class DebugAdapterIPC {
             });
 
             ipc.of.sock.on('contextChosen', this.contextChosenDefaultHandler);
+            ipc.of.sock.on('urisFound', this.urisFoundDefaultHandler);
         });
     }
 
@@ -58,7 +59,34 @@ export class DebugAdapterIPC {
         return result;
     }
 
+    public async findURIsInWorkspace(): Promise<string[]> {
+        log.debug('findURIsInWorkspace');
+
+        const waitForResponse = timeout({
+            promise: new Promise<string[]>(resolve => {
+                ipc.of.sock.on('urisFound', (uris: string[]) => {
+                    log.debug(`found following files '${JSON.stringify(uris)}'`);
+                    resolve(uris);
+                });
+            }),
+            time: 6000,
+            error: new Error('Request timed out'),
+        });
+        ipc.of.sock.emit('findURIsInWorkspace', '');
+        let result: string[];
+        try {
+            result = await waitForResponse;
+        } finally {
+            ipc.of.sock.on('urisFound', this.urisFoundDefaultHandler);
+        }
+        return result;
+    }
+
     private contextChosenDefaultHandler(data: any) {
         log.warn(`got 'contextChosen' message from VS Code extension but we haven't asked!`);
+    }
+
+    private urisFoundDefaultHandler(data: any) {
+        log.warn(`got 'urisFound' message from VS Code extension but we haven't asked!`);
     }
 }

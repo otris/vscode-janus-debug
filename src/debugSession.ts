@@ -151,6 +151,16 @@ export class JanusDebugSession extends DebugSession {
             return;
         }
 
+        const ipcClient = new DebugAdapterIPC();
+        await ipcClient.connect();
+        let uris: string[] | undefined;
+        try {
+            uris = await ipcClient.findURIsInWorkspace();
+            log.debug(`found ${JSON.stringify(uris)} URIs in workspace`);
+        } catch (e) {
+            log.error(`error ${e}`);
+        }
+
         const source = new LocalSource(args.script);
         let scriptSource: string;
         try {
