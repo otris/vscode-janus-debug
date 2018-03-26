@@ -1,5 +1,3 @@
-'use strict';
-
 // See https://en.wikipedia.org/wiki/Pairing_function#Cantor_pairing_function
 
 export function cantorPairing(x: number, y: number): number {

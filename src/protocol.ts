@@ -1,5 +1,3 @@
-'use strict';
-
 import * as assert from 'assert';
 import { Logger } from 'node-file-log';
 import * as uuid from 'uuid';

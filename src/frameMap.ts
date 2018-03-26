@@ -1,5 +1,3 @@
-'use strict';
-
 import { Logger } from 'node-file-log';
 import { cantorPairing, reverseCantorPairing } from './cantor';
 import { ContextId } from './context';

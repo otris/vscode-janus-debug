@@ -1,5 +1,3 @@
-'use strict';
-
 import * as fs from 'fs';
 import { LogConfiguration } from 'node-file-log';
 import { isAbsolute, join } from 'path';

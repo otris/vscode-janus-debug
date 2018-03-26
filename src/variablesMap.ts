@@ -1,5 +1,3 @@
-'use strict';
-
 import { Logger } from 'node-file-log';
 import { DebugProtocol } from 'vscode-debugprotocol';
 import { cantorPairing, reverseCantorPairing } from './cantor';

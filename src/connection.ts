@@ -1,5 +1,3 @@
-'use strict';
-
 import { EventEmitter } from 'events';
 import { Socket } from 'net';
 import { Logger } from 'node-file-log';

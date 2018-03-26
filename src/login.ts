@@ -1,5 +1,3 @@
-'use strict';
-
 import * as nodeDoc from 'node-documents-scripting';
 import * as path from 'path';
 import * as vscode from 'vscode';

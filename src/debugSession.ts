@@ -1,5 +1,3 @@
-'use strict';
-
 import * as assert from 'assert';
 import { connect, Socket } from 'net';
 import { Logger } from 'node-file-log';
