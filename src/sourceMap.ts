@@ -155,7 +155,7 @@ class Chunk {
 export class ServerSource {
     public static fromSources(sourceLines: string[]) {
         const chunks: Chunk[] = [];
-        const pattern = /^\/\/#\s\d+\s([\w\_\-#]+)$/;
+        const pattern = /^\/\/#\s\d+\s([\w\_\-\.#]+)$/;
         let current: Chunk | undefined;
         sourceLines.forEach((line, index) => {
             line = line.trim();

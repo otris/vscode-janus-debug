@@ -121,7 +121,7 @@ suite('source map tests', () => {
                 "//# 25 appMainConfig_OnDelete",
                 "//# 26 appMainConfig_OnSave",
                 "//# 27 appMainConfig_getAutoRank",
-                "//# 28 appMarkAsRead",
+                "//# 28 .appMarkAsRead",
                 "//# 29 appPerformWorkflowAction",
                 "//# 30 appReferenceEnum",
                 "//# 31 appScriptLibrary",
