@@ -41,6 +41,9 @@ export interface LaunchRequestArguments extends DebugProtocol.LaunchRequestArgum
     script: string;
     /** Automatically stop target after launching. If not specified, target does not stop. */
     stopOnEntry?: boolean;
+
+    /** Whether the remote server is a DOCUMENTS server. */
+    portal?: boolean;
 }
 
 export const commandAskForPassword = '${command:extension.vscode-janus-debug.askForPassword}';

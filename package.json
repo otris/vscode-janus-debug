@@ -38,6 +38,7 @@
     "onCommand:extension.vscode-janus-debug.uploadScript",
     "onCommand:extension.vscode-janus-debug.downloadScript",
     "onCommand:extension.vscode-janus-debug.runScript",
+    "onCommand:extension.vscode-janus-debug.debugScript",
     "onCommand:extension.vscode-janus-debug.compareScript",
     "onCommand:extension.vscode-janus-debug.uploadScriptsFromFolder",
     "onCommand:extension.vscode-janus-debug.downloadAllScripts",
@@ -370,6 +371,11 @@
         "category": "DOCUMENTS"
       },
       {
+        "command": "extension.vscode-janus-debug.debugScript",
+        "title": "Upload and Debug Script",
+        "category": "DOCUMENTS"
+      },
+      {
         "command": "extension.vscode-janus-debug.uploadRunScript",
         "title": "Upload and Run Script",
         "category": "DOCUMENTS"
@@ -449,6 +455,10 @@
         "command": "extension.vscode-janus-debug.runScript"
       },
       {
+        "key": "ctrl+alt+d",
+        "command": "extension.vscode-janus-debug.debugScript"
+      },
+      {
         "key": "ctrl+alt+x",
         "command": "extension.vscode-janus-debug.uploadRunScript"
       }
@@ -477,6 +487,11 @@
         },
         {
           "command": "extension.vscode-janus-debug.runScript",
+          "when": "resourceLangId == javascript",
+          "group": "DOCUMENTS@4"
+        },
+        {
+          "command": "extension.vscode-janus-debug.debugScript",
           "when": "resourceLangId == javascript",
           "group": "DOCUMENTS@4"
         },
@@ -533,6 +548,11 @@
         },
         {
           "command": "extension.vscode-janus-debug.runScript",
+          "when": "resourceLangId == javascript",
+          "group": "DOCUMENTS@3"
+        },
+        {
+          "command": "extension.vscode-janus-debug.debugScript",
           "when": "resourceLangId == javascript",
           "group": "DOCUMENTS@3"
         },

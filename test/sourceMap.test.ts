@@ -13,7 +13,7 @@ suite('local source tests', () => {
         test('initialization', () => {
             const source = new LocalSource(somePath);
             assert.equal(source.sourceReference, 0);
-            assert.equal(source.aliasNames.length, 0);
+            assert.equal(source.aliasNames.length, 2);
             assert.equal(source.name, 'baz.js');
         });
 
@@ -62,26 +62,6 @@ suite('source map tests', () => {
 
     setup(() => {
         sourceMap = new SourceMap();
-        sourceMap.setAllRemoteUrls([
-            '/usr/lib/fubar/script1.js',
-            '/usr/lib/fubar/extension/script2.js',
-            '/usr/lib/fubar/extension/script3.js',
-            '/usr/lib/fubar/script4.js',
-        ]);
-    });
-
-    test('size method returns no. of all of mappings', () => {
-        assert.equal(sourceMap.size, 4);
-    });
-
-    test('clear method removes all mappings', () => {
-        sourceMap.clear();
-        assert.equal(sourceMap.size, 0);
-    });
-
-    test('setAllRemoteUrls method removes previous mappings', () => {
-        sourceMap.setAllRemoteUrls(['fubar.js']);
-        assert.equal(sourceMap.size, 1);
     });
 
     test('get source by reference returns undefined for references ≤ 0', () => {
@@ -91,20 +71,9 @@ suite('source map tests', () => {
 
     suite('local → remote', () => {
 
-        test('different path but base name is equal', () => {
-            const result = sourceMap.getRemoteUrl('/Users/bob/fubar/src/server/script1.js');
-            assert.equal(result, '/usr/lib/fubar/script1.js');
-        });
-
-        test('if no remote name can be found, fallback to local path', () => {
-            const result = sourceMap.getRemoteUrl('/Users/bob/fubar/bielefeld.js');
-            assert.equal(result, '/Users/bob/fubar/bielefeld.js');
-        });
 
         test('add a single mapping directly', () => {
-            const initialSize = sourceMap.size;
             sourceMap.addMapping(new LocalSource('/home/bob/script.js'), 'remoteName');
-            assert.equal(sourceMap.size, initialSize + 1);
             const result = sourceMap.getRemoteUrl('/home/bob/script.js');
             assert.equal(result, 'remoteName');
         });
@@ -121,6 +90,50 @@ suite('source map tests', () => {
     });
 
     suite('server source', () => {
+
+        test("parse pre-processor comment line", () => {
+            const lines = [
+                "//# 0 Gadget_appConnectOfflineApp",
+                "//# 1 TERRORTEST",
+                "//# 2 appAddToFavorites",
+                "//# 3 appAdditionalSettings",
+                "//# 4 appCall_INIT",
+                "//# 5 appCommitFile",
+                "//# 6 appConfigACLEnum",
+                "//# 7 appConfigApplyACL",
+                "//# 8 appConfigExporter",
+                "//# 9 appConfigImportExportLibrary",
+                "//# 10 appConfigImporter",
+                "//# 11 appConfigJumpBackToMain",
+                "//# 12 appDocRegistersEnum",
+                "//# 13 appFieldsEnum",
+                "//# 14 appFileActionEnum",
+                "//# 15 appFileConfig_Exporter",
+                "//# 16 appFileConfig_Importer",
+                "//# 17 appFileConfig_getAutoRank",
+                "//# 18 appFileTypeEnum",
+                "//# 19 appFoldersEnum",
+                " //# 20 appLinkRegistersEnum",
+                "	//# 21 appListConfig_Exporter",
+                "//# 22 appListConfig_Importer",
+                "//# 23 appListConfig_getAutoRank",
+                "//# 24 appMainActionEnum",
+                "//# 25 appMainConfig_OnDelete",
+                "//# 26 appMainConfig_OnSave",
+                "//# 27 appMainConfig_getAutoRank",
+                "//# 28 appMarkAsRead",
+                "//# 29 appPerformWorkflowAction",
+                "//# 30 appReferenceEnum",
+                "//# 31 appScriptLibrary",
+                "//# 32 crmAccount_MailSent#",
+                "//# 33 crmAccount_TransferAddressToContacts",
+                "//# 34 crmAccount_onDelete#",
+                "//# 35 crmAppointment_New  ",
+                "//# 36 crmCampaign_FillDistributionlistDropdown#",
+            ];
+            const s = ServerSource.fromSources(lines);
+            assert.equal(s.chunks.length, 37);
+        });
 
         suite('construct from source lines', () => {
             const sourceLines = [

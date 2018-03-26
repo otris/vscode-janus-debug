@@ -54,9 +54,13 @@ export class LocalSource {
     public sourceReference: number;
 
     constructor(path: string) {
+        const parsedPath = parse(path);
         this.path = path;
-        this.name = parse(path).base;
-        this.aliasNames = [];
+        this.name = parsedPath.base;
+        this.aliasNames = [
+            parsedPath.name,
+            parsedPath.base
+        ];
         this.sourceReference = 0;
     }
 
@@ -77,49 +81,38 @@ export class LocalSource {
     }
 }
 
+type JSContextName = string;
+
 const log = Logger.create('SourceMap');
 
 /**
- * Provides bi-directional mapping from local to remote source names.
+ * Provides bi-directional mapping from local sources, most likely files, to remote JS context names.
  *
- * The Debugger Protocol speaks of URLs but these are actually no URLs but more like URIs or URNs.
+ * The jsrdbg protocol speaks of URLs but these are actually not URLs but more like URIs or URNs.
  */
 export class SourceMap {
-    private map: ValueMap<string, LocalSource>;
+    private map: ValueMap<JSContextName, LocalSource>;
+    private sourceLines: ServerSource | undefined;
 
     constructor() {
-        this.map = new ValueMap<string, LocalSource>();
+        this.map = new ValueMap<JSContextName, LocalSource>();
     }
 
-    get size(): number {
-        return this.map.size;
+    get serverSource(): ServerSource | undefined {
+        return this.sourceLines;
     }
 
-    public clear(): void {
-        this.map.clear();
+    set serverSource(sources: ServerSource | undefined) {
+        this.sourceLines = sources;
     }
 
-    public setAllRemoteUrls(remoteNames: string[]): void {
-        log.debug(`setAllRemoteUrls: ${JSON.stringify(remoteNames)}`);
-
-        this.map.clear();
-        remoteNames.forEach(remoteName => {
-            const parsedPath = parse(remoteName);
-            const localSource = new LocalSource('');
-            if (parsedPath.base.length > 0) {
-                localSource.aliasNames.push(parsedPath.base);
-            }
-            this.map.set(remoteName, localSource);
-        });
-    }
-
-    public addMapping(localSource: LocalSource, remoteName: string): void {
+    public addMapping(localSource: LocalSource, remoteName: JSContextName): void { // ← fake rocket science
         this.map.set(remoteName, localSource);
     }
 
-    public getRemoteUrl(localPath: string): string {
+    public getRemoteUrl(localPath: string): JSContextName {
         const parsedPath = parse(localPath);
-        let remoteName: string | undefined;
+        let remoteName: JSContextName | undefined;
 
         remoteName = this.map.findKeyIf(value => value.path === localPath);
 
@@ -136,7 +129,7 @@ export class SourceMap {
         return remoteName;
     }
 
-    public getSource(remoteName: string): LocalSource | undefined {
+    public getSource(remoteName: JSContextName): LocalSource | undefined {
         return this.map.get(remoteName);
     }
 
@@ -144,8 +137,14 @@ export class SourceMap {
         return sourceReference > 0 ?
             this.map.findValueIf(value => value.sourceReference === sourceReference) : undefined;
     }
-}
 
+    public setLocalUrls(localPaths: string[]): void {
+        localPaths.forEach(path => {
+            const localSource = new LocalSource(path);
+            this.addMapping(localSource, localSource.aliasNames[0]);
+        });
+    }
+}
 
 class Pos {
     constructor(public start: number, public len: number) { }
@@ -158,9 +157,10 @@ class Chunk {
 export class ServerSource {
     public static fromSources(sourceLines: string[]) {
         const chunks: Chunk[] = [];
-        const pattern = /^\/\/#\s\d+\s(\w+)$/;
+        const pattern = /^\/\/#\s\d+\s([\w\_\-#]+)$/;
         let current: Chunk | undefined;
         sourceLines.forEach((line, index) => {
+            line = line.trim();
             const match = line.match(pattern);
             if (match) {
                 if (current) {

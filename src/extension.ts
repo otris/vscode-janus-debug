@@ -434,6 +434,53 @@ export function activate(context: vscode.ExtensionContext): void {
         })
     );
 
+    // Upload and Debug script
+    context.subscriptions.push(
+        vscode.commands.registerCommand('extension.vscode-janus-debug.debugScript', async (param) => {
+            let fsPath: string | undefined;
+            if (param && (typeof param._fsPath === 'string')) {
+                fsPath = param._fsPath;
+            }
+            if (!fsPath && vscode.window.activeTextEditor) {
+                fsPath = vscode.window.activeTextEditor.document.fileName;
+            }
+            try {
+                let folder: vscode.WorkspaceFolder | undefined;
+                if (vscode.workspace.workspaceFolders) {
+                    folder = vscode.workspace.workspaceFolders[0];
+                }
+
+                let config: vscode.DebugConfiguration | undefined;
+                vscode.workspace.getConfiguration('launch').configurations.forEach((element: vscode.DebugConfiguration) => {
+                    if (element.type === 'janus' && element.request === 'launch') {
+                        config = element;
+                        config.portal = true;
+                        config.script = fsPath;
+                    }
+                });
+
+                if (!config) {
+                    vscode.window.showErrorMessage("No suitable configuration for debugging found. Please add one in launch.json");
+                    return;
+                }
+
+                try {
+                    serverCommands.uploadDebugScript(loginData, fsPath, scriptChannel);
+
+                    // This essentially calls the Debugger Extension's launchRequest. We take a
+                    // launch config and overwrite 'script' property.
+                    await vscode.debug.startDebugging(folder, config);
+                } finally {
+                    // await serverCommands.uploadScript(loginData, fsPath);
+                }
+
+            } catch (err) {
+                // Swallow, you stupid bitch
+            }
+            helpers.showWarning(loginData);
+        })
+    );
+
     // Upload and Run script
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.uploadRunScript', async (param) => {

@@ -13,7 +13,7 @@ import { Context, ContextId } from './context';
 import { FrameMap } from './frameMap';
 import { DebugAdapterIPC } from './ipcClient';
 import { Breakpoint, Command, Response, StackFrame, Variable, variableValueToString } from './protocol';
-import { LocalSource, SourceMap } from './sourceMap';
+import { LocalSource, ServerSource, SourceMap } from './sourceMap';
 import { VariablesContainer, VariablesMap } from './variablesMap';
 
 const log = Logger.create('JanusDebugSession');
@@ -151,16 +151,6 @@ export class JanusDebugSession extends DebugSession {
             return;
         }
 
-        const ipcClient = new DebugAdapterIPC();
-        await ipcClient.connect();
-        let uris: string[] | undefined;
-        try {
-            uris = await ipcClient.findURIsInWorkspace();
-            log.debug(`found ${JSON.stringify(uris)} URIs in workspace`);
-        } catch (e) {
-            log.error(`error ${e}`);
-        }
-
         const source = new LocalSource(args.script);
         let scriptSource: string;
         try {
@@ -173,156 +163,182 @@ export class JanusDebugSession extends DebugSession {
             return;
         }
 
-        const sdsSocket = connect(sdsPort, host);
-        const sdsConnection = new SDSConnection(sdsSocket);
-        sdsConnection.timeout = args.timeout || 6000;
+        const ipcClient = new DebugAdapterIPC();
+        await ipcClient.connect();
+        let uris: string[] | undefined;
+        try {
+            uris = await ipcClient.findURIsInWorkspace();
+            log.debug(`found ${JSON.stringify(uris)} URIs in workspace`);
+            this.sourceMap.setLocalUrls(uris);
+        } catch (e) {
+            log.error(`error ${e}`);
+        }
 
-        sdsSocket.on('connect', () => {
-            log.info(`connected to ${host}:${sdsPort}`);
+        const connectDebugger = async () => {
+            // Attach to debugger port and tell the frontend that we are ready to set breakpoints.
+            const debuggerSocket = connect(debuggerPort, host);
 
-            sdsConnection.connect('vscode-janus-debug').then(() => {
+            if (this.connection) {
+                log.warn("launchRequest: already made a connection to remote debugger");
+            }
 
-                log.info(`SDS connection established, got client ID: ${sdsConnection.clientId}`);
-                return sdsConnection.changeUser(username, password);
+            const connection = new DebugConnection(debuggerSocket);
+            this.connection = connection;
 
-            }).then(userId => {
+            this.logServerVersion();
 
-                log.debug(`successfully changed user; new user id: ${userId}`);
-
-                if (principal.length > 0) {
-                    return sdsConnection.changePrincipal(principal);
-                }
-
-            }).then(() => {
-
-                // Quick & dirty pause immediately feature
-                if (stopOnEntry) {
-                    scriptSource = 'debugger;' + scriptSource;
-                }
-
-                // fill identifier
-                scriptIdentifier = uuidV4();
-                log.debug("launching script with identifier: " + scriptIdentifier);
-                sdsConnection.runScriptOnServer(scriptSource, scriptIdentifier).then(returnedString => {
-
-                    // Important: this block is reached after the script returned and the debug session has ended. So
-                    // the entire environment of this block might not even exist anymore!
-
-                    log.debug(`script returned '${returnedString}'`);
-                    this.debugConsole(returnedString);
-
-                });
-
-            }).then(() => {
-
-                // Attach to debugger port and tell the frontend that we are ready to set breakpoints.
-                const debuggerSocket = connect(debuggerPort, host);
-
-                if (this.connection) {
-                    log.warn("launchRequest: already made a connection to remote debugger");
-                }
-
-                const connection = new DebugConnection(debuggerSocket);
-                this.connection = connection;
-
-                this.logServerVersion();
-
-                this.connection.on('contextPaused', (ctxId: number) => {
-                    this.sendEvent(new StoppedEvent("hit breakpoint", ctxId));
-                });
-
-                this.connection.on('error', (reason: string) => {
-                    log.error(`Error on connection: ${reason}`);
-                    response.success = false;
-                    response.message = reason;
-                    this.sendResponse(response);
-                    this.connection = undefined;
-                    this.sendEvent(new TerminatedEvent());
-                });
-
-                debuggerSocket.on('connect', () => {
-
-                    log.info(`launchRequest: connection to ${host}:${debuggerPort} established. Testing...`);
-
-                    const timeout = new Promise<void>((resolve, reject) => {
-                        setTimeout(reject, args.timeout || 6000, "Operation timed out");
-                    });
-                    if (scriptIdentifier) {
-                        this.sourceMap.addMapping(source, scriptIdentifier);
-                    } else {
-                        this.sourceMap.addMapping(source, source.sourceName());
-                    }
-                    log.debug(`sending InitializedEvent`);
-                    this.sendEvent(new InitializedEvent());
-                    this.debugConsole(`Debugger listening on ${host}:${debuggerPort}`);
-                    this.sendResponse(response);
-                });
-
-                debuggerSocket.on('close', (hadError: boolean) => {
-                    if (hadError) {
-                        log.error(`remote closed the connection due to error`);
-                    } else {
-                        log.info(`remote closed the connection`);
-                    }
-                    this.connection = undefined;
-                    this.sendEvent(new TerminatedEvent());
-                });
-
-                debuggerSocket.on('error', (err: any) => {
-                    log.error(`failed to connect to ${host}:${debuggerPort}: ${err.code}`);
-
-                    response.success = false;
-                    response.message = `Failed to connect to server: ${codeToString(err.code)}`;
-                    if (err.code === 'ETIMEDOUT') {
-                        response.message += `. Maybe wrong port or host?`;
-                    }
-                    this.sendResponse(response);
-
-                    this.connection = undefined;
-                    this.sendEvent(new TerminatedEvent());
-                });
-
-            }).catch(reason => {
-
-                log.error(`launchRequest failed: ${reason}`);
-                response.success = false;
-                response.message = `Could not launch script: ${toUserMessage(reason)}.`;
-                this.sendResponse(response);
-
-            }).then(() => {
-
-                log.debug(`done; disconnecting SDS connection`);
-                sdsConnection.disconnect();
-
+            this.connection.on('contextPaused', (ctxId: number) => {
+                this.sendEvent(new StoppedEvent("hit breakpoint", ctxId));
             });
-        });
 
-        sdsSocket.on('close', (hadError: boolean) => {
-            if (hadError) {
-                log.error(`remote closed SDS connection due to error`);
+            this.connection.on('error', (reason: string) => {
+                log.error(`Error on connection: ${reason}`);
                 response.success = false;
-                response.message = `Failed to connect to server`;
+                response.message = reason;
                 this.sendResponse(response);
-            } else {
-                log.info(`remote closed SDS connection`);
-            }
+                this.connection = undefined;
+                this.sendEvent(new TerminatedEvent());
+            });
 
-            this.sendEvent(new TerminatedEvent());
-        });
+            debuggerSocket.on('connect', async () => {
 
-        sdsSocket.on('error', (err: any) => {
+                log.info(`launchRequest: connection to ${host}:${debuggerPort} established. Testing...`);
 
-            log.error(`failed to connect to ${host}:${sdsPort}: ${err.code}`);
+                if (scriptIdentifier) {
+                    this.sourceMap.addMapping(source, scriptIdentifier);
+                } else {
+                    this.sourceMap.addMapping(source, source.sourceName());
+                }
 
-            response.success = false;
-            response.message = `Failed to connect to server: ${codeToString(err.code)}`;
-            if (err.code === 'ETIMEDOUT') {
-                response.message += `. Maybe wrong port or host?`;
-            }
-            this.sendResponse(response);
+                try {
+                    const sources = await connection.sendRequest(Command.getSource(source.sourceName()),
+                        async (res: Response) => res.content.source);
+                    log.info(`retrieved server sources: ${JSON.stringify(sources)}`);
+                    this.sourceMap.serverSource = ServerSource.fromSources(sources);
+                } catch (e) {
+                    log.error(`Command.getSource failed ${e}`);
+                }
 
-            this.sendEvent(new TerminatedEvent());
-        });
+                // TODO: HACK remove. Single step because of debugger; statement. ContextId 0 is a wild guess
+                await connection.sendRequest(new Command('next', 0));
+
+                log.debug(`sending InitializedEvent`);
+                this.sendEvent(new InitializedEvent());
+                this.debugConsole(`Debugger listening on ${host}:${debuggerPort}`);
+                this.sendResponse(response);
+            });
+
+            debuggerSocket.on('close', (hadError: boolean) => {
+                if (hadError) {
+                    log.error(`remote closed the connection due to error`);
+                } else {
+                    log.info(`remote closed the connection`);
+                }
+                this.connection = undefined;
+                this.sendEvent(new TerminatedEvent());
+            });
+
+            debuggerSocket.on('error', (err: any) => {
+                log.error(`failed to connect to ${host}:${debuggerPort}: ${err.code}`);
+
+                response.success = false;
+                response.message = `Failed to connect to server: ${codeToString(err.code)}`;
+                if (err.code === 'ETIMEDOUT') {
+                    response.message += `. Maybe wrong port or host?`;
+                }
+                this.sendResponse(response);
+
+                this.connection = undefined;
+                this.sendEvent(new TerminatedEvent());
+            });
+        };
+
+        if (args.portal) {
+            log.info(`Script is already running on DOCUMENTS server, just connect the debugger`);
+            await connectDebugger();
+        } else {
+            const sdsSocket = connect(sdsPort, host);
+            const sdsConnection = new SDSConnection(sdsSocket);
+            sdsConnection.timeout = args.timeout || 6000;
+
+            sdsSocket.on('connect', () => {
+                log.info(`connected to ${host}:${sdsPort}`);
+
+                sdsConnection.connect('vscode-janus-debug').then(() => {
+
+                    log.info(`SDS connection established, got client ID: ${sdsConnection.clientId}`);
+                    return sdsConnection.changeUser(username, password);
+
+                }).then(userId => {
+
+                    log.debug(`successfully changed user; new user id: ${userId}`);
+
+                    if (principal.length > 0) {
+                        return sdsConnection.changePrincipal(principal);
+                    }
+
+                }).then(() => {
+
+                    // Quick & dirty pause immediately feature
+                    if (stopOnEntry) {
+                        scriptSource = 'debugger;' + scriptSource;
+                    }
+
+                    // fill identifier
+                    scriptIdentifier = uuidV4();
+                    log.debug("launching script with identifier: " + scriptIdentifier);
+                    sdsConnection.runScriptOnServer(scriptSource, scriptIdentifier).then(returnedString => {
+
+                        // Important: this block is reached after the script returned and the debug session has ended. So
+                        // the entire environment of this block might not even exist anymore!
+
+                        log.debug(`script returned '${returnedString}'`);
+                        this.debugConsole(returnedString);
+
+                    });
+
+                }).then(connectDebugger).catch(reason => {
+
+                    log.error(`launchRequest failed: ${reason}`);
+                    response.success = false;
+                    response.message = `Could not launch script: ${toUserMessage(reason)}.`;
+                    this.sendResponse(response);
+
+                }).then(() => {
+
+                    log.debug(`done; disconnecting SDS connection`);
+                    sdsConnection.disconnect();
+
+                });
+            });
+
+            sdsSocket.on('close', (hadError: boolean) => {
+                if (hadError) {
+                    log.error(`remote closed SDS connection due to error`);
+                    response.success = false;
+                    response.message = `Failed to connect to server`;
+                    this.sendResponse(response);
+                } else {
+                    log.info(`remote closed SDS connection`);
+                }
+
+                this.sendEvent(new TerminatedEvent());
+            });
+
+            sdsSocket.on('error', (err: any) => {
+
+                log.error(`failed to connect to ${host}:${sdsPort}: ${err.code}`);
+
+                response.success = false;
+                response.message = `Failed to connect to server: ${codeToString(err.code)}`;
+                if (err.code === 'ETIMEDOUT') {
+                    response.message += `. Maybe wrong port or host?`;
+                }
+                this.sendResponse(response);
+
+                this.sendEvent(new TerminatedEvent());
+            });
+        }
     }
 
     protected async attachRequest(response: DebugProtocol.AttachResponse, args: AttachRequestArguments): Promise<void> {
@@ -386,7 +402,7 @@ export class JanusDebugSession extends DebugSession {
                         log.info(`chose context '${targetContext.name}'`);
                         targetContext.pause();
                         // looking for source
-                        const src: string = await connection.sendRequest(Command.getSource(targetContext.name));
+                        // const src: string = await connection.sendRequest(Command.getSource(targetContext.name));
                         const lScr = new LocalSource(targetContext.name);
                         lScr.sourceReference = targetContext.id;
                         this.sourceMap.addMapping(lScr, targetContext.name);
@@ -817,11 +833,27 @@ export class JanusDebugSession extends DebugSession {
         context.getStacktrace().then((trace: StackFrame[]) => {
             const frames = this.frameMap.addFrames(contextId, trace);
             const stackFrames: DebugProtocol.StackFrame[] = frames.map(frame => {
-                const localSource = this.sourceMap.getSource(frame.sourceUrl);
+
+                let origLine: number | undefined;
+                let origSource: string | undefined;
+                try {
+                    if (this.sourceMap.serverSource) {
+                        const orig = this.sourceMap.serverSource.toLocalPosition(frame.sourceLine);
+                        // log.debug(`>>> --> ${JSON.stringify(orig)}`);
+                        origLine = orig.line;
+                        origSource = orig.source;
+                    }
+                } catch (e) {
+                    log.error(`oops ${e}`);
+                }
+
+                const localSource = this.sourceMap.getSource(origSource ? origSource : frame.sourceUrl);
+                // log.debug(`+++ ${localSource.name}`);
+
                 return {
                     column: 0,
                     id: frame.frameId,
-                    line: frame.sourceLine,
+                    line: origLine ? origLine : frame.sourceLine,
                     name: localSource ? localSource.name : '',
                     source: localSource ? {
                         path: localSource.path,
@@ -833,6 +865,7 @@ export class JanusDebugSession extends DebugSession {
                 stackFrames,
                 totalFrames: trace.length,
             };
+            log.info(`stackTraceRequest response.body: ${JSON.stringify(response.body)}`);
 
             // Update variablesMap
             context.getVariables().then((locals: Variable[]) => {

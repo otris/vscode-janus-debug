@@ -23,16 +23,19 @@ const fs = require('fs-extra');
 
 /**
  * Common function for uploading script.
- * TODO merge with uploadScript
  *
  * @param loginData
  * @param param
  */
-async function uploadScriptCommon(loginData: nodeDoc.ConnectionInformation, param: any): Promise<void> {
+async function uploadScriptCommon(loginData: nodeDoc.ConnectionInformation, param: any, addDebuggerStatement: boolean): Promise<void> {
     await login.ensureLoginInformation(loginData);
 
     return new Promise<void>((resolve, reject) => {
         helpers.ensureScript(param).then((_script) => {
+
+            if (addDebuggerStatement && _script.localCode) {
+                _script.localCode = "debugger;\n" + _script.localCode;
+            }
 
             // get information from settings and hash values
             helpers.setConflictModes([_script]);
@@ -83,7 +86,7 @@ async function uploadScriptCommon(loginData: nodeDoc.ConnectionInformation, para
  */
 export function uploadScript(loginData: nodeDoc.ConnectionInformation, param: any): Promise<void> {
     return new Promise<void>((resolve, reject) => {
-        uploadScriptCommon(loginData, param).then(() => {
+        uploadScriptCommon(loginData, param, false).then(() => {
             resolve();
         }).catch((reason) => {
             reject();
@@ -99,7 +102,7 @@ export function uploadScriptOnSave(loginData: nodeDoc.ConnectionInformation, fil
         helpers.ensureUploadOnSave(fileName).then((value) => {
 
             if (helpers.autoUpload.yes === value) {
-                uploadScriptCommon(loginData, fileName).then(() => {
+                uploadScriptCommon(loginData, fileName, false).then(() => {
                     resolve(true);
                 }).catch((reason) => {
                     reject();
@@ -132,7 +135,7 @@ export function uploadJSFromTS(loginData: nodeDoc.ConnectionInformation, textDoc
             console.log("scriptSource:\n" + scriptSource);
         }
 
-        uploadScriptCommon(loginData, jsname).then(() => {
+        uploadScriptCommon(loginData, jsname, false).then(() => {
             resolve();
         }).catch((reason) => {
             reject();
@@ -256,6 +259,33 @@ export async function runScript(loginData: nodeDoc.ConnectionInformation, param:
     });
 }
 
+/**
+ * Upload and debug script
+ */
+export function uploadDebugScript(loginData: nodeDoc.ConnectionInformation, param: any, outputChannel: vscode.OutputChannel): Promise<void> {
+    return new Promise<void>(async (resolve, reject) => {
+        let scriptName;
+
+        try {
+            vscode.window.setStatusBarMessage('Upload ' + scriptName + ' at ' + getTime());
+            scriptName = await uploadScriptCommon(loginData, param, true);
+            vscode.window.setStatusBarMessage('Uploaded ' + scriptName + ' at ' + getTime());
+        } catch (reason) {
+            return reject();
+        }
+
+        try {
+            vscode.window.setStatusBarMessage('Debug script ' + scriptName + ' at ' + getTime());
+            scriptName = await runScriptCommon(loginData, param, outputChannel);
+            vscode.window.setStatusBarMessage('Script ' + scriptName + ' finished at ' + getTime());
+        } catch (reason) {
+            vscode.window.showErrorMessage('debug script failed: ' + reason);
+            return reject();
+        }
+
+        resolve();
+    });
+}
 
 /**
  * Upload and run script
@@ -266,7 +296,7 @@ export function uploadRunScript(loginData: nodeDoc.ConnectionInformation, param:
 
         try {
             vscode.window.setStatusBarMessage('Upload script at ' + getTime());
-            scriptName = await uploadScriptCommon(loginData, param);
+            scriptName = await uploadScriptCommon(loginData, param, false);
             vscode.window.setStatusBarMessage('Uploaded ' + scriptName + ' at ' + getTime());
         } catch (reason) {
             return reject();
