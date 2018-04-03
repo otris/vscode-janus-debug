@@ -60,6 +60,24 @@ suite('source map tests', () => {
 
     let sourceMap: SourceMap;
 
+    const sourceLines = [
+        /* line on server                                              file/line */
+        /*  1 not visible to user */ "debugger;",
+        /*  2                     */ "//# 0 lib",                    /* lib.js   */
+        /*  3                     */ "var x=1;",                     /*  1       */
+        /*  4                     */ "x=2;",                         /*  2       */
+        /*  5                     */ "util.out(\"lib.js: \" + x);",  /*  3       */
+        /*  6                     */ "a.push(\"0\");",               /*  4       */
+        /*  7                     */ "",                             /*  5       */
+        /*  8                     */ "//# 2 test1",                  /* test1.js */
+        /*  9                     */ "",                             /*  1       */
+        /* 10                     */ "a.push(\"1\");",               /*  2       */
+        /* 11                     */ "a.push(\"2\");",               /*  3       */
+        /* 12                     */ "a.push(\"3\");",               /*  4       */
+        /* 13                     */ "a.push(\"4\");",               /*  5       */
+        /* 14                     */ "util.out(\"Done\");"           /*  6       */
+    ];
+
     setup(() => {
         sourceMap = new SourceMap();
     });
@@ -70,7 +88,6 @@ suite('source map tests', () => {
     });
 
     suite('local → remote', () => {
-
 
         test('add a single mapping directly', () => {
             sourceMap.addMapping(new LocalSource('/home/bob/script.js'), 'remoteName');
@@ -89,94 +106,107 @@ suite('source map tests', () => {
         });
     });
 
+    suite("mapping", () => {
+
+        let tempDir: string;
+        const paths: string[] = [];
+        const libSourceCode =
+            /*  1                 */ "var x=1;\n" +
+            /*  2                 */ "x=2;\n" +
+            /*  3                 */ "util.out(\"lib.js: \" + x);\n" +
+            /*  4                 */ "a.push(\"0\");\n" +
+            /*  5                 */ "";
+        const test1SourceCode =
+            /*  1                 */ "\n" +
+            /*  2                 */ "a.push(\"1\");\n" +
+            /*  3                 */ "a.push(\"2\");\n" +
+            /*  4                 */ "a.push(\"3\");\n" +
+            /*  5                 */ "a.push(\"4\");\n" +
+            /*  6                 */ "util.out(\"Done\");";
+
+        setup(() => {
+            tempDir = fs.mkdtempSync(os.tmpdir() + path.sep);
+
+            const writeTestFile = (fileName: string, sourceCode: string) => {
+                const p = tempDir + path.sep + fileName;
+                const fd = fs.openSync(p, 'w');
+                fs.writeFileSync(p, sourceCode);
+                paths.push(p);
+            };
+
+            writeTestFile('lib.js', libSourceCode);
+            writeTestFile('test1.js', test1SourceCode);
+
+            sourceMap = new SourceMap();
+        });
+
+        teardown(() => {
+            paths.forEach(p => fs.unlinkSync(p));
+            // Timeout because otherwise we get a ENOTEMPTY in fs.rmdir
+            setTimeout(() => { fs.rmdirSync(tempDir); }, 1000);
+        });
+
+        test("remote line to local position", () => {
+            sourceMap.serverSource = ServerSource.fromSources(sourceLines);
+            sourceMap.setLocalUrls(paths);
+            assert.deepEqual(sourceMap.toLocalPosition(6), { source: 'lib', line: 4});
+        });
+    });
+
     suite('server source', () => {
 
         test("parse pre-processor comment line", () => {
             const lines = [
                 "//# 0 Gadget_appConnectOfflineApp",
-                "//# 1 TERRORTEST",
+                "//# 1 UPPERCASE",
                 "//# 2 appAddToFavorites",
-                "//# 3 appAdditionalSettings",
-                "//# 4 appCall_INIT",
-                "//# 5 appCommitFile",
-                "//# 6 appConfigACLEnum",
-                "//# 7 appConfigApplyACL",
-                "//# 8 appConfigExporter",
+                "//# 3 appAdditional.Settings",
+                "  //# 4 appCall_INIT  ",
                 "//# 9 appConfigImportExportLibrary",
                 "//# 10 appConfigImporter",
                 "//# 11 appConfigJumpBackToMain",
-                "//# 12 appDocRegistersEnum",
-                "//# 13 appFieldsEnum",
-                "//# 14 appFileActionEnum",
-                "//# 15 appFileConfig_Exporter",
                 "//# 16 appFileConfig_Importer",
                 "//# 17 appFileConfig_getAutoRank",
                 "//# 18 appFileTypeEnum",
                 "//# 19 appFoldersEnum",
                 " //# 20 appLinkRegistersEnum",
                 "	//# 21 appListConfig_Exporter",
-                "//# 22 appListConfig_Importer",
-                "//# 23 appListConfig_getAutoRank",
-                "//# 24 appMainActionEnum",
                 "//# 25 appMainConfig_OnDelete",
                 "//# 26 appMainConfig_OnSave",
-                "//# 27 appMainConfig_getAutoRank",
                 "//# 28 .appMarkAsRead",
                 "//# 29 appPerformWorkflowAction",
-                "//# 30 appReferenceEnum",
-                "//# 31 appScriptLibrary",
                 "//# 32 crmAccount_MailSent#",
                 "//# 33 crmAccount_TransferAddressToContacts",
                 "//# 34 crmAccount_onDelete#",
                 "//# 35 crmAppointment_New  ",
-                "//# 36 crmCampaign_FillDistributionlistDropdown#",
+                "//# 36 crmCampaign_FillMultipleVeryLongLines#",
             ];
             const s = ServerSource.fromSources(lines);
-            assert.equal(s.chunks.length, 37);
+            assert.equal(s.chunks.length, 23);
         });
 
-        suite('construct from source lines', () => {
-            const sourceLines = [
-                /* line on server                                                   file/line */
-                /*  1 not visible to user */ "debugger;",
-                /*  2                     */ "//# 0 lib",                        /* lib.js   */
-                /*  3                     */ "var x=1;",                         /*  1       */
-                /*  4                     */ "x=2;",                             /*  2       */
-                /*  5                     */ "util.out(\"lib.js: \" + x);",      /*  3       */
-                /*  6                     */ "a.push(\"0\");",                   /*  4       */
-                /*  7                     */ "",                                 /*  5       */
-                /*  8                     */ "//# 2 test1",                      /* test1.js */
-                /*  9                     */ "",                                 /*  1       */
-                /* 10                     */ "a.push(\"1\");",                   /*  2       */
-                /* 11                     */ "a.push(\"2\");",                   /*  3       */
-                /* 12                     */ "a.push(\"3\");",                   /*  4       */
-                /* 13                     */ "a.push(\"4\");",                   /*  5       */
-                /* 14                     */ "util.out(\"Done\");"               /*  6       */
-            ];
+        test("parse into chunks", () => {
+            const s = ServerSource.fromSources(sourceLines);
+            assert.equal(s.chunks.length, 2);
+            assert.equal(s.chunks[0].name, 'lib');
+            assert.equal(s.chunks[1].name, 'test1');
+        });
 
-            test("parse into chunks", () => {
-                const s = ServerSource.fromSources(sourceLines);
-                assert.equal(s.chunks.length, 2);
-                assert.equal(s.chunks[0].name, 'lib');
-                assert.equal(s.chunks[1].name, 'test1');
-            });
+        test("map to individual source files", () => {
+            const s = ServerSource.fromSources(sourceLines);
+            assert.deepEqual(s.toLocalPosition(10), { source: 'test1', line: 2 });
+            assert.deepEqual(s.toLocalPosition(3), { source: 'lib', line: 1 });
+        });
 
-            test("map to individual source files", () => {
-                const s = ServerSource.fromSources(sourceLines);
-                assert.deepEqual(s.toLocalPosition(10), { source: 'test1', line: 2 });
-                assert.deepEqual(s.toLocalPosition(3), { source: 'lib', line: 1 });
-            });
+        test("first line debugger; statement maps to first line of first chunk", () => {
+            const s = ServerSource.fromSources(sourceLines);
+            assert.deepEqual(s.toLocalPosition(1), { source: 'lib', line: 1 });
+        });
 
-            test("first line debugger; statement maps to first line of first chunk", () => {
-                const s = ServerSource.fromSources(sourceLines);
-                assert.deepEqual(s.toLocalPosition(1), { source: 'lib', line: 1 });
-            });
-
-            test("pre-processor line maps to first line of next chunk", () => {
-                const s = ServerSource.fromSources(sourceLines);
-                assert.deepEqual(s.toLocalPosition(2), { source: 'lib', line: 1 });
-                assert.deepEqual(s.toLocalPosition(8), { source: 'test1', line: 1 });
-            });
+        test("pre-processor line maps to first line of next chunk", () => {
+            const s = ServerSource.fromSources(sourceLines);
+            assert.deepEqual(s.toLocalPosition(2), { source: 'lib', line: 1 });
+            assert.deepEqual(s.toLocalPosition(8), { source: 'test1', line: 1 });
         });
     });
 });

@@ -90,23 +90,30 @@ const log = Logger.create('SourceMap');
  */
 export class SourceMap {
     private map: ValueMap<JSContextName, LocalSource>;
-    private sourceLines: ServerSource | undefined;
+    private sourceLines: ServerSource;
 
     constructor() {
         this.map = new ValueMap<JSContextName, LocalSource>();
+        this.sourceLines = new ServerSource();
     }
 
-    get serverSource(): ServerSource | undefined {
-        return this.sourceLines;
-    }
-
-    set serverSource(sources: ServerSource | undefined) {
+    set serverSource(sources: ServerSource) {
         this.sourceLines = sources;
     }
 
     public addMapping(localSource: LocalSource, remoteName: JSContextName): void { // ← fake rocket science
         this.map.set(remoteName, localSource);
     }
+
+    public toLocalPosition(line: number): { source: string, line: number } {
+        return this.sourceLines.toLocalPosition(line);
+    }
+
+    // public mapping(): { local: { source: string, line: number }, remote: { source: string, line: number } } {
+    //     return {
+
+    //     };
+    // }
 
     public getRemoteUrl(localPath: string): JSContextName {
         const parsedPath = parse(localPath);
@@ -190,7 +197,7 @@ export class ServerSource {
     public toLocalPosition(line: number): { source: string, line: number } {
         const idx = this._chunks.findIndex(chunk =>
             (line >= chunk.pos.start) && (line <= (chunk.pos.start + chunk.pos.len)));
-        if (idx > 0) {
+        if (idx >= 0) {
             const chunk = this._chunks[idx];
             let localLine = line - chunk.pos.start;
             if (localLine === 0) {
