@@ -152,6 +152,10 @@ export function getCategoryFromPath(parampath?: string) {
     return path.normalize(dir.slice(0, postfixPos)).split(path.sep).pop();
 }
 
+
+/**
+ * @param serverInfo to be removed
+ */
 export function categoriesToFolders(serverInfo: nodeDoc.ConnectionInformation, scripts: nodeDoc.scriptT[], targetDir: string) {
 
     // get extension-part of settings.json
@@ -165,6 +169,7 @@ export function categoriesToFolders(serverInfo: nodeDoc.ConnectionInformation, s
         return;
     }
 
+    // move this check to node-documents-scripting!
     if (Number(serverInfo.documentsVersion) < Number(nodeDoc.VERSION_CATEGORIES)) {
         throw new Error("Using categories only available with server version ${nodeDoc.VERSION_CATEGORIES} or higher");
     }
@@ -205,7 +210,9 @@ export function categoriesToFolders(serverInfo: nodeDoc.ConnectionInformation, s
 }
 
 
-
+/**
+ * @param serverInfo to be removed
+ */
 export function foldersToCategories(serverInfo: nodeDoc.ConnectionInformation, scripts: nodeDoc.scriptT[]) {
 
     // get extension-part of settings.json
@@ -219,6 +226,7 @@ export function foldersToCategories(serverInfo: nodeDoc.ConnectionInformation, s
         return;
     }
 
+    // remove this check! this is already checked in node-documents-scripting!
     if (Number(serverInfo.documentsVersion) < Number(nodeDoc.VERSION_CATEGORIES)) {
         throw new Error("Using categories only available with server version ${nodeDoc.VERSION_CATEGORIES} or higher");
     }
