@@ -462,15 +462,11 @@ export function activate(context: vscode.ExtensionContext): void {
                     return;
                 }
 
-                try {
-                    serverCommands.uploadDebugScript(loginData, fsPath, scriptChannel);
+                serverCommands.uploadDebugScript(loginData, fsPath, scriptChannel);
 
-                    // This essentially calls the Debugger Extension's launchRequest. We take a
-                    // launch config and overwrite 'script' property.
-                    await vscode.debug.startDebugging(folder, config);
-                } finally {
-                    // await serverCommands.uploadScript(loginData, fsPath);
-                }
+                // This essentially calls the Debugger Extension's launchRequest. We take a
+                // launch config and overwrite 'script' property.
+                await vscode.debug.startDebugging(folder, config);
 
             } catch (err) {
                 // Swallow, you stupid bitch
