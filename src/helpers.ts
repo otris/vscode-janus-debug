@@ -171,7 +171,8 @@ export function categoriesToFolders(serverInfo: nodeDoc.ConnectionInformation, s
 
     // move this check to node-documents-scripting!
     if (Number(serverInfo.documentsVersion) < Number(nodeDoc.VERSION_CATEGORIES)) {
-        throw new Error("Using categories only available with server version ${nodeDoc.VERSION_CATEGORIES} or higher");
+        vscode.window.showWarningMessage(`Using categories only available with server version ${nodeDoc.VERSION_CATEGORIES} or higher`);
+        return;
     }
 
     let invalidName;
@@ -228,7 +229,8 @@ export function foldersToCategories(serverInfo: nodeDoc.ConnectionInformation, s
 
     // remove this check! this is already checked in node-documents-scripting!
     if (Number(serverInfo.documentsVersion) < Number(nodeDoc.VERSION_CATEGORIES)) {
-        throw new Error("Using categories only available with server version ${nodeDoc.VERSION_CATEGORIES} or higher");
+        vscode.window.showWarningMessage(`Using categories only available with server version ${nodeDoc.VERSION_CATEGORIES} or higher`);
+        return;
     }
 
     scripts.forEach((script: nodeDoc.scriptT) => {
