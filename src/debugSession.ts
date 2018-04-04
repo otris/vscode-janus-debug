@@ -152,7 +152,7 @@ export class JanusDebugSession extends DebugSession {
         const source = new LocalSource(args.script);
         let scriptSource: string;
         try {
-            scriptSource = await source.loadFromDisk();
+            scriptSource = source.loadFromDisk();
         } catch (err) {
             log.error(`launchRequest failed: loading source from script failed: ${err}`);
             response.success = false;
@@ -831,33 +831,31 @@ export class JanusDebugSession extends DebugSession {
         context.getStacktrace().then((trace: StackFrame[]) => {
             const frames = this.frameMap.addFrames(contextId, trace);
             const stackFrames: DebugProtocol.StackFrame[] = frames.map(frame => {
-
-                let origLine: number | undefined;
-                let origSource: string | undefined;
-                try {
-                    if (this.sourceMap.serverSource) {
-                        const orig = this.sourceMap.serverSource.toLocalPosition(frame.sourceLine);
-                        // log.debug(`>>> --> ${JSON.stringify(orig)}`);
-                        origLine = orig.line;
-                        origSource = orig.source;
-                    }
-                } catch (e) {
-                    log.error(`oops ${e}`);
-                }
-
-                const localSource = this.sourceMap.getSource(origSource ? origSource : frame.sourceUrl);
-                // log.debug(`+++ ${localSource.name}`);
-
-                return {
+                const result = {
                     column: 0,
                     id: frame.frameId,
-                    line: origLine ? origLine : frame.sourceLine,
-                    name: localSource ? localSource.name : '',
-                    source: localSource ? {
-                        path: localSource.path,
-                        sourceReference: localSource.sourceReference,
-                    } : undefined,
+                    line: 0,
+                    name: '',
+                    source: {},
                 };
+
+                try {
+                    const local = this.sourceMap.toLocalPosition(frame.sourceLine);
+                    const localSource = this.sourceMap.getSource(local.source);
+
+                    result.line = local.line;
+                    if (localSource) {
+                        result.name = localSource.name;
+                        result.source = {
+                            path: localSource.path,
+                            sourceReference: localSource.sourceReference,
+                        };
+                    }
+                } catch (e) {
+                    log.error(`stackTraceRequest failed with ${e}`);
+                }
+
+                return result;
             });
             response.body = {
                 stackFrames,

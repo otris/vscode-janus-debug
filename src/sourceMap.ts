@@ -62,16 +62,14 @@ export class LocalSource {
         this.sourceReference = 0;
     }
 
-    public loadFromDisk(): Promise<string> {
-        return new Promise<string>((resolve, reject) => {
-            fs.readFile(this.path, 'utf8', (err, data) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(data);
-                }
-            });
-        });
+    public loadFromDisk(): string {
+        return fs.readFileSync(this.path, 'utf8');
+    }
+
+    public getSourceLine(lineNo: number): string {
+        const fileContents = this.loadFromDisk();
+        const lines = fileContents.split("\n");
+        return lines[lineNo - 1].trim();
     }
 
     public sourceName(): string {
@@ -90,15 +88,15 @@ const log = Logger.create('SourceMap');
  */
 export class SourceMap {
     private map: ValueMap<JSContextName, LocalSource>;
-    private sourceLines: ServerSource;
+    private _serverSource: ServerSource;
 
     constructor() {
         this.map = new ValueMap<JSContextName, LocalSource>();
-        this.sourceLines = new ServerSource();
+        this._serverSource = new ServerSource();
     }
 
     set serverSource(sources: ServerSource) {
-        this.sourceLines = sources;
+        this._serverSource = sources;
     }
 
     public addMapping(localSource: LocalSource, remoteName: JSContextName): void { // ← fake rocket science
@@ -106,7 +104,15 @@ export class SourceMap {
     }
 
     public toLocalPosition(line: number): { source: string, line: number } {
-        return this.sourceLines.toLocalPosition(line);
+        const localPos = this._serverSource.toLocalPosition(line);
+        if (log) {
+            const localSource = this.getSource(localPos.source);
+            if (localSource) {
+                log.info(
+                    `remote [${line}: "${this._serverSource.getSourceLine(line)}"] → local [${localPos.line} in ${localSource.name}: "${localSource.getSourceLine(localPos.line)}"]`);
+            }
+        }
+        return localPos;
     }
 
     // public mapping(): { local: { source: string, line: number }, remote: { source: string, line: number } } {
@@ -183,14 +189,12 @@ export class ServerSource {
 
         const s = new ServerSource();
         s._chunks = chunks;
+        s.sourceLines = sourceLines;
         return s;
     }
 
-    private _chunks: Chunk[];
-
-    constructor() {
-        this._chunks = [];
-    }
+    private _chunks: Chunk[] = [];
+    private sourceLines: string[] = [];
 
     get chunks() { return this._chunks; }
 
@@ -210,5 +214,9 @@ export class ServerSource {
         return {
             source: this._chunks[0].name, line: 1
         };
+    }
+
+    public getSourceLine(lineNo: number): string {
+        return this.sourceLines[lineNo - 1];
     }
 }

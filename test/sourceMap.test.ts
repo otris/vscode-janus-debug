@@ -16,15 +16,6 @@ suite('local source tests', () => {
             assert.equal(source.aliasNames.length, 2);
             assert.equal(source.name, 'baz.js');
         });
-
-        test('loadFromDisk should fail', done => {
-            const source = new LocalSource(somePath);
-            source.loadFromDisk().then(code => {
-                done(new Error('expected an error'));
-            }).catch(err => {
-                done();
-            });
-        });
     });
 
     suite('with a real file', () => {
@@ -46,12 +37,10 @@ suite('local source tests', () => {
             setTimeout(() => { fs.rmdirSync(tempDir); }, 1000);
         });
 
-        test('load code from disk', done => {
+        test('load code from disk', () => {
             const source = new LocalSource(somePath);
-            source.loadFromDisk().then(code => {
-                assert.equal(code, sourceCode);
-                done();
-            }).catch(err => done(err));
+            const code = source.loadFromDisk();
+            assert.equal(code, sourceCode);
         });
     });
 });
@@ -63,19 +52,44 @@ suite('source map tests', () => {
     const sourceLines = [
         /* line on server                                              file/line */
         /*  1 not visible to user */ "debugger;",
-        /*  2                     */ "//# 0 lib",                    /* lib.js   */
-        /*  3                     */ "var x=1;",                     /*  1       */
-        /*  4                     */ "x=2;",                         /*  2       */
-        /*  5                     */ "util.out(\"lib.js: \" + x);",  /*  3       */
-        /*  6                     */ "a.push(\"0\");",               /*  4       */
-        /*  7                     */ "",                             /*  5       */
-        /*  8                     */ "//# 2 test1",                  /* test1.js */
-        /*  9                     */ "",                             /*  1       */
-        /* 10                     */ "a.push(\"1\");",               /*  2       */
-        /* 11                     */ "a.push(\"2\");",               /*  3       */
-        /* 12                     */ "a.push(\"3\");",               /*  4       */
-        /* 13                     */ "a.push(\"4\");",               /*  5       */
-        /* 14                     */ "util.out(\"Done\");"           /*  6       */
+        /*  2                     */ "//# 0 lib",                      /* lib.js   */
+        /*  3                     */ "var x=1;",                       /*  1       */
+        /*  4                     */ "x=2;",                           /*  2       */
+        /*  5                     */ "util.out(\"lib.js: \" + x);",    /*  3       */
+        /*  6                     */ "a.push(\"0\");",                 /*  4       */
+        /*  7                     */ "",                               /*  5       */
+        /*  8                     */ "//# 2 test1",                    /* test1.js */
+        /*  9                     */ "",                               /*  1       */
+        /* 10                     */ "a.push(\"1\");",                 /*  2       */
+        /* 11                     */ "a.push(\"2\");",                 /*  3       */
+        /* 12                     */ "a.push(\"3\");",                 /*  4       */
+        /* 13                     */ "a.push(\"4\");",                 /*  5       */
+        /* 14                     */ "util.out(\"Done\");"             /*  6       */
+    ];
+
+    const sourceLines2 = [
+        /* line on server                                              file/line */
+        /*  1 not visible to user */ "debugger;",
+        /*  2                     */ "//# 0 lib",                        /* lib.js   */
+        /*  3                     */ "var x = 1;",                       /*  1       */
+        /*  4                     */ "x = 2;",                           /*  2       */
+        /*  5                     */ "util.out(\"lib.js: \" + x);",      /*  3       */
+        /*  6                     */ "//enumval.push(\"0\");",           /*  4       */
+        /*  7                     */ "var add = function(a, b) {",       /*  5       */
+        /*  8                     */ "    return a + b;",                /*  6       */
+        /*  9                     */ "};",                               /*  7       */
+        /* 10                     */ "",                                 /*  8       */
+        /* 11                     */ "//# 2 test1",                      /* test1.js */
+        /* 12                     */ "",                                 /*  1       //#import "lib"                */
+        /* 13                     */ "// enumval.push(\"1\");",          /*  2                                      */
+        /* 14                     */ "// enumval.push(\"2\");",          /*  3       // enumval.push("1");          */
+        /* 15                     */ "// enumval.push(\"3\");",          /*  4       // enumval.push("2");          */
+        /* 16                     */ "// enumval.push(\"4\");",          /*  5       // enumval.push("3");          */
+        /* 17                     */ "var result = add(7, 3);",          /*  6       // enumval.push("4");          */
+        /* 18                     */ "util.out(\"result: \" + result);", /*  7       var result = add(7, 3);        */
+        /* 19                     */ "util.out(\"Done\");"               /*  8       util.out("result: " + result); */
+                                                                         /*  9       util.out("Done");              */
+                                                                         /* 10                                      */
     ];
 
     setup(() => {
@@ -149,7 +163,7 @@ suite('source map tests', () => {
         test("remote line to local position", () => {
             sourceMap.serverSource = ServerSource.fromSources(sourceLines);
             sourceMap.setLocalUrls(paths);
-            assert.deepEqual(sourceMap.toLocalPosition(6), { source: 'lib', line: 4});
+            assert.deepEqual(sourceMap.toLocalPosition(6), { source: 'lib', line: 4 });
         });
     });
 
