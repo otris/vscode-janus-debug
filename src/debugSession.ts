@@ -364,23 +364,28 @@ export class JanusDebugSession extends DebugSession {
             try {
 
                 if (this.connection) {
-                    const ctx: Context[] = await this.connection.coordinator.getAllAvailableContexts();
-                    log.info(`available contexts: ${ctx.length}`);
-                    if (ctx.length < 1) {
+                    const contexts: Context[] = await this.connection.coordinator.getAllAvailableContexts();
+                    log.info(`available contexts: ${contexts.length}`);
+                    if (contexts.length < 1) {
                         throw new Error("no context found to attach to");
                     } else {
-                        const ctxNameAttach = await ipcClient.showContextQuickPick(ctx.map((mCtx) => mCtx.name));
-                        log.info(`got ${ctxNameAttach} to attach to`);
-                        const ctxAttach = ctx.filter((mCtx) => mCtx.name === ctxNameAttach)[0];
-                        log.info(`chose context ${JSON.stringify}`);
-                        ctxAttach.pause();
+                        let targetContext: Context;
+                        if (contexts.length > 1) {
+                            const ctxNameAttach = await ipcClient.showContextQuickPick(contexts.map((mCtx) => mCtx.name));
+                            log.info(`got ${ctxNameAttach} to attach to`);
+                            targetContext = contexts.filter((mCtx) => mCtx.name === ctxNameAttach)[0];
+                        } else {
+                            targetContext = contexts[0];
+                        }
+                        log.info(`chose context '${targetContext.name}'`);
+                        targetContext.pause();
                         // looking for source
-                        const src: string = await connection.sendRequest(Command.getSource(ctxNameAttach));
-                        const lScr = new LocalSource(ctxNameAttach);
-                        lScr.sourceReference = ctxAttach.id;
-                        this.sourceMap.addMapping(lScr, ctxNameAttach);
+                        const src: string = await connection.sendRequest(Command.getSource(targetContext.name));
+                        const lScr = new LocalSource(targetContext.name);
+                        lScr.sourceReference = targetContext.id;
+                        this.sourceMap.addMapping(lScr, targetContext.name);
                         // set state for setBreakpoints
-                        this.attachedContextId = ctxAttach.id;
+                        this.attachedContextId = targetContext.id;
                     }
                 } else {
                     throw new Error(`not connected to a remote debugger`);
