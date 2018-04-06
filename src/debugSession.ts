@@ -217,9 +217,6 @@ export class JanusDebugSession extends DebugSession {
                     log.error(`Command.getSource failed ${e}`);
                 }
 
-                // TODO: HACK remove. Single step because of debugger; statement. ContextId 0 is a wild guess
-                await connection.sendRequest(new Command('next', 0));
-
                 log.debug(`sending InitializedEvent`);
                 this.sendEvent(new InitializedEvent());
                 this.debugConsole(`Debugger listening on ${host}:${debuggerPort}`);
