@@ -217,7 +217,11 @@ function runScriptCommon(loginData: nodeDoc.ConnectionInformation, param: any, o
 
             await nodeDoc.serverSession(loginData, [script], nodeDoc.runScript);
 
-            const ver = getExactVersion(loginData.documentsVersion) + ' (' + loginData.documentsVersion + ')';
+            const exactVer = getExactVersion(loginData.documentsVersion);
+            let ver = '#' + loginData.documentsVersion;
+            if (exactVer !== loginData.documentsVersion) {
+                ver += ` (${exactVer})`;
+            }
             outputChannel.append(script.output + os.EOL);
             outputChannel.append(`Script finished at ` + getTime() + ` on DOCUMENTS ${ver}` + os.EOL);
             outputChannel.show();
@@ -261,7 +265,7 @@ export function uploadRunScript(loginData: nodeDoc.ConnectionInformation, param:
         let scriptName;
 
         try {
-            vscode.window.setStatusBarMessage('Upload ' + scriptName + ' at ' + getTime());
+            vscode.window.setStatusBarMessage('Upload script at ' + getTime());
             scriptName = await uploadScriptCommon(loginData, param);
             vscode.window.setStatusBarMessage('Uploaded ' + scriptName + ' at ' + getTime());
         } catch (reason) {
