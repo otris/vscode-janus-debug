@@ -23,16 +23,16 @@ The following commands are supported.
 | **Uploading/Downloading Scripts** ||
 | Upload Script | Upload a script to the server |
 | Upload Scripts from Folder | Upload all scripts of a folder and all subfolders to the server |
-| Download Script | Download a script from the server |
+| Download Script | Download a script from the server. |
 | Download All Scripts | Download all scripts from the server to a folder |
-| Reload Scripts | Download only scripts in a folder and all subfolder again |
-| Compare Script | Compare a script to the corresponding script on server |
+| Reload Scripts | If you have a folder that only contains a subset of your server scripts, then you can download only this set of scripts again with this command. The command also recurses into subfolders. |
+| Compare Script | Compare a script to the script with same name on server |
 | **Executing Scripts** ||
-| Run Script | Execute a script |
-| Upload and Run | Upload and execute a script |
+| Run Script | Execute a script on server |
+| Upload and Run | Upload a script to the server and execute it |
 | **Developing Scripts** ||
-| Install IntelliSense | Install available TypeScript Defintion files for IntelliSense for PortalScripting |
-| View Documentation | Open a browser with the HTML documentation |
+| Install IntelliSense | Install available Type Defintion files and make sure that `jsconfig.json` or `tsconfig.json` exists. After executing this command, you will get IntelliSense completions for PortalScripting while editing your PortalScripts. |
+| View Documentation | Open the PortalScript API documentation in a browser. If a browser is set in `vscode-janus-debug.browser` the browser will jump to the documentation of the member or function that is selected by the curser in your editor. |
 | **DOCUMENTS Server Information** ||
 | Connect Server Console | Show all messages of the DOCUMENTS server in terminal |
 | Disonnect Server Console | Stop showing server messages in terminal |
@@ -44,16 +44,13 @@ The following commands are supported.
 The following features can be influenced by settings (in `settings.json`)
 
 **Encryption**
-
-* The setting `vscode-janus-debug.encryptionOnUpload` can be used to control
-encryption. There are three values.
+* The setting `vscode-janus-debug.encryptionOnUpload` can be used to control encryption. There are three values.
   * `default`: a script is encrypted on upload, if the corresponding script on server is encrypted or the script source code contains `// #crypt`
   * `always`: scripts are always encrypted on upload.
   * `never`: scripts are never encrypted on upload.
 
 **Script Parameters as JSON**
-* Parameters are uploaded and downloaded together with every script, if
-  * `vscode-janus-debug.scriptParameters = true`
+* Parameters are uploaded and downloaded in a `JSON` file together with every script, if `vscode-janus-debug.scriptParameters = true`
 
 **Conflict Mode**
 * A warning with option to cancel is shown on upload, if
@@ -67,10 +64,10 @@ encryption. There are three values.
   * In `vscode-janus-debug.browser` a browser is selected.
 
 **Server Console**
-* Can be connected and disconnected by settings either.
+* Will be connected and disconnected automatically, if setting `autoConnect` in `vscode-janus-debug.serverConsole` is to `true`.
 
 **Auto-upload script on save**
-* Scripts can be automatically uploaded every time the user saves the file.
+* Scripts can be automatically uploaded every time you save the file. The default behaviour is, that you will be asked at every time you press `strg + s`, if the scritpt should be uploaded. You can specify scripts that should always or never be uploaded without asking. Or you can switch this feature off by answering `Never upload scripts automatically`. If you want to turn the feature on again later, you only have to set `vscode-janus-debug.uploadOnSaveGlobal` to `true` in your **user** settings.
 
 
 ## Requirements
@@ -79,8 +76,9 @@ This extension is only compatible with the JANUS servers listed below. Not every
 
 | Server version                  	| Up-/downloading / running scripts 	| Remote debugging 	|
 |---------------------------------	|-----------------------------------	|------------------	|
-| DOCUMENTS 5.0a & DOCUMENTS 5.0b 	| X                                 	|                  	|
-| DOCUMENTS 5.0c                  	| X                                 	| X                	|
+| DOCUMENTS 5.0b                  	| X                                 	|                  	|
+| DOCUMENTS 5.0c                  	| X                                 	|                 	|
+| DOCUMENTS 5.0d                  	| X                                 	| X                	|
 | privacy 6.1                     	|                                   	| X                	|
 
 If you suspect compatibility issues with your setup, please report them in the issue section.
