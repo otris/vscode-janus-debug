@@ -2,6 +2,10 @@
 
 You'll find a complete list of changes at our project site on [GitHub](https://github.com/otris/vscode-janus-debug).
 
+### 0.0.33 (2018-04-10)
+
+- Check added in **Upload Scripts from Folder**: if the folder contains two scripts with same name, a warning is shown and the user can cancel the upload. Scripts with same name are not allowed on DOCUMENTS, not even if they are in categories.
+
 ### 0.0.32 (2018-03-09)
 
 - [Using Categories as Subfolders](https://github.com/otris/vscode-janus-debug/wiki/Using-Categories-as-Subfolders)
