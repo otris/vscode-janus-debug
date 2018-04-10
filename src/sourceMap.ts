@@ -1,3 +1,4 @@
+import * as assert from 'assert';
 import * as crypto from 'crypto';
 import * as fs from 'fs';
 import { Logger } from 'node-file-log';
@@ -115,12 +116,6 @@ export class SourceMap {
         return localPos;
     }
 
-    // public mapping(): { local: { source: string, line: number }, remote: { source: string, line: number } } {
-    //     return {
-
-    //     };
-    // }
-
     public getRemoteUrl(localPath: string): JSContextName {
         const parsedPath = parse(localPath);
         let remoteName: JSContextName | undefined;
@@ -171,23 +166,34 @@ export class ServerSource {
         const pattern = /^\/\/#\s\d+\s([\w\_\-\.#]+)$/;
         let current: Chunk | undefined;
         sourceLines.forEach((line, index) => {
+            const lineNo = index + 1;
             line = line.trim();
             const match = line.match(pattern);
             if (match) {
                 if (current) {
-                    current.pos.len = index - current.pos.start;
-                    chunks.push(current);
+                    current.pos.len = lineNo - current.pos.start;
+                    if (current.pos.len > 0) {
+                        chunks.push(current);
+                    } else {
+                        current = undefined;
+                    }
                 }
-                current = new Chunk(match[1], new Pos(index + 1, 0));
+                let start = lineNo;
+                if (!current) {
+                    start = lineNo + 1;
+                }
+                current = new Chunk(match[1], new Pos(start, 0));
             }
         });
 
         if (current) {
-            current.pos.len = sourceLines.length - current.pos.start;
+            current.pos.len = (sourceLines.length + 1) - current.pos.start;
             chunks.push(current);
         }
 
         const s = new ServerSource();
+        // if a chunk has no length, it's not a chunk
+        assert.equal(chunks.filter(c => c.pos.len === 0).length, 0);
         s._chunks = chunks;
         s.sourceLines = sourceLines;
         return s;
@@ -200,17 +206,29 @@ export class ServerSource {
 
     public toLocalPosition(line: number): { source: string, line: number } {
         const idx = this._chunks.findIndex(chunk =>
-            (line >= chunk.pos.start) && (line <= (chunk.pos.start + chunk.pos.len)));
+            (line >= chunk.pos.start) && (line < (chunk.pos.start + chunk.pos.len)));
         if (idx >= 0) {
+            // y is an offset that we calculate from the total chunk count. During
+            // pre-processing JANUS and/or DOCUMENTS adds y = n - 1 lines at the beginning
+            // of the actual script whereas n is the no. of chunks. Why? I don't know. But
+            // we have to take this into account when we calculate the local line offset.
+            // Anyway, there can be more code before the first chunk (probably just a
+            // 'debugger;' statement).
+            const y = this._chunks[0].pos.start - 1;
+
             const chunk = this._chunks[idx];
-            let localLine = line - chunk.pos.start;
-            if (localLine === 0) {
-                localLine = 1;
+            let localLine = 0;
+            if (idx === 0) {
+                localLine = line - y;
+            } else {
+                localLine = line - chunk.pos.start + 1;
             }
+            assert.ok(localLine > 0);
             return {
                 source: chunk.name, line: localLine
             };
         }
+        // Fallback
         return {
             source: this._chunks[0].name, line: 1
         };
