@@ -185,8 +185,8 @@ export class JanusDebugSession extends DebugSession {
 
             this.logServerVersion();
 
-            this.connection.on('contextPaused', (ctxId: number) => {
-                this.sendEvent(new StoppedEvent("hit breakpoint", ctxId));
+            this.connection.on('contextPaused', (contextId: number) => {
+                this.sendEvent(new StoppedEvent("hit breakpoint", contextId));
             });
 
             this.connection.on('error', (reason: string) => {
@@ -215,6 +215,19 @@ export class JanusDebugSession extends DebugSession {
                     this.sourceMap.serverSource = ServerSource.fromSources(sources);
                 } catch (e) {
                     log.error(`Command.getSource failed ${e}`);
+                }
+
+                if (stopOnEntry || args.portal) {
+                    // Single step because of debugger; statement.
+                    const contexts = await connection.coordinator.getAllAvailableContexts();
+                    contexts.forEach(async context => {
+                        if (context.isStopped()) {
+                            if (context.name === source.sourceName()) {
+                                await connection.sendRequest(new Command('next', context.id));
+                                // FIXME: there can be more than one context here
+                            }
+                        }
+                    });
                 }
 
                 log.debug(`sending InitializedEvent`);
