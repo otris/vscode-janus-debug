@@ -116,6 +116,10 @@ export class SourceMap {
         return localPos;
     }
 
+    public toRemoteLine(pos: { source: string, line: number }): number {
+        return this._serverSource.toRemoteLine(pos);
+    }
+
     public getRemoteUrl(localPath: string): JSContextName {
         const parsedPath = parse(localPath);
         let remoteName: JSContextName | undefined;
@@ -232,6 +236,24 @@ export class ServerSource {
         return {
             source: this._chunks[0].name, line: 1
         };
+    }
+
+    public toRemoteLine(pos: { source: string, line: number }): number {
+        const targetIndex = this._chunks.findIndex(chunk => chunk.name === pos.source);
+        if (targetIndex === -1) {
+            return -1;
+        }
+
+        const y = this._chunks[0].pos.start - 1;
+        let lineNo = y;
+        for (let i = 0; i < this._chunks.length; i++) {
+            if (i === targetIndex) {
+                return lineNo += pos.line;
+            } else {
+                lineNo += this._chunks[i].pos.len;
+            }
+        }
+        return lineNo;
     }
 
     public getSourceLine(lineNo: number): string {

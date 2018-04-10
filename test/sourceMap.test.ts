@@ -334,7 +334,7 @@ suite('source map tests', () => {
         ];
 
         let tempDir: string;
-        const paths: string[] = [];
+        let paths: string[] = [];
         const lib1SourceCode =
             /*  1                 */ `util.out(">>> in lib1.js");\n` +
             /*  2                 */ `var val = 0;\n`;
@@ -371,21 +371,27 @@ suite('source map tests', () => {
             writeTestFile('main.js', mainSourceCode);
 
             sourceMap = new SourceMap();
+            sourceMap.serverSource = ServerSource.fromSources(sourceLines3);
+            sourceMap.setLocalUrls(paths);
         });
 
         teardown(() => {
             paths.forEach(p => fs.unlinkSync(p));
             // Timeout because otherwise we get a ENOTEMPTY in fs.rmdir
             setTimeout(() => { fs.rmdirSync(tempDir); }, 1000);
+            paths = [];
         });
 
         test("remote line to local position", () => {
-            sourceMap.serverSource = ServerSource.fromSources(sourceLines3);
-            sourceMap.setLocalUrls(paths);
             assert.deepEqual(sourceMap.toLocalPosition(1), { source: 'lib1', line: 1 });
             assert.deepEqual(sourceMap.toLocalPosition(5), { source: 'lib1', line: 1 });
             assert.deepEqual(sourceMap.toLocalPosition(9), { source: 'lib2', line: 2 });
             assert.deepEqual(sourceMap.toLocalPosition(17), { source: 'main', line: 2 });
+        });
+
+        test("local position to remote line", () => {
+            assert.equal(sourceMap.toRemoteLine({ source: 'lib2', line: 3 }), 10);
+            assert.equal(sourceMap.toRemoteLine({ source: 'main', line: 2 }), 17);
         });
     });
 
