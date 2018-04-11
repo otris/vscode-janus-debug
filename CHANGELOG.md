@@ -2,6 +2,11 @@
 
 You'll find a complete list of changes at our project site on [GitHub](https://github.com/otris/vscode-janus-debug).
 
+### 0.0.34 (2018-MM-DD)
+
+- Added a new **Upload and Debug Script** command that allows you to debug a script on DOCUMENTS 5.0d version.
+- Added source mapping that allows you to debug a remote script while having the debugger step through your *local* files.
+
 ### 0.0.33 (2018-04-10)
 
 - Check added in **Upload Scripts from Folder**: if the folder contains two scripts with same name, a warning is shown and the user can cancel the upload. Scripts with same name are not allowed on DOCUMENTS, not even if they are in categories.
