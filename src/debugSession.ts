@@ -79,8 +79,7 @@ export class JanusDebugSession extends DebugSession {
         }
     }
 
-    protected initializeRequest(response: DebugProtocol.InitializeResponse,
-                                args: DebugProtocol.InitializeRequestArguments): void {
+    protected initializeRequest(response: DebugProtocol.InitializeResponse, args: DebugProtocol.InitializeRequestArguments): void {
         log.info("initializeRequest");
 
         const body = {
@@ -102,8 +101,7 @@ export class JanusDebugSession extends DebugSession {
         this.sendResponse(response);
     }
 
-    protected async disconnectRequest(response: DebugProtocol.DisconnectResponse,
-                                      args: DebugProtocol.DisconnectArguments): Promise<void> {
+    protected async disconnectRequest(response: DebugProtocol.DisconnectResponse, args: DebugProtocol.DisconnectArguments): Promise<void> {
         log.info(`disconnectRequest; debug adapter running in ${this.config} config`);
 
         this.attachedContextId = undefined;
@@ -578,19 +576,16 @@ export class JanusDebugSession extends DebugSession {
         });
     }
 
-    protected setFunctionBreakPointsRequest(response: DebugProtocol.SetFunctionBreakpointsResponse,
-                                            args: DebugProtocol.SetFunctionBreakpointsArguments): void {
+    protected setFunctionBreakPointsRequest(response: DebugProtocol.SetFunctionBreakpointsResponse, args: DebugProtocol.SetFunctionBreakpointsArguments): void {
         log.info("setFunctionBreakPointsRequest");
         this.sendResponse(response);
     }
 
-    protected setExceptionBreakPointsRequest(response: DebugProtocol.SetExceptionBreakpointsResponse,
-                                             args: DebugProtocol.SetExceptionBreakpointsArguments): void {
+    protected setExceptionBreakPointsRequest(response: DebugProtocol.SetExceptionBreakpointsResponse, args: DebugProtocol.SetExceptionBreakpointsArguments): void {
         log.info("setExceptionBreakPointsRequest");
     }
 
-    protected async configurationDoneRequest(response: DebugProtocol.ConfigurationDoneResponse,
-                                             args: DebugProtocol.ConfigurationDoneArguments): Promise<void> {
+    protected async configurationDoneRequest(response: DebugProtocol.ConfigurationDoneResponse, args: DebugProtocol.ConfigurationDoneArguments): Promise<void> {
         log.info("configurationDoneRequest");
 
         if (this.connection === undefined) {
@@ -722,13 +717,11 @@ export class JanusDebugSession extends DebugSession {
         }
     }
 
-    protected stepBackRequest(response: DebugProtocol.StepBackResponse,
-                              args: DebugProtocol.StepBackArguments): void {
+    protected stepBackRequest(response: DebugProtocol.StepBackResponse, args: DebugProtocol.StepBackArguments): void {
         log.info("stepBackRequest");
     }
 
-    protected restartFrameRequest(response: DebugProtocol.RestartFrameResponse,
-                                  args: DebugProtocol.RestartFrameArguments): void {
+    protected restartFrameRequest(response: DebugProtocol.RestartFrameResponse, args: DebugProtocol.RestartFrameArguments): void {
         log.info("restartFrameRequest");
     }
 
@@ -819,8 +812,7 @@ export class JanusDebugSession extends DebugSession {
         this.sendResponse(response);
     }
 
-    protected stackTraceRequest(response: DebugProtocol.StackTraceResponse,
-                                args: DebugProtocol.StackTraceArguments): void {
+    protected stackTraceRequest(response: DebugProtocol.StackTraceResponse, args: DebugProtocol.StackTraceArguments): void {
         log.info(`stackTraceRequest for threadId ${args.threadId}`);
 
         if (this.connection === undefined) {
@@ -966,8 +958,7 @@ export class JanusDebugSession extends DebugSession {
         }
     }
 
-    protected setVariableRequest(response: DebugProtocol.SetVariableResponse,
-                                 args: DebugProtocol.SetVariableArguments): void {
+    protected setVariableRequest(response: DebugProtocol.SetVariableResponse, args: DebugProtocol.SetVariableArguments): void {
         log.info(`setVariableRequest with variablesRequest ${args.variablesReference}`);
 
         if (this.connection === undefined) {
@@ -1025,8 +1016,7 @@ export class JanusDebugSession extends DebugSession {
         });
     }
 
-    protected evaluateRequest(response: DebugProtocol.EvaluateResponse,
-                              args: DebugProtocol.EvaluateArguments): void {
+    protected evaluateRequest(response: DebugProtocol.EvaluateResponse, args: DebugProtocol.EvaluateArguments): void {
         log.info(`evaluateRequest for contextId: ${args.context}`);
 
         if (this.connection === undefined) {
@@ -1056,18 +1046,15 @@ export class JanusDebugSession extends DebugSession {
         });
     }
 
-    protected stepInTargetsRequest(response: DebugProtocol.StepInTargetsResponse,
-                                   args: DebugProtocol.StepInTargetsArguments): void {
+    protected stepInTargetsRequest(response: DebugProtocol.StepInTargetsResponse, args: DebugProtocol.StepInTargetsArguments): void {
         log.info(`stepInTargetsRequest`);
     }
 
-    protected gotoTargetsRequest(response: DebugProtocol.GotoTargetsResponse,
-                                 args: DebugProtocol.GotoTargetsArguments): void {
+    protected gotoTargetsRequest(response: DebugProtocol.GotoTargetsResponse, args: DebugProtocol.GotoTargetsArguments): void {
         log.info(`gotoTargetsRequest`);
     }
 
-    protected completionsRequest(response: DebugProtocol.CompletionsResponse,
-                                 args: DebugProtocol.CompletionsArguments): void {
+    protected completionsRequest(response: DebugProtocol.CompletionsResponse, args: DebugProtocol.CompletionsArguments): void {
         log.info(`completionsRequest`);
     }
 
