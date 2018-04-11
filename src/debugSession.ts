@@ -2,6 +2,7 @@ import * as assert from 'assert';
 import { connect, Socket } from 'net';
 import { Logger } from 'node-file-log';
 import { crypt_md5, SDSConnection } from 'node-sds';
+import * as path from 'path';
 import { v4 as uuidV4 } from 'uuid';
 import { ContinuedEvent, DebugSession, InitializedEvent, OutputEvent, StoppedEvent, TerminatedEvent } from 'vscode-debugadapter';
 import { DebugProtocol } from 'vscode-debugprotocol';
@@ -464,24 +465,25 @@ export class JanusDebugSession extends DebugSession {
         });
     }
 
-    protected async setBreakPointsRequest(response: DebugProtocol.SetBreakpointsResponse,
-                                          args: DebugProtocol.SetBreakpointsArguments): Promise<void> {
+    protected async setBreakPointsRequest(response: DebugProtocol.SetBreakpointsResponse, args: DebugProtocol.SetBreakpointsArguments): Promise<void> {
         const numberOfBreakpoints: number = args.breakpoints ? args.breakpoints.length : 0;
         log.info(`setBreakPointsRequest for ${numberOfBreakpoints} breakpoint(s): ${JSON.stringify(args)}`);
 
-        if (!args.breakpoints || !args.source.path) {
+        if (!args.breakpoints || !args.source.path || !args.source.name) {
             response.success = false;
             response.message = `An internal error occurred`;
             this.sendResponse(response);
             return;
         }
 
+        const source = path.parse(args.source.name).name;
+
         if (this.connection === undefined) {
             throw new Error('No connection');
         }
         const conn = this.connection;
 
-        const localUrl: string = args.source.path;
+
         const requestedBreakpoints = args.breakpoints;
 
         const deleteAllBreakpointsCommand = new Command('delete_all_breakpoints');
@@ -495,38 +497,23 @@ export class JanusDebugSession extends DebugSession {
             });
         });
 
-        let sourceOffset = 0;
-        if (this.attachedContextId) {
-            sourceOffset = await this.connection.sendRequest(Command.getSource(
-                this.connection.coordinator.getContext(this.attachedContextId).name),
-                async (res: Response) => {
-                    const source = res.content.source;
-                    let i = 0;
-                    while (i < source.length) {
-                        const sl = source[i];
-                        if (sl.startsWith("//#")) {
-                            const matches: any = /[\/\\]([a-zA-Z-_.]*)$/.exec(sl);
-                            if (matches !== null && matches[matches.length - 1] === args.source.name) {
-                                return i + 1;
-                            }
-                        }
-                        i++;
-                    }
-                    return 0;
-                });
-        }
-
         let remoteSourceUrl = "";
-        if (this.attachedContextId) {
+        if (this.attachedContextId !== undefined) {
             remoteSourceUrl = await this.connection.coordinator.getContext(this.attachedContextId)
                 .name;
         } else {
+            const localUrl: string = args.source.path;
             remoteSourceUrl = this.sourceMap.getRemoteUrl(localUrl);
         }
         const actualBreakpoints: Array<Promise<Breakpoint>> = [];
         requestedBreakpoints.forEach((breakpoint => {
 
-            const setBreakpointCommand = Command.setBreakpoint(remoteSourceUrl, breakpoint.line + sourceOffset);
+            const remoteLine = this.sourceMap.toRemoteLine({
+                source,
+                line: breakpoint.line
+            });
+            const setBreakpointCommand = Command.setBreakpoint(remoteSourceUrl, remoteLine,
+                false, this.attachedContextId);
 
             actualBreakpoints.push(
                 conn.sendRequest(setBreakpointCommand, (res: Response): Promise<Breakpoint> => {
@@ -535,7 +522,8 @@ export class JanusDebugSession extends DebugSession {
                         // cant set, we do no reject but make the specific breakpoint unverified.
                         // We do this by passing a new breakpoint to the resolve function with the
                         // pending attribute set to false.
-                        if (res.type === 'error' && res.content.message && res.content.message === 'Cannot set breakpoint at given line.') {
+                        if ((res.type === 'error' && res.content.message)
+                            && (res.content.message === 'Cannot set breakpoint at given line.')) {
                             resolve({
                                 line: breakpoint.line,
                                 pending: false,
@@ -545,7 +533,8 @@ export class JanusDebugSession extends DebugSession {
                         // dont tell us that a breakpoint cant set we reject this one, cause a 'unknown'
                         // error occur.
                         // That results in a complete reject of every breakpoint.
-                        if (res.type === 'error' && res.content.message && res.content.message !== 'Cannot set breakpoint at given line.') {
+                        if ((res.type === 'error') && res.content.message
+                            && (res.content.message !== 'Cannot set breakpoint at given line.')) {
                             reject(new Error(`Target responded with error '${res.content.message}'`));
                         } else {
                             // The debug engine tells us that the current breakpoint can set, so
@@ -559,11 +548,13 @@ export class JanusDebugSession extends DebugSession {
 
         Promise.all(actualBreakpoints).then((res: Breakpoint[]) => {
             const breakpoints: DebugProtocol.Breakpoint[] = res.map(actualBreakpoint => {
+                const localPos = this.sourceMap.toLocalPosition(actualBreakpoint.line);
+                const localSource = this.sourceMap.getSource(localPos.source);
                 return {
                     id: actualBreakpoint.bid,
-                    line: actualBreakpoint.line - sourceOffset,
+                    line: localPos.line,
                     source: {
-                        path: actualBreakpoint.url,
+                        path: localSource ? localSource.name : "",
                     },
 
                     // According to the pre calculated value of pending the

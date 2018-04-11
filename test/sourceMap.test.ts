@@ -391,6 +391,7 @@ suite('source map tests', () => {
 
         test("local position to remote line", () => {
             assert.equal(sourceMap.toRemoteLine({ source: 'lib2', line: 3 }), 10);
+            assert.equal(sourceMap.toRemoteLine({ source: 'lib2', line: 2 }), 9);
             assert.equal(sourceMap.toRemoteLine({ source: 'main', line: 2 }), 17);
         });
     });

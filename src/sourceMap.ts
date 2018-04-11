@@ -110,14 +110,23 @@ export class SourceMap {
             const localSource = this.getSource(localPos.source);
             if (localSource) {
                 log.info(
-                    `remote [${line}: "${this._serverSource.getSourceLine(line)}"] → local [${localPos.line} in ${localSource.name}: "${localSource.getSourceLine(localPos.line)}"]`);
+                    `remote [${line}: "${this._serverSource.getSourceLine(line)}"] ` +
+                    `→ local [${localPos.line} in ${localSource.name}: "${localSource.getSourceLine(localPos.line)}"]`);
             }
         }
         return localPos;
     }
 
-    public toRemoteLine(pos: { source: string, line: number }): number {
-        return this._serverSource.toRemoteLine(pos);
+    public toRemoteLine(localPos: { source: string, line: number }): number {
+        const remoteLine = this._serverSource.toRemoteLine(localPos);
+        if (log) {
+            const localSource = this.getSource(localPos.source);
+            if (localSource) {
+                log.info(`local [${localPos.line} in ${localPos.source}: "${localSource.getSourceLine(localPos.line)}"] ` +
+                    `→ remote [${remoteLine}: "${this._serverSource.getSourceLine(remoteLine)}"]`);
+            }
+        }
+        return remoteLine;
     }
 
     public getRemoteUrl(localPath: string): JSContextName {
