@@ -2,9 +2,9 @@
 
 You'll find a complete list of changes at our project site on [GitHub](https://github.com/otris/vscode-janus-debug).
 
-### 0.0.34 (2018-MM-DD)
+### 0.0.34 (2018-04-11)
 
-- Added a new **Upload and Debug Script** command that allows you to debug a script on DOCUMENTS 5.0d version.
+- Added a new **Upload and Debug Script** command that allows you to debug a script on a DOCUMENTS 5.0d server.
 - Added source mapping that allows you to debug a remote script while having the debugger step through your *local* files.
 
 ### 0.0.33 (2018-04-10)
