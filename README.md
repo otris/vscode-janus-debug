@@ -25,17 +25,17 @@ The following commands are supported.
 | Upload Scripts from Folder | Upload all scripts of a folder and all subfolders to the server |
 | Download Script | Download a script from the server. |
 | Download All Scripts | Download all scripts from the server to a folder |
-| Reload Scripts | If you have a folder that only contains a subset of your server scripts, then you can download only this set of scripts again with this command. The command also recurses into subfolders. |
+| Reload Scripts | If you have a folder that only contains a subset of your server scripts, then you can download only this set of scripts again with this command. The command also recursively dives into subfolders. |
 | Compare Script | Compare a script to the script with same name on server |
 | **Executing Scripts** ||
 | Run Script | Execute a script on server |
 | Upload and Run | Upload a script to the server and execute it |
 | **Developing Scripts** ||
-| Install IntelliSense | Install available Type Defintion files and make sure that `jsconfig.json` or `tsconfig.json` exists. After executing this command, you will get IntelliSense completions for PortalScripting while editing your PortalScripts. |
+| Install IntelliSense | Install available Type Definition files and make sure that `jsconfig.json` or `tsconfig.json` exists. After executing this command, you will get IntelliSense completions for PortalScripting while editing your PortalScripts. |
 | View Documentation | Open the PortalScript API documentation in a browser. If a browser is set in `vscode-janus-debug.browser` the browser will jump to the documentation of the member or function that is selected by the curser in your editor. |
 | **DOCUMENTS Server Information** ||
 | Connect Server Console | Show all messages of the DOCUMENTS server in terminal |
-| Disonnect Server Console | Stop showing server messages in terminal |
+| Disconnect Server Console | Stop showing server messages in terminal |
 | Show DOCUMENTS Version | Show version of the DOCUMENTS server |
 
 
@@ -67,7 +67,7 @@ The following features can be influenced by settings (in `settings.json`)
 * Will be connected and disconnected automatically, if setting `autoConnect` in `vscode-janus-debug.serverConsole` is to `true`.
 
 **Auto-upload script on save**
-* Scripts can be automatically uploaded every time you save the file. The default behaviour is, that you will be asked at every time you press `strg + s`, if the scritpt should be uploaded. You can specify scripts that should always or never be uploaded without asking. Or you can switch this feature off by answering `Never upload scripts automatically`. If you want to turn the feature on again later, you only have to set `vscode-janus-debug.uploadOnSaveGlobal` to `true` in your **user** settings.
+* Scripts can be automatically uploaded every time you save the file. The default behavior is, that you will be asked at every time you press `Ctrl + S`, if the script should be uploaded. You can specify scripts that should always or never be uploaded without asking. Or you can switch this feature off by answering `Never upload scripts automatically`. If you want to turn the feature on again later, you only have to set `vscode-janus-debug.uploadOnSaveGlobal` to `true` in your **user** settings.
 
 
 ## Requirements
@@ -86,7 +86,7 @@ If you suspect compatibility issues with your setup, please report them in the i
 
 ## Remote Debugging
 
-If you want to use the remote debugging features you need **at least DOCUMENTS 5.0c**!
+If you want to use the remote debugging features you need **at least DOCUMENTS 5.0d**!
 
 Add following line to your server's .ini file to enable the debugging engine:
 
@@ -131,7 +131,7 @@ The default log level can be any of `Debug`, `Info`, `Warn`, or `Error`.
 ## Development
 If you want to hack on this VS Code extension start with following recipe:
 
-Fork the repo on our GitHub [project page](https://github.com/otris/vscode-janus-debug) and then
+Fork the repository on our GitHub [project page](https://github.com/otris/vscode-janus-debug) and then
 
 ```bash
 $ git clone https://github.com/your-user-name/vscode-janus-debug.git  # Clone the forked repo
