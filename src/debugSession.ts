@@ -467,6 +467,41 @@ export class JanusDebugSession extends DebugSession {
     protected async setBreakPointsRequest(response: DebugProtocol.SetBreakpointsResponse, args: DebugProtocol.SetBreakpointsArguments): Promise<void> {
         const numberOfBreakpoints: number = args.breakpoints ? args.breakpoints.length : 0;
         log.info(`setBreakPointsRequest for ${numberOfBreakpoints} breakpoint(s): ${JSON.stringify(args)}`);
+        if (this.connection === undefined) {
+            throw new Error('No connection');
+        }
+        const conn = this.connection;
+
+        if (numberOfBreakpoints === 0) {
+            // Empty array specified, clear all breakpoints for the source
+
+            try {
+                const deleteAllBreakpointsCommand = new Command('delete_all_breakpoints');
+                await conn.sendRequest(deleteAllBreakpointsCommand, async (res: Response) => {
+                    if (res.type === 'error') {
+                        log.error(`delete_all_breakpoints failed with: '${res.content.message}'`);
+                        throw new Error(`Target responded with error '${res.content.message}'`);
+                    }
+                });
+
+                log.debug(`setBreakPointsRequest succeeded: cleared all breakpoints`);
+                response.body = {
+                    breakpoints: []
+                };
+                response.success = true;
+                this.sendResponse(response);
+
+            } catch (e) {
+
+                log.error(`setBreakPointsRequest failed: ${e}`);
+                response.success = false;
+                response.message = `Could not clear breakpoint(s): ${e}`;
+                this.sendResponse(response);
+            }
+
+            // Done
+            return;
+        }
 
         if (!args.breakpoints || !args.source.path || !args.source.name) {
             response.success = false;
@@ -474,27 +509,6 @@ export class JanusDebugSession extends DebugSession {
             this.sendResponse(response);
             return;
         }
-
-        const source = path.parse(args.source.name).name;
-
-        if (this.connection === undefined) {
-            throw new Error('No connection');
-        }
-        const conn = this.connection;
-
-
-        const requestedBreakpoints = args.breakpoints;
-
-        const deleteAllBreakpointsCommand = new Command('delete_all_breakpoints');
-        await conn.sendRequest(deleteAllBreakpointsCommand, (res: Response) => {
-            return new Promise<void>((resolve, reject) => {
-                if (res.type === 'error') {
-                    reject(new Error(`Target responded with error '${res.content.message}'`));
-                } else {
-                    resolve();
-                }
-            });
-        });
 
         let remoteSourceUrl = "";
         if (this.attachedContextId !== undefined) {
@@ -505,6 +519,8 @@ export class JanusDebugSession extends DebugSession {
             remoteSourceUrl = this.sourceMap.getRemoteUrl(localUrl);
         }
         const actualBreakpoints: Array<Promise<Breakpoint>> = [];
+        const source = path.parse(args.source.name).name;
+        const requestedBreakpoints = args.breakpoints;
         requestedBreakpoints.forEach((breakpoint => {
 
             const remoteLine = this.sourceMap.toRemoteLine({
