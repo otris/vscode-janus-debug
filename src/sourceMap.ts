@@ -248,18 +248,12 @@ export class ServerSource {
     }
 
     public toRemoteLine(pos: { source: string, line: number }): number {
-        const targetIndex = this._chunks.findIndex(chunk => chunk.name === pos.source);
-        if (targetIndex === -1) {
-            return -1;
-        }
-
-        const y = this._chunks[0].pos.start - 1;
-        let lineNo = y;
-        for (let i = 0; i < this._chunks.length; i++) {
-            if (i === targetIndex) {
+        let lineNo = this._chunks[0].pos.start - 1; // This is the junk at the start
+        for (const chunk of this._chunks) {
+            if (chunk.name === pos.source) {
                 return lineNo += pos.line;
             } else {
-                lineNo += this._chunks[i].pos.len;
+                lineNo += chunk.pos.len;
             }
         }
         return lineNo;
