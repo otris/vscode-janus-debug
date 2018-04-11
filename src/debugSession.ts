@@ -222,7 +222,8 @@ export class JanusDebugSession extends DebugSession {
                     contexts.forEach(async context => {
                         if (context.isStopped()) {
                             if (context.name === source.sourceName()) {
-                                await connection.sendRequest(new Command('next', context.id));
+                                this.attachedContextId = context.id;
+                                await connection.sendRequest(new Command('next', this.attachedContextId));
                                 // FIXME: there can be more than one context here
                             }
                         }
