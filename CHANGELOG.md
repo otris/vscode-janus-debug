@@ -2,6 +2,11 @@
 
 You'll find a complete list of changes at our project site on [GitHub](https://github.com/otris/vscode-janus-debug).
 
+
+### 0.0.35 (2018-04-12)
+
+- Fix for **Run Script**
+
 ### 0.0.34 (2018-04-11)
 
 - Added a new **Upload and Debug Script** command that allows you to debug a script on a DOCUMENTS 5.0d server.
