@@ -92,16 +92,12 @@ Add following line to your server's .ini file to enable the debugging engine:
 
 ```
 JSDebugger yes
+JSDebuggerPort 8089
 ```
 
-Then restart your server and make sure that your firewall rules allow access to port 8089.
+Then restart your server process and make sure that your firewall rules ans security policies allow access to port 8089.
 
 ## Known Issues
-
-We still see a lot of issues at this early stage.
-
-* Attach configuration is not working reliably ([#18](https://github.com/otris/vscode-janus-debug/issues/18)).
-* `#import` and `#importFile` are not working ([#27](https://github.com/otris/vscode-janus-debug/issues/27)).
 
 Please have a look at our [issue tracker](https://github.com/otris/vscode-janus-debug/issues) for a complete list of issues.
 
