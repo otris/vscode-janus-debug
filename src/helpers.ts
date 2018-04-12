@@ -447,9 +447,10 @@ export function getDownloadScriptNamesFromList(): nodeDoc.scriptT[] {
 
     // get scriptnames and insert in return list
     scripts = [];
-    if (scriptnames instanceof Array && 0 < scriptnames.length) {
+    if ((scriptnames instanceof Array) && (0 < scriptnames.length)) {
         scriptnames.forEach((scriptname) => {
-            scripts.push(new nodeDoc.scriptT(scriptname.trim(), ''));
+            const script = new nodeDoc.scriptT(scriptname.trim(), '');
+            scripts.push(script);
         });
     }
 
