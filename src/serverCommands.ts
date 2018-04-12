@@ -212,7 +212,7 @@ function runScriptCommon(loginData: nodeDoc.ConnectionInformation, param: any, o
             outputChannel.append('Start script at ' + getTime() + os.EOL);
             outputChannel.show();
 
-            await nodeDoc.serverSession(loginData, [script], nodeDoc.debugScript);
+            await nodeDoc.serverSession(loginData, [script], nodeDoc.runScript);
 
             const exactVer = getExactVersion(loginData.documentsVersion);
             let ver = '#' + loginData.documentsVersion;
@@ -256,13 +256,37 @@ export async function runScript(loginData: nodeDoc.ConnectionInformation, param:
 /**
  * Upload and debug script
  */
-export async function uploadDebugScript(loginData: nodeDoc.ConnectionInformation,
-                                        param: any,
-                                        outputChannel: vscode.OutputChannel): Promise<void> {
+export async function uploadDebugScript(loginData: nodeDoc.ConnectionInformation, param: any, outputChannel: vscode.OutputChannel): Promise<void> {
 
     try {
         await uploadScriptCommon(loginData, param);
-        const scriptName = await runScriptCommon(loginData, param, outputChannel);
+
+        let scriptName = "";
+
+        await login.ensureLoginInformation(loginData);
+        let serverScriptNames;
+        if (!param || '.js' !== path.extname(param)) {
+            serverScriptNames = await getServerScriptNames(loginData);
+        }
+        scriptName = await helpers.ensureScriptName(param, serverScriptNames);
+        const script = new nodeDoc.scriptT(scriptName, '');
+
+        outputChannel.append('Start script at ' + getTime() + os.EOL);
+        outputChannel.show();
+
+        await nodeDoc.serverSession(loginData, [script], nodeDoc.debugScript);
+
+        const exactVer = getExactVersion(loginData.documentsVersion);
+        let ver = '#' + loginData.documentsVersion;
+        if (exactVer !== loginData.documentsVersion) {
+            ver += ` (${exactVer})`;
+        }
+        outputChannel.append(script.output + os.EOL);
+        outputChannel.append(`Script finished at ` + getTime() + ` on DOCUMENTS ${ver}` + os.EOL);
+        outputChannel.show();
+
+        helpers.scriptLog(script.output);
+
         vscode.window.setStatusBarMessage('Script ' + scriptName + ' finished at ' + getTime());
     } catch (e) {
         vscode.window.showErrorMessage('debug script failed: ' + e);
@@ -306,7 +330,7 @@ export function uploadRunScript(loginData: nodeDoc.ConnectionInformation, param:
  * contain the corresponding path. Then it is either a folder or a .js file.
  * Otherwise it is undefined.
  */
-export async function downloadScript(loginData: nodeDoc.ConnectionInformation, contextMenuPath: string | undefined): Promise<void>  {
+export async function downloadScript(loginData: nodeDoc.ConnectionInformation, contextMenuPath: string | undefined): Promise<void> {
     return new Promise<void>(async (resolve, reject) => {
         let serverScriptNames;
         let onFolder = false;
