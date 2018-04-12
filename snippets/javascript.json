@@ -1,11 +1,12 @@
 {
-    "Insert FileType" : {
-        "prefix": "var ${1:docFile} = ${2:context.file};",
+    "Insert JSDoc type" : {
+        "prefix": "var DOCUMENTS DocFile",
         "body": [
             "/**",
             " * @type {$3}",
             " */",
-            "var ${1:docFile} = ${2:context.file};"
-        ]
+            "var ${1} = ${2:context.file};"
+        ],
+        "description": "IntelliSense for Filetypes: Set DOCUMENTS Filetype in JSDoc @type tag."
     }
 }
