@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/otris/vscode-janus-debug.svg?branch=master)](https://travis-ci.org/otris/vscode-janus-debug)
 
-Visual Studio Code plugin for developing and debugging JavaScript on DOCUMENTS 5 and and other JANUS-based applications.
+Visual Studio Code plugin for developing and debugging JavaScript on DOCUMENTS 5.0 and other JANUS-based applications.
 
 ![Screenshot](https://github.com/otris/vscode-janus-debug/raw/master/img/extension-screenshot-1.png "Screenshot")
 
@@ -95,7 +95,7 @@ JSDebugger yes
 JSDebuggerPort 8089
 ```
 
-Then restart your server process and make sure that your firewall rules ans security policies allow access to port 8089.
+Then restart your server process and make sure that your firewall rules and security groups allow access to TCP port 8089.
 
 ## Known Issues
 
