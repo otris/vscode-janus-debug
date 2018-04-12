@@ -572,9 +572,9 @@ export async function showImports(loginData: nodeDoc.ConnectionInformation, cont
 
         helpers.ensureScriptName(contextMenuPath, []).then((scriptName) => {
             return nodeDoc.serverSession(loginData, [scriptName], nodeDoc.getSourceCodeForEditor).then((value) => {
-                outputChannel.append(scriptName + ':' + os.EOL);
-                outputChannel.append(value + os.EOL);
-                outputChannel.show();
+                vscode.workspace.openTextDocument({content: value[0]}).then(doc => {
+                    vscode.window.showTextDocument(doc);
+                });
 
                 resolve();
             });
