@@ -217,10 +217,10 @@ function runScriptCommon(loginData: nodeDoc.ConnectionInformation, param: any, o
             const exactVer = getExactVersion(loginData.documentsVersion);
             let ver = '#' + loginData.documentsVersion;
             if (exactVer !== loginData.documentsVersion) {
-                ver += ` (${exactVer})`;
+                ver = `${exactVer} ` + ver;
             }
             outputChannel.append(script.output + os.EOL);
-            outputChannel.append(`Script finished at ` + getTime() + ` on DOCUMENTS ${ver}` + os.EOL);
+            outputChannel.append(`Script finished at ` + getTime() + ` on ` + loginData.server + ` ${ver}` + os.EOL);
             outputChannel.show();
 
             helpers.scriptLog(script.output);
