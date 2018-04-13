@@ -359,12 +359,12 @@ export async function ensureForceUpload(scripts: nodeDoc.scriptT[]): Promise<[no
                     noConflict.push(script);
                 } else if (FORCE_UPLOAD_ALL === value) {
                     script.forceUpload = true;
-                    script.conflict = false;
+                    script.conflict = 0;
                     forceUpload.push(script);
                     all = true;
                 } else if (FORCE_UPLOAD_YES === value) {
                     script.forceUpload = true;
-                    script.conflict = false;
+                    script.conflict = 0;
                     forceUpload.push(script);
                 } else if (FORCE_UPLOAD_NO === value) {
                     // do nothing ...
