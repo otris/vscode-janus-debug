@@ -272,38 +272,60 @@ export function foldersToCategories(serverInfo: nodeDoc.ConnectionInformation, s
 
 /**
  * Subfunction of ensureUploadScripts.
+ * Checks, if category has been changed and if 'forceUpload' not set to true in settings,
+ * then checks if source code has been changed.
  *
  * @param script
  * @param all
  * @param none
  */
 export async function askForUpload(script: nodeDoc.scriptT, all: boolean, none: boolean, singlescript?: boolean): Promise<string> {
-    return new Promise<string>((resolve, reject) => {
-        if (script.conflict || !script.lastSyncHash) {
-            if (all) {
-                resolve(FORCE_UPLOAD_ALL);
-            } else if (none) {
-                resolve(FORCE_UPLOAD_NONE);
-            } else {
-                let question;
-                if (script.encrypted === 'true') {
-                    question = `${script.name} cannot be decrypted, it might have been changed on server, upload anyway?`;
-                } else if (script.lastSyncHash) {
-                    question = `${script.name} has been changed on server, upload anyway?`;
-                } else {
-                    question = `${script.name} might have been changed on server, upload anyway?`;
-                }
-                let answers = [FORCE_UPLOAD_YES, FORCE_UPLOAD_NO];
-                if (!singlescript) {
-                    answers = [FORCE_UPLOAD_YES, FORCE_UPLOAD_NO, FORCE_UPLOAD_ALL, FORCE_UPLOAD_NONE];
-                }
-                return vscode.window.showQuickPick(answers, { placeHolder: question }).then((value) => {
-                    resolve(value);
-                });
-            }
-        } else {
-            resolve(NO_CONFLICT);
+    return new Promise<string>(async (resolve, reject) => {
+
+        // is asking for lastSyncHash really necessary here?
+        // actually conflict should be set in any kind of conflict
+        if (!script.conflict && script.lastSyncHash) {
+            return resolve(NO_CONFLICT);
         }
+
+        let answers = [FORCE_UPLOAD_YES, FORCE_UPLOAD_NO];
+        let question;
+        let answer;
+
+        if (all) {
+            return resolve(FORCE_UPLOAD_ALL);
+        }
+        if (none) {
+            return resolve(FORCE_UPLOAD_NONE);
+        }
+
+        // first check category
+        // categories are changed very rarely, so it should be ok to
+        // ask here for the category and then again for source code
+        if (script.conflict && (script.conflict & nodeDoc.CONFLICT_CATEGORY)) {
+            question = `Category of ${script.name} is different on server, upload anyway?`;
+            answer = await vscode.window.showQuickPick(answers, { placeHolder: question });
+        }
+        if (answer === FORCE_UPLOAD_NO) {
+            return resolve(FORCE_UPLOAD_NO);
+        }
+
+        // now check source code
+        if (script.conflict && (script.conflict & nodeDoc.CONFLICT_SOURCE_CODE)) {
+            if (script.encrypted === 'true') {
+                question = `${script.name} cannot be decrypted, source code might have been changed on server, upload anyway?`;
+            } else if (script.lastSyncHash) {
+                question = `Source code of ${script.name} has been changed on server, upload anyway?`;
+            } else {
+                question = `Source code of ${script.name} might have been changed on server, upload anyway?`;
+            }
+            if (!singlescript) {
+                answers = [FORCE_UPLOAD_YES, FORCE_UPLOAD_NO, FORCE_UPLOAD_ALL, FORCE_UPLOAD_NONE];
+            }
+            answer = await vscode.window.showQuickPick(answers, { placeHolder: question });
+        }
+
+        return resolve(answer);
     });
 }
 

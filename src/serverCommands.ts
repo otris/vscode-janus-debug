@@ -53,7 +53,7 @@ async function uploadScriptCommon(loginData: nodeDoc.ConnectionInformation, para
                         helpers.updateHashValues([script], loginData.server);
 
                         // script not uploaded, if conflict is true
-                        if (script.conflict === true) {
+                        if (script.conflict) {
                             return resolve();
                         }
 
