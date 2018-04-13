@@ -3,6 +3,12 @@
 You'll find a complete list of changes at our project site on [GitHub](https://github.com/otris/vscode-janus-debug).
 
 
+### 0.0.36 (2018-04-13)
+ 
+- The command **Show Imports** shows the source code of the script and additional the source code of all scripts that are included with `#include`. Now this source code is shown in an untitled file with JavaScript Syntax Highlighting.
+- When conflict mode is used, not only the source code is checked on server, but also the category.
+- Server name is shown in output of **Run Script** and **Show DOCUMENTS Version**.
+
 ### 0.0.35 (2018-04-12)
 
 - Fix for **Run Script**
