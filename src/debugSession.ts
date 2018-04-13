@@ -185,7 +185,7 @@ export class JanusDebugSession extends DebugSession {
             this.logServerVersion();
 
             this.connection.on('contextPaused', (contextId: number) => {
-                this.sendEvent(new StoppedEvent("hit breakpoint", contextId));
+                this.reportStopped('breakpoint', contextId);
             });
 
             this.connection.on('error', (reason: string) => {
@@ -369,8 +369,8 @@ export class JanusDebugSession extends DebugSession {
         const connection = new DebugConnection(socket);
         this.connection = connection;
 
-        this.connection.on('contextPaused', (ctxId: number) => {
-            this.sendEvent(new StoppedEvent("hit breakpoint", ctxId));
+        this.connection.on('contextPaused', (contextId: number) => {
+            this.reportStopped('breakpoint', contextId);
         });
 
         this.connection.on('error', (reason: string) => {
@@ -518,6 +518,7 @@ export class JanusDebugSession extends DebugSession {
             const localUrl: string = args.source.path;
             remoteSourceUrl = this.sourceMap.getRemoteUrl(localUrl);
         }
+        log.debug(`setBreakPointsRequest remoteSourceUrl: ${remoteSourceUrl}`);
         const actualBreakpoints: Array<Promise<Breakpoint>> = [];
         const source = path.parse(args.source.name).name;
         const requestedBreakpoints = args.breakpoints;
@@ -615,18 +616,14 @@ export class JanusDebugSession extends DebugSession {
         const contexts = await this.connection.coordinator.getAllAvailableContexts();
         contexts.forEach(context => {
             if (context.isStopped()) {
-                log.debug(`sending StoppedEvent('pause', ${context.id})`);
-                const stoppedEvent = new StoppedEvent('pause', context.id);
-                this.sendEvent(stoppedEvent);
+                this.reportStopped('pause', context.id);
             }
         });
 
         this.connection.on('newContext', (contextId: number, contextName: string, stopped: boolean) => {
             log.info(`new context on target: ${contextId}, context name: "${contextName}", stopped: ${stopped}`);
             if (stopped) {
-                const stoppedEvent = new StoppedEvent('pause', contextId);
-                log.debug(`sending StoppedEvent('pause', ${contextId})`);
-                this.sendEvent(stoppedEvent);
+                this.reportStopped('pause', contextId);
             }
         });
 
@@ -669,9 +666,9 @@ export class JanusDebugSession extends DebugSession {
 
         context.next().then(() => {
             log.debug('nextRequest succeeded');
-            const stoppedEvent = new StoppedEvent('step', contextId);
+            response.success = true;
             this.sendResponse(response);
-            this.sendEvent(stoppedEvent);
+            this.reportStopped('step', contextId);
         }, err => {
             log.error('nextRequest failed: ' + err);
             response.success = false;
@@ -691,14 +688,12 @@ export class JanusDebugSession extends DebugSession {
         const context = this.connection.coordinator.getContext(contextId);
 
         try {
+            // We have to step in twice to get the correct stack frame
             await context.stepIn();
             log.debug('first stepInRequest succeeded');
-
-            // We have to step in twice to get the correct stack frame
-            log.debug('second stepInRequest succeeded');
-            const stoppedEvent = new StoppedEvent('step', contextId);
+            response.success = true;
             this.sendResponse(response);
-            this.sendEvent(stoppedEvent);
+            this.reportStopped('step in', contextId);
         } catch (err) {
             log.error('stepInRequest failed: ' + err);
             response.success = false;
@@ -719,13 +714,10 @@ export class JanusDebugSession extends DebugSession {
 
         try {
             await context.stepOut();
-
             log.debug('first stepOutRequest succeeded');
-
-            const stoppedEvent = new StoppedEvent('step_out', contextId);
+            response.success = true;
             this.sendResponse(response);
-            this.sendEvent(stoppedEvent);
-
+            this.reportStopped('step out', contextId);
         } catch (err) {
             log.error('stepOutRequest failed: ' + err);
             response.success = false;
@@ -759,9 +751,9 @@ export class JanusDebugSession extends DebugSession {
             const context = this.connection.coordinator.getContext(contextId);
             context.pause().then(() => {
                 log.debug('pauseRequest succeeded');
+                response.success = true;
                 this.sendResponse(response);
-                const stoppedEvent = new StoppedEvent('pause', contextId);
-                this.sendEvent(stoppedEvent);
+                this.reportStopped('pause', contextId);
             }).catch(reason => {
                 log.error('pauseRequest failed: ' + reason);
                 response.success = false;
@@ -875,7 +867,7 @@ export class JanusDebugSession extends DebugSession {
 
             // Update variablesMap
             context.getVariables().then((locals: Variable[]) => {
-                log.info('Updating variables map');
+                log.info(`Updating variables map for ${locals.length} variables`);
 
                 const frame = this.frameMap.getCurrentStackFrame(contextId);
                 if (frame === undefined) {
@@ -1092,6 +1084,11 @@ export class JanusDebugSession extends DebugSession {
      */
     private debugConsole(message: string): void {
         this.sendEvent(new OutputEvent(message + '\n', 'console'));
+    }
+
+    private reportStopped(reason: string, contextId: number): void {
+        log.debug(`sending StoppedEvent with reason '${reason}' for context ${contextId}`);
+        this.sendEvent(new StoppedEvent(reason, contextId));
     }
 }
 
