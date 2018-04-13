@@ -565,8 +565,11 @@ export function activate(context: vscode.ExtensionContext): void {
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.showDocumentsVersion', async () => {
             await serverCommands.getServerVersion(loginData);
-            const docVer = getExactVersion(loginData.documentsVersion);
-            vscode.window.showInformationMessage(`DOCUMENTS Version ${docVer}`);
+            let docVer = getExactVersion(loginData.documentsVersion);
+            if (docVer === loginData.documentsVersion) {
+                docVer = '#' + docVer;
+            }
+            vscode.window.showInformationMessage(`DOCUMENTS Version on ${loginData.server} is ${docVer}`);
         })
     );
 
