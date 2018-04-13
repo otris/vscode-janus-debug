@@ -401,19 +401,17 @@ export class JanusDebugSession extends DebugSession {
                     } else {
                         let targetContext: Context;
                         if (contexts.length > 1) {
-                            const ctxNameAttach = await ipcClient.showContextQuickPick(contexts.map((mCtx) => mCtx.name));
-                            log.info(`got ${ctxNameAttach} to attach to`);
-                            targetContext = contexts.filter((mCtx) => mCtx.name === ctxNameAttach)[0];
+                            const targetContextName = await ipcClient.showContextQuickPick(contexts.map(context => context.name));
+                            log.info(`got ${targetContextName} to attach to`);
+                            targetContext = contexts.filter(context => context.name === targetContextName)[0];
                         } else {
                             targetContext = contexts[0];
                         }
                         log.info(`chose context '${targetContext.name}'`);
-                        targetContext.pause();
-                        // looking for source
-                        // const src: string = await connection.sendRequest(Command.getSource(targetContext.name));
-                        const lScr = new LocalSource(targetContext.name);
-                        lScr.sourceReference = targetContext.id;
-                        this.sourceMap.addMapping(lScr, targetContext.name);
+
+                        const localSource = new LocalSource(targetContext.name);
+                        localSource.sourceReference = targetContext.id;
+                        this.sourceMap.addMapping(localSource, targetContext.name);
                         // set state for setBreakpoints
                         this.attachedContextId = targetContext.id;
                     }
