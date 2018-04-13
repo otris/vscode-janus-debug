@@ -831,24 +831,34 @@ export class JanusDebugSession extends DebugSession {
         context.getStacktrace().then((trace: StackFrame[]) => {
             const frames = this.frameMap.addFrames(contextId, trace);
             const stackFrames: DebugProtocol.StackFrame[] = frames.map(frame => {
-                const result = {
+                const result: DebugProtocol.StackFrame = {
                     column: 0,
                     id: frame.frameId,
-                    line: 0,
                     name: '',
-                    source: {},
+                    line: 0
                 };
 
                 try {
-                    const local = this.sourceMap.toLocalPosition(frame.sourceLine);
-                    const localSource = this.sourceMap.getSource(local.source);
+                    const localPos = this.sourceMap.toLocalPosition(frame.sourceLine);
+                    const localSource = this.sourceMap.getSource(localPos.source);
+                    if (!localSource) {
+                        log.warn(`stackTraceRequest: could not find LocalSource for '${localPos.source}' in SourceMap`);
+                    }
 
-                    result.line = local.line;
+                    result.line = localPos.line;
                     if (localSource) {
                         result.name = localSource.name;
                         result.source = {
+                            presentationHint: 'emphasize',
                             path: localSource.path,
                             sourceReference: localSource.sourceReference,
+                        };
+                    } else {
+                        result.name = localPos.source;
+                        result.source = {
+                            presentationHint: 'deemphasize', // Indicate that the source code is not available
+                            path: localPos.source + '.js',
+                            sourceReference: 0
                         };
                     }
                 } catch (e) {
@@ -882,6 +892,7 @@ export class JanusDebugSession extends DebugSession {
             });
 
             log.debug(`stackTraceRequest succeeded`);
+            response.success = true;
             this.sendResponse(response);
         });
     }
@@ -952,17 +963,19 @@ export class JanusDebugSession extends DebugSession {
                 }
             }
 
+            response.success = true;
             response.body = {
                 variables: variablesContainer.variables
             };
-        } catch (error) {
+            log.debug(`variablesRequest succeeded`);
+
+        } catch (e) {
             response.success = false;
-            response.message = error.message;
-            log.error(`VariablesRequest failed: ${error.message}`);
-        } finally {
-            log.debug("send response");
-            this.sendResponse(response);
+            response.message = e.message;
+            log.error(`variablesRequest failed: ${e.message}`);
         }
+
+        this.sendResponse(response);
     }
 
     protected setVariableRequest(response: DebugProtocol.SetVariableResponse, args: DebugProtocol.SetVariableArguments): void {
