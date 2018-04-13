@@ -154,10 +154,6 @@ export function uploadAll(loginData: nodeDoc.ConnectionInformation, paramPath: a
             // get all script paths in folder and subfolders
             const folderScripts = nodeDoc.getScriptsFromFolderSync(folder);
 
-            const duplicate = await helpers.checkDuplicateScripts(folderScripts);
-            if (duplicate) {
-                return resolve();
-            }
 
             helpers.setConflictModes(folderScripts);
             helpers.readHashValues(folderScripts, loginData.server);
