@@ -3,8 +3,11 @@
 You'll find a complete list of changes at our project site on [GitHub](https://github.com/otris/vscode-janus-debug).
 
 
+### 0.0.37 (2018-04-14)
+- Fix the 'no provider for'-error that popped up when doing a remote debugging session and no local source file could be found that matches the script executed on the server.
+
 ### 0.0.36 (2018-04-13)
- 
+
 - The command **Show Imports** shows the source code of the script and additional the source code of all scripts that are included with `#include`. Now this source code is shown in an untitled file with JavaScript Syntax Highlighting.
 - When conflict mode is used, not only the source code is checked on server, but also the category.
 - Server name is shown in output of **Run Script** and **Show DOCUMENTS Version**.
