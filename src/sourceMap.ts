@@ -174,7 +174,7 @@ class Chunk {
 }
 
 export class ServerSource {
-    public static fromSources(sourceLines: string[]) {
+    public static fromSources(contextName: string, sourceLines: string[]) {
         const chunks: Chunk[] = [];
         const pattern = /^\/\/#\s\d+\s([\w\_\-\.#]+)$/;
         let current: Chunk | undefined;
@@ -207,6 +207,9 @@ export class ServerSource {
         const s = new ServerSource();
         // if a chunk has no length, it's not a chunk
         assert.equal(chunks.filter(c => c.pos.len === 0).length, 0);
+        if (chunks.length === 0) {
+            chunks.push(new Chunk(contextName, new Pos(0, sourceLines.length)));
+        }
         s._chunks = chunks;
         s.sourceLines = sourceLines;
         return s;

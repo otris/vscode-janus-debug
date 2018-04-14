@@ -74,7 +74,7 @@ suite('source map tests', () => {
     suite('server source', () => {
 
         test("parse into chunks", () => {
-            const s = ServerSource.fromSources(sourceLines);
+            const s = ServerSource.fromSources('test1', sourceLines);
             assert.equal(s.chunks.length, 2);
             assert.equal(s.chunks[0].name, 'lib');
             assert.equal(s.chunks[0].pos.start, 3);
@@ -86,18 +86,18 @@ suite('source map tests', () => {
         });
 
         test("map to individual source files", () => {
-            const s = ServerSource.fromSources(sourceLines);
+            const s = ServerSource.fromSources('test1', sourceLines);
             assert.deepEqual(s.toLocalPosition(10), { source: 'test1', line: 3 });
             assert.deepEqual(s.toLocalPosition(3), { source: 'lib', line: 1 });
         });
 
         test("first line debugger; statement maps to first line of first chunk", () => {
-            const s = ServerSource.fromSources(sourceLines);
+            const s = ServerSource.fromSources('test1', sourceLines);
             assert.deepEqual(s.toLocalPosition(1), { source: 'lib', line: 1 });
         });
 
         test("pre-processor line maps to first line of next chunk", () => {
-            const s = ServerSource.fromSources(sourceLines);
+            const s = ServerSource.fromSources('test1', sourceLines);
             assert.deepEqual(s.toLocalPosition(2), { source: 'lib', line: 1 });
             assert.deepEqual(s.toLocalPosition(8), { source: 'test1', line: 1 });
         });
@@ -151,7 +151,7 @@ suite('source map tests', () => {
                 "//# 36 crmCampaign_FillMultipleVeryLongLines#",
                 "",
             ];
-            const s = ServerSource.fromSources(lines);
+            const s = ServerSource.fromSources('fubar', lines);
             assert.equal(s.chunks.length, 23);
         });
     });
@@ -198,7 +198,7 @@ suite('source map tests', () => {
         });
 
         test("remote line to local position", () => {
-            sourceMap.serverSource = ServerSource.fromSources(sourceLines);
+            sourceMap.serverSource = ServerSource.fromSources('test1', sourceLines);
             sourceMap.setLocalUrls(paths);
             assert.deepEqual(sourceMap.toLocalPosition(1), { source: 'lib', line: 1 });
             assert.deepEqual(sourceMap.toLocalPosition(3), { source: 'lib', line: 1 });
@@ -298,7 +298,7 @@ suite('source map tests', () => {
         });
 
         test("remote line to local position", () => {
-            sourceMap.serverSource = ServerSource.fromSources(sourceLines2);
+            sourceMap.serverSource = ServerSource.fromSources('main', sourceLines2);
             sourceMap.setLocalUrls(paths);
             assert.deepEqual(sourceMap.toLocalPosition(1), { source: 'lib1', line: 1 });
             assert.deepEqual(sourceMap.toLocalPosition(4), { source: 'lib1', line: 1 });
@@ -371,7 +371,7 @@ suite('source map tests', () => {
             writeTestFile('main.js', mainSourceCode);
 
             sourceMap = new SourceMap();
-            sourceMap.serverSource = ServerSource.fromSources(sourceLines3);
+            sourceMap.serverSource = ServerSource.fromSources('main', sourceLines3);
             sourceMap.setLocalUrls(paths);
         });
 
@@ -416,7 +416,7 @@ suite('source map tests', () => {
         ];
 
         test("remote line to local position", () => {
-            sourceMap.serverSource = ServerSource.fromSources(sourceLines2);
+            sourceMap.serverSource = ServerSource.fromSources('main', sourceLines2);
             sourceMap.setLocalUrls(paths);
             assert.deepEqual(sourceMap.toLocalPosition(1), { source: 'lib1', line: 1 });
             assert.deepEqual(sourceMap.toLocalPosition(3), { source: 'lib1', line: 1 });

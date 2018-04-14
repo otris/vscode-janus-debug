@@ -211,7 +211,7 @@ export class JanusDebugSession extends DebugSession {
                     const sources = await connection.sendRequest(Command.getSource(source.sourceName()),
                         async (res: Response) => res.content.source);
                     log.info(`retrieved server sources: ${JSON.stringify(sources)}`);
-                    this.sourceMap.serverSource = ServerSource.fromSources(sources);
+                    this.sourceMap.serverSource = ServerSource.fromSources(source.sourceName(), sources);
                 } catch (e) {
                     log.error(`Command.getSource failed ${e}`);
                 }
