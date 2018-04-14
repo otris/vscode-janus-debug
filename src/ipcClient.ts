@@ -1,5 +1,6 @@
 import ipc = require('node-ipc');
 import { Logger } from 'node-file-log';
+import * as os from 'os';
 import { timeout } from 'promised-timeout';
 
 ipc.config.appspace = 'vscode-janus-debug.';
@@ -65,6 +66,17 @@ export class DebugAdapterIPC {
         const waitForResponse = timeout({
             promise: new Promise<string[]>(resolve => {
                 ipc.of.sock.on('urisFound', (uris: string[]) => {
+                    if (os.type() === 'Windows_NT') {
+                        // Sanitize paths. Seriously, this is VS Code, a Microsoft product, _and_ Windows. Why isn't this working?
+                        // "/c:/Users/test/Documents/lib.js", we'll remove the leading slash.
+                        uris = uris.map(uri => {
+                            if (uri.startsWith('/')) {
+                                return uri.substring(1);
+                            }
+                            return uri;
+                        }
+                        );
+                    }
                     log.debug(`found following files '${JSON.stringify(uris)}'`);
                     resolve(uris);
                 });
