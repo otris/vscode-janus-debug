@@ -80,7 +80,21 @@ export class LocalSource {
 
 type JSContextName = string;
 
-const log = Logger.create('SourceMap');
+/**
+ * Try to find yOffset heuristically.
+ */
+function findOffset(serverSource: ServerSource, serverLine: number, localSource: LocalSource, incorrectLine: number): number {
+    const remoteSourceLine = serverSource.getSourceLine(serverLine);
+
+    const fileContents = localSource.loadFromDisk();
+    const lines = fileContents.split("\n");
+    const startIndex = incorrectLine - 1;
+    const windowSize = 200;
+
+    throw new Error('something went terribly wrong');
+}
+
+const sourceMapLog = Logger.create('SourceMap');
 
 /**
  * Provides bi-directional mapping from local sources, most likely files, to remote JS context names.
@@ -106,12 +120,34 @@ export class SourceMap {
 
     public toLocalPosition(line: number): { source: string, line: number } {
         const localPos = this._serverSource.toLocalPosition(line);
-        if (log) {
-            const localSource = this.getSource(localPos.source);
-            if (localSource) {
-                log.info(
-                    `remote [${line}: "${this._serverSource.getSourceLine(line)}"] ` +
-                    `→ local [${localPos.line} in ${localSource.name}: "${localSource.getSourceLine(localPos.line)}"]`);
+
+        const localSource = this.getSource(localPos.source);
+        if (localSource) {
+            const localSourceLine = localSource.getSourceLine(localPos.line);
+            const remoteSourceLine = this._serverSource.getSourceLine(line);
+
+            sourceMapLog.info(
+                `remote [${line}: "${remoteSourceLine}"] ` +
+                `→ local [${localPos.line} in ${localSource.name}: "${localSourceLine}"]`);
+
+            if (localSourceLine !== remoteSourceLine) {
+                sourceMapLog.debug(`We're off. Try to adjust yOffset. Old offset: ${this._serverSource.yOffset}`);
+
+                /*
+                let newY: number | undefined;
+
+                try {
+                    newY = findOffset(this._serverSource, line, localSource, localPos.line);
+                } catch (e) {
+                    // Swallow
+                    serverSourceLog.debug(`findOffset failed: ${e}`);
+                }
+
+                if (newY !== undefined) {
+                    this._serverSource.yOffset = newY;
+                    localPos = this._serverSource.toLocalPosition(line);
+                }
+                */
             }
         }
         return localPos;
@@ -119,12 +155,13 @@ export class SourceMap {
 
     public toRemoteLine(localPos: { source: string, line: number }): number {
         const remoteLine = this._serverSource.toRemoteLine(localPos);
-        if (log) {
-            const localSource = this.getSource(localPos.source);
-            if (localSource) {
-                log.info(`local [${localPos.line} in ${localPos.source}: "${localSource.getSourceLine(localPos.line)}"] ` +
-                    `→ remote [${remoteLine}: "${this._serverSource.getSourceLine(remoteLine)}"]`);
-            }
+        const localSource = this.getSource(localPos.source);
+        if (localSource) {
+            const localSourceLine = localSource.getSourceLine(localPos.line);
+            const remoteSourceLine = this._serverSource.getSourceLine(remoteLine);
+
+            sourceMapLog.info(`local [${localPos.line} in ${localPos.source}: "${localSourceLine}"] ` +
+                `→ remote [${remoteLine}: "${remoteSourceLine}"]`);
         }
         return remoteLine;
     }
@@ -142,9 +179,9 @@ export class SourceMap {
         if (!remoteName) {
             // Fallback
             remoteName = localPath;
-            log.warn(`no remote name found for '${localPath}'`);
+            sourceMapLog.warn(`no remote name found for '${localPath}'`);
         }
-        log.debug(`getRemoteUrl: '${localPath}' → '${remoteName}'`);
+        sourceMapLog.debug(`getRemoteUrl: '${localPath}' → '${remoteName}'`);
         return remoteName;
     }
 
@@ -172,6 +209,8 @@ class Pos {
 class Chunk {
     constructor(public name: string, public pos: Pos) { }
 }
+
+const serverSourceLog = Logger.create('ServerSource');
 
 export class ServerSource {
     public static fromSources(contextName: string, sourceLines: string[]) {
@@ -217,25 +256,37 @@ export class ServerSource {
 
     private _chunks: Chunk[] = [];
     private sourceLines: string[] = [];
+    private _yOffset: number | undefined;
 
     get chunks() { return this._chunks; }
+
+    set yOffset(newOffset: number) {
+        serverSourceLog.debug(`setting new yOffset to ${newOffset}, was ${this._yOffset}`);
+        this._yOffset = newOffset;
+    }
 
     public toLocalPosition(line: number): { source: string, line: number } {
         const idx = this._chunks.findIndex(chunk =>
             (line >= chunk.pos.start) && (line < (chunk.pos.start + chunk.pos.len)));
         if (idx >= 0) {
-            // y is an offset that we calculate from the total chunk count. During
-            // pre-processing JANUS and/or DOCUMENTS adds y = n - 1 lines at the beginning
+            // yOffset is an offset that we calculate from the total chunk count. During
+            // pre-processing JANUS and/or DOCUMENTS adds yOffset = n - 1 lines at the beginning
             // of the actual script whereas n is the no. of chunks. Why? I don't know. But
             // we have to take this into account when we calculate the local line offset.
             // Anyway, there can be more code before the first chunk (probably just a
-            // 'debugger;' statement).
-            const y = this._chunks[0].pos.start - 1;
+            // 'debugger;' statement) but who knows.
+            if (this._yOffset === undefined) {
+                if (this._chunks.length === 1) {
+                    this._yOffset = 1;
+                } else {
+                    this._yOffset = this._chunks[0].pos.start - 1;
+                }
+            }
 
             const chunk = this._chunks[idx];
             let localLine = 0;
             if (idx === 0) {
-                localLine = line - y;
+                localLine = line - this._yOffset;
             } else {
                 localLine = line - chunk.pos.start + 1;
             }
@@ -251,7 +302,15 @@ export class ServerSource {
     }
 
     public toRemoteLine(pos: { source: string, line: number }): number {
-        let lineNo = this._chunks[0].pos.start - 1; // This is the junk at the start
+        if (this._yOffset === undefined) {
+            if (this._chunks.length === 1) {
+                this._yOffset = 1;
+            } else {
+                this._yOffset = this._chunks[0].pos.start - 1; // This is the junk at the start
+            }
+        }
+
+        let lineNo = this._yOffset;
         for (const chunk of this._chunks) {
             if (chunk.name === pos.source) {
                 return lineNo += pos.line;
