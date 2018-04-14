@@ -2,6 +2,9 @@
 
 You'll find a complete list of changes at our project site on [GitHub](https://github.com/otris/vscode-janus-debug).
 
+### 0.0.39 (2018-04-14)
+- Make debugging work again for very simple scripts. Fixes a regression introduced in 0.0.34.
+
 ### 0.0.38 (2018-04-14)
 - Windows: fix an issue that prevents local source files from being loaded because of wrong file paths.
 
