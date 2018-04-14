@@ -2,6 +2,8 @@
 
 You'll find a complete list of changes at our project site on [GitHub](https://github.com/otris/vscode-janus-debug).
 
+### 0.0.38 (2018-04-14)
+- Windows: fix an issue that prevents local source files from being loaded because of wrong file paths.
 
 ### 0.0.37 (2018-04-14)
 - Fix the 'no provider for'-error that popped up when doing a remote debugging session and no local source file could be found that matches the script executed on the server.
