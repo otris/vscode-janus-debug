@@ -230,6 +230,12 @@ export class JanusDebugSession extends DebugSession {
                     });
                 }
 
+                // Make sure source mapping is initialized before we get to work. (This
+                // has the side-effect of triggering findOffset-heuristic so that we have a correct
+                // source line offsets before setting, retrieving breakpoints
+                // and so on.)
+                this.sourceMap.toLocalPosition(1);
+
                 log.debug(`sending InitializedEvent`);
                 this.sendEvent(new InitializedEvent());
                 this.debugConsole(`Debugger listening on ${host}:${debuggerPort}`);
