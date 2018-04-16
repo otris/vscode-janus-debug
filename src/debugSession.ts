@@ -189,7 +189,7 @@ export class JanusDebugSession extends DebugSession {
             });
 
             this.connection.on('error', (reason: string) => {
-                log.error(`Error on connection: ${reason}`);
+                log.error(`Error when connecting to remote debugger: ${reason}`);
                 response.success = false;
                 response.message = reason;
                 this.sendResponse(response);
@@ -426,7 +426,7 @@ export class JanusDebugSession extends DebugSession {
                 }
 
             } catch (e) {
-                log.error(`attachRequest: ...failed. ${e}`);
+                log.error(`attachRequest failed: ${e}`);
                 response.success = false;
                 response.message = `Could not attach to remote JS context: ${e}`;
                 return this.sendResponse(response);
@@ -977,9 +977,9 @@ export class JanusDebugSession extends DebugSession {
             log.debug(`variablesRequest succeeded`);
 
         } catch (e) {
+            log.error(`variablesRequest failed: ${e}`);
             response.success = false;
             response.message = e.message;
-            log.error(`variablesRequest failed: ${e.message}`);
         }
 
         this.sendResponse(response);
