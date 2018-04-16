@@ -47,31 +47,133 @@ suite('local source tests', () => {
 
 suite('source map tests', () => {
 
-    let sourceMap: SourceMap;
+    test('get source by reference returns undefined for references ≤ 0', () => {
+        const sourceMap = new SourceMap();
+        assert.equal(sourceMap.getSourceByReference(0), undefined);
+        assert.equal(sourceMap.getSourceByReference(-1), undefined);
+    });
 
-    const sourceLines = [
-        /* line on server                                                 line on disk                           */
-        /*  1 not visible to user */ "debugger;",
-        /*  2                     */ "//# 0 lib",                      /*                                        */
-        /*  3                     */ "var x=1;",                       /*  1                                     */
-        /*  4                     */ "x=2;",                           /*  2                                     */
-        /*  5                     */ "util.out(\"lib.js: \" + x);",    /*  3                                     */
-        /*  6                     */ "a.push(\"0\");",                 /*  4                                     */
-        /*  7                     */ "",                               /*  5                                     */
+    suite('local → remote', () => {
 
+        test('add a single mapping directly', () => {
+            const sourceMap = new SourceMap();
+            sourceMap.addMapping(new LocalSource('/home/bob/script.js'), 'remoteName');
+            const result = sourceMap.getRemoteUrl('/home/bob/script.js');
+            assert.equal(result, 'remoteName');
+        });
+    });
 
+    suite('remote → local', () => {
 
-        /*  8                     */ "//# 2 test1",                    /*  1                                     */
-        /*  9                     */ "",                               /*  2                                     */
-        /* 10                     */ "a.push(\"1\");",                 /*  3                                     */
-        /* 11                     */ "a.push(\"2\");",                 /*  4                                     */
-        /* 12                     */ "a.push(\"3\");",                 /*  5                                     */
-        /* 13                     */ "a.push(\"4\");",                 /*  6                                     */
-        /* 14                     */ "util.out(\"Done\");"             /*  7                                     */
-    ];
+        test('map single local file to remote name', () => {
+            const sourceMap = new SourceMap();
+            sourceMap.addMapping(new LocalSource('someScript.js'), 'remoteName');
+            const result = sourceMap.getSource('remoteName');
+            const path = result ? result.path : '';
+            assert.equal(path, 'someScript.js');
+        });
+    });
 
+    suite("mapping 1 chunk", () => {
+        let sourceMap: SourceMap;
+        const lines = [
+        /*  1                 */ 'console.log("Hello, there!");',
+        /*  2                 */ 'for (var i = 0: i < 10; i++) {',
+        /*  3                 */ '    console.log(i);',
+        /*  4                 */ '}'];
+        let tempDir: string;
+        const paths: string[] = [];
+
+        setup(() => {
+            tempDir = fs.mkdtempSync(os.tmpdir() + path.sep);
+
+            const writeTestFile = (fileName: string, sourceCode: string) => {
+                const p = tempDir + path.sep + fileName;
+                const fd = fs.openSync(p, 'w');
+                fs.writeFileSync(p, sourceCode);
+                paths.push(p);
+            };
+
+            writeTestFile('index.js', lines.join('\n'));
+            sourceMap = new SourceMap();
+        });
+
+        teardown(() => {
+            paths.forEach(p => fs.unlinkSync(p));
+            setTimeout(() => { fs.rmdirSync(tempDir); }, 1000);
+        });
+
+        test("remote line to local position", () => {
+            sourceMap.serverSource = ServerSource.fromSources('index', lines);
+            sourceMap.setLocalUrls(paths);
+            assert.deepEqual(sourceMap.toLocalPosition(1), { source: 'index', line: 1 });
+            assert.deepEqual(sourceMap.toLocalPosition(3), { source: 'index', line: 3 });
+        });
+    });
+
+    suite("mapping 1 chunk with debugger; statement", () => {
+        let sourceMap: SourceMap;
+        const lines = [
+        /*  1                 */ 'debugger;',
+        /*  2                 */ '',
+        /*  3                 */ 'console.log("Hello, there!");',
+        /*  4                 */ 'for (var i = 0: i < 10; i++) {',
+        /*  5                 */ '    console.log(i);',
+        /*  6                 */ '}'];
+        let tempDir: string;
+        const paths: string[] = [];
+
+        setup(() => {
+            tempDir = fs.mkdtempSync(os.tmpdir() + path.sep);
+
+            const writeTestFile = (fileName: string, sourceCode: string) => {
+                const p = tempDir + path.sep + fileName;
+                const fd = fs.openSync(p, 'w');
+                fs.writeFileSync(p, sourceCode);
+                paths.push(p);
+            };
+
+            writeTestFile('index.js', lines.join('\n'));
+            sourceMap = new SourceMap();
+        });
+
+        teardown(() => {
+            paths.forEach(p => fs.unlinkSync(p));
+            setTimeout(() => { fs.rmdirSync(tempDir); }, 1000);
+        });
+
+        test("remote line to local position", () => {
+            sourceMap.serverSource = ServerSource.fromSources('index', lines);
+            sourceMap.setLocalUrls(paths);
+            assert.deepEqual(sourceMap.toLocalPosition(1), { source: 'index', line: 1 });
+            assert.deepEqual(sourceMap.toLocalPosition(3), { source: 'index', line: 3 });
+            assert.deepEqual(sourceMap.toLocalPosition(5), { source: 'index', line: 5 });
+        });
+    });
 
     suite('server source', () => {
+
+        const sourceLines = [
+            /* line on server                                                 line on disk                           */
+            /*  1 not visible to user */ "debugger;",
+            /*  2                     */ "//# 0 lib",                      /*                                        */
+            /*  3                     */ "var x=1;",                       /*  1                                     */
+            /*  4                     */ "x=2;",                           /*  2                                     */
+            /*  5                     */ "util.out(\"lib.js: \" + x);",    /*  3                                     */
+            /*  6                     */ "a.push(\"0\");",                 /*  4                                     */
+            /*  7                     */ "",                               /*  5                                     */
+
+
+
+            /*  8                     */ "//# 2 test1",                    /*  1                                     */
+            /*  9                     */ "",                               /*  2                                     */
+            /* 10                     */ "a.push(\"1\");",                 /*  3                                     */
+            /* 11                     */ "a.push(\"2\");",                 /*  4                                     */
+            /* 12                     */ "a.push(\"3\");",                 /*  5                                     */
+            /* 13                     */ "a.push(\"4\");",                 /*  6                                     */
+            /* 14                     */ "util.out(\"Done\");"             /*  7                                     */
+        ];
+
 
         test("parse into chunks", () => {
             const s = ServerSource.fromSources('test1', sourceLines);
@@ -154,26 +256,94 @@ suite('source map tests', () => {
             const s = ServerSource.fromSources('fubar', lines);
             assert.equal(s.chunks.length, 23);
         });
+        suite("mapping 2 chunks", () => {
+            let sourceMap: SourceMap;
+            let tempDir: string;
+            const paths: string[] = [];
+            const libSourceCode =
+                /*  1                 */ `var x=1;\n` +
+                /*  2                 */ `x=2;\n` +
+                /*  3                 */ `util.out(\"lib.js: \" + x);\n` +
+                /*  4                 */ `a.push(\"0\");\n` +
+                /*  5                 */ ``;
+            const test1SourceCode =
+                /*  1                 */ `//#import "lib"\n` +
+                /*  2                 */ `\n` +
+                /*  3                 */ `a.push(\"1\");\n` +
+                /*  4                 */ `a.push(\"2\");\n` +
+                /*  5                 */ `a.push(\"3\");\n` +
+                /*  6                 */ `a.push(\"4\");\n` +
+                /*  7                 */ `util.out(\"Done\");\n`;
+
+            setup(() => {
+                tempDir = fs.mkdtempSync(os.tmpdir() + path.sep);
+
+                const writeTestFile = (fileName: string, sourceCode: string) => {
+                    const p = tempDir + path.sep + fileName;
+                    const fd = fs.openSync(p, 'w');
+                    fs.writeFileSync(p, sourceCode);
+                    paths.push(p);
+                };
+
+                writeTestFile('lib.js', libSourceCode);
+                writeTestFile('test1.js', test1SourceCode);
+
+                sourceMap = new SourceMap();
+            });
+
+            teardown(() => {
+                paths.forEach(p => fs.unlinkSync(p));
+                // Timeout because otherwise we get a ENOTEMPTY in fs.rmdir
+                setTimeout(() => { fs.rmdirSync(tempDir); }, 1000);
+            });
+
+            test("remote line to local position", () => {
+                sourceMap.serverSource = ServerSource.fromSources('test1', sourceLines);
+                sourceMap.setLocalUrls(paths);
+                assert.deepEqual(sourceMap.toLocalPosition(1), { source: 'lib', line: 1 });
+                assert.deepEqual(sourceMap.toLocalPosition(3), { source: 'lib', line: 1 });
+                assert.deepEqual(sourceMap.toLocalPosition(4), { source: 'lib', line: 2 });
+                assert.deepEqual(sourceMap.toLocalPosition(6), { source: 'lib', line: 4 });
+                assert.deepEqual(sourceMap.toLocalPosition(10), { source: 'test1', line: 3 });
+                assert.deepEqual(sourceMap.toLocalPosition(14), { source: 'test1', line: 7 });
+            });
+        });
     });
 
-    suite("mapping 2 chunks", () => {
-
+    suite("mapping 3 chunks without debugger; line", () => {
+        let sourceMap: SourceMap;
+        const sourceLines = [
+            /* line on server                                                 line on disk                           */
+            /*  1                     */ "//# 0 lib2",                     /*                                        */
+            /*  2                     */ "//# 0 lib1",                     /*                                        */
+            /*  3                     */ "util.out(\">>> in lib1.js\");",  /*  1       util.out(">>> in lib1.js");   */
+            /*  4                     */ "var val = 0;",                   /*  2       var val = 0;                  */
+            /*  5                     */ "",                               /*  3                                     */
+            /*  6                     */ "//# 1 lib2",                     /*  1       //#import "lib1"              */
+            /*  7                     */ "util.out(\">>> in lib2.js\");",  /*  2       util.out(">>> in lib2.js");   */
+            /*  8                     */ "val = val + 1;",                 /*  3       val = val + 1;                */
+            /*  9                     */ "",                               /*  4                                     */
+            /* 10                     */ "//# 2 main",                     /*  1       //#import "lib2"              */
+            /* 11                     */ "util.out(\">>> in main.js\");",  /*  2       util.out(">>> in main.js");   */
+            /* 12                     */ "val = val + 1;",                 /*  3       val = val + 1;                */
+            /* 13                     */ "util.out(\">>> val = \" + val);" /*  4       util.out(">>> val = " + val); */
+        ];
         let tempDir: string;
         const paths: string[] = [];
-        const libSourceCode =
-            /*  1                 */ `var x=1;\n` +
-            /*  2                 */ `x=2;\n` +
-            /*  3                 */ `util.out(\"lib.js: \" + x);\n` +
-            /*  4                 */ `a.push(\"0\");\n` +
-            /*  5                 */ ``;
-        const test1SourceCode =
-            /*  1                 */ `//#import "lib"\n` +
-            /*  2                 */ `\n` +
-            /*  3                 */ `a.push(\"1\");\n` +
-            /*  4                 */ `a.push(\"2\");\n` +
-            /*  5                 */ `a.push(\"3\");\n` +
-            /*  6                 */ `a.push(\"4\");\n` +
-            /*  7                 */ `util.out(\"Done\");\n`;
+        const lib1SourceCode =
+            /*  1                 */ `util.out(">>> in lib1.js");\n` +
+            /*  2                 */ `var val = 0;\n`;
+
+        const lib2SourceCode =
+            /*  1                 */ `//#import "lib1"\n` +
+            /*  2                 */ `util.out(">>> in lib2.js");\n` +
+            /*  3                 */ `val = val + 1;\n`;
+
+        const mainSourceCode =
+            /*  1                 */ `//#import "lib2"\n` +
+            /*  2                 */ `util.out(">>> in main.js");\n` +
+            /*  3                 */ `val = val + 1;\n` +
+            /*  4                 */ `util.out(">>> val = " + val);\n`;
 
         setup(() => {
             tempDir = fs.mkdtempSync(os.tmpdir() + path.sep);
@@ -185,8 +355,9 @@ suite('source map tests', () => {
                 paths.push(p);
             };
 
-            writeTestFile('lib.js', libSourceCode);
-            writeTestFile('test1.js', test1SourceCode);
+            writeTestFile('lib1.js', lib1SourceCode);
+            writeTestFile('lib2.js', lib2SourceCode);
+            writeTestFile('main.js', mainSourceCode);
 
             sourceMap = new SourceMap();
         });
@@ -198,47 +369,18 @@ suite('source map tests', () => {
         });
 
         test("remote line to local position", () => {
-            sourceMap.serverSource = ServerSource.fromSources('test1', sourceLines);
+            sourceMap.serverSource = ServerSource.fromSources('main', sourceLines);
             sourceMap.setLocalUrls(paths);
-            assert.deepEqual(sourceMap.toLocalPosition(1), { source: 'lib', line: 1 });
-            assert.deepEqual(sourceMap.toLocalPosition(3), { source: 'lib', line: 1 });
-            assert.deepEqual(sourceMap.toLocalPosition(4), { source: 'lib', line: 2 });
-            assert.deepEqual(sourceMap.toLocalPosition(6), { source: 'lib', line: 4 });
-            assert.deepEqual(sourceMap.toLocalPosition(10), { source: 'test1', line: 3 });
-            assert.deepEqual(sourceMap.toLocalPosition(14), { source: 'test1', line: 7 });
-        });
-    });
-
-    setup(() => {
-        sourceMap = new SourceMap();
-    });
-
-    test('get source by reference returns undefined for references ≤ 0', () => {
-        assert.equal(sourceMap.getSourceByReference(0), undefined);
-        assert.equal(sourceMap.getSourceByReference(-1), undefined);
-    });
-
-    suite('local → remote', () => {
-
-        test('add a single mapping directly', () => {
-            sourceMap.addMapping(new LocalSource('/home/bob/script.js'), 'remoteName');
-            const result = sourceMap.getRemoteUrl('/home/bob/script.js');
-            assert.equal(result, 'remoteName');
-        });
-    });
-
-    suite('remote → local', () => {
-
-        test('map single local file to remote name', () => {
-            sourceMap.addMapping(new LocalSource('someScript.js'), 'remoteName');
-            const result = sourceMap.getSource('remoteName');
-            const path = result ? result.path : '';
-            assert.equal(path, 'someScript.js');
+            assert.deepEqual(sourceMap.toLocalPosition(1), { source: 'lib1', line: 1 });
+            assert.deepEqual(sourceMap.toLocalPosition(3), { source: 'lib1', line: 1 });
+            assert.deepEqual(sourceMap.toLocalPosition(4), { source: 'lib1', line: 2 });
+            assert.deepEqual(sourceMap.toLocalPosition(7), { source: 'lib2', line: 2 });
+            assert.deepEqual(sourceMap.toLocalPosition(12), { source: 'main', line: 3 });
         });
     });
 
     suite("mapping 3 chunks", () => {
-
+        let sourceMap: SourceMap;
         const sourceLines2 = [
             /* line on server                                                 line on disk                           */
             /*  1                     */ "debugger;",                      /*                                        */
@@ -309,7 +451,7 @@ suite('source map tests', () => {
     });
 
     suite("mapping 4 chunks", () => {
-
+        let sourceMap: SourceMap;
         const sourceLines3 = [
             /* line on server                                                  line on disk                           */
             /*  1                     */ "debugger;",                       /*                                        */
@@ -394,76 +536,5 @@ suite('source map tests', () => {
             assert.equal(sourceMap.toRemoteLine({ source: 'lib2', line: 2 }), 9);
             assert.equal(sourceMap.toRemoteLine({ source: 'main', line: 2 }), 17);
         });
-    });
-
-    suite("mapping 3 chunks without debugger; line", () => {
-
-        const sourceLines2 = [
-            /* line on server                                                 line on disk                           */
-            /*  1                     */ "//# 0 lib2",                     /*                                        */
-            /*  2                     */ "//# 0 lib1",                     /*                                        */
-            /*  3                     */ "util.out(\">>> in lib1.js\");",  /*  1       util.out(">>> in lib1.js");   */
-            /*  4                     */ "var val = 0;",                   /*  2       var val = 0;                  */
-            /*  5                     */ "",                               /*  3                                     */
-            /*  6                     */ "//# 1 lib2",                     /*  1       //#import "lib1"              */
-            /*  7                     */ "util.out(\">>> in lib2.js\");",  /*  2       util.out(">>> in lib2.js");   */
-            /*  8                     */ "val = val + 1;",                 /*  3       val = val + 1;                */
-            /*  9                     */ "",                               /*  4                                     */
-            /* 10                     */ "//# 2 main",                     /*  1       //#import "lib2"              */
-            /* 11                     */ "util.out(\">>> in main.js\");",  /*  2       util.out(">>> in main.js");   */
-            /* 12                     */ "val = val + 1;",                 /*  3       val = val + 1;                */
-            /* 13                     */ "util.out(\">>> val = \" + val);" /*  4       util.out(">>> val = " + val); */
-        ];
-
-        test("remote line to local position", () => {
-            sourceMap.serverSource = ServerSource.fromSources('main', sourceLines2);
-            sourceMap.setLocalUrls(paths);
-            assert.deepEqual(sourceMap.toLocalPosition(1), { source: 'lib1', line: 1 });
-            assert.deepEqual(sourceMap.toLocalPosition(3), { source: 'lib1', line: 1 });
-            assert.deepEqual(sourceMap.toLocalPosition(4), { source: 'lib1', line: 2 });
-            assert.deepEqual(sourceMap.toLocalPosition(7), { source: 'lib2', line: 2 });
-            assert.deepEqual(sourceMap.toLocalPosition(12), { source: 'main', line: 3 });
-        });
-
-        let tempDir: string;
-        const paths: string[] = [];
-        const lib1SourceCode =
-            /*  1                 */ `util.out(">>> in lib1.js");\n` +
-            /*  2                 */ `var val = 0;\n`;
-
-        const lib2SourceCode =
-            /*  1                 */ `//#import "lib1"\n` +
-            /*  2                 */ `util.out(">>> in lib2.js");\n` +
-            /*  3                 */ `val = val + 1;\n`;
-
-        const mainSourceCode =
-            /*  1                 */ `//#import "lib2"\n` +
-            /*  2                 */ `util.out(">>> in main.js");\n` +
-            /*  3                 */ `val = val + 1;\n` +
-            /*  4                 */ `util.out(">>> val = " + val);\n`;
-
-        setup(() => {
-            tempDir = fs.mkdtempSync(os.tmpdir() + path.sep);
-
-            const writeTestFile = (fileName: string, sourceCode: string) => {
-                const p = tempDir + path.sep + fileName;
-                const fd = fs.openSync(p, 'w');
-                fs.writeFileSync(p, sourceCode);
-                paths.push(p);
-            };
-
-            writeTestFile('lib1.js', lib1SourceCode);
-            writeTestFile('lib2.js', lib2SourceCode);
-            writeTestFile('main.js', mainSourceCode);
-
-            sourceMap = new SourceMap();
-        });
-
-        teardown(() => {
-            paths.forEach(p => fs.unlinkSync(p));
-            // Timeout because otherwise we get a ENOTEMPTY in fs.rmdir
-            setTimeout(() => { fs.rmdirSync(tempDir); }, 1000);
-        });
-
     });
 });

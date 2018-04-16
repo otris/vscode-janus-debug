@@ -80,18 +80,57 @@ export class LocalSource {
 
 type JSContextName = string;
 
+const findOffsetLogger = Logger.create('findOffset');
+
 /**
- * Try to find yOffset heuristically.
+ * Try to find yOffset kind of heuristically.
  */
 function findOffset(serverSource: ServerSource, serverLine: number, localSource: LocalSource, incorrectLine: number): number {
-    const remoteSourceLine = serverSource.getSourceLine(serverLine);
+    const remoteSourceLine = serverSource.getSourceLine(serverLine).trim();
+    findOffsetLogger.debug(`searching for line: '${remoteSourceLine}'`);
+
+    if (remoteSourceLine.length < 3) {
+        throw new Error('line too short to compare');
+    }
 
     const fileContents = localSource.loadFromDisk();
     const lines = fileContents.split("\n");
     const startIndex = incorrectLine - 1;
     const windowSize = 200;
 
-    throw new Error('something went terribly wrong');
+    let newOffset = 0;
+
+    const upstreamEnd = (startIndex + windowSize) > lines.length ? lines.length : startIndex + windowSize;
+    findOffsetLogger.debug(`upstreamEnd: ${upstreamEnd}`);
+    for (let i = startIndex; i < upstreamEnd; i++) {
+        const candidate = lines[i].trim();
+        if (candidate === remoteSourceLine) {
+            newOffset = i;
+            break;
+        } else {
+            findOffsetLogger.debug(`line ${i}: no match '${candidate}'`);
+        }
+    }
+
+    if (newOffset === 0) {
+        const downstreamEnd = ((startIndex - windowSize)) < 0 ? 0 : startIndex - windowSize;
+        findOffsetLogger.debug(`downstreamEnd: ${downstreamEnd}`);
+        for (let i = startIndex; i > downstreamEnd; i--) {
+            const candidate = lines[i].trim();
+            if (candidate === remoteSourceLine) {
+                newOffset = i;
+                break;
+            } else {
+                findOffsetLogger.debug(`line ${i}: no match '${candidate}'`);
+            }
+        }
+    }
+
+    if (newOffset === 0) {
+        throw new Error('could not find equivalent line in window');
+    }
+
+    return newOffset;
 }
 
 const sourceMapLog = Logger.create('SourceMap');
@@ -119,7 +158,7 @@ export class SourceMap {
     }
 
     public toLocalPosition(line: number): { source: string, line: number } {
-        const localPos = this._serverSource.toLocalPosition(line);
+        let localPos = this._serverSource.toLocalPosition(line);
 
         const localSource = this.getSource(localPos.source);
         if (localSource) {
@@ -130,10 +169,9 @@ export class SourceMap {
                 `remote [${line}: "${remoteSourceLine}"] ` +
                 `→ local [${localPos.line} in ${localSource.name}: "${localSourceLine}"]`);
 
-            if (localSourceLine !== remoteSourceLine) {
+            if (localSourceLine.trim() !== remoteSourceLine.trim()) {
                 sourceMapLog.debug(`We're off. Try to adjust yOffset. Old offset: ${this._serverSource.yOffset}`);
 
-                /*
                 let newY: number | undefined;
 
                 try {
@@ -147,7 +185,6 @@ export class SourceMap {
                     this._serverSource.yOffset = newY;
                     localPos = this._serverSource.toLocalPosition(line);
                 }
-                */
             }
         }
         return localPos;
@@ -247,7 +284,7 @@ export class ServerSource {
         // if a chunk has no length, it's not a chunk
         assert.equal(chunks.filter(c => c.pos.len === 0).length, 0);
         if (chunks.length === 0) {
-            chunks.push(new Chunk(contextName, new Pos(0, sourceLines.length)));
+            chunks.push(new Chunk(contextName, new Pos(1, sourceLines.length)));
         }
         s._chunks = chunks;
         s.sourceLines = sourceLines;
@@ -266,6 +303,8 @@ export class ServerSource {
     }
 
     public toLocalPosition(line: number): { source: string, line: number } {
+        assert.ok(this._chunks.length > 0, "expected at least one chunk");
+
         const idx = this._chunks.findIndex(chunk =>
             (line >= chunk.pos.start) && (line < (chunk.pos.start + chunk.pos.len)));
         if (idx >= 0) {
@@ -277,20 +316,22 @@ export class ServerSource {
             // 'debugger;' statement) but who knows.
             if (this._yOffset === undefined) {
                 if (this._chunks.length === 1) {
-                    this._yOffset = 1;
+                    this._yOffset = 0;
                 } else {
                     this._yOffset = this._chunks[0].pos.start - 1;
                 }
             }
 
             const chunk = this._chunks[idx];
-            let localLine = 0;
+            let localLine: number;
             if (idx === 0) {
                 localLine = line - this._yOffset;
             } else {
                 localLine = line - chunk.pos.start + 1;
             }
-            assert.ok(localLine > 0);
+            if (localLine === 0) {
+                localLine = 1;
+            }
             return {
                 source: chunk.name, line: localLine
             };
@@ -303,7 +344,7 @@ export class ServerSource {
 
     public toRemoteLine(pos: { source: string, line: number }): number {
         if (this._yOffset === undefined) {
-            if (this._chunks.length === 1) {
+            if (this._chunks.length === 0) {
                 this._yOffset = 1;
             } else {
                 this._yOffset = this._chunks[0].pos.start - 1; // This is the junk at the start
