@@ -501,7 +501,8 @@ export class JanusDebugSession extends DebugSession {
             return;
         }
 
-        if (!args.breakpoints || !args.source.path || !args.source.name) {
+        if (!args.breakpoints || !args.source.path) {
+            log.debug(`setBreakPointsRequest failed: ${JSON.stringify(args)}`);
             response.success = false;
             response.message = `An internal error occurred`;
             this.sendResponse(response);
@@ -518,7 +519,7 @@ export class JanusDebugSession extends DebugSession {
         }
         log.debug(`setBreakPointsRequest remoteSourceUrl: ${remoteSourceUrl}`);
         const actualBreakpoints: Array<Promise<Breakpoint>> = [];
-        const source = path.parse(args.source.name).name;
+        const source = path.parse(args.source.path).name;
         const requestedBreakpoints = args.breakpoints;
         requestedBreakpoints.forEach((breakpoint => {
 
