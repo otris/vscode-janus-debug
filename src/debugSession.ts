@@ -106,8 +106,6 @@ export class JanusDebugSession extends DebugSession {
 
         this.attachedContextId = undefined;
 
-        this.config = undefined;
-
         const connection = this.connection;
         if (!connection) {
             this.sendResponse(response);
@@ -117,6 +115,8 @@ export class JanusDebugSession extends DebugSession {
         if (this.config === 'launch') {
             await connection.sendRequest(new Command('stop'));
         }
+
+        this.config = undefined;
 
         await connection.sendRequest(new Command('exit'));
         await connection.disconnect();
