@@ -86,11 +86,34 @@ const findOffsetLogger = Logger.create('findOffset');
  * Try to find yOffset kind of heuristically.
  */
 function findOffset(serverSource: ServerSource, serverLine: number, localSource: LocalSource, incorrectLine: number): number {
-    const remoteSourceLine = serverSource.getSourceLine(serverLine).trim();
+    const goodComparable = (line: string) => (line.length > 3) && (line !== 'debugger;');
+    let remoteSourceLine = serverSource.getSourceLine(serverLine).trim();
     findOffsetLogger.debug(`searching for line: '${remoteSourceLine}'`);
 
-    if (remoteSourceLine.length < 3) {
-        throw new Error('line too short to compare');
+    if (!goodComparable(remoteSourceLine)) {
+
+        // Try to find another line downstream
+        let newCandidate = "";
+        for (let d = 1; d < 7; d++) {
+            try {
+                newCandidate = serverSource.getSourceLine(serverLine + d).trim();
+                findOffsetLogger.debug(`not a good candidate for comparison, trying next line: '${newCandidate}'`);
+                if (goodComparable(newCandidate)) {
+                    remoteSourceLine = newCandidate;
+                    incorrectLine = incorrectLine + d;
+                    break;
+                }
+            } catch (e) {
+                // Swallow
+                break;
+            }
+        }
+
+        if (!goodComparable(newCandidate)) {
+            // Back out
+            throw new Error('could not find a good line to compare');
+        }
+        findOffsetLogger.debug(`searching for line: '${remoteSourceLine}'`);
     }
 
     const fileContents = localSource.loadFromDisk();
