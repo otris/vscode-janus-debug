@@ -85,13 +85,19 @@ export class DebugConnection extends EventEmitter implements ConnectionLike {
             // If we have to wait for a response and handle it, make sure that we resolve after the handler function
             // has finished
             if (responseHandler) {
-                this.registerResponseHandler(request.id, (response: Response) => {
-                    responseHandler(response).then(value => {
-                        resolve(value);
-                    }).catch(reason => {
-                        reject(reason);
+                if (request.id === undefined) {
+                    // Somebody gave us a responseHandler, but the command does not contain a request id (and the
+                    // server does not accept one for this command, probably, namely for 'exit', 'next', 'stop')
+                    log.warn(`sendRequest: responseHandler given but request has no ID: disregard`);
+                } else {
+                    this.registerResponseHandler(request.id, (response: Response) => {
+                        responseHandler(response).then(value => {
+                            resolve(value);
+                        }).catch(reason => {
+                            reject(reason);
+                        });
                     });
-                });
+                }
             }
 
             const message = request.toString();
