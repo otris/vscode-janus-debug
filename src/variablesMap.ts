@@ -70,12 +70,6 @@ export class VariablesMap {
      * @param {string} [evaluateName] This param is need for evaluate variables that are properties of object or elements of arrays. For this variables we need also the name of their parent to access the value.
      */
     public createVariable(variableName: string, variableValue: any, contextId: number, frameId: number, evaluateName?: string) {
-        // The debugger returns every variable which will be declared in the script, also variables which doesn't exists at this time.
-        // The value for these variables is '___jsrdbg_undefined___', so we just can skip these ones to display only the relevant variables
-        if (variableValue === "___jsrdbg_undefined___") {
-            return;
-        }
-
         if (typeof evaluateName === 'undefined') {
             evaluateName = '';
         }
@@ -118,6 +112,38 @@ export class VariablesMap {
     private _createVariable(variableName: string, variableValue: any, contextId: number, frameId: number, evaluateName?: string): DebugProtocol.Variable {
         if (typeof evaluateName === 'undefined' || evaluateName === '') {
             evaluateName = variableName;
+        }
+
+        if (variableValue === '___jsrdbg_undefined___') {
+            return {
+                name: variableName,
+                value: 'undefined',
+                type: 'undefined',
+                variablesReference: 0,
+            };
+        }
+
+        if (typeof variableValue === 'object') {
+
+            const result: DebugProtocol.Variable = {
+                name: '',
+                value: '',
+                variablesReference: 0
+            };
+
+            if (variableValue.hasOwnProperty('___jsrdbg_function_desc___')) {
+                result.presentationHint = { kind: 'method' };
+                if (variableValue.___jsrdbg_function_desc___.hasOwnProperty('displayName')) {
+                    result.name = variableValue.___jsrdbg_function_desc___.displayName;
+                }
+                if (variableValue.___jsrdbg_function_desc___.hasOwnProperty('parameterNames')) {
+                    let parameters = variableValue.___jsrdbg_function_desc___.parameterNames;
+                    parameters = parameters.toString().replace(/,/, ', ');
+                    result.value = `function (${parameters}) { ... }`;
+                }
+            }
+
+            return result;
         }
 
         // We have to differentiate between primitive types, arrays, objects, and functions.
