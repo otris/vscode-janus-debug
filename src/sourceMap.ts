@@ -80,82 +80,6 @@ export class LocalSource {
 
 type JSContextName = string;
 
-const findOffsetLogger = Logger.create('findOffset');
-
-/**
- * Try to find yOffset kind of heuristically.
- */
-function findOffset(serverSource: ServerSource, serverLine: number, localSource: LocalSource, incorrectLine: number): number {
-    const goodComparable = (line: string) => (line.length > 3) && (line !== 'debugger;');
-    let remoteSourceLine = serverSource.getSourceLine(serverLine).trim();
-    findOffsetLogger.debug(`searching for line: '${remoteSourceLine}'`);
-
-    if (!goodComparable(remoteSourceLine)) {
-
-        // Try to find another line downstream
-        let newCandidate = "";
-        for (let d = 1; d < 7; d++) {
-            try {
-                newCandidate = serverSource.getSourceLine(serverLine + d).trim();
-                findOffsetLogger.debug(`not a good candidate for comparison, trying next line: '${newCandidate}'`);
-                if (goodComparable(newCandidate)) {
-                    remoteSourceLine = newCandidate;
-                    incorrectLine = incorrectLine + d;
-                    break;
-                }
-            } catch (e) {
-                // Swallow
-                break;
-            }
-        }
-
-        if (!goodComparable(newCandidate)) {
-            // Back out
-            throw new Error('could not find a good line to compare');
-        }
-        findOffsetLogger.debug(`searching for line: '${remoteSourceLine}'`);
-    }
-
-    const fileContents = localSource.loadFromDisk();
-    const lines = fileContents.split("\n");
-    const startIndex = incorrectLine - 1;
-    const windowSize = 200;
-
-    let newOffset = 0;
-
-    const upstreamEnd = (startIndex + windowSize) > lines.length ? lines.length : startIndex + windowSize;
-    findOffsetLogger.debug(`upstreamEnd: ${upstreamEnd}`);
-    for (let i = startIndex; i < upstreamEnd; i++) {
-        const candidate = lines[i].trim();
-        if (candidate === remoteSourceLine) {
-            newOffset = i;
-            break;
-        } else {
-            findOffsetLogger.debug(`line ${i}: no match '${candidate}'`);
-        }
-    }
-
-    if (newOffset === 0) {
-        const downstreamEnd = ((startIndex - windowSize)) < 0 ? 0 : startIndex - windowSize;
-        findOffsetLogger.debug(`downstreamEnd: ${downstreamEnd}`);
-        for (let i = startIndex; i > downstreamEnd; i--) {
-            const candidate = lines[i].trim();
-            if (candidate === remoteSourceLine) {
-                newOffset = i;
-                break;
-            } else {
-                findOffsetLogger.debug(`line ${i}: no match '${candidate}'`);
-            }
-        }
-    }
-
-    if (newOffset === 0) {
-        throw new Error('could not find equivalent line in window');
-    }
-
-    return newOffset;
-}
-
 const sourceMapLog = Logger.create('SourceMap');
 
 /**
@@ -181,7 +105,7 @@ export class SourceMap {
     }
 
     public toLocalPosition(line: number): { source: string, line: number } {
-        let localPos = this._serverSource.toLocalPosition(line);
+        const localPos = this._serverSource.toLocalPosition(line);
 
         const localSource = this.getSource(localPos.source);
         if (localSource) {
@@ -193,21 +117,7 @@ export class SourceMap {
                 `→ local [${localPos.line} in ${localSource.name}: "${localSourceLine}"]`);
 
             if (localSourceLine.trim() !== remoteSourceLine.trim()) {
-                sourceMapLog.debug(`We're off. Try to adjust yOffset. Old offset: ${this._serverSource.yOffset}`);
-
-                let newY: number | undefined;
-
-                try {
-                    newY = findOffset(this._serverSource, line, localSource, localPos.line);
-                } catch (e) {
-                    // Swallow
-                    serverSourceLog.debug(`findOffset failed: ${e}`);
-                }
-
-                if (newY !== undefined) {
-                    this._serverSource.yOffset = newY;
-                    localPos = this._serverSource.toLocalPosition(line);
-                }
+                sourceMapLog.debug(`We're off. Current offset: ${this._serverSource.yOffset}`);
             }
         }
         return localPos;
@@ -339,7 +249,7 @@ export class ServerSource {
             // 'debugger;' statement) but who knows.
             if (this._yOffset === undefined) {
                 if (this._chunks.length === 1) {
-                    this._yOffset = 0;
+                    this._yOffset = 1;
                 } else {
                     this._yOffset = this._chunks[0].pos.start - 1;
                 }
