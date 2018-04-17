@@ -812,16 +812,15 @@ export class JanusDebugSession extends DebugSession {
         if (this.connection === undefined) {
             throw new Error('No connection');
         }
-        const contexts = await this.connection.coordinator.getAllAvailableContexts();
-        const threads: DebugProtocol.Thread[] = contexts.map(context => {
-            return {
-                id: context.id,
-                name: context.name,
+
+        if (this.attachedContextId) {
+            response.body = {
+                threads: [{
+                    id: this.attachedContextId,
+                    name: this.connection.coordinator.getContext(this.attachedContextId).name
+                }],
             };
-        });
-        response.body = {
-            threads,
-        };
+        }
         log.debug(`threadsRequest succeeded with ${JSON.stringify(response.body.threads)}`);
         this.sendResponse(response);
     }
