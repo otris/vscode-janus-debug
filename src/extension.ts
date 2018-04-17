@@ -228,9 +228,7 @@ class JanusDebugConfigurationProvider implements vscode.DebugConfigurationProvid
      * Massage a debug configuration just before a debug session is being launched,
      * e.g. add all missing attributes to the debug configuration.
      */
-    public resolveDebugConfiguration(folder: vscode.WorkspaceFolder | undefined,
-                                     config: vscode.DebugConfiguration,
-                                     token?: vscode.CancellationToken): vscode.ProviderResult<vscode.DebugConfiguration> {
+    public resolveDebugConfiguration(folder: vscode.WorkspaceFolder | undefined, config: vscode.DebugConfiguration, token?: vscode.CancellationToken): vscode.ProviderResult<vscode.DebugConfiguration> {
 
         // if launch.json is missing or empty allow quick access to
         // debugging by providing this config
@@ -251,8 +249,7 @@ class JanusDebugConfigurationProvider implements vscode.DebugConfigurationProvid
     /**
      * Returns initial debug configurations.
      */
-    public provideDebugConfigurations?(folder: vscode.WorkspaceFolder | undefined,
-                                       token?: vscode.CancellationToken): vscode.ProviderResult<vscode.DebugConfiguration[]> {
+    public provideDebugConfigurations?(folder: vscode.WorkspaceFolder | undefined, token?: vscode.CancellationToken): vscode.ProviderResult<vscode.DebugConfiguration[]> {
         return provideInitialConfigurations(vscode.workspace.rootPath);
     }
 }
@@ -469,7 +466,7 @@ export function activate(context: vscode.ExtensionContext): void {
                 await vscode.debug.startDebugging(folder, config);
 
             } catch (err) {
-                // Swallow, you stupid bitch
+                // Swallow
             }
             helpers.showWarning(loginData);
         })
@@ -529,7 +526,7 @@ export function activate(context: vscode.ExtensionContext): void {
     // Install intellisense files
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.getPortalScriptingTSD', () => {
-            vscode.window.showInputBox({placeHolder: "version?"}).then((version) => {
+            vscode.window.showInputBox({ placeHolder: "version?" }).then((version) => {
                 intellisense.copyPortalScriptingTSD(version);
                 intellisense.ensureJsconfigJson();
             });

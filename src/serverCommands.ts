@@ -567,7 +567,7 @@ export async function showImports(loginData: nodeDoc.ConnectionInformation, cont
 
         helpers.ensureScriptName(contextMenuPath, []).then((scriptName) => {
             return nodeDoc.serverSession(loginData, [scriptName], nodeDoc.getSourceCodeForEditor).then((value) => {
-                vscode.workspace.openTextDocument({content: value[0], language: 'javascript'}).then(doc => {
+                vscode.workspace.openTextDocument({ content: value[0], language: 'javascript' }).then(doc => {
                     vscode.window.showTextDocument(doc);
                 });
 

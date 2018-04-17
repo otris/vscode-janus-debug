@@ -651,7 +651,16 @@ export class JanusDebugSession extends DebugSession {
         }
 
         const contextId: ContextId = args.threadId || 0;
-        const context = this.connection.coordinator.getContext(contextId);
+        let context: Context;
+        try {
+            context = this.connection.coordinator.getContext(contextId);
+        } catch (e) {
+            log.warn(`continueRequest getContext: ${e}`);
+            if (e.message.startsWith('No such context')) {
+                this.connection.sendRequest(new Command('exit'));
+            }
+            return;
+        }
 
         context.continue().then(() => {
             log.debug('continueRequest succeeded');
@@ -675,7 +684,17 @@ export class JanusDebugSession extends DebugSession {
         }
 
         const contextId: ContextId = args.threadId || 0;
-        const context = this.connection.coordinator.getContext(contextId);
+
+        let context: Context;
+        try {
+            context = this.connection.coordinator.getContext(contextId);
+        } catch (e) {
+            log.warn(`nextRequest getContext: ${e}`);
+            if (e.message.startsWith('No such context')) {
+                this.connection.sendRequest(new Command('exit'));
+            }
+            return;
+        }
 
         context.next().then(() => {
             log.debug('nextRequest succeeded');
@@ -821,11 +840,24 @@ export class JanusDebugSession extends DebugSession {
             throw new Error('No connection');
         }
 
+
         if (this.attachedContextId) {
+
+            let attachedContext: Context;
+            try {
+                attachedContext = this.connection.coordinator.getContext(this.attachedContextId);
+            } catch (e) {
+                log.warn(`threadsRequest getContext: ${e}`);
+                if (e.message.startsWith('No such context')) {
+                    this.connection.sendRequest(new Command('exit'));
+                }
+                return;
+            }
+
             response.body = {
                 threads: [{
                     id: this.attachedContextId,
-                    name: this.connection.coordinator.getContext(this.attachedContextId).name
+                    name: attachedContext.name
                 }],
             };
         }
@@ -841,7 +873,18 @@ export class JanusDebugSession extends DebugSession {
         }
 
         const contextId: ContextId = args.threadId || 0;
-        const context = this.connection.coordinator.getContext(contextId);
+        let context: Context;
+        try {
+            context = this.connection.coordinator.getContext(contextId);
+        } catch (e) {
+            log.warn(`stackTraceRequest getContext: ${e}`);
+            if (e.message.startsWith('No such context')) {
+                // Remote probably finished w/o telling us. This worked some time ago. Anyway, hang up
+                this.connection.sendRequest(new Command('exit'));
+            }
+            return;
+        }
+
         context.getStacktrace().then((trace: StackFrame[]) => {
             const frames = this.frameMap.addFrames(contextId, trace);
             const stackFrames: DebugProtocol.StackFrame[] = frames.map(frame => {
