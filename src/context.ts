@@ -267,7 +267,7 @@ export class ContextCoordinator {
     }
 
     public handleResponse(response: Response): Promise<void> {
-        coordinatorLog.debug(`handleResponse ${JSON.stringify(response)}`);
+        coordinatorLog.debug(`handleResponse`);
 
         return new Promise<void>((resolve, reject) => {
 

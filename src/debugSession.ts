@@ -832,6 +832,10 @@ export class JanusDebugSession extends DebugSession {
     }
 
     protected async sourceRequest(response: DebugProtocol.SourceResponse, args: DebugProtocol.SourceArguments): Promise<void> {
+        // When sourceReference was set in stackTraceRequest (rather than path), VS Code requests the source with that reference here.
+        // We deliver Server Sources here. This way we can selectively choose whether it makes sense to show sources from the server
+        // or local source files
+
         if (args.sourceReference === undefined) {
             log.info('sourceRequest');
             log.warn('args.sourceReference is undefined');
@@ -840,26 +844,16 @@ export class JanusDebugSession extends DebugSession {
         }
 
         log.info(`sourceRequest for sourceReference ${args.sourceReference}`);
-        // const localSource = this.sourceMap.getSourceByReference(args.sourceReference);
-        if (!this.connection) {
-            throw new Error("connection must be defined");
+
+        if (this.connection === undefined) {
+            throw new Error('No connection');
         }
 
-        try {
-            response.body = await this.connection.sendRequest(Command.getSource(
-                this.connection.coordinator.getContext(args.sourceReference).name),
-                async (res) => {
-                    log.info(`res: ${JSON.stringify(res)}, source: ${JSON.stringify(res.content.source)}`);
-                    const sourceCode = res.content.source.reduce((a: any, b: any) => a + "\n" + b);
-                    return {
-                        content: sourceCode,
-                        mimeType: 'text/javascript'
-                    };
-                });
-        } catch (err) {
-            log.error(`an error occurs: ${err}`);
-            response.success = false;
-        }
+        response.body = {
+            content: this.sourceMap.serverSource.getSourceCode(),
+            mimeType: 'text/javascript'
+        };
+
         this.sendResponse(response);
     }
 
@@ -918,16 +912,17 @@ export class JanusDebugSession extends DebugSession {
         context.getStacktrace().then((trace: StackFrame[]) => {
             const frames = this.frameMap.addFrames(contextId, trace);
             const stackFrames: DebugProtocol.StackFrame[] = frames.map(frame => {
-                const result: DebugProtocol.StackFrame = {
+                let result: DebugProtocol.StackFrame = {
                     column: 0,
                     id: frame.frameId,
                     name: '',
                     line: 0
                 };
 
+                let localSource: LocalSource | undefined;
                 try {
                     const localPos = this.sourceMap.toLocalPosition(frame.sourceLine);
-                    const localSource = this.sourceMap.getSource(localPos.source);
+                    localSource = this.sourceMap.getSource(localPos.source);
                     if (!localSource) {
                         log.warn(`stackTraceRequest: could not find LocalSource for '${localPos.source}' in SourceMap`);
                     }
@@ -950,6 +945,19 @@ export class JanusDebugSession extends DebugSession {
                     }
                 } catch (e) {
                     log.error(`stackTraceRequest failed with ${e}`);
+
+                    result = {
+                        column: 0,
+                        id: frame.frameId,
+                        line: frame.sourceLine,
+                        name: localSource ? localSource.name : `${context.name} (Sources from server)`,
+                        source: localSource ? {
+                            path: localSource.path,
+                        } : {
+                                sourceReference: contextId,
+                                path: `${context.name} (Server)`
+                            },
+                    };
                 }
 
                 return result;

@@ -122,6 +122,7 @@ export class SourceMap {
 
             if (localSourceLine.trim() !== remoteSourceLine.trim()) {
                 sourceMapLog.debug(`We're off. Current offset: ${this._serverSource.yOffset}`);
+                throw new Error('Not on same source line');
             }
         }
         return localPos;
@@ -224,15 +225,19 @@ export class ServerSource {
             chunks.push(new Chunk(contextName, new Pos(1, sourceLines.length)));
         }
         s._chunks = chunks;
-        s.sourceLines = sourceLines;
+        s._sourceLines = sourceLines;
         return s;
     }
 
     private _chunks: Chunk[] = [];
-    private sourceLines: string[] = [];
+    private _sourceLines: string[] = [];
     private _yOffset: number | undefined;
 
     get chunks() { return this._chunks; }
+
+    public getSourceCode(): string {
+        return this._sourceLines.reduce((a: any, b: any) => a + "\n" + b);
+    }
 
     set yOffset(newOffset: number | undefined) {
         serverSourceLog.debug(`setting new yOffset to ${newOffset}, was ${this._yOffset}`);
@@ -304,6 +309,6 @@ export class ServerSource {
     }
 
     public getSourceLine(lineNo: number): string {
-        return this.sourceLines[lineNo - 1];
+        return this._sourceLines[lineNo - 1];
     }
 }
