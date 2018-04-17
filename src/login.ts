@@ -33,7 +33,7 @@ async function askForPassword(connection: nodeDoc.ConnectionInformation): Promis
 async function askForLoginInformation(connection: nodeDoc.ConnectionInformation): Promise<string | undefined> {
     const SERVER: string = 'localhost';
     const PORT: number = 11000;
-    const PRINCIPAL: string = 'dopaag';
+    const PRINCIPAL: string = 'relations';
     const USERNAME: string = 'admin';
 
     return new Promise<string | undefined>(async (resolve, reject) => {
