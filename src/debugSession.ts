@@ -203,7 +203,7 @@ export class JanusDebugSession extends DebugSession {
 
             debuggerSocket.on('connect', async () => {
 
-                log.info(`launchRequest: connection to ${host}:${debuggerPort} established. Testing...`);
+                log.info(`launchRequest: connection to ${host}:${debuggerPort} established`);
 
                 if (scriptIdentifier) {
                     this.sourceMap.addMapping(source, scriptIdentifier);
@@ -211,31 +211,43 @@ export class JanusDebugSession extends DebugSession {
                     this.sourceMap.addMapping(source, source.sourceName());
                 }
 
+                const sourceUrl = scriptIdentifier ? scriptIdentifier : source.sourceName();
                 try {
-                    const sources = await connection.sendRequest(Command.getSource(source.sourceName()),
-                        async (res: Response) => res.content.source);
+                    const sources = await connection.sendRequest(Command.getSource(sourceUrl),
+                        async (res: Response) => {
+                            if (res.type === 'error') {
+                                if (res.content.hasOwnProperty('message')) {
+                                    throw new Error(res.content.message);
+                                } else {
+                                    throw new Error('Unknown error');
+                                }
+                            }
+                            return res.content.source;
+                        });
                     log.info(`retrieved server sources: ${JSON.stringify(sources)}`);
                     this.sourceMap.serverSource = ServerSource.fromSources(source.sourceName(), sources);
                 } catch (e) {
                     log.error(`Command.getSource failed ${e}`);
                 }
 
-                if (stopOnEntry || args.portal) {
-                    // Single step because of debugger; statement.
-                    const contexts = await connection.coordinator.getAllAvailableContexts();
-                    contexts.forEach(async context => {
-                        if (context.isStopped()) {
-                            if (context.name === source.sourceName()) {
-                                this.attachedContextId = context.id;
-                                await connection.sendRequest(new Command('next', this.attachedContextId));
-                                // FIXME: there can be more than one context here
-                            }
+                const contexts = await connection.coordinator.getAllAvailableContexts();
+                contexts.forEach(async context => {
+                    if (context.isStopped()) {
+                        if (context.name === sourceUrl) {
+                            this.attachedContextId = context.id;
                         }
-                    });
-                }
+                    }
+                });
 
                 if (!this.attachedContextId) {
                     log.warn(`this.attachedContextId is ${this.attachedContextId}`);
+                }
+
+                if (stopOnEntry || args.portal) {
+                    // Single step because of debugger; statement.
+                    if (this.attachedContextId) {
+                        await connection.sendRequest(new Command('next', this.attachedContextId));
+                    }
                 }
 
                 log.debug(`sending InitializedEvent`);
@@ -297,7 +309,7 @@ export class JanusDebugSession extends DebugSession {
 
                     // Quick & dirty pause immediately feature
                     if (stopOnEntry) {
-                        scriptSource = 'debugger;' + scriptSource;
+                        scriptSource = 'debugger;\n' + scriptSource;
                     }
 
                     // fill identifier
@@ -313,6 +325,10 @@ export class JanusDebugSession extends DebugSession {
 
                     });
 
+                }).then(() => {
+                    return new Promise(resolve => {
+                        setTimeout(resolve, 1500);
+                    });
                 }).then(connectDebugger).catch(reason => {
 
                     log.error(`launchRequest failed: ${reason}`);
