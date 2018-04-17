@@ -870,6 +870,9 @@ export class JanusDebugSession extends DebugSession {
             throw new Error('No connection');
         }
 
+        response.body = {
+            threads: [],
+        };
 
         if (this.attachedContextId) {
 
@@ -883,13 +886,10 @@ export class JanusDebugSession extends DebugSession {
                 }
                 return;
             }
-
-            response.body = {
-                threads: [{
-                    id: this.attachedContextId,
-                    name: attachedContext.name
-                }],
-            };
+            response.body.threads.push({
+                id: this.attachedContextId,
+                name: attachedContext.name
+            });
         }
         log.debug(`threadsRequest succeeded with ${JSON.stringify(response.body.threads)}`);
         this.sendResponse(response);
