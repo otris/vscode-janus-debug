@@ -5,6 +5,9 @@ You'll find a complete list of changes at our project site on [GitHub](https://g
 ### 0.0.41 (2018-04-17)
 
 - Added snippets for otris app.
+- Fix showing functions, undefined variables, and arrays in the debugger again
+- Upload & Debug: detach from debugger when script has finished (in some cases 😕)
+- Debugger: source mapping heuristic is out again. Didn't make source mapping better.
 
 ### 0.0.40 (2018-04-16)
 
