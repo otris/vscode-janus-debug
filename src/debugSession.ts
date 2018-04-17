@@ -234,12 +234,6 @@ export class JanusDebugSession extends DebugSession {
                     });
                 }
 
-                // Make sure source mapping is initialized before we get to work. (This
-                // has the side-effect of triggering findOffset-heuristic so that we have a correct
-                // source line offsets before setting, retrieving breakpoints
-                // and so on.)
-                this.sourceMap.toLocalPosition(1);
-
                 log.debug(`sending InitializedEvent`);
                 this.sendEvent(new InitializedEvent());
                 this.debugConsole(`Debugger listening on ${host}:${debuggerPort}`);
@@ -371,6 +365,14 @@ export class JanusDebugSession extends DebugSession {
 
         const ipcClient = new DebugAdapterIPC();
         await ipcClient.connect();
+        let uris: string[] | undefined;
+        try {
+            uris = await ipcClient.findURIsInWorkspace();
+            log.debug(`found ${JSON.stringify(uris)} URIs in workspace`);
+            this.sourceMap.setLocalUrls(uris);
+        } catch (e) {
+            log.error(`error ${e}`);
+        }
 
         const port: number = args.debuggerPort || 8089;
         const host: string = args.host || 'localhost';
@@ -422,10 +424,18 @@ export class JanusDebugSession extends DebugSession {
                             targetContext = contexts[0];
                         }
                         log.info(`chose context '${targetContext.name}'`);
+                        try {
+                            const sources = await connection.sendRequest(Command.getSource(targetContext.name),
+                                async (res: Response) => res.content.source);
+                            log.info(`retrieved server sources: ${JSON.stringify(sources)}`);
+                            this.sourceMap.serverSource = ServerSource.fromSources(targetContext.name, sources);
+                            // good guess
+                            this.sourceMap.serverSource.yOffset = 0;
 
-                        const localSource = new LocalSource(targetContext.name);
-                        localSource.sourceReference = targetContext.id;
-                        this.sourceMap.addMapping(localSource, targetContext.name);
+                        } catch (e) {
+                            log.error(`Command.getSource failed ${e}`);
+                        }
+
                         // set state for setBreakpoints
                         this.attachedContextId = targetContext.id;
                     }

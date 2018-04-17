@@ -100,6 +100,10 @@ export class SourceMap {
         this._serverSource = sources;
     }
 
+    get serverSource() {
+        return this._serverSource;
+    }
+
     public addMapping(localSource: LocalSource, remoteName: JSContextName): void { // ← fake rocket science
         this.map.set(remoteName, localSource);
     }
@@ -230,9 +234,13 @@ export class ServerSource {
 
     get chunks() { return this._chunks; }
 
-    set yOffset(newOffset: number) {
+    set yOffset(newOffset: number | undefined) {
         serverSourceLog.debug(`setting new yOffset to ${newOffset}, was ${this._yOffset}`);
         this._yOffset = newOffset;
+    }
+
+    get yOffset(): number | undefined {
+        return this._yOffset;
     }
 
     public toLocalPosition(line: number): { source: string, line: number } {
