@@ -2,6 +2,11 @@
 
 You'll find a complete list of changes at our project site on [GitHub](https://github.com/otris/vscode-janus-debug).
 
+### 0.0.42 (2018-04-18)
+
+- Starting the debugger in launch config was totally broken. This now works again with this release.
+- Debugger: Display server sources when local source are not available or local sources are different from the server.
+
 ### 0.0.41 (2018-04-17)
 
 - Added snippets for otris app.
@@ -15,6 +20,7 @@ You'll find a complete list of changes at our project site on [GitHub](https://g
 - "Stop" button works now again (immediately stops execution of the script and detaches the debugger). Was broken since a while.
 
 ### 0.0.39 (2018-04-14)
+
 - Make debugging work again for very simple scripts. Fixes a regression introduced in 0.0.34.
 
 ### 0.0.38 (2018-04-14)
