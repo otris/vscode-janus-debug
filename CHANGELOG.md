@@ -2,6 +2,10 @@
 
 You'll find a complete list of changes at our project site on [GitHub](https://github.com/otris/vscode-janus-debug).
 
+### 0.0.41 (2018-04-17)
+
+- Added snippets for otris app.
+
 ### 0.0.40 (2018-04-16)
 
 - Source mapping got a bit better. It now uses a little heuristic to compensate mismatches between client and server sources.
