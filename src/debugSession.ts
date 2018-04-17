@@ -128,6 +128,10 @@ export class JanusDebugSession extends DebugSession {
         this.applyConfig(args);
         log.info(`launchRequest`);
 
+        this.connection = undefined;
+        this.sourceMap = new SourceMap();
+        this.frameMap = new FrameMap();
+        this.variablesMap = new VariablesMap();
         this.config = 'launch';
 
         const sdsPort: number = args.applicationPort || 10000;
@@ -359,6 +363,10 @@ export class JanusDebugSession extends DebugSession {
         this.applyConfig(args);
         log.info(`attachRequest`);
 
+        this.connection = undefined;
+        this.sourceMap = new SourceMap();
+        this.frameMap = new FrameMap();
+        this.variablesMap = new VariablesMap();
         this.config = 'attach';
 
         const ipcClient = new DebugAdapterIPC();
