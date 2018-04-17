@@ -70,5 +70,12 @@ export class VSCodeExtensionIPC {
             const uris = await workspace.findFiles('**/*.js', '**/node_modules/**', 1000);
             ipc.server.emit(socket, 'urisFound', uris.map(uri => uri.path));
         });
+
+        ipc.server.on('displaySourceNotice', async (ignored: any, socket) => {
+            log.info('displaySourceNotice');
+            const message = `Sorry, we couldn't find the sources locally ` +
+                `or your local sources are different from the server. We show the sources from the server.`;
+            await window.showInformationMessage(message);
+        });
     }
 }

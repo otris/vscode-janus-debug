@@ -58,6 +58,9 @@ export class JanusDebugSession extends DebugSession {
     private variablesMap: VariablesMap;
     private config: 'launch' | 'attach' | undefined;
     private attachedContextId: number | undefined = undefined;
+    private ipcClient: DebugAdapterIPC;
+    private displaySourceNoticeCount = 0;
+
 
     public constructor() {
         super();
@@ -65,6 +68,7 @@ export class JanusDebugSession extends DebugSession {
         this.sourceMap = new SourceMap();
         this.frameMap = new FrameMap();
         this.variablesMap = new VariablesMap();
+        this.ipcClient = new DebugAdapterIPC();
     }
 
     protected async logServerVersion() {
@@ -133,6 +137,7 @@ export class JanusDebugSession extends DebugSession {
         this.frameMap = new FrameMap();
         this.variablesMap = new VariablesMap();
         this.config = 'launch';
+        await this.ipcClient.connect();
 
         const sdsPort: number = args.applicationPort || 10000;
         const debuggerPort = args.debuggerPort || 8089;
@@ -164,11 +169,10 @@ export class JanusDebugSession extends DebugSession {
             return;
         }
 
-        const ipcClient = new DebugAdapterIPC();
-        await ipcClient.connect();
+
         let uris: string[] | undefined;
         try {
-            uris = await ipcClient.findURIsInWorkspace();
+            uris = await this.ipcClient.findURIsInWorkspace();
             log.debug(`found ${JSON.stringify(uris)} URIs in workspace`);
             this.sourceMap.setLocalUrls(uris);
         } catch (e) {
@@ -382,12 +386,11 @@ export class JanusDebugSession extends DebugSession {
         this.frameMap = new FrameMap();
         this.variablesMap = new VariablesMap();
         this.config = 'attach';
+        await this.ipcClient.connect();
 
-        const ipcClient = new DebugAdapterIPC();
-        await ipcClient.connect();
         let uris: string[] | undefined;
         try {
-            uris = await ipcClient.findURIsInWorkspace();
+            uris = await this.ipcClient.findURIsInWorkspace();
             log.debug(`found ${JSON.stringify(uris)} URIs in workspace`);
             this.sourceMap.setLocalUrls(uris);
         } catch (e) {
@@ -437,7 +440,7 @@ export class JanusDebugSession extends DebugSession {
                     } else {
                         let targetContext: Context;
                         if (contexts.length > 1) {
-                            const targetContextName = await ipcClient.showContextQuickPick(contexts.map(context => context.name));
+                            const targetContextName = await this.ipcClient.showContextQuickPick(contexts.map(context => context.name));
                             log.info(`got ${targetContextName} to attach to`);
                             targetContext = contexts.filter(context => context.name === targetContextName)[0];
                         } else {
@@ -479,7 +482,7 @@ export class JanusDebugSession extends DebugSession {
         });
 
         socket.on('close', async (hadError: boolean) => {
-            await ipcClient.disconnect();
+            await this.ipcClient.disconnect();
 
             if (hadError) {
                 log.error(`remote closed the connection due to error`);
@@ -492,7 +495,7 @@ export class JanusDebugSession extends DebugSession {
 
         socket.on('error', async (err: any) => {
             log.error(`failed to connect to ${host}:${port}: ${err.code}`);
-            await ipcClient.disconnect();
+            await this.ipcClient.disconnect();
 
             response.success = false;
             response.message = `Failed to connect to server: ${codeToString(err.code)}`;
@@ -958,6 +961,11 @@ export class JanusDebugSession extends DebugSession {
                                 path: `${context.name} (Server)`
                             },
                     };
+
+                    if (this.displaySourceNoticeCount < 1) {
+                        this.ipcClient.displaySourceNotice();
+                        this.displaySourceNoticeCount++;
+                    }
                 }
 
                 return result;

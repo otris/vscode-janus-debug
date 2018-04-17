@@ -30,6 +30,7 @@ export class DebugAdapterIPC {
 
             ipc.of.sock.on('contextChosen', this.contextChosenDefaultHandler);
             ipc.of.sock.on('urisFound', this.urisFoundDefaultHandler);
+            ipc.of.sock.on('displaySourceNotice', this.displaySourceNoticeDefaultHandler);
         });
     }
 
@@ -94,11 +95,20 @@ export class DebugAdapterIPC {
         return result;
     }
 
+    public async displaySourceNotice(): Promise<void> {
+        log.debug(`displaySourceNotice`);
+        ipc.of.sock.emit('displaySourceNotice');
+    }
+
     private contextChosenDefaultHandler(data: any) {
         log.warn(`got 'contextChosen' message from VS Code extension but we haven't asked!`);
     }
 
     private urisFoundDefaultHandler(data: any) {
         log.warn(`got 'urisFound' message from VS Code extension but we haven't asked!`);
+    }
+
+    private displaySourceNoticeDefaultHandler(data: any) {
+        log.warn(`got 'displaySourceNotice' message from VS Code extension but we haven't asked!`);
     }
 }
