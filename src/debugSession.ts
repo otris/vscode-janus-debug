@@ -234,6 +234,10 @@ export class JanusDebugSession extends DebugSession {
                     });
                 }
 
+                if (!this.attachedContextId) {
+                    log.warn(`this.attachedContextId is ${this.attachedContextId}`);
+                }
+
                 log.debug(`sending InitializedEvent`);
                 this.sendEvent(new InitializedEvent());
                 this.debugConsole(`Debugger listening on ${host}:${debuggerPort}`);
