@@ -10,12 +10,7 @@ export type ContextId = number;
 const contextLog = Logger.create('Context');
 
 export class Context {
-    constructor(private connection: ConnectionLike,
-                public readonly id: ContextId,
-                public readonly name: string,
-                private readonly stopped?: boolean) {
-
-    }
+    constructor(private connection: ConnectionLike, public readonly id: ContextId, public readonly name: string, private readonly stopped?: boolean) { }
 
     public isStopped(): boolean {
         return this.stopped ? this.stopped : false;
@@ -123,6 +118,40 @@ export class Context {
         contextLog.debug(`request 'stepOut' for context ${this.id}`);
         return this.connection.sendRequest(new Command('step_out', this.id));
     }
+
+    /**
+     * Evaluate arbitrary JS inside the current frame.
+     *
+     * Example:
+     *      const expr = "(function(){return JSON.stringify({answer: 42});})();";
+     *      const result = await context.evaluate2(expr);
+     *
+     * @param expression A JS expression
+     * @returns The result of the expression as string
+     */
+    public evaluate2(expression: string): Promise<string> {
+
+        const req = Command.evaluate(this.id, {
+            path: expression,
+            options: {
+                "show-hierarchy": true,
+                "evaluation-depth": 1,
+            },
+        });
+
+        return this.connection.sendRequest(req, (res: Response) => {
+            return new Promise<Variable>((resolve, reject) => {
+                if (res.type === 'error') {
+                    return reject(new Error(res.content.message));
+                } else {
+                    assert.equal(res.subtype, 'evaluated');
+                    resolve(res.content.result);
+                }
+            });
+        });
+    }
+
+    // FIXME: this implementation is only for evaluating variables and variable values? This shouldn't be here. Should be around variableMap.ts
     public evaluate(expression: string): Promise<Variable> {
         contextLog.debug(`request 'evaluate' for context ${this.id}`);
 
@@ -280,7 +309,7 @@ export class ContextCoordinator {
 
                 const context: Context | undefined = this.contextById.get(response.contextId);
                 if (context === undefined) {
-                    reject(new Error (`response for unknown context`));
+                    reject(new Error(`response for unknown context`));
                     return;
                 }
                 context.handleResponse(response);
