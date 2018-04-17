@@ -132,7 +132,10 @@ export class VariablesMap {
             };
 
             if (variableValue.hasOwnProperty('___jsrdbg_function_desc___')) {
+                // function
+
                 result.presentationHint = { kind: 'method' };
+                result.type = 'function';
                 if (variableValue.___jsrdbg_function_desc___.hasOwnProperty('displayName')) {
                     result.name = variableValue.___jsrdbg_function_desc___.displayName;
                 }
@@ -141,9 +144,30 @@ export class VariablesMap {
                     parameters = parameters.toString().replace(/,/, ', ');
                     result.value = `function (${parameters}) { ... }`;
                 }
+
+                return result;
             }
 
-            return result;
+            if (variableValue.hasOwnProperty('length')) {
+                // Array
+
+                result.presentationHint = { kind: 'data' };
+                result.name = variableName;
+                result.type = 'Array';
+
+                if (variableName === 'arguments') {
+                    result.presentationHint.visibility = 'internal';
+                }
+
+                const elem: string[] = [];
+                for (const prop in variableValue) {
+                    if (variableValue.hasOwnProperty(prop) && prop !== 'length') {
+                        elem.push(`${variableValue[prop].toString()}`);
+                    }
+                }
+                result.value = `length: ${variableValue.length} [${elem.reduce((a, b) => a + ', ' + b)}]`;
+                return result;
+            }
         }
 
         // We have to differentiate between primitive types, arrays, objects, and functions.
