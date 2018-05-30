@@ -2,6 +2,9 @@
 
 You'll find a complete list of changes at our project site on [GitHub](https://github.com/otris/vscode-janus-debug).
 
+### 1.0.1 (2018-05-30)
+- no changes
+
 ### 1.0.0 (2018-05-30)
 
 - handle broken symlinks when reading a directory
