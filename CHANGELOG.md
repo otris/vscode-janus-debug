@@ -2,6 +2,10 @@
 
 You'll find a complete list of changes at our project site on [GitHub](https://github.com/otris/vscode-janus-debug).
 
+### 1.0.0 (2018-05-30)
+
+- handle broken symlinks when reading a directory
+
 ### 0.0.42 (2018-04-18)
 
 - Starting the debugger in launch config was totally broken. This now works again with this release.
