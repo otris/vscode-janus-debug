@@ -8,15 +8,46 @@ import * as serverVersion from './serverVersion';
 // tslint:disable-next-line:no-var-requires
 const fs = require('fs-extra');
 // tslint:disable-next-line:no-var-requires
+const simpleGit = require("simple-git");
+// tslint:disable-next-line:no-var-requires
 const execSync = require('child_process').execSync;
 
 const TYPINGS_FOLDER_DEFAULT = 'typings';
 
+/**
+ * Clones the given repository to the typings folder
+ * Note: Requires git to be installed.
+ * @todo Maybe we should switch the git module to an alternative which doesn't require git to be installed local
+ * @param typingsRepositoryUrl The URL of the repository to clone
+ */
+function cloneTypingsFolder(typingsRepositoryUrl: string) {
+    if (!vscode.workspace.workspaceFolders || vscode.workspace.workspaceFolders.length < 1) {
+        throw new Error("You need to open a workspace first");
+    }
 
+    const workspaceFolder = vscode.workspace.workspaceFolders[0].uri.fsPath;
+    const typingsFolder = path.join(workspaceFolder, TYPINGS_FOLDER_DEFAULT);
+    if (!fs.existsSync(typingsFolder)) {
+        fs.mkdirSync(typingsFolder);
+    }
 
+    // if the repository was cloned before, we need to remove it first
+    const typingsRepoFolder = path.join(typingsFolder, "typings-repository");
+    if (fs.existsSync(typingsRepoFolder)) {
+        fs.removeSync(typingsRepoFolder);
+    }
 
-
-
+    const git = simpleGit(typingsFolder);
+    return new Promise((resolve, reject) => {
+        git.clone(typingsRepositoryUrl, "typings-repository", (err?: Error) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve();
+            }
+        });
+    });
+}
 
 export async function getAllTypings(loginData: nodeDoc.ConnectionInformation, force = false) {
     vscode.window.setStatusBarMessage('Installing IntelliSense ...');
@@ -31,6 +62,14 @@ export async function getAllTypings(loginData: nodeDoc.ConnectionInformation, fo
         //
     }
 
+    const extensionSettings = vscode.workspace.getConfiguration("vscode-janus-debug");
+
+    // clone a repository with typings if the user has configured one
+    const typingsRepositoryUrl = extensionSettings.has("typingsRepository.url") ? extensionSettings.get("typingsRepository.url") as string : null;
+    if (typingsRepositoryUrl) {
+        await cloneTypingsFolder(typingsRepositoryUrl);
+    }
+
     if (force || serverRunning) {
         let version;
         if (loginData.documentsVersion && loginData.documentsVersion !== "") {
@@ -41,7 +80,8 @@ export async function getAllTypings(loginData: nodeDoc.ConnectionInformation, fo
             }
         }
 
-        if (copyPortalScriptingTSD(version)) {
+        const installPortalScripting = extensionSettings.has("typingsRepository.installPortalScripting") ? extensionSettings.get("typingsRepository.installPortalScripting", true) : true;
+        if (installPortalScripting && copyPortalScriptingTSD(version)) {
             message += ' portalScripting.d.ts';
         }
         if (copyScriptExtensionsTSD()) {

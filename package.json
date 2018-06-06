@@ -351,6 +351,21 @@
             "safari",
             "firefox"
           ]
+        },
+        "vscode-janus-debug.typingsRepository": {
+          "type": "object",
+          "description": "A repository which will be cloned to the projects typings-folder. Note: Requires git to be installed locally",
+          "properties": {
+            "url": {
+              "type": "string",
+              "description": "The URL to the repository"
+            },
+            "installPortalScripting": {
+              "type": "boolean",
+              "description": "If set to false, the default portal scripting type definitions will not be installed",
+              "default": true
+            }
+          }
         }
       }
     },
@@ -618,6 +633,7 @@
     "node-sds": "git+https://git@github.com/otris/node-sds.git#1.3.0",
     "open": "0.0.5",
     "reduce-for-promises": "^1.2.1",
+    "simple-git": "^1.95.1",
     "strip-json-comments": "^2.0.1",
     "typescript-compiler": "^1.4.1-2",
     "url-exists": "^1.0.3",
