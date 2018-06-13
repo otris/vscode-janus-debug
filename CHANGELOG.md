@@ -2,8 +2,8 @@
 
 You'll find a complete list of changes at our project site on [GitHub](https://github.com/otris/vscode-janus-debug).
 
-### 1.0.1 (2018-05-30)
-- No changes.
+### 1.0.1 (2018-06-13)
+- Ability to clone a git repository to the typings folder instead of using the local portal scripting file.
 
 ### 1.0.0 (2018-05-30)
 
