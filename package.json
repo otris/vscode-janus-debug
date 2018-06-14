@@ -341,6 +341,12 @@
             }
           }
         },
+        "vscode-janus-debug.openScriptConsoleOnRunScript": {
+          "type": "boolean",
+          "title": "Automatically open the Script Console when running a script.",
+          "default": true,
+          "description": "When set to 'true' the Script Console will be opened when the user runs a script from this extension."
+        },
         "vscode-janus-debug.browser": {
           "type": "string",
           "description": "Specifies the browser for 'View Documentation In Browser'. (Based on https://github.com/pwnall/node-open)",
@@ -614,6 +620,7 @@
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./ && node ./scripts/createVersionNumber.js",
     "watch": "tsc -watch -p ./",
+    "test": "npm run compile && mocha",
     "test": "npm run compile && mocha",
     "lint": "tslint src/*.ts test/*.ts",
     "coverage": "nyc mocha",
