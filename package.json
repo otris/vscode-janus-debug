@@ -621,7 +621,6 @@
     "compile": "tsc -p ./ && node ./scripts/createVersionNumber.js",
     "watch": "tsc -watch -p ./",
     "test": "npm run compile && mocha",
-    "test": "npm run compile && mocha",
     "lint": "tslint src/*.ts test/*.ts",
     "coverage": "nyc mocha",
     "report": "nyc report",
