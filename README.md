@@ -66,6 +66,9 @@ The following features can be influenced by settings (in `settings.json`)
 **Server Console**
 * Will be connected and disconnected automatically, if setting `autoConnect` in `vscode-janus-debug.serverConsole` is to `true`.
 
+**Script Console**
+* By default the Script Console will open, when running a script. To prevent this, you change the setting `openScriptConsoleOnRunScript` to `false`.
+
 **Auto-upload script on save**
 * Scripts can be automatically uploaded every time you save the file. The default behavior is, that you will be asked at every time you press `Ctrl + S`, if the script should be uploaded. You can specify scripts that should always or never be uploaded without asking. Or you can switch this feature off by answering `Never upload scripts automatically`. If you want to turn the feature on again later, you only have to set `vscode-janus-debug.uploadOnSaveGlobal` to `true` in your **user** settings.
 

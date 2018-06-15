@@ -194,8 +194,10 @@ export function uploadAll(loginData: nodeDoc.ConnectionInformation, paramPath: a
 
 
 function runScriptCommon(loginData: nodeDoc.ConnectionInformation, param: any, outputChannel: vscode.OutputChannel): Promise<string> {
-    return new Promise<string>(async (resolve, reject) => {
+    const extensionSettings = vscode.workspace.getConfiguration('vscode-janus-debug');
+    const openOutputChannel = extensionSettings.get('openScriptConsoleOnRunScript', true);
 
+    return new Promise<string>(async (resolve, reject) => {
         try {
             await login.ensureLoginInformation(loginData);
             let serverScriptNames;
@@ -206,7 +208,9 @@ function runScriptCommon(loginData: nodeDoc.ConnectionInformation, param: any, o
             const script = new nodeDoc.scriptT(scriptName, '');
 
             outputChannel.append(`Starting script ${scriptName} at ${getTime()}${os.EOL}`);
-            outputChannel.show();
+            if (openOutputChannel) {
+                outputChannel.show();
+            }
 
             await nodeDoc.serverSession(loginData, [script], nodeDoc.runScript);
 
@@ -215,9 +219,12 @@ function runScriptCommon(loginData: nodeDoc.ConnectionInformation, param: any, o
             if (exactVer !== loginData.documentsVersion) {
                 ver = `${exactVer} ` + ver;
             }
+
             outputChannel.append(script.output + os.EOL);
             outputChannel.append(`Script finished at ${getTime()} on ${loginData.server} ${ver}${os.EOL}`);
-            outputChannel.show();
+            if (openOutputChannel) {
+                outputChannel.show();
+            }
 
             helpers.scriptLog(script.output);
 
