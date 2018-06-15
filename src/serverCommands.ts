@@ -205,7 +205,7 @@ function runScriptCommon(loginData: nodeDoc.ConnectionInformation, param: any, o
             const scriptName = await helpers.ensureScriptName(param, serverScriptNames);
             const script = new nodeDoc.scriptT(scriptName, '');
 
-            outputChannel.append('Start script at ' + getTime() + os.EOL);
+            outputChannel.append(`Starting script ${scriptName} at ${getTime()}${os.EOL}`);
             outputChannel.show();
 
             await nodeDoc.serverSession(loginData, [script], nodeDoc.runScript);
@@ -216,7 +216,7 @@ function runScriptCommon(loginData: nodeDoc.ConnectionInformation, param: any, o
                 ver = `${exactVer} ` + ver;
             }
             outputChannel.append(script.output + os.EOL);
-            outputChannel.append(`Script finished at ` + getTime() + ` on ` + loginData.server + ` ${ver}` + os.EOL);
+            outputChannel.append(`Script finished at ${getTime()} on ${loginData.server} ${ver}${os.EOL}`);
             outputChannel.show();
 
             helpers.scriptLog(script.output);
