@@ -1,6 +1,5 @@
 import * as nodeDoc from 'node-documents-scripting';
 import { LogConfiguration, Logger } from 'node-file-log';
-import * as os from 'os';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import { provideInitialConfigurations } from './config';
@@ -13,6 +12,7 @@ import * as login from './login';
 import * as serverCommands from './serverCommands';
 import { ServerConsole } from './serverConsole';
 import { getExactVersion } from './serverVersion';
+import * as transpile from './transpile';
 import stripJsonComments = require('strip-json-comments');
 import * as version from './version';
 import * as wizard from './wizard';
@@ -329,6 +329,25 @@ export function activate(context: vscode.ExtensionContext): void {
         })
     );
 
+    // generatePortalScript
+    context.subscriptions.push(
+        vscode.commands.registerCommand('extension.vscode-janus-debug.generatePortalScript', async (param) => {
+
+            let fsPath;
+            if (param) {
+                fsPath = param._fsPath;
+            }
+            if (!fsPath && vscode.window.activeTextEditor) {
+                fsPath = vscode.window.activeTextEditor.document.fileName;
+            }
+            try {
+                await transpile.generatePortalScript(fsPath);
+            } catch (err) {
+                //
+            }
+            helpers.showWarning(loginData);
+        })
+    );
 
     // Upload all
     context.subscriptions.push(

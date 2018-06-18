@@ -377,6 +377,11 @@
     },
     "commands": [
       {
+        "command": "extension.vscode-janus-debug.generatePortalScript",
+        "title": "Generate PortalScript",
+        "category": "DOCUMENTS"
+      },
+      {
         "command": "extension.vscode-janus-debug.uploadScript",
         "title": "Upload Script",
         "category": "DOCUMENTS"
@@ -487,6 +492,11 @@
     "menus": {
       "explorer/context": [
         {
+          "command": "extension.vscode-janus-debug.generatePortalScript",
+          "when": "resourceLangId == typescript",
+          "group": "DOCUMENTS@1"
+        },
+        {
           "command": "extension.vscode-janus-debug.wizardDownloadProject",
           "when": "explorerResourceIsFolder",
           "group": "DOCUMENTS@1"
@@ -562,6 +572,11 @@
         }
       ],
       "editor/context": [
+        {
+          "command": "extension.vscode-janus-debug.generatePortalScript",
+          "when": "resourceLangId == typescript",
+          "group": "DOCUMENTS@1"
+        },
         {
           "command": "extension.vscode-janus-debug.uploadScript",
           "when": "resourceLangId == javascript",
