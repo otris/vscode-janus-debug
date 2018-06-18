@@ -6,11 +6,7 @@ import * as helpers from './helpers';
 import { getErrorMsg, getTime } from './helpers';
 import * as login from './login';
 import { getExactVersion } from './serverVersion';
-import stripJsonComments = require('strip-json-comments');
-import { scriptT } from 'node-documents-scripting';
 
-// tslint:disable-next-line:no-var-requires
-const tsc = require('typescript-compiler');
 // tslint:disable-next-line:no-var-requires
 const fs = require('fs-extra');
 
@@ -112,31 +108,6 @@ export function uploadScriptOnSave(loginData: nodeDoc.ConnectionInformation, fil
     });
 }
 
-export function uploadJSFromTS(loginData: nodeDoc.ConnectionInformation, textDocument: vscode.TextDocument): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
-
-        if (!textDocument || '.ts' !== path.extname(textDocument.fileName)) {
-            vscode.window.showErrorMessage('No active TypeScript file');
-            return resolve();
-        }
-
-        const tsname: string = textDocument.fileName;
-        const jsname: string = tsname.substr(0, tsname.length - 3) + ".js";
-        const tscargs = ['-t', 'ES5', '--out', jsname];
-        const retval = tsc.compile([textDocument.fileName], tscargs);
-        const scriptSource = retval.sources[jsname];
-        if (scriptSource) {
-            console.log("scriptSource:\n" + scriptSource);
-        }
-
-        uploadScriptCommon(loginData, jsname).then(() => {
-            resolve();
-        }).catch((reason) => {
-            reject();
-        });
-
-    });
-}
 
 /**
  * Upload all
@@ -399,7 +370,7 @@ export async function downloadScript(loginData: nodeDoc.ConnectionInformation, c
  * @param downloadFolder the folder where the scripts should be downloaded
  * @param reload set to true if called from reload, because reaload should not change any script path
  */
-export async function downloadAllCommon(loginData: nodeDoc.ConnectionInformation, inputScripts: scriptT[], downloadFolder: string, categories = false): Promise<number> {
+export async function downloadAllCommon(loginData: nodeDoc.ConnectionInformation, inputScripts: nodeDoc.scriptT[], downloadFolder: string, categories = false): Promise<number> {
     return new Promise<number>(async (resolve, reject) => {
 
         // set downloadParameters flag in script structure,
