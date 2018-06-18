@@ -643,6 +643,7 @@
     "reduce-for-promises": "^1.2.1",
     "simple-git": "^1.95.1",
     "strip-json-comments": "^2.0.1",
+    "typescript": "2.7.1",
     "url-exists": "^1.0.3",
     "uuid": "^3.0.1",
     "vsce": "^1.41.0",
@@ -658,7 +659,6 @@
     "mocha": "^2.4.5",
     "nyc": "^11.0.3",
     "tslint": "5.3.2",
-    "typescript": "2.7.1",
     "vscode": "^1.1.0",
     "vscode-debugadapter-testsupport": "^1.19.0"
   }
