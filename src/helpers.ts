@@ -988,20 +988,21 @@ export async function ensureScriptName(paramScript?: string, serverScripts: stri
  *
  * @param file Scriptname, full path.
  */
-export function getScript(file: string): nodeDoc.scriptT | string {
-    if (file && '.js' === path.extname(file)) {
-        try {
-            // todo check with fs.stat because if file looks relative readFileSync
-            // tries to read it from C:\Program Files (x86)\Microsoft VS Code\file
-            const name = path.basename(file, '.js');
-            const scriptpath = file;
-            const localCode = fs.readFileSync(file, 'utf8');
-            return new nodeDoc.scriptT(name, scriptpath, localCode);
-        } catch (err) {
-            return err;
-        }
-    } else {
-        return 'only javascript files allowed';
+function getScript(file: string, extname: '.js' | '.ts' = '.js'): nodeDoc.scriptT | string {
+    if (!file || extname !== path.extname(file)) {
+        const lang = extname === '.js' ? 'javascript' : 'typescript';
+        return `only ${lang} files allowed`;
+    }
+    if (!fs.existsSync(file)) {
+        return `file ${file} does not exist`;
+    }
+    try {
+        const name = path.basename(file, extname);
+        const scriptpath = file;
+        const localCode = fs.readFileSync(file, 'utf8');
+        return new nodeDoc.scriptT(name, scriptpath, localCode);
+    } catch (err) {
+        return err;
     }
 }
 
@@ -1011,22 +1012,21 @@ export function getScript(file: string): nodeDoc.scriptT | string {
  *
  * @param param path to script or textdocument of script
  */
-export async function ensureScript(param?: string | vscode.TextDocument): Promise<nodeDoc.scriptT> {
+export async function ensureScript(param?: string | vscode.TextDocument, extname: '.js' | '.ts' = '.js'): Promise<nodeDoc.scriptT> {
     return new Promise<nodeDoc.scriptT>((resolve, reject) => {
 
         if (param) {
-            if (typeof param === 'string') {
-                // param: path to script
-                const retscript = getScript(param);
+            if (typeof param === 'string') { // param: path to script
+                const retscript = getScript(param, extname);
                 if (retscript instanceof nodeDoc.scriptT) {
-                    resolve(retscript);
+                    return resolve(retscript);
                 } else {
-                    reject(retscript);
+                    return reject(retscript);
                 }
 
             } else { // param: vscode.TextDocument
-                const ret: nodeDoc.scriptT = new nodeDoc.scriptT(path.basename(param.fileName, '.js'), param.fileName, param.getText());
-                resolve(ret);
+                const ret: nodeDoc.scriptT = new nodeDoc.scriptT(path.basename(param.fileName, extname), param.fileName, param.getText());
+                return resolve(ret);
             }
         } else {
             let activeScript = '';
@@ -1042,12 +1042,12 @@ export async function ensureScript(param?: string | vscode.TextDocument): Promis
                 if (_scriptname) {
                     const retscript = getScript(_scriptname);
                     if (retscript instanceof nodeDoc.scriptT) {
-                        resolve(retscript);
+                        return resolve(retscript);
                     } else {
-                        reject(retscript);
+                        return reject(retscript);
                     }
                 } else {
-                    reject('no scriptname');
+                    return reject('no scriptname');
                 }
             });
 
