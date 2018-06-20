@@ -177,6 +177,30 @@
 *   util.out(office.getLastError());
 **/
 /**
+* @memberof AccessProfile
+* @function setParentProfile
+* @instance
+* @summary Set the parent profile of the current profile. 
+* @param {AccessProfile} parentProfile optional AccessProfile object being the parent profile of the current profile. If no parent profile is defined, the current profile will be moved to the top level. 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
+* @since DOCUMENTS 5.0d
+* @example
+* var parentProfile = context.createAccessProfile("parentProfile");
+* if (parentProfile)
+* {
+*   var subProfile = context.createAccessProfile("subProfile");
+*   if (subProfile)
+*   {
+*       var success = subProfile.setParentProfile(parentProfile);
+*       if (!success)
+*           util.out(subProfile.getLastError());
+* 
+*       // We can move subProfile to the top level as follows:
+*       success = subProfile.setParentProfile();
+*   }
+* }
+**/
+/**
 * @interface AccessProfileIterator
 * @summary The AccessProfileIterator class has been added to the DOCUMENTS PortalScripting API to gain full access to the DOCUMENTS access profiles by scripting means. 
 * @description The objects of this class represent lists of AccessProfile objects and allow to loop through such a list of profiles. The following methods return an AccessProfileIterator: Context.getAccessProfiles(), SystemUser.getAccessProfiles(). 
@@ -817,14 +841,14 @@
 * @classdesc The ArchivingDescription class has been added to the DOCUMENTS PortalScripting API to improve the archiving process of DOCUMENTS files by scripting means. 
 * For instance this allows to use different target archives for each file as well as to influence the archiving process by the file's contents itself. The ArchivingDescription object can only be used as parameter for the method DocFile.archive(ArchivingDescription)
 * Note: By default, archiving with an ArchivingDescription does not include any attachments. To archive some attachments, the script needs to call addRegister() on this object. 
-* Since EE.x: ELC 3.60a / otrisPORTAL 6a 
-* Since EAS: ELC 4 / otrisPORTAL 7 
+* Since EE.x: ELC 3.60a / otrisPORTAL 6.0a 
+* Since EAS: ELC 4.0 / otrisPORTAL 7 
 * @since EE.i: ELC 3.51c / otrisPORTAL 5.1c 
 * @summary Create a new ArchivingDescription object. 
 * @description Like in other programming languages you create a new object with the <code>new</code> operator (refer to example below). 
 * Since EE.i: ELC 3.51c / otrisPORTAL 5.1c 
-* Since EE.x: ELC 3.60a / otrisPORTAL 6a 
-* Since EAS: ELC 4 / otrisPORTAL 7
+* Since EE.x: ELC 3.60a / otrisPORTAL 6.0a 
+* Since EAS: ELC 4.0 / otrisPORTAL 7
 * @see [DocFile.archive]{@link DocFile#archive} 
 * @example
 * // Example for EE.i:
@@ -881,8 +905,8 @@
 * @memberof ArchivingDescription
 * @summary boolean value whether to archive the monitor of the file. 
 * @description Like on the filetype in the Portal Client you may decide whether you want to archive the monitor of the file along with the file. If so, the file's monitor will be transformed to a HTML file named monitor.html, and it will be part of the archived file in the desired target archive. 
-* Since EE.x: ELC 3.60a / otrisPORTAL 6a 
-* Since EAS: ELC 4 / otrisPORTAL 7
+* Since EE.x: ELC 3.60a / otrisPORTAL 6.0a 
+* Since EAS: ELC 4.0 / otrisPORTAL 7
 * @member {boolean} archiveMonitor
 * @instance
 * @since EE.i: ELC 3.51c / otrisPORTAL 5.1c 
@@ -896,11 +920,9 @@
 * @description You need to define the archive server if you want to archive in an archive server that is different from the main archives server. If you want to archive into the main archive you can leave this value empty.
 * 
 * Note: This value has only to be set if you habe multiple archive servers 
-* Since EE.x: ELC 4 / otrisPORTAL 7 
-* Since EAS: ELC 4 / otrisPORTAL 7
 * @member {string} archiveServer
 * @instance
-* @since EE.i: ELC 4 / otrisPORTAL 7 
+* @since ELC 4.0 / otrisPORTAL 7 (EE.i, EE.x, EAS)
 * @example
 * var ad = new ArchivingDescription();
 * ad.archiveServer = "myeei"";
@@ -909,8 +931,8 @@
 * @memberof ArchivingDescription
 * @summary boolean value whether to archive the status of the file. 
 * @description Like on the filetype in the Portal Client you may decide whether you want to archive the status of the file along with the file. If so, the file's status will be transformed to a HTML file named status.html, and it will be part of the archived file in the desired target archive. 
-* Since EE.x: ELC 3.60a / otrisPORTAL 6a 
-* Since EAS: ELC 4 / otrisPORTAL 7
+* Since EE.x: ELC 3.60a / otrisPORTAL 6.0a 
+* Since EAS: ELC 4.0 / otrisPORTAL 7
 * @member {boolean} archiveStatus
 * @instance
 * @since EE.i: ELC 3.51c / otrisPORTAL 5.1c 
@@ -937,7 +959,7 @@
 * Note: This value has only to be set if you want to archive to EE.x. 
 * @member {string} targetSchema
 * @instance
-* @since EE.x: ELC 3.60a / otrisPORTAL 6a
+* @since ELC 3.60a / otrisPORTAL 6.0a
 * @example
 * var ad = new ArchivingDescription();
 * ad.targetView = "Unit=Default/Instance=Default/DocumentSchema=LIEFERSCHEINE";
@@ -949,7 +971,7 @@
 * Note: This value has only to be set if you want to archive to EE.x. 
 * @member {string} targetView
 * @instance
-* @since EE.x: ELC 3.60a / otrisPORTAL 6a
+* @since ELC 3.60a / otrisPORTAL 6.0a
 * @example
 * var ad = new ArchivingDescription();
 * ad.targetView = "Unit=Default/Instance=Default/View=DeliveryNotes";
@@ -958,8 +980,8 @@
 * @memberof ArchivingDescription
 * @summary boolean value whether to use the versioning technique in the archive. 
 * @description If the DocFile has already been archived and if you define this attribute to be true, a new version of the archive file will be created otherwise a independent new file in the archive will be created. 
-* Since EE.x: ELC 3.60a / otrisPORTAL 6a 
-* Since EAS: ELC 4 / otrisPORTAL 7
+* Since EE.x: ELC 3.60a / otrisPORTAL 6.0a 
+* Since EAS: ELC 4.0 / otrisPORTAL 7
 * @member {boolean} versioning
 * @instance
 * @since EE.i: ELC 3.51c / otrisPORTAL 5.1c 
@@ -973,8 +995,8 @@
 * @instance
 * @summary flag an additional (document) register to be archived with the file. 
 * @description You may add the technical names of different document registers to an internal list of your ArchivingDescription object. This allows for example to archive only part of your documents of your DocFile. 
-* Since EE.x: ELC 3.60a / otrisPORTAL 6a 
-* Since EAS: ELC 4 / otrisPORTAL 7
+* Since EE.x: ELC 3.60a / otrisPORTAL 6.0a 
+* Since EAS: ELC 4.0 / otrisPORTAL 7
 * @param {string} registerName String containing the technical name of the register to be archived. Pass "all_docs" to archive all attachments of your DocFile. 
 * @returns {void} 
 * @since EE.i: ELC 3.51c / otrisPORTAL 5.1c 
@@ -1000,7 +1022,8 @@
 
 
 * @instance 
-* @constant {number} PEM_MODULE_INVOICE
+* @member {number} PEM_MODULE_INVOICE
+* @readonly
 * @since DOCUMENTS 5.0c HF2 
 
 * @see [context.hasPEMModule]{@link context#hasPEMModule} 
@@ -1014,7 +1037,8 @@
 
 
 * @instance 
-* @constant {number} PEM_MODULE_FP_HENR
+* @member {number} PEM_MODULE_FP_HENR
+* @readonly
 * @since DOCUMENTS 5.0c HF2 
 
 * @see [context.hasPEMModule]{@link context#hasPEMModule} 
@@ -1028,7 +1052,8 @@
 
 
 * @instance 
-* @constant {number} PEM_MODULE_LDAP
+* @member {number} PEM_MODULE_LDAP
+* @readonly
 * @since DOCUMENTS 5.0c HF2 
 
 * @see [context.hasPEMModule]{@link context#hasPEMModule} 
@@ -1042,7 +1067,8 @@
 
 
 * @instance 
-* @constant {number} PEM_MODULE_CONTRACT
+* @member {number} PEM_MODULE_CONTRACT
+* @readonly
 * @since DOCUMENTS 5.0c HF2 
 
 * @see [context.hasPEMModule]{@link context#hasPEMModule} 
@@ -1056,7 +1082,8 @@
 
 
 * @instance 
-* @constant {number} PEM_MODULE_OUTLOOK_WEB
+* @member {number} PEM_MODULE_OUTLOOK_WEB
+* @readonly
 * @since DOCUMENTS 5.0c HF2 
 
 * @see [context.hasPEMModule]{@link context#hasPEMModule} 
@@ -1070,7 +1097,8 @@
 
 
 * @instance 
-* @constant {number} PEM_MODULE_OUTLOOK_SYNC
+* @member {number} PEM_MODULE_OUTLOOK_SYNC
+* @readonly
 * @since DOCUMENTS 5.0c HF2 
 
 * @see [context.hasPEMModule]{@link context#hasPEMModule} 
@@ -1084,7 +1112,8 @@
 
 
 * @instance 
-* @constant {number} PEM_MODULE_WORDML
+* @member {number} PEM_MODULE_WORDML
+* @readonly
 * @since DOCUMENTS 5.0c HF2 
 
 * @see [context.hasPEMModule]{@link context#hasPEMModule} 
@@ -1098,7 +1127,8 @@
 
 
 * @instance 
-* @constant {number} PEM_MODULE_MOBILE
+* @member {number} PEM_MODULE_MOBILE
+* @readonly
 * @since DOCUMENTS 5.0c HF2 
 
 * @see [context.hasPEMModule]{@link context#hasPEMModule} 
@@ -1112,7 +1142,8 @@
 
 
 * @instance 
-* @constant {number} PEM_MODULE_BUSINESS_UNITS
+* @member {number} PEM_MODULE_BUSINESS_UNITS
+* @readonly
 * @since DOCUMENTS 5.0c HF2 
 
 * @see [context.hasPEMModule]{@link context#hasPEMModule} 
@@ -1126,7 +1157,8 @@
 
 
 * @instance 
-* @constant {number} PEM_MODULE_CONTROLLING
+* @member {number} PEM_MODULE_CONTROLLING
+* @readonly
 * @since DOCUMENTS 5.0c HF2 
 
 * @see [context.hasPEMModule]{@link context#hasPEMModule} 
@@ -1140,7 +1172,8 @@
 
 
 * @instance 
-* @constant {number} PEM_MODULE_REPORTING
+* @member {number} PEM_MODULE_REPORTING
+* @readonly
 * @since DOCUMENTS 5.0c HF2 
 
 * @see [context.hasPEMModule]{@link context#hasPEMModule} 
@@ -1154,7 +1187,8 @@
 
 
 * @instance 
-* @constant {number} PEM_MODULE_EASYHR
+* @member {number} PEM_MODULE_EASYHR
+* @readonly
 * @since DOCUMENTS 5.0c HF2 
 
 * @see [context.hasPEMModule]{@link context#hasPEMModule} 
@@ -1168,7 +1202,8 @@
 
 
 * @instance 
-* @constant {number} PEM_MODULE_CONTRACT_SAP
+* @member {number} PEM_MODULE_CONTRACT_SAP
+* @readonly
 * @since DOCUMENTS 5.0c HF2 
 
 * @see [context.hasPEMModule]{@link context#hasPEMModule} 
@@ -1182,7 +1217,8 @@
 
 
 * @instance 
-* @constant {number} PEM_MODULE_GADGETS
+* @member {number} PEM_MODULE_GADGETS
+* @readonly
 * @since DOCUMENTS 5.0c HF2 
 
 * @see [context.hasPEMModule]{@link context#hasPEMModule} 
@@ -1196,7 +1232,8 @@
 
 
 * @instance 
-* @constant {number} PEM_MODULE_INBOX
+* @member {number} PEM_MODULE_INBOX
+* @readonly
 * @since DOCUMENTS 5.0c HF2 
 
 * @see [context.hasPEMModule]{@link context#hasPEMModule} 
@@ -1210,7 +1247,8 @@
 
 
 * @instance 
-* @constant {number} PEM_MODULE_IMS
+* @member {number} PEM_MODULE_IMS
+* @readonly
 * @since DOCUMENTS 5.0c HF2 
 
 * @see [context.hasPEMModule]{@link context#hasPEMModule} 
@@ -1224,7 +1262,8 @@
 
 
 * @instance 
-* @constant {number} PEM_MODULE_CGC
+* @member {number} PEM_MODULE_CGC
+* @readonly
 * @since DOCUMENTS 5.0c HF2 
 
 * @see [context.hasPEMModule]{@link context#hasPEMModule} 
@@ -1238,7 +1277,8 @@
 
 
 * @instance 
-* @constant {number} PEM_MODULE_CGC_ENT
+* @member {number} PEM_MODULE_CGC_ENT
+* @readonly
 * @since DOCUMENTS 5.0c HF2 
 
 * @see [context.hasPEMModule]{@link context#hasPEMModule} 
@@ -1252,7 +1292,8 @@
 
 
 * @instance 
-* @constant {number} PEM_MODULE_CGC_ENT_PLUS
+* @member {number} PEM_MODULE_CGC_ENT_PLUS
+* @readonly
 * @since DOCUMENTS 5.0c HF2 
 
 * @see [context.hasPEMModule]{@link context#hasPEMModule} 
@@ -1266,7 +1307,8 @@
 
 
 * @instance 
-* @constant {number} PEM_MODULE_CREATOR
+* @member {number} PEM_MODULE_CREATOR
+* @readonly
 * @since DOCUMENTS 5.0c HF2 
 
 * @see [context.hasPEMModule]{@link context#hasPEMModule} 
@@ -1280,7 +1322,8 @@
 
 
 * @instance 
-* @constant {number} PEM_MODULE_DOC_TREE
+* @member {number} PEM_MODULE_DOC_TREE
+* @readonly
 * @since DOCUMENTS 5.0c HF2 
 
 * @see [context.hasPEMModule]{@link context#hasPEMModule} 
@@ -1294,7 +1337,23 @@
 
 
 * @instance 
-* @constant {number} PEM_MODULE_RISK_MANAGEMENT
+* @member {number} PEM_MODULE_RISK_MANAGEMENT
+* @readonly
+* @since DOCUMENTS 5.0c HF2 
+
+* @see [context.hasPEMModule]{@link context#hasPEMModule} 
+
+*/
+/**
+* @memberof context
+* @description 
+* <br> This constant is member of constant group: PEM Module Constants<br>
+* These constants build an enumeration of the possible values of the pem license. 
+
+
+* @instance 
+* @member {number} PEM_MODULE_MOBILE_APP
+* @readonly
 * @since DOCUMENTS 5.0c HF2 
 
 * @see [context.hasPEMModule]{@link context#hasPEMModule} 
@@ -1386,8 +1445,9 @@
 **/
 /**
 * @memberof context
-* @summary Returns at an enumeration script the name of the field where the script is executed for. 
-* @description 
+* @summary Returns in an enumeration script the name of the field where the script is executed for. 
+* @description If the script is an enumeration script, this member contains the field name of the current field where the script is executed. This is particularly helpful when the script is set at more than one enumeration field and the behaviour of the script should depend on the field.
+* 
 * Note: This property is readonly. 
 * @member {string} fieldName
 * @instance
@@ -1415,6 +1475,17 @@
 * @see [context.file]{@link context#file} 
 * @example
 * util.out(context.fileType);
+**/
+/**
+* @memberof context
+* @summary Current folder in which context the script is running. 
+* @description 
+* Note: This property is readonly. 
+* @member {Folder} folder
+* @instance
+* @since DOCUMENTS 5.0d
+* @example
+* var folder = context.folderFiles;
 **/
 /**
 * @memberof context
@@ -2018,6 +2089,36 @@
 **/
 /**
 * @memberof context
+* @function enableModules
+* @instance
+* @summary Allow dynamic imports of other scripts as modules. 
+* @description This function defines a function named <code>require()</code>, either in a passed object or in the global scope of the calling script. In sequence <code>require</code>('<scriptname>') can be used to import other portal scripts, which are implemented in the style of Node.js modules. 
+* Note: Only top-level scripts should call enableModules() and they should call it only once. Scripts loaded by require() always see the function as a global parameter. DOCUMENTS exposes a generic 'module' and an initially empty 'exports' object to each imported script. Other features of the module concept of Node.js are not available. 
+* @param {Object} root An optional Object to define the require() function as a property. Use this parameter, if the name "require" is already reserved in the script's global namespace. 
+* @returns {void} undefined. 
+* @since DOCUMENTS 5.0d
+* @example
+* // The main script
+* context.enableModules();
+* var mymath = require('MyMath');
+* var test = mymath.square(42);
+* util.out("square(42) is " + test);
+* // End of main script
+* 
+* 
+* // The 'MyMath' module script
+* // "module.exports" is initially an empty object.
+* // require() will return whatever the script places here.
+* //
+* // "exports" is a shortcut reference to "module.exports".
+* // This works as long as only properties need to be added.
+* // Directly assigning a new value to "exports" or
+* // "module.exports" would break the reference.
+* exports.square = function(x) { return x*x; };
+* // End of module script
+**/
+/**
+* @memberof context
 * @function extCall
 * @instance
 * @summary Perform an external command shell call on the Portalserver. 
@@ -2616,6 +2717,16 @@
 * {
 *    util.out(su.login);
 * }
+**/
+/**
+* @memberof context
+* @function getTempPathByToken
+* @instance
+* @summary Returns the temporary server path, that was ordered by the gadget API for the token. 
+* @param {string} accessToken String value with the token 
+* @param {boolean} [dropToken] Optional Boolean value that indicates the server to forget the token 
+* @returns {string} String with temporary path or Emptystring if accessToken is unknown 
+* @since DOCUMENTS 5.0d 
 **/
 /**
 * @memberof context
@@ -3693,6 +3804,25 @@
 **/
 /**
 * @memberof DocFile
+* @function asJSON
+* @instance
+* @summary Creates a JSON-String of this file. 
+* @description 
+* Available DocFile attributes: 
+* <ul>
+* <li><code>"DlcFile_Title"</code></li>
+* <li><code>"DlcFile_Owner"</code></li>
+* <li><code>"DlcFile_Created"</code></li>
+* <li><code>"DlcFile_LastEditor"</code></li>
+* <li><code>"DlcFile_LastModified"</code>undefinedundefinedundefinedundefinedundefined</li>
+* </ul>
+* 
+* @param {string[]} [fieldList] optional String array, that specifies the DocFile attributes and field names, that will be part of JSON export
+* @returns {string} 
+
+**/
+/**
+* @memberof DocFile
 * @function cancelWorkflow
 * @instance
 * @summary Cancel the current workflow for the file. 
@@ -3824,12 +3954,15 @@
 * @description If there's another PortalScript attached to the onDelete scripting hook, it will be executed right before the deletion takes place. 
 * Note: It is strictly forbidden to access the DocFile object after this function has been executed successfully; if you try to access it, your script will fail, because the DocFile does not exist any longer in DOCUMENTS. For the same reason it is strictly forbidden to execute this function in a signal exit PortalScript. 
 * Note: The parameters moveTrash, movePool are ignored for archive files. The parameter allVersions requires an EAS/EDA file and is ignored otherwise.
+* Since ELC 3.50n / otrisPORTAL 5.0n (moveTrash parameter) 
+* Since ELC 3.51f / otrisPORTAL 5.1f (movePool parameter) 
 * Since DOCUMENTS 4.0a HF1 (available for archive files) 
+* Since DOCUMENTS 4.0e (all versions) 
 * @param {boolean} [moveTrash] optional boolean parameter to decide whether to move the deleted file to the trash folder 
 * @param {boolean} [movePool] optional boolean parameter to decide whether to move the deleted file's object to the file pool 
 * @param {boolean} [allVersions] optional boolean parameter to delete all versions of an EAS archive file at once. 
 * @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
-* @since ELC 3.50 / otrisPORTAL 5.0 (moveTrash parameter since ELC 3.50n / otrisPORTAL 5.0n, movePool parameter since ELC 3.51f / otrisPORTAL 5.1f, allVersions since DOCUMENTS 4.0e) 
+* @since ELC 3.50 / otrisPORTAL 5.0 
 * @example
 * var myFile = context.file;
 * myFile.deleteFile(false, true);
@@ -3895,6 +4028,16 @@
 * var step = docFile.getCurrentWorkflowStep();
 * var flowId = step.firstControlFlow;
 * docFile.forwardFile(flowId);
+**/
+/**
+* @memberof DocFile
+* @function fromJSON
+* @instance
+* @summary Updates a file from a JSON-String. 
+* @param {string} jsonstring 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error. 
+* @since DOCUMENTS 5.0 HF1 
+* @see [DocFile.asJSON]{@link DocFile#asJSON} 
 **/
 /**
 * @memberof DocFile
@@ -4068,6 +4211,14 @@
 * // still no workflow steps found? File not in workflow
 * if (!step)
 *    util.out("File is not in a workflow");
+**/
+/**
+* @memberof DocFile
+* @function getDocFileComment
+* @instance
+* @summary Returns the comment value for a DocFile. 
+* @returns {DocFileDataField} <code>DocFileDataField</code> object or <code>null</code>. 
+* @since DOCUMENTS 5.0d 
 **/
 /**
 * @memberof DocFile
@@ -4292,7 +4443,7 @@
 * @summary Get the orginal file for a scratch copy. 
 * @description If you run a scipt on a scratch copy (e.g. a onSave script), you can get the orginal file with this function. 
 * @returns {DocFile} DocFile
-* @since EAS: DOCUMENTS 4.0
+* @since DOCUMENTS 4.0 (EAS)
 * @example
 * var scratchCopy = context.file;
 * var origFile = scratchCopy.getOriginal();
@@ -4752,6 +4903,64 @@
 * }
 **/
 /**
+* @interface DocFileDataField
+* @summary The JS_DocFileDataField class represents the special comment field at the DocFile. 
+* @since DOCUMENTS 5.0d 
+*/
+/**
+* @memberof DocFileDataField
+* @summary Hash value of the last field value. 
+* @member {string} hash
+* @instance
+* @since DOCUMENTS 5.0d 
+**/
+/**
+* @memberof DocFileDataField
+* @summary Name of the field. 
+* @member {string} name
+* @instance
+* @since DOCUMENTS 5.0d 
+**/
+/**
+* @memberof DocFileDataField
+* @summary Access-right to read the field. 
+* @member {string} readAccess
+* @instance
+* @since DOCUMENTS 5.0d 
+**/
+/**
+* @memberof DocFileDataField
+* @summary Access-right to write the field. 
+* @member {string} writeAccess
+* @instance
+* @since DOCUMENTS 5.0d 
+**/
+/**
+* @memberof DocFileDataField
+* @function getLastError
+* @instance
+* @summary If you call a method at a DocFileDataField object and an error occurred, you can get the error description with this function. 
+* @returns {string} Text of the last error as String 
+* @since DOCUMENTS 5.0d 
+**/
+/**
+* @memberof DocFileDataField
+* @function getValue
+* @instance
+* @summary Get the comment as String. 
+* @returns {string} String containing the comment 
+* @since DOCUMENTS 5.0d 
+**/
+/**
+* @memberof DocFileDataField
+* @function setValue
+* @instance
+* @summary Set the comment as String. 
+* @param {string} value String containing the new comment 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
+* @since DOCUMENTS 5.0d 
+**/
+/**
 * @interface DocHit
 * @summary The DocHit class presents the hit object collected by a HitResultset. 
 * @description Objects of this class cannot be created directly. You may access a single DocHit by creating a HitResultset, which provides functions to retrieve its hit entries. 
@@ -5088,7 +5297,8 @@
 * <br> This constant is member of constant group: Request Type Constants<br>
 * These constants are equally available in each instance of DocQueryParams and in the constructor object. 
 * @instance 
-* @constant {number} DIRECT
+* @member {number} DIRECT
+* @readonly
 
 
 */
@@ -5099,7 +5309,8 @@
 * <br> This constant is member of constant group: Request Type Constants<br>
 * These constants are equally available in each instance of DocQueryParams and in the constructor object. 
 * @instance 
-* @constant {number} EXTENDED
+* @member {number} EXTENDED
+* @readonly
 
 
 */
@@ -5110,7 +5321,8 @@
 * <br> This constant is member of constant group: Request Type Constants<br>
 * These constants are equally available in each instance of DocQueryParams and in the constructor object. 
 * @instance 
-* @constant {number} FOLDER_S
+* @member {number} FOLDER_S
+* @readonly
 
 
 */
@@ -5121,7 +5333,8 @@
 * <br> This constant is member of constant group: Request Type Constants<br>
 * These constants are equally available in each instance of DocQueryParams and in the constructor object. 
 * @instance 
-* @constant {number} FOLDER_D
+* @member {number} FOLDER_D
+* @readonly
 
 
 */
@@ -5132,7 +5345,8 @@
 * <br> This constant is member of constant group: Request Type Constants<br>
 * These constants are equally available in each instance of DocQueryParams and in the constructor object. 
 * @instance 
-* @constant {number} REGISTER
+* @member {number} REGISTER
+* @readonly
 
 
 */
@@ -5143,7 +5357,8 @@
 * <br> This constant is member of constant group: Request Type Constants<br>
 * These constants are equally available in each instance of DocQueryParams and in the constructor object. 
 * @instance 
-* @constant {number} REFERENCE
+* @member {number} REFERENCE
+* @readonly
 
 
 */
@@ -5154,7 +5369,8 @@
 * <br> This constant is member of constant group: Request Type Constants<br>
 * These constants are equally available in each instance of DocQueryParams and in the constructor object. 
 * @instance 
-* @constant {number} API
+* @member {number} API
+* @readonly
 
 
 */
@@ -5165,7 +5381,8 @@
 * <br> This constant is member of constant group: Request Type Constants<br>
 * These constants are equally available in each instance of DocQueryParams and in the constructor object. 
 * @instance 
-* @constant {number} FILING_PLAN
+* @member {number} FILING_PLAN
+* @readonly
 
 
 */
@@ -5177,7 +5394,8 @@
 * <br> This constant is member of constant group: Request Type Constants<br>
 * These constants are equally available in each instance of DocQueryParams and in the constructor object. 
 * @instance 
-* @constant {number} QUICK_VIEW
+* @member {number} QUICK_VIEW
+* @readonly
 
 
 */
@@ -5188,7 +5406,8 @@
 * <br> This constant is member of constant group: Request Type Constants<br>
 * These constants are equally available in each instance of DocQueryParams and in the constructor object. 
 * @instance 
-* @constant {number} SCRIPT_TREE
+* @member {number} SCRIPT_TREE
+* @readonly
 
 
 */
@@ -5968,7 +6187,8 @@
 * <br> This constant is member of constant group: Error Code Constants<br>
 * All these constants are also available as properties of the constructor.
 * @instance 
-* @constant {number} INDEX_SIZE_ERR
+* @member {number} INDEX_SIZE_ERR
+* @readonly
 * @since DOCUMENTS 4.0c 
 
 
@@ -5980,7 +6200,8 @@
 * <br> This constant is member of constant group: Error Code Constants<br>
 * All these constants are also available as properties of the constructor.
 * @instance 
-* @constant {number} DOMSTRING_SIZE_ERR
+* @member {number} DOMSTRING_SIZE_ERR
+* @readonly
 * @since DOCUMENTS 4.0c 
 
 
@@ -5992,7 +6213,8 @@
 * <br> This constant is member of constant group: Error Code Constants<br>
 * All these constants are also available as properties of the constructor.
 * @instance 
-* @constant {number} HIERARCHY_REQUEST_ERR
+* @member {number} HIERARCHY_REQUEST_ERR
+* @readonly
 * @since DOCUMENTS 4.0c 
 
 
@@ -6004,7 +6226,8 @@
 * <br> This constant is member of constant group: Error Code Constants<br>
 * All these constants are also available as properties of the constructor.
 * @instance 
-* @constant {number} WRONG_DOCUMENT_ERR
+* @member {number} WRONG_DOCUMENT_ERR
+* @readonly
 * @since DOCUMENTS 4.0c 
 
 
@@ -6016,7 +6239,8 @@
 * <br> This constant is member of constant group: Error Code Constants<br>
 * All these constants are also available as properties of the constructor.
 * @instance 
-* @constant {number} INVALID_CHARACTER_ERR
+* @member {number} INVALID_CHARACTER_ERR
+* @readonly
 * @since DOCUMENTS 4.0c 
 
 
@@ -6028,7 +6252,8 @@
 * <br> This constant is member of constant group: Error Code Constants<br>
 * All these constants are also available as properties of the constructor.
 * @instance 
-* @constant {number} NO_DATA_ALLOWED_ERR
+* @member {number} NO_DATA_ALLOWED_ERR
+* @readonly
 * @since DOCUMENTS 4.0c 
 
 
@@ -6040,7 +6265,8 @@
 * <br> This constant is member of constant group: Error Code Constants<br>
 * All these constants are also available as properties of the constructor.
 * @instance 
-* @constant {number} NO_MODIFICATION_ALLOWED_ERR
+* @member {number} NO_MODIFICATION_ALLOWED_ERR
+* @readonly
 * @since DOCUMENTS 4.0c 
 
 
@@ -6052,7 +6278,8 @@
 * <br> This constant is member of constant group: Error Code Constants<br>
 * All these constants are also available as properties of the constructor.
 * @instance 
-* @constant {number} NOT_FOUND_ERR
+* @member {number} NOT_FOUND_ERR
+* @readonly
 * @since DOCUMENTS 4.0c 
 
 
@@ -6064,7 +6291,8 @@
 * <br> This constant is member of constant group: Error Code Constants<br>
 * All these constants are also available as properties of the constructor.
 * @instance 
-* @constant {number} NOT_SUPPORTED_ERR
+* @member {number} NOT_SUPPORTED_ERR
+* @readonly
 * @since DOCUMENTS 4.0c 
 
 
@@ -6076,7 +6304,8 @@
 * <br> This constant is member of constant group: Error Code Constants<br>
 * All these constants are also available as properties of the constructor.
 * @instance 
-* @constant {number} INUSE_ATTRIBUTE_ERR
+* @member {number} INUSE_ATTRIBUTE_ERR
+* @readonly
 * @since DOCUMENTS 4.0c 
 
 
@@ -6088,7 +6317,8 @@
 * <br> This constant is member of constant group: Error Code Constants<br>
 * All these constants are also available as properties of the constructor.
 * @instance 
-* @constant {number} INVALID_STATE_ERR
+* @member {number} INVALID_STATE_ERR
+* @readonly
 * @since DOCUMENTS 4.0c 
 
 
@@ -6100,7 +6330,8 @@
 * <br> This constant is member of constant group: Error Code Constants<br>
 * All these constants are also available as properties of the constructor.
 * @instance 
-* @constant {number} SYNTAX_ERR
+* @member {number} SYNTAX_ERR
+* @readonly
 * @since DOCUMENTS 4.0c 
 
 
@@ -6112,7 +6343,8 @@
 * <br> This constant is member of constant group: Error Code Constants<br>
 * All these constants are also available as properties of the constructor.
 * @instance 
-* @constant {number} INVALID_MODIFICATION_ERR
+* @member {number} INVALID_MODIFICATION_ERR
+* @readonly
 * @since DOCUMENTS 4.0c 
 
 
@@ -6124,7 +6356,8 @@
 * <br> This constant is member of constant group: Error Code Constants<br>
 * All these constants are also available as properties of the constructor.
 * @instance 
-* @constant {number} NAMESPACE_ERR
+* @member {number} NAMESPACE_ERR
+* @readonly
 * @since DOCUMENTS 4.0c 
 
 
@@ -6136,7 +6369,8 @@
 * <br> This constant is member of constant group: Error Code Constants<br>
 * All these constants are also available as properties of the constructor.
 * @instance 
-* @constant {number} INVALID_ACCESS_ERR
+* @member {number} INVALID_ACCESS_ERR
+* @readonly
 * @since DOCUMENTS 4.0c 
 
 
@@ -6148,7 +6382,8 @@
 * <br> This constant is member of constant group: Error Code Constants<br>
 * All these constants are also available as properties of the constructor.
 * @instance 
-* @constant {number} VALIDATION_ERR
+* @member {number} VALIDATION_ERR
+* @readonly
 * @since DOCUMENTS 4.0c 
 
 
@@ -6241,7 +6476,8 @@
 * <br> This constant is member of constant group: Node Type Constants<br>
 * These constants build an enumeration of the possible values of the property nodeType. The constants are also properties of the constructor, so it is possible to read them in the style . 
 * @instance 
-* @constant {number} ELEMENT_NODE
+* @member {number} ELEMENT_NODE
+* @readonly
 
 
 */
@@ -6252,7 +6488,8 @@
 * <br> This constant is member of constant group: Node Type Constants<br>
 * These constants build an enumeration of the possible values of the property nodeType. The constants are also properties of the constructor, so it is possible to read them in the style . 
 * @instance 
-* @constant {number} ATTRIBUTE_NODE
+* @member {number} ATTRIBUTE_NODE
+* @readonly
 
 
 */
@@ -6263,7 +6500,8 @@
 * <br> This constant is member of constant group: Node Type Constants<br>
 * These constants build an enumeration of the possible values of the property nodeType. The constants are also properties of the constructor, so it is possible to read them in the style . 
 * @instance 
-* @constant {number} TEXT_NODE
+* @member {number} TEXT_NODE
+* @readonly
 
 
 */
@@ -6274,7 +6512,8 @@
 * <br> This constant is member of constant group: Node Type Constants<br>
 * These constants build an enumeration of the possible values of the property nodeType. The constants are also properties of the constructor, so it is possible to read them in the style . 
 * @instance 
-* @constant {number} CDATA_SECTION_NODE
+* @member {number} CDATA_SECTION_NODE
+* @readonly
 
 
 */
@@ -6285,7 +6524,8 @@
 * <br> This constant is member of constant group: Node Type Constants<br>
 * These constants build an enumeration of the possible values of the property nodeType. The constants are also properties of the constructor, so it is possible to read them in the style . 
 * @instance 
-* @constant {number} ENTITY_REFERENCE_NODE
+* @member {number} ENTITY_REFERENCE_NODE
+* @readonly
 
 
 */
@@ -6296,7 +6536,8 @@
 * <br> This constant is member of constant group: Node Type Constants<br>
 * These constants build an enumeration of the possible values of the property nodeType. The constants are also properties of the constructor, so it is possible to read them in the style . 
 * @instance 
-* @constant {number} ENTITY_NODE
+* @member {number} ENTITY_NODE
+* @readonly
 
 
 */
@@ -6307,7 +6548,8 @@
 * <br> This constant is member of constant group: Node Type Constants<br>
 * These constants build an enumeration of the possible values of the property nodeType. The constants are also properties of the constructor, so it is possible to read them in the style . 
 * @instance 
-* @constant {number} PROCESSING_INSTRUCTION_NODE
+* @member {number} PROCESSING_INSTRUCTION_NODE
+* @readonly
 
 
 */
@@ -6318,7 +6560,8 @@
 * <br> This constant is member of constant group: Node Type Constants<br>
 * These constants build an enumeration of the possible values of the property nodeType. The constants are also properties of the constructor, so it is possible to read them in the style . 
 * @instance 
-* @constant {number} COMMENT_NODE
+* @member {number} COMMENT_NODE
+* @readonly
 
 
 */
@@ -6329,7 +6572,8 @@
 * <br> This constant is member of constant group: Node Type Constants<br>
 * These constants build an enumeration of the possible values of the property nodeType. The constants are also properties of the constructor, so it is possible to read them in the style . 
 * @instance 
-* @constant {number} DOCUMENT_NODE
+* @member {number} DOCUMENT_NODE
+* @readonly
 
 
 */
@@ -6340,7 +6584,8 @@
 * <br> This constant is member of constant group: Node Type Constants<br>
 * These constants build an enumeration of the possible values of the property nodeType. The constants are also properties of the constructor, so it is possible to read them in the style . 
 * @instance 
-* @constant {number} DOCUMENT_TYPE_NODE
+* @member {number} DOCUMENT_TYPE_NODE
+* @readonly
 
 
 */
@@ -6351,7 +6596,8 @@
 * <br> This constant is member of constant group: Node Type Constants<br>
 * These constants build an enumeration of the possible values of the property nodeType. The constants are also properties of the constructor, so it is possible to read them in the style . 
 * @instance 
-* @constant {number} DOCUMENT_FRAGMENT_NODE
+* @member {number} DOCUMENT_FRAGMENT_NODE
+* @readonly
 
 
 */
@@ -6362,7 +6608,8 @@
 * <br> This constant is member of constant group: Node Type Constants<br>
 * These constants build an enumeration of the possible values of the property nodeType. The constants are also properties of the constructor, so it is possible to read them in the style . 
 * @instance 
-* @constant {number} NOTATION_NODE
+* @member {number} NOTATION_NODE
+* @readonly
 
 
 */
@@ -6546,7 +6793,8 @@
 * <br> This constant is member of constant group: Error Constants<br>
 * In contrast to many other methods of the DOM API, the  method does not forward exceptions of the native parser to the calling script. It rather stores the error text in a buffer, which the script can read with . The return value signals the type of the exception, which equals one of these constants. The constants are also properties of the constructor, so it is possible to read them in the style  . 
 * @instance 
-* @constant {number} ErrCatNone
+* @member {number} ErrCatNone
+* @readonly
 
 
 */
@@ -6557,7 +6805,8 @@
 * <br> This constant is member of constant group: Error Constants<br>
 * In contrast to many other methods of the DOM API, the  method does not forward exceptions of the native parser to the calling script. It rather stores the error text in a buffer, which the script can read with . The return value signals the type of the exception, which equals one of these constants. The constants are also properties of the constructor, so it is possible to read them in the style  . 
 * @instance 
-* @constant {number} ErrCatEnv
+* @member {number} ErrCatEnv
+* @readonly
 
 
 */
@@ -6568,7 +6817,8 @@
 * <br> This constant is member of constant group: Error Constants<br>
 * In contrast to many other methods of the DOM API, the  method does not forward exceptions of the native parser to the calling script. It rather stores the error text in a buffer, which the script can read with . The return value signals the type of the exception, which equals one of these constants. The constants are also properties of the constructor, so it is possible to read them in the style  . 
 * @instance 
-* @constant {number} ErrCatXML
+* @member {number} ErrCatXML
+* @readonly
 
 
 */
@@ -6579,7 +6829,8 @@
 * <br> This constant is member of constant group: Error Constants<br>
 * In contrast to many other methods of the DOM API, the  method does not forward exceptions of the native parser to the calling script. It rather stores the error text in a buffer, which the script can read with . The return value signals the type of the exception, which equals one of these constants. The constants are also properties of the constructor, so it is possible to read them in the style  . 
 * @instance 
-* @constant {number} ErrCatSAX
+* @member {number} ErrCatSAX
+* @readonly
 
 
 */
@@ -6590,7 +6841,8 @@
 * <br> This constant is member of constant group: Error Constants<br>
 * In contrast to many other methods of the DOM API, the  method does not forward exceptions of the native parser to the calling script. It rather stores the error text in a buffer, which the script can read with . The return value signals the type of the exception, which equals one of these constants. The constants are also properties of the constructor, so it is possible to read them in the style  . 
 * @instance 
-* @constant {number} ErrCatDOM
+* @member {number} ErrCatDOM
+* @readonly
 
 
 */
@@ -6978,8 +7230,8 @@
 * Note: Details for the filter expression you find in section Using filter expressions with FileResultSets
 * Note: Further samples are in FileResultset filter examples
 * @param {string} fileType String containing the technical name of the desired filetype 
-* @param {string} filter String containing an optional filter criterium; use empty String ('') if you don't want to filter at all 
-* @param {string} sortOrder String containing an optional sort order; use empty String ('') if you don't want to sort at all 
+* @param {string} [filter] String containing an optional filter criterium; use empty String ('') if you don't want to filter at all 
+* @param {string} [sortOrder] String containing an optional sort order; use empty String ('') if you don't want to sort at all 
 * @since ELC 3.50 / otrisPORTAL 5.0
 * @example
 * var fileType = "Standard";
@@ -7244,6 +7496,15 @@
 * @member {string} sortFieldName
 * @instance
 * @since DOCUMENTS 4.0c 
+**/
+/**
+* @memberof Folder
+* @summary Returns the owner of a private folder. 
+* @description 
+* Note: If the folder is a private folder (e.g. inbox) this property returns the owning SystemUser
+* @member {SystemUser} systemUser
+* @instance
+* @since DOCUMENTS 5.0d 
 **/
 /**
 * @memberof Folder
@@ -8068,6 +8329,20 @@
 **/
 /**
 * @memberof HitResultset
+* @function getHitIds
+* @instance
+* @summary Returns an array with all Hit-Ids (file ids or archive file keys) of the HitResultset. 
+* @param {boolean} [withServer] optional boolean value to indicate, if the archive file keys should include an "@archiveServerName" appendix. 
+* @returns {string[]} Array of String with file ids and archive file keys of the HitResultset. 
+* @since DOCUMENTS 5.0d
+* @see [FileResultset.getIds]{@link FileResultset#getIds} 
+* @example
+* var searchResources = ["Filetype1@myeas", "Filetype1"];
+* var myHRS = new HitResultset(searchResources, "", "");
+* util.out(myHRS.getHitIds());
+**/
+/**
+* @memberof HitResultset
 * @function getLastError
 * @instance
 * @summary Function to get the description of the last error that occurred. 
@@ -8438,7 +8713,8 @@
 * <br> This constant is member of constant group: Field Types<br>
 * These constants are equally available in each instance of RetrievalField and in the constructor object. 
 * @instance 
-* @constant {number} FT_STRING
+* @member {number} FT_STRING
+* @readonly
 
 
 */
@@ -8449,7 +8725,8 @@
 * <br> This constant is member of constant group: Field Types<br>
 * These constants are equally available in each instance of RetrievalField and in the constructor object. 
 * @instance 
-* @constant {number} FT_TEXT
+* @member {number} FT_TEXT
+* @readonly
 
 
 */
@@ -8460,7 +8737,8 @@
 * <br> This constant is member of constant group: Field Types<br>
 * These constants are equally available in each instance of RetrievalField and in the constructor object. 
 * @instance 
-* @constant {number} FT_BOOL
+* @member {number} FT_BOOL
+* @readonly
 
 
 */
@@ -8471,7 +8749,8 @@
 * <br> This constant is member of constant group: Field Types<br>
 * These constants are equally available in each instance of RetrievalField and in the constructor object. 
 * @instance 
-* @constant {number} FT_DATE
+* @member {number} FT_DATE
+* @readonly
 
 
 */
@@ -8482,7 +8761,8 @@
 * <br> This constant is member of constant group: Field Types<br>
 * These constants are equally available in each instance of RetrievalField and in the constructor object. 
 * @instance 
-* @constant {number} FT_ENUM
+* @member {number} FT_ENUM
+* @readonly
 
 
 */
@@ -8493,7 +8773,8 @@
 * <br> This constant is member of constant group: Field Types<br>
 * These constants are equally available in each instance of RetrievalField and in the constructor object. 
 * @instance 
-* @constant {number} FT_NUMERIC
+* @member {number} FT_NUMERIC
+* @readonly
 
 
 */
@@ -8504,7 +8785,8 @@
 * <br> This constant is member of constant group: Field Types<br>
 * These constants are equally available in each instance of RetrievalField and in the constructor object. 
 * @instance 
-* @constant {number} FT_REFERENCE
+* @member {number} FT_REFERENCE
+* @readonly
 
 
 */
@@ -8515,7 +8797,8 @@
 * <br> This constant is member of constant group: Field Types<br>
 * These constants are equally available in each instance of RetrievalField and in the constructor object. 
 * @instance 
-* @constant {number} FT_HISTORY
+* @member {number} FT_HISTORY
+* @readonly
 
 
 */
@@ -8526,7 +8809,8 @@
 * <br> This constant is member of constant group: Field Types<br>
 * These constants are equally available in each instance of RetrievalField and in the constructor object. 
 * @instance 
-* @constant {number} FT_DOUBLE_LIST
+* @member {number} FT_DOUBLE_LIST
+* @readonly
 
 
 */
@@ -8537,7 +8821,8 @@
 * <br> This constant is member of constant group: Field Types<br>
 * These constants are equally available in each instance of RetrievalField and in the constructor object. 
 * @instance 
-* @constant {number} FT_CHECKBOX
+* @member {number} FT_CHECKBOX
+* @readonly
 
 
 */
@@ -8548,7 +8833,8 @@
 * <br> This constant is member of constant group: Field Types<br>
 * These constants are equally available in each instance of RetrievalField and in the constructor object. 
 * @instance 
-* @constant {number} FT_SEPARATOR
+* @member {number} FT_SEPARATOR
+* @readonly
 
 
 */
@@ -8559,7 +8845,8 @@
 * <br> This constant is member of constant group: Field Types<br>
 * These constants are equally available in each instance of RetrievalField and in the constructor object. 
 * @instance 
-* @constant {number} FT_USER_DEFINED
+* @member {number} FT_USER_DEFINED
+* @readonly
 
 
 */
@@ -8570,7 +8857,8 @@
 * <br> This constant is member of constant group: Field Types<br>
 * These constants are equally available in each instance of RetrievalField and in the constructor object. 
 * @instance 
-* @constant {number} FT_TEXT_FIXED_FONT
+* @member {number} FT_TEXT_FIXED_FONT
+* @readonly
 
 
 */
@@ -8581,7 +8869,8 @@
 * <br> This constant is member of constant group: Field Types<br>
 * These constants are equally available in each instance of RetrievalField and in the constructor object. 
 * @instance 
-* @constant {number} FT_E_MAIL
+* @member {number} FT_E_MAIL
+* @readonly
 
 
 */
@@ -8592,7 +8881,8 @@
 * <br> This constant is member of constant group: Field Types<br>
 * These constants are equally available in each instance of RetrievalField and in the constructor object. 
 * @instance 
-* @constant {number} FT_URL
+* @member {number} FT_URL
+* @readonly
 
 
 */
@@ -8603,7 +8893,8 @@
 * <br> This constant is member of constant group: Field Types<br>
 * These constants are equally available in each instance of RetrievalField and in the constructor object. 
 * @instance 
-* @constant {number} FT_TIMESTAMP
+* @member {number} FT_TIMESTAMP
+* @readonly
 
 
 */
@@ -8614,7 +8905,8 @@
 * <br> This constant is member of constant group: Field Types<br>
 * These constants are equally available in each instance of RetrievalField and in the constructor object. 
 * @instance 
-* @constant {number} FT_FILING_PLAN
+* @member {number} FT_FILING_PLAN
+* @readonly
 
 
 */
@@ -8625,7 +8917,8 @@
 * <br> This constant is member of constant group: Field Types<br>
 * These constants are equally available in each instance of RetrievalField and in the constructor object. 
 * @instance 
-* @constant {number} FT_HTML
+* @member {number} FT_HTML
+* @readonly
 
 
 */
@@ -8636,7 +8929,8 @@
 * <br> This constant is member of constant group: Field Types<br>
 * These constants are equally available in each instance of RetrievalField and in the constructor object. 
 * @instance 
-* @constant {number} FT_FILING_STRUCTURE
+* @member {number} FT_FILING_STRUCTURE
+* @readonly
 
 
 */
@@ -8647,7 +8941,8 @@
 * <br> This constant is member of constant group: Field Types<br>
 * These constants are equally available in each instance of RetrievalField and in the constructor object. 
 * @instance 
-* @constant {number} FT_GADGET
+* @member {number} FT_GADGET
+* @readonly
 
 
 */
@@ -8658,7 +8953,8 @@
 * <br> This constant is member of constant group: Field Types<br>
 * These constants are equally available in each instance of RetrievalField and in the constructor object. 
 * @instance 
-* @constant {number} FT_UNDEFINED
+* @member {number} FT_UNDEFINED
+* @readonly
 
 
 */
@@ -8747,7 +9043,8 @@
 * <br> This constant is member of constant group: Searchable Resource<br>
 * These constants are equally available in each instance of RetrievalSource and in the constructor object. Resource macroes can only occur in the "FillSearchMask" exit. Within an "OnSearch" exit they have already been replaced by their single components. 
 * @instance 
-* @constant {number} ST_DLC_FILETYPE
+* @member {number} ST_DLC_FILETYPE
+* @readonly
 
 
 */
@@ -8758,7 +9055,8 @@
 * <br> This constant is member of constant group: Searchable Resource<br>
 * These constants are equally available in each instance of RetrievalSource and in the constructor object. Resource macroes can only occur in the "FillSearchMask" exit. Within an "OnSearch" exit they have already been replaced by their single components. 
 * @instance 
-* @constant {number} ST_EEI_ARCHIVE
+* @member {number} ST_EEI_ARCHIVE
+* @readonly
 
 
 */
@@ -8769,7 +9067,8 @@
 * <br> This constant is member of constant group: Searchable Resource<br>
 * These constants are equally available in each instance of RetrievalSource and in the constructor object. Resource macroes can only occur in the "FillSearchMask" exit. Within an "OnSearch" exit they have already been replaced by their single components. 
 * @instance 
-* @constant {number} ST_EEX_VIEW
+* @member {number} ST_EEX_VIEW
+* @readonly
 
 
 */
@@ -8780,7 +9079,8 @@
 * <br> This constant is member of constant group: Searchable Resource<br>
 * These constants are equally available in each instance of RetrievalSource and in the constructor object. Resource macroes can only occur in the "FillSearchMask" exit. Within an "OnSearch" exit they have already been replaced by their single components. 
 * @instance 
-* @constant {number} ST_EEX_USERVIEW
+* @member {number} ST_EEX_USERVIEW
+* @readonly
 
 
 */
@@ -8791,7 +9091,8 @@
 * <br> This constant is member of constant group: Searchable Resource<br>
 * These constants are equally available in each instance of RetrievalSource and in the constructor object. Resource macroes can only occur in the "FillSearchMask" exit. Within an "OnSearch" exit they have already been replaced by their single components. 
 * @instance 
-* @constant {number} ST_EAS_FILETYPE
+* @member {number} ST_EAS_FILETYPE
+* @readonly
 
 
 */
@@ -8802,7 +9103,8 @@
 * <br> This constant is member of constant group: Searchable Resource<br>
 * These constants are equally available in each instance of RetrievalSource and in the constructor object. Resource macroes can only occur in the "FillSearchMask" exit. Within an "OnSearch" exit they have already been replaced by their single components. 
 * @instance 
-* @constant {number} MST_EAS_SERVER
+* @member {number} MST_EAS_SERVER
+* @readonly
 
 
 */
@@ -8814,7 +9116,8 @@
 * <br> This constant is member of constant group: Searchable Resource<br>
 * These constants are equally available in each instance of RetrievalSource and in the constructor object. Resource macroes can only occur in the "FillSearchMask" exit. Within an "OnSearch" exit they have already been replaced by their single components. 
 * @instance 
-* @constant {number} MST_EAS_ONLY
+* @member {number} MST_EAS_ONLY
+* @readonly
 
 
 */
@@ -8998,6 +9301,19 @@
 **/
 /**
 * @memberof ScriptCall
+* @function setFolder
+* @instance
+* @summary Set the execution context folder of the called script. 
+* @param {Folder} folder Folder object representing the desired execution context folder. 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
+* @since DOCUMENTS 5.0d
+* @see [context.folder]{@link context#folder} 
+* @example
+* var call = new ScriptCall("schreiber", "testScript", false);
+* call.setFolder(context.folder);
+**/
+/**
+* @memberof ScriptCall
 * @function setRegister
 * @instance
 * @summary Set the execution context register of the called script. 
@@ -9010,9 +9326,9 @@
 * var file = context.getFileById("peachit_fi20120000000016");
 * if (file)
 * {
-*   var reg = file.getRegisterByName("Doc1");
+*    var reg = file.getRegisterByName("Doc1");
 *    call.setRegister(reg);
-*   }
+* }
 **/
 /**
 * @memberof ScriptCall
@@ -9296,7 +9612,8 @@
 * @function addToAccessProfile
 * @instance
 * @summary Make the SystemUser a member of the desired AccessProfile. 
-* @description
+* @description 
+* Note: If the user is already logged in, it is necessary to invalidate the cache of the user s. SystemUser.invalidateAccessProfileCache()
 * Since DOCUMENTS 4.0b HF1 for Fellows 
 * @param {AccessProfile} ap AccessProfile the user should be a member of 
 * @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
@@ -9657,7 +9974,8 @@
 * @function removeFromAccessProfile
 * @instance
 * @summary Clear the SystemUser's membership in the given AccessProfile. 
-* @description
+* @description 
+* Note: If the user is already logged in, it is necessary to invalidate the cache of the user s. SystemUser.invalidateAccessProfileCache()
 * Since DOCUMENTS 4.0b HF1 for Fellows 
 * @param {AccessProfile} ap 
 * @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
@@ -9757,6 +10075,15 @@
 * @param {string} value String containing the desired value of the attribute 
 * @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since ELC 3.50b / otrisPORTAL 5.0b 
+**/
+/**
+* @memberof SystemUser
+* @function setEasywareAuthentication
+* @instance
+* @summary Turn EASYWARE Authentication on or off. 
+* @param {boolean} value boolean <code>true</code> to turn authentication on <code>false</code> to turn it off. 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
+* @since DOCUMENTS 5.0c HF2 
 **/
 /**
 * @memberof SystemUser
@@ -11074,12 +11401,14 @@
 * <li>Filing Plan </li>
 * <li>Outbar </li>
 * <li>DocumentsSettings </li>
+* <li>CustomProperties </li>
 * </ul>
 * 
 * The XML files may also be reimported into another (or the same) Portal environment by the Docimport application for DocFile objects and by the XML-import of DOCUMENTS Manager for the remaining elements, respectively. 
 * Since DOCUMENTS 4.0c available for PortalScript, Filetype, Folder, Workflow, Distribution List, Editor, AccessProfile, Alias and Filing Plan 
 * Since DOCUMENTS 4.0d available for Outbar 
-* Since DOCUMENTS 4.0e available for DocumentsSettings
+* Since DOCUMENTS 4.0e available for DocumentsSettings 
+* Since DOCUMENTS 5.0d available for CustomProperties
 * @since ELC 3.51b / otrisPORTAL 5.1b available for DocFile
 * @example
 * var f = context.file;
@@ -11113,6 +11442,7 @@
 * <li>Filing Plan </li>
 * <li>Outbar </li>
 * <li>DocumentsSettings </li>
+* <li>CustomProperties </li>
 * </ul>
 * </li>
 * </ul>
@@ -11151,6 +11481,23 @@
 * @example
 * var xmlExp = new XMLExport("C:\\temp\\expAlias.xml", false);
 * var success = xmlExp.addAlias("alias1");
+* if (success)
+*    xmlExp.saveXML();
+* else
+*    util.out(xmlExp.getLastError());
+**/
+/**
+* @memberof XMLExport
+* @function addCustomProperty
+* @instance
+* @summary Add the desired global custom property to the XMLExport. 
+* @param {string} propName The technical name of the desired global custom property to be added to the XML output. 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
+* @since DOCUMENTS 5.0d
+* @example
+* var path = "C:\\temp\\expCustomProperty.xml";
+* var xmlExp = new XMLExport(path, false);
+* var success = xmlExp.addCustomProperty("testProp");
 * if (success)
 *    xmlExp.saveXML();
 * else
@@ -11784,6 +12131,28 @@
 **/
 /**
 * @memberof XMLHTTPRequest
+* @summary Constant for CA Certificate verification if using HTTPS. 
+* @description This option activate the verification of the host.
+* 
+* Note: This property is readonly. 
+* @member {number} VERIFYHOST
+* @instance
+* @since DOCUMENTS 5.0c 
+* @see [XMLHTTPRequest.setCAInfo]{@link XMLHTTPRequest#setCAInfo} 
+**/
+/**
+* @memberof XMLHTTPRequest
+* @summary Constant for CA Certificate verification if using HTTPS. 
+* @description This option activate the verification of the certificate chain.
+* 
+* Note: This property is readonly. 
+* @member {number} VERIFYPEER
+* @instance
+* @since DOCUMENTS 5.0c 
+* @see [XMLHTTPRequest.setCAInfo]{@link XMLHTTPRequest#setCAInfo} 
+**/
+/**
+* @memberof XMLHTTPRequest
 * @function abort
 * @instance
 * @summary Abort an asynchronous request if it already has been sent. 
@@ -11942,4 +12311,22 @@
 * util.out(req.response);
 * // No need to close file here; send() already did.
 * util.out(req.status);  // should be 200
+**/
+/**
+* @memberof XMLHTTPRequest
+* @function setCAInfo
+* @instance
+* @summary Set one or more certificates to verify the peer if using HTTPS. 
+* @param {string} pemFile String with the path to pem-file with the servers certificates (bundle of X.509 certificates in PEM format). 
+* @param {number} options Integer with a bitmask of verification-options (XMLHTTPRequest.VERIFYPEER, XMLHTTPRequest.VERIFYHOST) 
+* @returns {void} 
+* @since DOCUMENTS 5.0c
+* @example
+* var url = "https://someserver:443/";
+* var xmlHttp = new XMLHTTPRequest();
+* xmlHttp.setCAInfo("c:\\certs\\cabundle.pem", XMLHTTPRequest.VERIFYPEER + XMLHTTPRequest.VERIFYHOST);
+* var async = false;
+* xmlHttp.open("POST", url, async);
+* if (xmlHttp.send(content))
+*   util.out(xmlHttp.getAllResponseHeaders());
 **/

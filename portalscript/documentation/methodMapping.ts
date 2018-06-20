@@ -7,6 +7,7 @@ export const mapping = {
     "ArchiveServer",
     "ControlFlow",
     "CustomProperty",
+    "DocFileDataField",
     "Document",
     "DOMAttr",
     "Folder",
@@ -20,6 +21,7 @@ export const mapping = {
   ],
   "addCustomProperty": [
     "AccessProfile",
+    "XMLExport",
     "SystemUser",
     "context"
   ],
@@ -61,6 +63,7 @@ export const mapping = {
     "CustomProperty",
     "DBResultSet",
     "DocFile",
+    "DocFileDataField",
     "DocHit",
     "DocQueryParams",
     "Document",
@@ -106,6 +109,9 @@ export const mapping = {
     "AccessProfile",
     "SystemUser",
     "context"
+  ],
+  "setParentProfile": [
+    "AccessProfile"
   ],
   "first": [
     "ArchiveFileResultset",
@@ -326,6 +332,9 @@ export const mapping = {
   "getColumnNames": [
     "HitResultset"
   ],
+  "getHitIds": [
+    "HitResultset"
+  ],
   "getLastErrorCode": [
     "HitResultset"
   ],
@@ -348,6 +357,9 @@ export const mapping = {
     "ScriptCall"
   ],
   "setEvent": [
+    "ScriptCall"
+  ],
+  "setFolder": [
     "ScriptCall"
   ],
   "setRegister": [
@@ -524,6 +536,12 @@ export const mapping = {
   "UNINITIALIZED": [
     "XMLHTTPRequest"
   ],
+  "VERIFYHOST": [
+    "XMLHTTPRequest"
+  ],
+  "VERIFYPEER": [
+    "XMLHTTPRequest"
+  ],
   "abort": [
     "XMLHTTPRequest",
     "DocFile"
@@ -538,6 +556,9 @@ export const mapping = {
     "XMLHTTPRequest"
   ],
   "open": [
+    "XMLHTTPRequest"
+  ],
+  "setCAInfo": [
     "XMLHTTPRequest"
   ],
   "id": [
@@ -663,6 +684,9 @@ export const mapping = {
   "archiveAndDelete": [
     "DocFile"
   ],
+  "asJSON": [
+    "DocFile"
+  ],
   "cancelWorkflow": [
     "DocFile"
   ],
@@ -707,6 +731,9 @@ export const mapping = {
     "DocFile",
     "WorkflowStep"
   ],
+  "fromJSON": [
+    "DocFile"
+  ],
   "getAllLockingWorkflowSteps": [
     "DocFile"
   ],
@@ -735,6 +762,9 @@ export const mapping = {
     "DocFile"
   ],
   "getCurrentWorkflowStep": [
+    "DocFile"
+  ],
+  "getDocFileComment": [
     "DocFile"
   ],
   "getEnumAutoText": [
@@ -839,6 +869,21 @@ export const mapping = {
   ],
   "undeleteFile": [
     "DocFile"
+  ],
+  "hash": [
+    "DocFileDataField"
+  ],
+  "readAccess": [
+    "DocFileDataField"
+  ],
+  "writeAccess": [
+    "DocFileDataField"
+  ],
+  "getValue": [
+    "DocFileDataField"
+  ],
+  "setValue": [
+    "DocFileDataField"
   ],
   "columnName": [
     "DocHit"
@@ -1222,6 +1267,9 @@ export const mapping = {
   "sortFieldName": [
     "Folder"
   ],
+  "systemUser": [
+    "Folder"
+  ],
   "value1": [
     "Folder"
   ],
@@ -1561,6 +1609,9 @@ export const mapping = {
   "setAccessProfiles": [
     "SystemUser"
   ],
+  "setEasywareAuthentication": [
+    "SystemUser"
+  ],
   "setPassword": [
     "SystemUser"
   ],
@@ -1621,6 +1672,9 @@ export const mapping = {
   "fileType": [
     "context"
   ],
+  "folder": [
+    "context"
+  ],
   "folderFiles": [
     "context"
   ],
@@ -1676,6 +1730,9 @@ export const mapping = {
     "context"
   ],
   "PEM_MODULE_MOBILE": [
+    "context"
+  ],
+  "PEM_MODULE_MOBILE_APP": [
     "context"
   ],
   "PEM_MODULE_OUTLOOK_SYNC": [
@@ -1790,6 +1847,9 @@ export const mapping = {
   "doMaintenance": [
     "context"
   ],
+  "enableModules": [
+    "context"
+  ],
   "extCall": [
     "context"
   ],
@@ -1878,6 +1938,9 @@ export const mapping = {
     "context"
   ],
   "getSystemUser": [
+    "context"
+  ],
+  "getTempPathByToken": [
     "context"
   ],
   "getTmpFilePath": [
@@ -2058,6 +2121,7 @@ export const mapping = {
     "CustomPropertyIterator",
     "DBResultSet",
     "DocFile",
+    "DocFileDataField",
     "DocHit",
     "DocQueryParams",
     "Document",
