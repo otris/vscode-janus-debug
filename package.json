@@ -642,7 +642,7 @@
     "postinstall": "node ./node_modules/vscode/bin/install"
   },
   "dependencies": {
-    "@otris/jsdoc-tsd": "^0.8.6",
+    "@otris/jsdoc-tsd": "^0.9.0",
     "@types/glob": "^5.0.35",
     "@types/uuid": "^2.0.29",
     "fs": "0.0.1-security",
