@@ -2,6 +2,9 @@
 
 You'll find a complete list of changes at our project site on [GitHub](https://github.com/otris/vscode-janus-debug).
 
+### 1.0.3 (2018-07-10)
+- Only update typings.
+
 ### 1.0.2 (2018-06-19)
 - Add a first simple command for generateing portalScripts from typescript files.
 
