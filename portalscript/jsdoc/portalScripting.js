@@ -2444,7 +2444,7 @@
 * @param {string} fileType String value containing the technical name of the desired filetype 
 * @param {string} field String value containing the technical name of the desired enumeration field 
 * @param {string} techEnumValue String value containing the desired technical value of the enumeration entry 
-* @param {string} locale optional String value with the locale abbreviation (according to the principal's configuration); if omitted, the current user's portal language is used automatically 
+* @param {string} [locale] optional String value with the locale abbreviation (according to the principal's configuration); if omitted, the current user's portal language is used automatically 
 * @returns {string} String containing the ergonomic value of the enumeration value in the appropriate portal language 
 * @since ELC 3.51 / otrisPORTAL 5.1
 * @see [context.getEnumErgValue]{@link context#getEnumErgValue} [context.getFieldErgName]{@link context#getFieldErgName} [context.getFileTypeErgName]{@link context#getFileTypeErgName} [context.getEnumValues]{@link context#getEnumValues} [context.getFromSystemTable]{@link context#getFromSystemTable} 
@@ -2480,7 +2480,7 @@
 * @description In multilanguage DOCUMENTS environments, usually the file fields are translated to the different locales by using the well known ergonomic label hack. The function is useful to output scripting generated information in the appropriate portal language of the web user who triggered the script execution. 
 * @param {string} fileType String value containing the technical name of the desired filetype 
 * @param {string} field String value containing the technical name of the desired field 
-* @param {string} locale optional String value with the locale abbreviation (according to the principal's configuration); if omitted, the current user's portal language is used automatically 
+* @param {string} [locale] optional String value with the locale abbreviation (according to the principal's configuration); if omitted, the current user's portal language is used automatically 
 * @returns {string} String containing the ergonomic description of the file field in the appropriate portal language 
 * @since ELC 3.51 / otrisPORTAL 5.1
 * @see [context.getEnumErgValue]{@link context#getEnumErgValue} [context.getFieldErgName]{@link context#getFieldErgName} [context.getFileTypeErgName]{@link context#getFileTypeErgName} [context.getEnumValues]{@link context#getEnumValues} [context.getFromSystemTable]{@link context#getFromSystemTable} 
@@ -2511,7 +2511,7 @@
 * @summary Get the ergonomic label of a filetype. 
 * @description In multilanguage DOCUMENTS environments, usually the filetypes are translated to the different locales by using the well known ergonomic label hack. The function is useful to output scripting generated information in the appropriate portal language of the web user who triggered the script execution. 
 * @param {string} fileType String value containing the technical name of the desired filetype 
-* @param {string} locale optional String value with the locale abbreviation (according to the principal's configuration); if omitted, the current user's portal language is used automatically 
+* @param {string} [locale] optional String value with the locale abbreviation (according to the principal's configuration); if omitted, the current user's portal language is used automatically 
 * @returns {string} String containing the ergonomic description of the filetype in the appropriate portal language 
 * @since ELC 3.51 / otrisPORTAL 5.1
 * @see [context.getEnumErgValue]{@link context#getEnumErgValue} [context.getFieldErgName]{@link context#getFieldErgName} [context.getFileTypeErgName]{@link context#getFileTypeErgName} [context.getEnumValues]{@link context#getEnumValues} [context.getFromSystemTable]{@link context#getFromSystemTable} 
@@ -2554,7 +2554,7 @@
 * @summary Retrieve a list of folders with identical name. 
 * @description Different folders might match an identical pattern, e.g. <code>"DE_20*"</code> for each folder like <code>"DE_2004"</code>, <code>"DE_2005"</code> and so on. If you need to perform some action with the different folders or their contents, it might be useful to retrieve an iterator (a list) of all these folders to loop through that list. 
 * @param {string} folderPattern the name pattern of the desired folder(s) 
-* @param {string} type optional parameter, a String value defining the type of folders to look for; allowed values are <code>"public"</code>, <code>"dynamicpublic"</code> and <code>"onlysubfolder"</code>
+* @param {string} [type] optional parameter, a String value defining the type of folders to look for; allowed values are <code>"public"</code>, <code>"dynamicpublic"</code> and <code>"onlysubfolder"</code>
 * @returns {FolderIterator} FolderIterator containing a list of all folders matching the specified name pattern 
 * @since ELC 3.50l01 / otrisPORTAL 5.0l01
 * @example
@@ -2668,7 +2668,7 @@
 * @summary Get the ergonomic label of a register. 
 * @param {string} fileTypeName String value containing the technical name of the desired filetype 
 * @param {string} registerName String value containing the technical name of the desired register 
-* @param {string} locale optional String value with the locale abbreviation (according to the principal's configuration); if omitted, the current user's portal language is used automatically 
+* @param {string} [locale] optional String value with the locale abbreviation (according to the principal's configuration); if omitted, the current user's portal language is used automatically 
 * @returns {string} String containing the ergonomic description of the register in the appropriate portal language 
 * @since DOCUMENTS 4.0d HF1
 * @see [context.getFieldErgName]{@link context#getFieldErgName} [context.getFileTypeErgName]{@link context#getFileTypeErgName} 
@@ -2747,7 +2747,7 @@
 * @summary Get an ArchiveConnection object. 
 * @description With this method you can get an ArchiveConnection object. This object offers several methods to use the EAS Interface, EBIS or the EASY ENTERPRISE XML-Server. 
 * Since archiveServerName: Documents 4.0 
-* @param {string} archiveServerName Optional string containing the archive server name; If the archive server is not defined, then the main archive server will be used 
+* @param {string} [archiveServerName] Optional string containing the archive server name; If the archive server is not defined, then the main archive server will be used 
 * @returns {ArchiveConnection} ArchiveConnection-Object or NULL, if failed 
 * @since ELC 3.60d / otrisPORTAL 6.0d 
 * @deprecated since DOCUMENTS 5.0a - Use Context.getArchiveConnection(String archiveServerName) instead 
@@ -3629,7 +3629,6 @@
 * @instance
 * @summary Cancel edit mode for a file. 
 * @description If you switched a file to edit mode with the startEdit() method and if you want to cancel this (e.g. due to some error that has occurred in the mean time) this function should be used to destroy the scratch copy which has been created by the startEdit() instruction. 
-* Internal: since ELC 3.60e available for archive files 
 * @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since ELC 3.50 / otrisPORTAL 5.0
 * @see [DocFile.startEdit]{@link DocFile#startEdit} [DocFile.commit]{@link DocFile#commit} 
@@ -3879,7 +3878,6 @@
 * @instance
 * @summary Commit any changes to the DocFile object. 
 * @description This method is mandatory to apply changes to a file that has been switched to edit mode with the startEdit() method. It is strictly prohibited to execute the commit() method in a script which is attached to the onSave scripting hook. 
-* Internal: since ELC 3.60e available for archive files 
 * @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since ELC 3.50 / otrisPORTAL 5.0
 * @see [DocFile.startEdit]{@link DocFile#startEdit} [DocFile.sync]{@link DocFile#sync} [DocFile.abort]{@link DocFile#abort} 
@@ -4834,7 +4832,6 @@
 * </ul>
 * 
 * You should avoid using this function in scripts that are executed inside a workflow (signal exits, decisions etc.). 
-* Internal: since ELC 3.60e available for archive files 
 * @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
 * @since ELC 3.50 / otrisPORTAL 5.0
 * @see [DocFile.abort]{@link DocFile#abort} 
@@ -8505,6 +8502,21 @@
 **/
 /**
 * @memberof Register
+* @function addFileLink
+* @instance
+* @summary Adds a file to a file link register. 
+* @param {DocFile} file 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
+* @since DOCUMENTS 5.0d
+* @example
+* var file = context.file;
+* var linkFile = context.createFile("Filetype1");
+* var reg = file.getRegisterByName("flReg");
+* if (!reg.addFileLink(linkFile))
+*   util.out(reg.getLastError());
+**/
+/**
+* @memberof Register
 * @function deleteDocument
 * @instance
 * @summary Delete a Document at the Register. 
@@ -8606,6 +8618,24 @@
 * The default value is <code>false</code>. 
 * @returns {string} <code>String</code> with the object-id 
 * @since ELC 3.60c / otrisPORTAL 6.0c 
+**/
+/**
+* @memberof Register
+* @function removeFileLink
+* @instance
+* @summary Removes a file from a file link register. 
+* @param {DocFile} file 
+* @returns {boolean} <code>true</code> if successful, <code>false</code> in case of any error 
+* @since DOCUMENTS 5.0d
+* @example
+* var file = context.file;
+* var reg = file.getRegisterByName("flReg");
+* var frs = reg.getFiles();
+* for (var linkFile = frs.first(); linkFile; linkFile = frs.next())
+* {
+*   if (!reg.removeFileLink(linkFile))
+*       util.out(reg.getLastError());
+* }
 **/
 /**
 * @memberof Register

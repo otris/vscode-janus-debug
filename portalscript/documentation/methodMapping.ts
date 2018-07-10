@@ -1365,7 +1365,13 @@ export const mapping = {
   "removeProperty": [
     "PropertyCache"
   ],
+  "addFileLink": [
+    "Register"
+  ],
   "getDocuments": [
+    "Register"
+  ],
+  "removeFileLink": [
     "Register"
   ],
   "compOp": [

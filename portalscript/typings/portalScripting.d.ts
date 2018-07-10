@@ -1211,7 +1211,7 @@ declare namespace context {
      * @returns String containing the ergonomic value of the enumeration value in the appropriate portal language
      * @see [context.getEnumErgValue]{@link context#getEnumErgValue} [context.getFieldErgName]{@link context#getFieldErgName} [context.getFileTypeErgName]{@link context#getFileTypeErgName} [context.getEnumValues]{@link context#getEnumValues} [context.getFromSystemTable]{@link context#getFromSystemTable}
      */
-    function getEnumErgValue(fileType: string, field: string, techEnumValue: string, locale: string): string;
+    function getEnumErgValue(fileType: string, field: string, techEnumValue: string, locale?: string): string;
 
     /**
      * In some cases it might be useful not only to access the selected value of an enumeration file field, but the list of all possible field values as well. This function creates an Array of String values (zero-based), and each index is one available value of the enumeration field. If the enumeration field is configured to sort the values alphabetically, this option is respected.
@@ -1230,7 +1230,7 @@ declare namespace context {
      * @returns String containing the ergonomic description of the file field in the appropriate portal language
      * @see [context.getEnumErgValue]{@link context#getEnumErgValue} [context.getFieldErgName]{@link context#getFieldErgName} [context.getFileTypeErgName]{@link context#getFileTypeErgName} [context.getEnumValues]{@link context#getEnumValues} [context.getFromSystemTable]{@link context#getFromSystemTable}
      */
-    function getFieldErgName(fileType: string, field: string, locale: string): string;
+    function getFieldErgName(fileType: string, field: string, locale?: string): string;
 
     /**
      * If the file does not exist or the user in whose context the script is executed is not allowed to access the file, then the return value will be <code>null</code>.
@@ -1247,7 +1247,7 @@ declare namespace context {
      * @returns String containing the ergonomic description of the filetype in the appropriate portal language
      * @see [context.getEnumErgValue]{@link context#getEnumErgValue} [context.getFieldErgName]{@link context#getFieldErgName} [context.getFileTypeErgName]{@link context#getFileTypeErgName} [context.getEnumValues]{@link context#getEnumValues} [context.getFromSystemTable]{@link context#getFromSystemTable}
      */
-    function getFileTypeErgName(fileType: string, locale: string): string;
+    function getFileTypeErgName(fileType: string, locale?: string): string;
 
     /**
      * 
@@ -1274,7 +1274,7 @@ declare namespace context {
      * @param type optional parameter, a String value defining the type of folders to look for; allowed values are <code>"public"</code>, <code>"dynamicpublic"</code> and <code>"onlysubfolder"</code>
      * @returns FolderIterator containing a list of all folders matching the specified name pattern
      */
-    function getFoldersByName(folderPattern: string, type: string): FolderIterator;
+    function getFoldersByName(folderPattern: string, type?: string): FolderIterator;
 
     /**
      * It might be inconvenient to maintain the different output Strings of localized PortalScripts, if this requires to edit the scripts themselves. This function adds a convenient way to directly access the system messages table which you may maintain in the Windows Portal Client. This enables you to add your own system message table entries in your different portal languages and to directly access them in your scripts.
@@ -1338,7 +1338,7 @@ declare namespace context {
      * @returns String containing the ergonomic description of the register in the appropriate portal language
      * @see [context.getFieldErgName]{@link context#getFieldErgName} [context.getFileTypeErgName]{@link context#getFileTypeErgName}
      */
-    function getRegisterErgName(fileTypeName: string, registerName: string, locale: string): string;
+    function getRegisterErgName(fileTypeName: string, registerName: string, locale?: string): string;
 
     /**
      * 
@@ -1384,7 +1384,7 @@ declare namespace context {
      * @returns ArchiveConnection-Object or NULL, if failed
      * @deprecated since DOCUMENTS 5.0a - Use Context.getArchiveConnection(String archiveServerName) instead
      */
-    function getXMLServer(archiveServerName: string): ArchiveConnection;
+    function getXMLServer(archiveServerName?: string): ArchiveConnection;
 
     /**
      * 
@@ -1830,7 +1830,6 @@ declare interface DocFile {
     fieldName: any;
     /**
      * If you switched a file to edit mode with the startEdit() method and if you want to cancel this (e.g. due to some error that has occurred in the mean time) this function should be used to destroy the scratch copy which has been created by the startEdit() instruction.
-     * Internal: since ELC 3.60e available for archive files
      * @returns <code>true</code> if successful, <code>false</code> in case of any error
      * @see [DocFile.startEdit]{@link DocFile#startEdit} [DocFile.commit]{@link DocFile#commit}
      */
@@ -1926,7 +1925,6 @@ declare interface DocFile {
     clearFollowUpDate(pUser: SystemUser): boolean;
     /**
      * This method is mandatory to apply changes to a file that has been switched to edit mode with the startEdit() method. It is strictly prohibited to execute the commit() method in a script which is attached to the onSave scripting hook.
-     * Internal: since ELC 3.60e available for archive files
      * @returns <code>true</code> if successful, <code>false</code> in case of any error
      * @see [DocFile.startEdit]{@link DocFile#startEdit} [DocFile.sync]{@link DocFile#sync} [DocFile.abort]{@link DocFile#abort}
      */
@@ -2393,7 +2391,6 @@ declare interface DocFile {
      * </ul>
      * 
      * You should avoid using this function in scripts that are executed inside a workflow (signal exits, decisions etc.).
-     * Internal: since ELC 3.60e available for archive files
      * @returns <code>true</code> if successful, <code>false</code> in case of any error
      * @see [DocFile.abort]{@link DocFile#abort}
      */
@@ -4246,6 +4243,12 @@ declare interface Register {
      */
     type: string;
     /**
+     * 
+     * @param file
+     * @returns <code>true</code> if successful, <code>false</code> in case of any error
+     */
+    addFileLink(file: DocFile): boolean;
+    /**
      * With the necessary access rights the user can delete a Document at the Register.
      * @param doc Document to delete
      * @returns <code>true</code> if successful, <code>false</code> in case of any error
@@ -4292,6 +4295,12 @@ declare interface Register {
      * @returns <code>String</code> with the object-id
      */
     getOID(oidLow?: boolean): string;
+    /**
+     * 
+     * @param file
+     * @returns <code>true</code> if successful, <code>false</code> in case of any error
+     */
+    removeFileLink(file: DocFile): boolean;
     /**
      * 
      * Since ELC 3.60i / otrisPORTAL 6.0i available for archive files
