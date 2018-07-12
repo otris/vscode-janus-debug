@@ -243,7 +243,8 @@ export function foldersToCategories(serverInfo: nodeDoc.ConnectionInformation, s
 export async function askForUpload(script: nodeDoc.scriptT, all: boolean, none: boolean, singlescript: boolean, categories: boolean): Promise<string> {
     return new Promise<string>(async (resolve, reject) => {
 
-        // is checking lastSyncHash really necessary here?
+        // if lastSyncHash is not set, then confict has been set to true
+        // so actually the case !conflict && !lastSyncHash is not possible here
         if (!script.conflict && script.lastSyncHash) {
             return resolve(NO_CONFLICT);
         }
@@ -261,9 +262,9 @@ export async function askForUpload(script: nodeDoc.scriptT, all: boolean, none: 
 
         // first check category
         if (script.conflict && (script.conflict & nodeDoc.CONFLICT_CATEGORY)) {
-            // only ask if, category feature is used
-            // if it's not used, categories won't be changed
-            // then the script can be force uploaded
+            // only show warning, if category feature is used,
+            // if it's not used, categories will never be changed on server
+            // and the warning should be omitted in this case
             if (categories) {
                 question = `Category of ${script.name} is different on server, upload anyway?`;
                 answer = await vscode.window.showQuickPick(answers, { placeHolder: question });
@@ -325,6 +326,8 @@ export async function ensureForceUpload(scripts: nodeDoc.scriptT[]): Promise<[no
         const singlescript = (1 === scripts.length);
         const categories = conf.get('categories', false);
 
+        // todo: using async/await here probably makes the whole procedure
+        // a bit simpler
         return reduce(scripts, (numScripts: number, script: any): Promise<number> => {
             return askForUpload(script, all, none, singlescript, categories).then((value) => {
                 if (NO_CONFLICT === value) {
