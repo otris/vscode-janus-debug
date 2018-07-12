@@ -224,19 +224,26 @@ export function foldersToCategories(serverInfo: nodeDoc.ConnectionInformation, s
 
 
 /**
- * Subfunction of ensureUploadScripts.
- * Checks, if category has been changed and if 'forceUpload' not set to true in settings,
- * then checks if source code has been changed.
+ * Two things for script are checked:
  *
- * @param script
- * @param all
- * @param none
+ * 1) has the category changed?
+ * because the category is created from the folder
+ * just make sure, that the category is not changed by mistake
+ *
+ * 2) has the source code on server changed?
+ * this is only important if more than one people work on
+ * the same server
+ *
+ * @param script user is asked, if this script should be uploaded
+ * @param all true, if user selected 'all scripts should be uploaded'
+ * @param none true, if user selected 'no script should be uploaded'
+ * @param singlescript true, if user is asked for only one script
+ * @param categories true, if the category setting is set
  */
-export async function askForUpload(script: nodeDoc.scriptT, all: boolean, none: boolean, singlescript?: boolean): Promise<string> {
+export async function askForUpload(script: nodeDoc.scriptT, all: boolean, none: boolean, singlescript: boolean, categories: boolean): Promise<string> {
     return new Promise<string>(async (resolve, reject) => {
 
-        // is asking for lastSyncHash really necessary here?
-        // actually conflict should be set in any kind of conflict
+        // is checking lastSyncHash really necessary here?
         if (!script.conflict && script.lastSyncHash) {
             return resolve(NO_CONFLICT);
         }
@@ -253,12 +260,20 @@ export async function askForUpload(script: nodeDoc.scriptT, all: boolean, none: 
         }
 
         // first check category
-        // categories are changed very rarely, so it should be ok to
-        // ask here for the category and then again for source code
         if (script.conflict && (script.conflict & nodeDoc.CONFLICT_CATEGORY)) {
-            question = `Category of ${script.name} is different on server, upload anyway?`;
-            answer = await vscode.window.showQuickPick(answers, { placeHolder: question });
+            // only ask if, category feature is used
+            // if it's not used, categories won't be changed
+            // then the script can be force uploaded
+            if (categories) {
+                question = `Category of ${script.name} is different on server, upload anyway?`;
+                answer = await vscode.window.showQuickPick(answers, { placeHolder: question });
+            } else {
+                answer = FORCE_UPLOAD_YES;
+            }
         }
+
+        // if script should not be force uploaded
+        // we do not have to check the source code
         if (answer === FORCE_UPLOAD_NO) {
             return resolve(FORCE_UPLOAD_NO);
         }
@@ -270,6 +285,7 @@ export async function askForUpload(script: nodeDoc.scriptT, all: boolean, none: 
             } else if (script.lastSyncHash) {
                 question = `Source code of ${script.name} has been changed on server, upload anyway?`;
             } else {
+                // lastSyncHash not set, so we have no information if the source code on server has been changed
                 question = `Source code of ${script.name} might have been changed on server, upload anyway?`;
             }
             if (!singlescript) {
@@ -281,6 +297,8 @@ export async function askForUpload(script: nodeDoc.scriptT, all: boolean, none: 
         return resolve(answer);
     });
 }
+
+
 
 /**
  * Ask user for all conflicted scripts if they should be force uploaded or if upload should
@@ -305,9 +323,10 @@ export async function ensureForceUpload(scripts: nodeDoc.scriptT[]): Promise<[no
         let all = conf.get('forceUpload', false);
         let none = false;
         const singlescript = (1 === scripts.length);
+        const categories = conf.get('categories', false);
 
         return reduce(scripts, (numScripts: number, script: any): Promise<number> => {
-            return askForUpload(script, all, none, singlescript).then((value) => {
+            return askForUpload(script, all, none, singlescript, categories).then((value) => {
                 if (NO_CONFLICT === value) {
                     noConflict.push(script);
                 } else if (FORCE_UPLOAD_ALL === value) {
@@ -322,7 +341,7 @@ export async function ensureForceUpload(scripts: nodeDoc.scriptT[]): Promise<[no
                 } else if (FORCE_UPLOAD_NO === value) {
                     // do nothing ...
                 } else {
-                    // escape or anything should behave like 'None'
+                    // escape or anything should behave as if the user answered 'None'
                     none = true;
                 }
                 return numScripts + 1;
@@ -332,6 +351,8 @@ export async function ensureForceUpload(scripts: nodeDoc.scriptT[]): Promise<[no
         });
     });
 }
+
+
 
 /**
  * Read from settings.json if the script must be uploaded.
