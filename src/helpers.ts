@@ -116,56 +116,6 @@ export function checkDuplicateScripts(folderScripts: nodeDoc.scriptT[]): Promise
 
 
 
-/**
- * This function delets folder contents from folders that ends with .cat.
- * There are many checks in this function, just to be sure...
- *
- * @param serverInfo this is to check the version
- * @param dir The folder that is a category folder or contains category folders
- */
-export function deleteCatFolderContents(serverInfo: nodeDoc.ConnectionInformation, dir: string) {
-
-    // get extension-part of settings.json
-    const conf = vscode.workspace.getConfiguration('vscode-janus-debug');
-    if (!conf) {
-        vscode.window.showWarningMessage('vscode-janus-debug missing in settings');
-        return;
-    }
-    const categories = conf.get('categories', false);
-    if (!categories) {
-        return;
-    }
-
-    if (Number(serverInfo.documentsVersion) < Number(nodeDoc.VERSION_CATEGORIES)) {
-        throw new Error("Using categories only available with server version ${nodeDoc.VERSION_CATEGORIES} or higher");
-    }
-
-
-    if (dir.endsWith(CATEGORY_FOLDER_POSTFIX)) {
-        try {
-            if (fs.statSync(dir).isDirectory()) {
-                fs.emptyDirSync(dir);
-            }
-        } catch (err) {
-            // do nothing
-        }
-    } else {
-        const content: string[] = fs.readdirSync(dir);
-        if (content && content.length > 0) {
-            content.forEach((entry) => {
-                if (entry.endsWith(CATEGORY_FOLDER_POSTFIX)) {
-                    try {
-                        if (fs.statSync(entry).isDirectory()) {
-                            fs.emptyDirSync(entry);
-                        }
-                    } catch (err) {
-                        // do nothing
-                    }
-                }
-            });
-        }
-    }
-}
 
 
 export function getCategoryFromPath(parampath?: string) {
