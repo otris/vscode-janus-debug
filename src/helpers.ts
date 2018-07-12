@@ -153,14 +153,7 @@ export function getCategoryFromPath(parampath?: string) {
  */
 export function categoriesToFolders(serverInfo: nodeDoc.ConnectionInformation, scripts: nodeDoc.scriptT[], targetDir: string) {
 
-    // get extension-part of settings.json
-    const conf = vscode.workspace.getConfiguration('vscode-janus-debug');
-    if (!conf) {
-        vscode.window.showWarningMessage('vscode-janus-debug missing in settings');
-        return;
-    }
-    const categories = conf.get('categories', false);
-    if (!categories) {
+    if (!settingsCategory()) {
         return;
     }
 
@@ -211,14 +204,7 @@ export function categoriesToFolders(serverInfo: nodeDoc.ConnectionInformation, s
  */
 export function foldersToCategories(serverInfo: nodeDoc.ConnectionInformation, scripts: nodeDoc.scriptT[]) {
 
-    // get extension-part of settings.json
-    const conf = vscode.workspace.getConfiguration('vscode-janus-debug');
-    if (!conf) {
-        vscode.window.showWarningMessage('vscode-janus-debug missing in settings');
-        return;
-    }
-    const categories = conf.get('categories', false);
-    if (!categories) {
+    if (!settingsCategory()) {
         return;
     }
 
