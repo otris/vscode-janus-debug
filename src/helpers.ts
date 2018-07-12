@@ -86,6 +86,23 @@ export function setPaths(scripts: nodeDoc.scriptT[], targetDir: string) {
 }
 
 
+function settingsCategory(): boolean {
+    // get extension-part of settings.json
+    const conf = vscode.workspace.getConfiguration('vscode-janus-debug');
+    if (!conf) {
+        vscode.window.showWarningMessage('vscode-janus-debug missing in settings');
+        return false;
+    }
+    // get category flag
+    const categories = conf.get('categories', false);
+    if (!categories) {
+        return false;
+    }
+    return categories;
+}
+
+
+
 /**
  * Check, if the scripts contain scripts with same name.
  * If so, show a warning and ask the user, if they want to cancel the upload.
