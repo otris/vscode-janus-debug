@@ -10,40 +10,97 @@ const fs = require('fs-extra');
 // todo: line-endings are only LF
 
 
-// todo: move to node-documents-scripting
-function fixPortalScript(destSource: string) {
-    destSource = destSource.replace(/require\(["'](.*\/(.*))["']\)/g, `require( /*("$1")*/ "$2")`);
-    destSource = destSource.replace(/.*__esModule.*/, 'context.enableModules();');
+// typescript output channel
 
-    if (destSource.indexOf('returnCode') >= 0) {
-        destSource = destSource + '\n\nreturn returnCode;\n';
+const scriptChannel: vscode.OutputChannel = vscode.window.createOutputChannel('Typescript Console');
+function consoleLog(msg: any) {
+    scriptChannel.appendLine(String(msg));
+    scriptChannel.show();
+}
+function consoleRemove() {
+    scriptChannel.hide();
+    scriptChannel.dispose();
+}
+
+// typescript diagnostic collection
+
+const visibleDiagnostics = vscode.languages.createDiagnosticCollection('typescript');
+function clearDiagnostics(uri?: vscode.Uri) {
+    if (uri) {
+        visibleDiagnostics.delete(uri);
+    } else {
+        visibleDiagnostics.clear();
+    }
+}
+
+/**
+ * Convert typescript diagnostics to vscode diagnostics and
+ * make them visible in vscode editor and problems window
+ *
+ * @param tsDiagnostics the typescript diagnostics
+ * @param fileName the filename
+ */
+function setDiagnostics(tsDiagnostics: ts.Diagnostic[] | undefined, fileName?: string): void {
+    const vscDiagnostics: vscode.Diagnostic[] = [];
+
+    if (tsDiagnostics && tsDiagnostics.length > 0) {
+        tsDiagnostics.forEach(d => {
+            let range;
+            if (d.file && d.start && d.length) {
+                const start = d.file.getLineAndCharacterOfPosition(d.start);
+                const end = d.file.getLineAndCharacterOfPosition(d.start + d.length);
+                range = new vscode.Range(start.line, start.character, end.line, end.character);
+                consoleLog(d.messageText + ': ' + (d.file ? d.file.fileName : '') + ':' + (start.line + 1) + ':' + (start.character + 1));
+            } else {
+                range = new vscode.Range(0, 0, 0, 0);
+                consoleLog(d.messageText + ': ' + (d.file ? d.file.fileName : ''));
+            }
+            vscDiagnostics.push({
+                code: '',
+                message: "[PortalScript] " + d.messageText.toString(),
+                // tslint:disable-next-line:object-literal-shorthand
+                range: range,
+                severity: vscode.DiagnosticSeverity.Error,
+                source: ''
+            });
+        });
+        visibleDiagnostics.set(vscode.Uri.file(fileName ? fileName : ''), vscDiagnostics);
+    } else {
+        clearDiagnostics(fileName ? vscode.Uri.file(fileName) : undefined);
+    }
+}
+
+
+
+function fixPortalScript(source: string) {
+    source = source.replace(/require\(["'](.*\/(.*))["']\)/g, `require( /*("$1")*/ "$2")`);
+    source = source.replace(/.*__esModule.*/, 'context.enableModules();');
+
+    if (source.indexOf('returnCode') >= 0) {
+        source = source + '\n\nreturn returnCode;\n';
     }
 
-    return destSource;
+    return source;
 }
 
-// todo: move to node-documents-scripting
+/**
+ * tsconfig.json -> ts.CompilerOptions
+ *
+ * @param tsConfigFile path to tsconfig.json
+ */
 function jsonToConfig(tsConfigFile: string): ts.CompilerOptions {
-    const options: ts.CompilerOptions = ts.getDefaultCompilerOptions();
-
-    // read configuration from tsconfig.json
-    // const jsonContent = fs.readFileSync(tsConfigFile, 'utf8');
-    // const jsonObject = JSON.parse(jsonContent);
-    // jsonObject.compilerOptions.target: "es5"
-    // jsonObject.compilerOptions.noLib: true
-    // options.baseUrl = scriptDir;
-
-    options.target = ts.ScriptTarget.ES5;
-    options.noLib = true;
-    options.newLine = ts.NewLineKind.LineFeed;
-    options.project = tsConfigFile;
-
-    return options;
+    const json = JSON.parse(fs.readFileSync(tsConfigFile, "utf-8"));
+    const result = ts.convertCompilerOptionsFromJson(json.compilerOptions, path.dirname(tsConfigFile), path.basename(tsConfigFile));
+    setDiagnostics(result.errors);
+    return result.options;
 }
 
 
 
-// todo: move to node-documents-scripting
+
+
+
+
 function transpileScript(script: nodeDoc.scriptT, tsConfigFile: string): ts.TranspileOutput {
     if (!script.localCode) {
         throw new Error('Script source code missing');
@@ -56,7 +113,13 @@ function transpileScript(script: nodeDoc.scriptT, tsConfigFile: string): ts.Tran
         reportDiagnostics: true,
         compilerOptions: cOptions
     };
-    return ts.transpileModule(script.localCode, tOptions);
+    const result = ts.transpileModule(script.localCode, tOptions);
+
+    // output compile errors
+    setDiagnostics(result.diagnostics, script.path);
+
+
+    return result;
 }
 
 
@@ -92,31 +155,10 @@ export function generatePortalScript(param: any): Promise<void> {
             // first transpile the code
             const result = transpileScript(script, tsConfig);
 
-            // check transpilation result
-            if (result.diagnostics && result.diagnostics.length !== 0) {
+            const jsSource = fixPortalScript(result.outputText);
+            fs.writeFileSync(path.join(path.dirname(script.path), script.name + '.js'), jsSource, 'utf-8');
 
-                // transpiler errors happened, try to output file, line and pos
-                result.diagnostics.forEach(d => {
-                    if (d.file && d.start) {
-                        // maybe add d.length
-                        const start = d.file.getLineAndCharacterOfPosition(d.start);
-                        console.log(d.messageText + ': ' + d.file.fileName + ': ' + (start.line + 1) + ':' + (start.character + 1));
-                        vscode.window.showErrorMessage(`Transpilation of ${script.name}.ts failed at line ${start.line + 1}: pos ${start.character}`);
-                    } else {
-                        console.log(d.messageText + (d.file ? (': ' + d.file.fileName) : ''));
-                        vscode.window.showErrorMessage(`Transpilation of ${script.name}.ts failed`);
-                    }
-                });
-                vscode.window.setStatusBarMessage(`Generation of PortalScript ${script.name} failed`);
-            } else {
-
-                // everything fine, add required code changes and save the script
-                // todo: clear former ErrorMessages
-                const jsSource = fixPortalScript(result.outputText);
-                fs.writeFileSync(path.join(path.dirname(script.path), script.name + '.js'), jsSource, 'utf-8');
-                vscode.window.setStatusBarMessage(`Generated PortalScript ${script.name} at ${helpers.getTime()}`);
-            }
-
+            vscode.window.setStatusBarMessage(`Generated PortalScript ${script.name} at ${helpers.getTime()}`);
 
         } catch (e) {
             return reject('error in generating portalScript: ' + e);
