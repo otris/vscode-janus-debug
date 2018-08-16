@@ -159,6 +159,7 @@ export async function ensureLoginInformation(serverInfo: nodeDoc.ConnectionInfor
 
         let askForAllInfoRequired = true;
         if (vscode.workspace && vscode.workspace.rootPath) {
+            // vscode.workspace.getConfiguration('launch', vscode.workspace.workspaceFolders[wsno]);
             const launchJsonExists = fs.existsSync(path.join(vscode.workspace.rootPath, '.vscode', 'launch.json'));
             if (!launchJsonExists) {
                 // call this function here because launchJsonWatcher is not
