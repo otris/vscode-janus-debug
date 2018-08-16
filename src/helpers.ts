@@ -49,6 +49,19 @@ export function extend<T, U>(target: T, source: U): T & U {
 }
 
 
+
+export function getUserInput(param: any, activeEditor = false): string {
+    let fsPath;
+    if (param) {
+        fsPath = param._fsPath;
+    }
+    if (activeEditor && !fsPath && vscode.window.activeTextEditor) {
+        fsPath = vscode.window.activeTextEditor.document.fileName;
+    }
+    return fsPath;
+}
+
+
 /**
  * If the type of an error is not clear, call this function.
  * @param error the error with unknown type
@@ -821,6 +834,7 @@ export async function checkPath(scriptPath: string | undefined, allowCreateFolde
         if (!vscode.workspace || !vscode.workspace.rootPath) {
             return reject('First open a workspace folder please!');
         }
+        // const workspaceFolders = vscode.workspace.workspaceFolders;
         const workspaceFolder = vscode.workspace.rootPath;
         if (!scriptPath) {
             return reject('Invalid script path');
