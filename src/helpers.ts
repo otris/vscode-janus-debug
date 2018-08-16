@@ -50,7 +50,7 @@ export function extend<T, U>(target: T, source: U): T & U {
 
 
 
-export function getUserInput(param: any, activeEditor = false): string {
+export function getCommandInfo(param: any, activeEditor: boolean): string {
     let fsPath;
     if (param) {
         fsPath = param._fsPath;

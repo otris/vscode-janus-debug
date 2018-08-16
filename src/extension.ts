@@ -293,8 +293,9 @@ export function activate(context: vscode.ExtensionContext): void {
     ipcServer = new VSCodeExtensionIPC();
 
     // Register configuration provider
-    context.subscriptions.push(vscode.debug.registerDebugConfigurationProvider('janus',
-        new JanusDebugConfigurationProvider()));
+    context.subscriptions.push(
+        vscode.debug.registerDebugConfigurationProvider('janus', new JanusDebugConfigurationProvider())
+    );
 
 
     // Register commands
@@ -307,19 +308,14 @@ export function activate(context: vscode.ExtensionContext): void {
                 password: true,
                 ignoreFocusOut: true,
             });
-        }));
+        })
+    );
 
     // Upload script
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.uploadScript', async (param) => {
 
-            let fsPath;
-            if (param) {
-                fsPath = param._fsPath;
-            }
-            if (!fsPath && vscode.window.activeTextEditor) {
-                fsPath = vscode.window.activeTextEditor.document.fileName;
-            }
+            const fsPath = helpers.getCommandInfo(param, true);
             try {
                 await serverCommands.uploadScript(loginData, fsPath);
             } catch (err) {
@@ -333,13 +329,7 @@ export function activate(context: vscode.ExtensionContext): void {
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.generatePortalScript', async (param) => {
 
-            let fsPath;
-            if (param) {
-                fsPath = param._fsPath;
-            }
-            if (!fsPath && vscode.window.activeTextEditor) {
-                fsPath = vscode.window.activeTextEditor.document.fileName;
-            }
+            const fsPath = helpers.getCommandInfo(param, true);
             try {
                 await transpile.generatePortalScript(fsPath);
             } catch (err) {
@@ -353,10 +343,7 @@ export function activate(context: vscode.ExtensionContext): void {
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.uploadScriptsFromFolder', async (param) => {
 
-            let fsPath;
-            if (param && (typeof param._fsPath === 'string')) {
-                fsPath = param._fsPath;
-            }
+            const fsPath = helpers.getCommandInfo(param, false);
             try {
                 await serverCommands.uploadAll(loginData, fsPath);
             } catch (err) {
@@ -369,10 +356,8 @@ export function activate(context: vscode.ExtensionContext): void {
     // Download script
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.downloadScript', async (param) => {
-            let fsPath: string | undefined;
-            if (param && (typeof param._fsPath === 'string')) {
-                fsPath = param._fsPath;
-            }
+
+            const fsPath = helpers.getCommandInfo(param, false);
             try {
                 await serverCommands.downloadScript(loginData, fsPath);
             } catch (err) {
@@ -385,10 +370,8 @@ export function activate(context: vscode.ExtensionContext): void {
     // Download all scripts from server
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.downloadAllScripts', async (param) => {
-            let fsPath: string | undefined;
-            if (param && (typeof param._fsPath === 'string')) {
-                fsPath = param._fsPath;
-            }
+
+            const fsPath = helpers.getCommandInfo(param, false);
             try {
                 await serverCommands.downloadAllSelected(loginData, fsPath);
             } catch (err) {
@@ -401,10 +384,8 @@ export function activate(context: vscode.ExtensionContext): void {
     // Download all scripts that are inside the folder
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.reloadScripts', async (param) => {
-            let fsPath: string | undefined;
-            if (param && (typeof param._fsPath === 'string')) {
-                fsPath = param._fsPath;
-            }
+
+            const fsPath = helpers.getCommandInfo(param, false);
             try {
                 await serverCommands.reloadScripts(loginData, fsPath);
             } catch (err) {
@@ -417,13 +398,8 @@ export function activate(context: vscode.ExtensionContext): void {
     // Run script
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.runScript', async (param) => {
-            let fsPath: string | undefined;
-            if (param && (typeof param._fsPath === 'string')) {
-                fsPath = param._fsPath;
-            }
-            if (!fsPath && vscode.window.activeTextEditor) {
-                fsPath = vscode.window.activeTextEditor.document.fileName;
-            }
+
+            const fsPath = helpers.getCommandInfo(param, true);
             try {
                 await serverCommands.runScript(loginData, fsPath, scriptChannel);
             } catch (err) {
@@ -436,13 +412,8 @@ export function activate(context: vscode.ExtensionContext): void {
     // Upload and Debug script
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.debugScript', async (param) => {
-            let fsPath: string | undefined;
-            if (param && (typeof param._fsPath === 'string')) {
-                fsPath = param._fsPath;
-            }
-            if (!fsPath && vscode.window.activeTextEditor) {
-                fsPath = vscode.window.activeTextEditor.document.fileName;
-            }
+
+            const fsPath = helpers.getCommandInfo(param, true);
             try {
                 let folder: vscode.WorkspaceFolder | undefined;
                 if (vscode.workspace.workspaceFolders) {
@@ -480,13 +451,7 @@ export function activate(context: vscode.ExtensionContext): void {
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.uploadRunScript', async (param) => {
 
-            let fsPath: string | undefined;
-            if (param && (typeof param._fsPath === 'string')) {
-                fsPath = param._fsPath;
-            }
-            if (!fsPath && vscode.window.activeTextEditor) {
-                fsPath = vscode.window.activeTextEditor.document.fileName;
-            }
+            const fsPath = helpers.getCommandInfo(param, true);
             try {
                 await serverCommands.uploadRunScript(loginData, fsPath, scriptChannel);
             } catch (err) {
@@ -499,13 +464,8 @@ export function activate(context: vscode.ExtensionContext): void {
     // Compare script
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.compareScript', async (param) => {
-            let fsPath;
-            if (param) {
-                fsPath = param._fsPath;
-            }
-            if (!fsPath && vscode.window.activeTextEditor) {
-                fsPath = vscode.window.activeTextEditor.document.fileName;
-            }
+
+            const fsPath = helpers.getCommandInfo(param, true);
             try {
                 await serverCommands.compareScript(loginData, fsPath);
             } catch (err) {
@@ -577,10 +537,8 @@ export function activate(context: vscode.ExtensionContext): void {
     // Show imports
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.showImports', async (param) => {
-            let fsPath: string | undefined;
-            if (param && (typeof param._fsPath === 'string')) {
-                fsPath = param._fsPath;
-            }
+
+            const fsPath = helpers.getCommandInfo(param, true);
             try {
                 await serverCommands.showImports(loginData, fsPath, scriptChannel);
             } catch (err) {
