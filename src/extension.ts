@@ -595,23 +595,6 @@ export function activate(context: vscode.ExtensionContext): void {
     }
 
 
-    // show warnings for deprecated files
-    // todo remove this checks and warnings
-    if (vscode.workspace && vscode.workspace.rootPath) {
-        try {
-            fs.readFileSync(path.join(vscode.workspace.rootPath, 'documents-scripting-settings.json'));
-            vscode.window.showWarningMessage('Deprecated file "documents-scripting-settings.json" can be deleted!');
-        } catch (err) {
-            // no error
-        }
-        try {
-            fs.readFileSync(path.join(vscode.workspace.rootPath, '.documents-scripting-cache'));
-            vscode.window.showWarningMessage('Deprecated file ".documents-scripting-cache" can be deleted!');
-        } catch (err) {
-            // no error
-        }
-    }
-
     vscode.window.setStatusBarMessage('vscode-janus-debug is active');
 }
 
