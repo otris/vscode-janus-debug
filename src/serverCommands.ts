@@ -3,9 +3,10 @@ import * as os from 'os';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import * as helpers from './helpers';
-import { getErrorMsg, getTime } from './helpers';
+import { getTime } from './helpers';
 import * as login from './login';
 import { getExactVersion } from './serverVersion';
+import * as settings from './settings';
 
 // tslint:disable-next-line:no-var-requires
 const fs = require('fs-extra');
@@ -29,11 +30,11 @@ async function uploadScriptCommon(loginData: nodeDoc.ConnectionInformation, para
         helpers.ensureScript(param).then((_script) => {
 
             // get information from settings and hash values
-            helpers.setConflictModes(conf, [_script]);
-            helpers.readHashValues(conf, [_script], loginData.server);
-            helpers.readEncryptionFlag(conf, [_script]);
-            helpers.setScriptInfoJson(conf, [_script]);
-            helpers.foldersToCategories(conf, loginData, [_script]);
+            settings.setConflictModes(conf, [_script]);
+            settings.readHashValues(conf, [_script], loginData.server);
+            settings.readEncryptionFlag(conf, [_script]);
+            settings.setScriptInfoJson(conf, [_script]);
+            settings.foldersToCategories(conf, loginData, [_script]);
 
             return nodeDoc.serverSession(loginData, [_script], nodeDoc.uploadScript).then((value) => {
 
@@ -43,11 +44,11 @@ async function uploadScriptCommon(loginData: nodeDoc.ConnectionInformation, para
                 const script: nodeDoc.scriptT = value[0];
 
                 // in case of conflict, ask if script should be force-uploaded
-                helpers.ensureForceUpload(conf, [script]).then(([noConflict, forceUpload]) => {
+                settings.ensureForceUpload(conf, [script]).then(([noConflict, forceUpload]) => {
 
                     // if forceUpload is empty, function resolves
                     nodeDoc.serverSession(loginData, forceUpload, nodeDoc.uploadScript).then(() => {
-                        helpers.updateHashValues(conf, [script], loginData.server);
+                        settings.updateHashValues(conf, [script], loginData.server);
 
                         // script not uploaded, if conflict is true
                         if (script.conflict) {
@@ -92,7 +93,7 @@ export function uploadScriptOnSave(loginData: nodeDoc.ConnectionInformation, fil
     const conf = vscode.workspace.getConfiguration('vscode-janus-debug');
 
     return new Promise<boolean>((resolve, reject) => {
-        helpers.ensureUploadOnSave(conf, fileName).then((value) => {
+        settings.ensureUploadOnSave(conf, fileName).then((value) => {
 
             if (helpers.autoUpload.yes === value) {
                 uploadScriptCommon(loginData, fileName).then(() => {
@@ -131,17 +132,17 @@ export function uploadAll(loginData: nodeDoc.ConnectionInformation, paramPath: a
             const folderScripts = nodeDoc.getScriptsFromFolderSync(folder);
 
 
-            helpers.setConflictModes(conf, folderScripts);
-            helpers.readHashValues(conf, folderScripts, loginData.server);
-            helpers.readEncryptionFlag(conf, folderScripts);
-            helpers.setScriptInfoJson(conf, folderScripts);
-            helpers.foldersToCategories(conf, loginData, folderScripts);
+            settings.setConflictModes(conf, folderScripts);
+            settings.readHashValues(conf, folderScripts, loginData.server);
+            settings.readEncryptionFlag(conf, folderScripts);
+            settings.setScriptInfoJson(conf, folderScripts);
+            settings.foldersToCategories(conf, loginData, folderScripts);
 
             return nodeDoc.serverSession(loginData, folderScripts, nodeDoc.uploadAll).then((value1) => {
                 const retScripts: nodeDoc.scriptT[] = value1;
 
                 // ask user about how to handle conflict scripts
-                helpers.ensureForceUpload(conf, retScripts).then(([noConflict, forceUpload]) => {
+                settings.ensureForceUpload(conf, retScripts).then(([noConflict, forceUpload]) => {
 
                     // forceUpload might be empty, function resolves anyway
                     nodeDoc.serverSession(loginData, forceUpload, nodeDoc.uploadAll).then((value2) => {
@@ -150,7 +151,7 @@ export function uploadAll(loginData: nodeDoc.ConnectionInformation, paramPath: a
                         // retscripts2 might be empty
                         const uploaded = noConflict.concat(retScripts2);
 
-                        helpers.updateHashValues(conf, uploaded, loginData.server);
+                        settings.updateHashValues(conf, uploaded, loginData.server);
 
                         vscode.window.setStatusBarMessage('uploaded ' + uploaded.length + ' scripts from ' + folder);
                         resolve();
@@ -202,7 +203,7 @@ function runScriptCommon(loginData: nodeDoc.ConnectionInformation, param: any, o
                 outputChannel.show();
             }
 
-            helpers.scriptLog(conf, script.output);
+            settings.scriptLog(conf, script.output);
 
             resolve(scriptName);
         } catch (reason) {
@@ -265,7 +266,7 @@ export async function uploadDebugScript(loginData: nodeDoc.ConnectionInformation
         outputChannel.append(`Script finished at ` + getTime() + ` on DOCUMENTS ${ver}` + os.EOL);
         outputChannel.show();
 
-        helpers.scriptLog(conf, script.output);
+        settings.scriptLog(conf, script.output);
 
         vscode.window.setStatusBarMessage('Script ' + scriptName + ' finished at ' + getTime());
     } catch (e) {
@@ -337,7 +338,7 @@ export async function downloadScript(loginData: nodeDoc.ConnectionInformation, c
             const scriptPath = path.join(scriptDir, scriptName + '.js');
             let script: nodeDoc.scriptT = new nodeDoc.scriptT(scriptName, scriptPath);
 
-            helpers.getScriptInfoJson(conf, [script]);
+            settings.getScriptInfoJson(conf, [script]);
 
             return nodeDoc.serverSession(loginData, [script], nodeDoc.downloadScript).then((value) => {
                 script = value[0];
@@ -345,12 +346,12 @@ export async function downloadScript(loginData: nodeDoc.ConnectionInformation, c
                 if (onFolder) {
                     // if download is called directly on a script, the path
                     // should not be changed
-                    helpers.categoriesToFolders(conf, loginData, [script], scriptDir);
+                    settings.categoriesToFolders(conf, loginData, [script], scriptDir);
                 }
 
                 return nodeDoc.saveScriptUpdateSyncHash([script]).then(() => {
-                    helpers.updateHashValues(conf, [script], loginData.server);
-                    helpers.writeScriptInfoJson(conf, [script]);
+                    settings.updateHashValues(conf, [script], loginData.server);
+                    settings.writeScriptInfoJson(conf, [script]);
                     vscode.window.setStatusBarMessage('downloaded: ' + script.name);
 
                     if (!script.path) {
@@ -385,7 +386,7 @@ export async function downloadAllCommon(loginData: nodeDoc.ConnectionInformation
 
         // set downloadParameters flag in script structure,
         // if scriptParameters is true in settings.json
-        helpers.getScriptInfoJson(conf, inputScripts);
+        settings.getScriptInfoJson(conf, inputScripts);
 
         // download scripts from server
         return nodeDoc.serverSession(loginData, inputScripts, nodeDoc.downloadAll).then((outputScripts) => {
@@ -396,17 +397,17 @@ export async function downloadAllCommon(loginData: nodeDoc.ConnectionInformation
                 // if it is a normal folder that contains category folders
 
                 // change script paths from scripts with categories
-                helpers.categoriesToFolders(conf, loginData, outputScripts, downloadFolder);
+                settings.categoriesToFolders(conf, loginData, outputScripts, downloadFolder);
             }
 
             // save script to file and update hash value in script structure
             return nodeDoc.saveScriptUpdateSyncHash(outputScripts).then((numSavedScripts) => {
 
                 // write hash values from script structure to file
-                helpers.updateHashValues(conf, outputScripts, loginData.server);
+                settings.updateHashValues(conf, outputScripts, loginData.server);
 
                 // write parameters to file
-                helpers.writeScriptInfoJson(conf, outputScripts);
+                settings.writeScriptInfoJson(conf, outputScripts);
 
                 // if a script from inputScripts list is not downloaded but the function resolves,
                 // the script is encrypted on server
