@@ -1,5 +1,5 @@
 import * as nodeDoc from 'node-documents-scripting';
-import { Logger } from 'node-file-log';
+import { LogConfiguration, Logger } from 'node-file-log';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import { provideInitialConfigurations } from './config';
