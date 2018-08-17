@@ -123,20 +123,6 @@ export function setPaths(scripts: nodeDoc.scriptT[], targetDir: string) {
 }
 
 
-function settingsCategory(): boolean {
-    // get extension-part of settings.json
-    const conf = vscode.workspace.getConfiguration('vscode-janus-debug');
-    if (!conf) {
-        vscode.window.showWarningMessage('vscode-janus-debug missing in settings');
-        return false;
-    }
-    // get category flag
-    const categories = conf.get('categories', false);
-    if (!categories) {
-        return false;
-    }
-    return categories;
-}
 
 
 
@@ -190,8 +176,16 @@ export function getCategoryFromPath(parampath?: string) {
  */
 export function categoriesToFolders(serverInfo: nodeDoc.ConnectionInformation, scripts: nodeDoc.scriptT[], targetDir: string) {
 
-    if (!settingsCategory()) {
-        return;
+    // get extension-part of settings.json
+    const conf = vscode.workspace.getConfiguration('vscode-janus-debug');
+    if (!conf) {
+        vscode.window.showWarningMessage('vscode-janus-debug missing in settings');
+        return false;
+    }
+    // get category flag
+    const categories = conf.get('categories', false);
+    if (!categories) {
+        return false;
     }
 
     // move this check to node-documents-scripting!
@@ -241,8 +235,16 @@ export function categoriesToFolders(serverInfo: nodeDoc.ConnectionInformation, s
  */
 export function foldersToCategories(serverInfo: nodeDoc.ConnectionInformation, scripts: nodeDoc.scriptT[]) {
 
-    if (!settingsCategory()) {
-        return;
+    // get extension-part of settings.json
+    const conf = vscode.workspace.getConfiguration('vscode-janus-debug');
+    if (!conf) {
+        vscode.window.showWarningMessage('vscode-janus-debug missing in settings');
+        return false;
+    }
+    // get category flag
+    const categories = conf.get('categories', false);
+    if (!categories) {
+        return false;
     }
 
     // remove this check! this is already checked in node-documents-scripting!
