@@ -1,4 +1,5 @@
 import * as nodeDoc from 'node-documents-scripting';
+import { LogConfiguration } from 'node-file-log';
 import * as os from 'os';
 import * as path from 'path';
 import * as vscode from 'vscode';
@@ -85,6 +86,20 @@ export function getWorkspacePath(param: any, activeEditor: boolean): WorkspacePa
     return undefined;
 }
 
+
+export function getLogConfiguration(): LogConfiguration | undefined {
+    const workspaceRoot = vscode.workspace.rootPath;
+    const config = vscode.workspace.getConfiguration('vscode-janus-debug');
+    const log: any = config.get("log");
+    if (log && log.fileName && workspaceRoot) {
+        return {
+            fileName: log.fileName.replace(/[$]{workspaceRoot}/, workspaceRoot),
+            logLevel: {
+                "vscode-janus-debug": log.logLevel ? log.logLevel : "Debug"
+            }
+        };
+    }
+}
 
 /**
  * If the type of an error is not clear, call this function.

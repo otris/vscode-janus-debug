@@ -4,16 +4,14 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import { provideInitialConfigurations } from './config';
 import * as documentation from './documentation';
-import { extend } from './helpers';
 import * as helpers from './helpers';
 import * as intellisense from './intellisense';
 import { VSCodeExtensionIPC } from './ipcServer';
 import * as login from './login';
 import * as serverCommands from './serverCommands';
-import { ServerConsole } from './serverConsole';
+import * as serverConsole from './serverConsole';
 import { getExactVersion } from './serverVersion';
 import * as transpile from './transpile';
-import stripJsonComments = require('strip-json-comments');
 import * as version from './version';
 import * as wizard from './wizard';
 
@@ -22,164 +20,20 @@ const fs = require('fs-extra');
 
 let ipcServer: VSCodeExtensionIPC;
 let launchJsonWatcher: vscode.FileSystemWatcher;
-let serverConsole: ServerConsole;
 let scriptChannel: vscode.OutputChannel;
 let disposableOnSave: vscode.Disposable;
-/**
- * Flag in settings.json (vscode-janus-debug.serverConsole.autoConnect)
- * Note: should be considered in a settings.json watcher.
- */
-let autoConnectServerConsole: boolean;
 
 
 
-function getLogConfiguration(): LogConfiguration | undefined {
-    const workspaceRoot = vscode.workspace.rootPath;
-    const config = vscode.workspace.getConfiguration('vscode-janus-debug');
-    const log: any = config.get("log");
-    if (log && log.fileName && workspaceRoot) {
-        return {
-            fileName: log.fileName.replace(/[$]{workspaceRoot}/, workspaceRoot),
-            logLevel: {
-                "vscode-janus-debug": log.logLevel ? log.logLevel : "Debug"
-            }
-        };
-    }
-}
 
-/**
- * Reads and returns the launch.json file's configurations.
- *
- * This function does essentially the same as
- *
- *     let configs = vscode.workspace.getConfiguration('launch');
- *
- * but is guaranteed to read the configuration from disk the moment it is called.
- * vscode.workspace.getConfiguration function seems instead to return the
- * currently loaded or active configuration which is not necessarily the most
- * current one.
- */
-async function getLaunchConfigFromDisk(): Promise<vscode.WorkspaceConfiguration> {
-
-    class Config implements vscode.WorkspaceConfiguration {
-
-        [key: string]: any
-
-        public get<T>(section: string, defaultValue?: T): T {
-            // tslint:disable-next-line:no-string-literal
-            return this.has(section) ? this[section] : defaultValue;
-        }
-
-        public has(section: string): boolean {
-            return this.hasOwnProperty(section);
-        }
-
-        public async update(section: string, value: any): Promise<void> {
-            // Not implemented... and makes no sense to implement
-            return Promise.reject(new Error('Not implemented'));
-        }
-
-        public inspect<T>(section: string): { key: string; defaultValue?: T; globalValue?: T; workspaceValue?: T } | undefined {
-            throw new Error('Not implemented');
-        }
-    }
-
-    return new Promise<vscode.WorkspaceConfiguration>((resolve, reject) => {
-        if (!vscode.workspace.rootPath) {
-            // No folder open; resolve with an empty configuration
-            return resolve(new Config());
-        }
-
-        const filePath = path.resolve(vscode.workspace.rootPath, '.vscode/launch.json');
-        fs.readFile(filePath, { encoding: 'utf-8', flag: 'r' }, (err: any, data: any) => {
-            if (err) {
-                // Silently ignore error and resolve with an empty configuration
-                return resolve(new Config());
-            }
-
-            const obj = JSON.parse(stripJsonComments(data));
-            const config = extend(new Config(), obj);
-            resolve(config);
-        });
-    });
-}
-
-/**
- * Connect or re-connect server console.
- *
- * Get launch.json configuration and see if we can connect to a remote
- * server already. Watch for changes in launch.json file.
- */
-async function reconnectServerConsole(console: ServerConsole): Promise<void> {
-
-    let hostname: string | undefined;
-    let port: number | undefined;
-    let timeout: number | undefined;
-
-    try {
-        await console.disconnect();
-
-        const launchJson = await getLaunchConfigFromDisk();  // vscode.workspace.getConfiguration('launch');
-        const configs: any[] = launchJson.get('configurations', []);
-
-        for (const config of configs) {
-            if (config.hasOwnProperty('type') && config.type === 'janus') {
-                hostname = config.host;
-                port = config.applicationPort;
-                timeout = config.timeout;
-                break;
-            }
-        }
-    } catch (error) {
-        // Swallow
-    }
-
-    if (hostname && port) {
-        console.connect({ hostname, port, timeout });
-    }
-}
-
-function disconnectServerConsole(console: ServerConsole): void {
-    console.disconnect().then(() => {
-        console.outputChannel.appendLine(`Disconnected from server`);
-    });
-}
-
-
-/**
- * The flag vscode-janus-debug.serverConsole.autoConnect is read
- * once on startup.
- */
-function readAutoConnectServerConsole() {
-    const extensionSettings = vscode.workspace.getConfiguration('vscode-janus-debug');
-    autoConnectServerConsole = extensionSettings.get('serverConsole.autoConnect', false);
-}
-
-function printVersion(outputChannel: vscode.OutputChannel) {
-    if (vscode.workspace !== undefined) {
-        outputChannel.appendLine('Extension activated');
-        try {
-            outputChannel.appendLine("Version: " + version.getVersion().toString(true));
-        } catch (err) {
-            /* swallow */
-        }
-    }
-}
-
-function initServerConsole(outputChannel: vscode.OutputChannel) {
-    serverConsole = new ServerConsole(outputChannel);
-    if (autoConnectServerConsole) {
-        reconnectServerConsole(serverConsole);
-    }
-}
 
 function initLaunchJsonWatcher(outputChannel: vscode.OutputChannel, loginData: nodeDoc.ConnectionInformation) {
     launchJsonWatcher = vscode.workspace.createFileSystemWatcher('**/launch.json', false, false, false);
 
     launchJsonWatcher.onDidCreate((file) => {
-        if (autoConnectServerConsole && serverConsole) {
+        if (serverConsole.autoConnectServerConsole && serverConsole.consoleObj) {
             outputChannel.appendLine('launch.json created; trying to connect...');
-            reconnectServerConsole(serverConsole);
+            serverConsole.reconnectServerConsole(serverConsole.consoleObj);
         }
         const fsPath = file ? file.fsPath : '';
         login.loadLoginInformationOnCreate(loginData, fsPath);
@@ -195,9 +49,9 @@ function initLaunchJsonWatcher(outputChannel: vscode.OutputChannel, loginData: n
     });
 
     launchJsonWatcher.onDidChange((file) => {
-        if (autoConnectServerConsole && serverConsole) {
+        if (serverConsole.autoConnectServerConsole && serverConsole.consoleObj) {
             outputChannel.appendLine('launch.json changed; trying to (re)connect...');
-            reconnectServerConsole(serverConsole);
+            serverConsole.reconnectServerConsole(serverConsole.consoleObj);
         }
         if (file) {
             login.loadLoginInformation(loginData, file.fsPath);
@@ -216,8 +70,8 @@ function initLaunchJsonWatcher(outputChannel: vscode.OutputChannel, loginData: n
     launchJsonWatcher.onDidDelete((file) => {
         // this function is only called, if launch.json is deleted directly,
         // if the whole folder .vscode is deleted, this function is not called!
-        if (autoConnectServerConsole && serverConsole) {
-            disconnectServerConsole(serverConsole);
+        if (serverConsole.autoConnectServerConsole && serverConsole.consoleObj) {
+            serverConsole.disconnectServerConsole(serverConsole.consoleObj);
         }
         loginData.resetLoginData();
     });
@@ -266,7 +120,7 @@ export function activate(context: vscode.ExtensionContext): void {
     }
 
     // set up file logging
-    const extensionLoggerConf = getLogConfiguration();
+    const extensionLoggerConf = helpers.getLogConfiguration();
     if (extensionLoggerConf) {
         Logger.config = extensionLoggerConf;
     }
@@ -285,9 +139,9 @@ export function activate(context: vscode.ExtensionContext): void {
 
     // Initialize server console and launch.json watcher.
     // Print version before server console is initialized.
-    readAutoConnectServerConsole();
-    printVersion(serverChannel);
-    initServerConsole(serverChannel);
+    serverConsole.readAutoConnectServerConsole();
+    serverConsole.printVersion(serverChannel);
+    serverConsole.initServerConsole(serverChannel);
     initLaunchJsonWatcher(serverChannel, loginData);
 
     ipcServer = new VSCodeExtensionIPC();
@@ -553,14 +407,14 @@ export function activate(context: vscode.ExtensionContext): void {
     // connect the sever console manually
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus.debug.connectServerConsole', (param) => {
-            reconnectServerConsole(serverConsole);
+            serverConsole.reconnectServerConsole(serverConsole.consoleObj);
         })
     );
 
     // disconnect the server console manually
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus.debug.disconnectServerConsole', (param) => {
-            disconnectServerConsole(serverConsole);
+            serverConsole.disconnectServerConsole(serverConsole.consoleObj);
         })
     );
 
@@ -604,8 +458,8 @@ export function activate(context: vscode.ExtensionContext): void {
 export function deactivate(): undefined {
     ipcServer.dispose();
     launchJsonWatcher.dispose();
-    serverConsole.hide();
-    serverConsole.dispose();
+    serverConsole.consoleObj.hide();
+    serverConsole.consoleObj.dispose();
     scriptChannel.hide();
     scriptChannel.dispose();
     return;
