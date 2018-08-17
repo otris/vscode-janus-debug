@@ -48,16 +48,24 @@ export function extend<T, U>(target: T, source: U): T & U {
     return t;
 }
 
+/**
+ * This type should be used in the extension instead of paths.
+ * It will be easier to get the corresponding settings.json, launch.json,
+ * log-files and everything that could be in a workspace folder
+ */
 // tslint:disable-next-line:interface-over-type-literal
 export interface WorkspacePath {
-    wsFolder: vscode.WorkspaceFolder;
+    wsFolder: vscode.WorkspaceFolder | undefined;
     fsPath: string;
     type: "js" | "ts" | "folder" | undefined;
 }
 
+/**
+ * If the path is not a workspace folder, only the path is returned.
+ * Because some features are possible without workspace folders.
+ */
 export function getWorkspacePath(param: any, activeEditor: boolean): WorkspacePath | undefined {
     let uri;
-    let workspaceFolder;
 
     if (param && param instanceof vscode.Uri) {
         uri = param;
@@ -66,12 +74,8 @@ export function getWorkspacePath(param: any, activeEditor: boolean): WorkspacePa
     }
 
     if (uri) {
-        workspaceFolder = vscode.workspace.getWorkspaceFolder(uri);
-    }
-
-    if (uri && workspaceFolder) {
         return {
-            wsFolder: workspaceFolder,
+            wsFolder: vscode.workspace.getWorkspaceFolder(uri),
             fsPath: uri.fsPath,
             // todo
             type: undefined
@@ -846,23 +850,15 @@ export async function ensureHiddenFolder(_path: string): Promise<void> {
 
 /**
  * Check, if the path exists and return the folder path.
- * Only the last subfolder in the input path does not have
- * to exist, it can be created later.
+ *
+ * Todo: allowCreateFolder should be removed, it is very simple
+ * to create a folder in VS Code manually and then execute
+ * the command on the created folder
  */
-export async function checkPath(scriptPath: string | undefined, allowCreateFolder = false): Promise<string> {
+async function getDir(scriptPath: string): Promise<string> {
     return new Promise<string>((resolve, reject) => {
-        if (!vscode.workspace || !vscode.workspace.rootPath) {
-            return reject('First open a workspace folder please!');
-        }
-        // const workspaceFolders = vscode.workspace.workspaceFolders;
-        const workspaceFolder = vscode.workspace.rootPath;
-        if (!scriptPath) {
-            return reject('Invalid script path');
-        }
-        if (!scriptPath.toLowerCase().startsWith(workspaceFolder.toLowerCase())) {
-            return reject(`${scriptPath} is not a subfolder of ${workspaceFolder}`);
-        }
-
+        // todo remove
+        const allowCreateFolder = false;
         fs.stat(scriptPath, function(err1: any, stats1: any) {
             if (err1) {
                 if (allowCreateFolder && 'ENOENT' === err1.code && 'js' !== path.extname(scriptPath)) {
@@ -908,21 +904,20 @@ export async function checkPath(scriptPath: string | undefined, allowCreateFolde
 
 
 
-export async function ensurePath(fileOrFolder: string | undefined, allowSubDir = false): Promise<string> {
+export async function ensurePath(fileOrDir: string | undefined, allowSubDir = false): Promise<string> {
 
     return new Promise<string>((resolve, reject) => {
 
-        if (!vscode.workspace || !vscode.workspace.rootPath) {
+        if (!vscode.workspace.workspaceFolders) {
             return reject('First open a workspace folder please!');
         }
-        const workspaceFolder = vscode.workspace.rootPath;
 
-        if (fileOrFolder) {
+        if (fileOrDir) {
 
-            checkPath(fileOrFolder).then((retpath) => {
-                resolve(retpath);
+            getDir(fileOrDir).then((returnDir) => {
+                return resolve(returnDir);
             }).catch((reason: string) => {
-                reject(reason);
+                return reject(reason);
             });
         } else {
 
@@ -931,7 +926,7 @@ export async function ensurePath(fileOrFolder: string | undefined, allowSubDir =
             if (vscode.window.activeTextEditor) {
                 defaultPath = path.dirname(vscode.window.activeTextEditor.document.fileName);
             } else {
-                defaultPath = workspaceFolder;
+                defaultPath = vscode.workspace.workspaceFolders[0].uri.fsPath;
             }
 
             // ask for path
@@ -940,12 +935,29 @@ export async function ensurePath(fileOrFolder: string | undefined, allowSubDir =
                 prompt: showText,
                 value: defaultPath,
                 ignoreFocusOut: true,
-            }).then((input) => {
-                checkPath(input, allowSubDir).then((retpath) => {
-                    resolve(retpath);
-                }).catch((reason: string) => {
-                    reject(reason);
-                });
+            }).then(async (input: string | undefined) => {
+                if (!input) {
+                    return reject('Invalid input');
+                }
+
+                let uri;
+                let returnDir;
+                try {
+                    returnDir = await getDir(input);
+
+                    // we need the uri to check if the input
+                    // is a workspace folder
+                    uri = vscode.Uri.parse(returnDir);
+                } catch (err) {
+                    return reject(err);
+                }
+
+                // is the input a workspace folder?
+                if (vscode.workspace.getWorkspaceFolder(uri)) {
+                    return reject(`${input} is not a workspacefolder`);
+                }
+
+                return resolve(returnDir);
             });
         }
     });
