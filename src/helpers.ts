@@ -48,17 +48,37 @@ export function extend<T, U>(target: T, source: U): T & U {
     return t;
 }
 
+// tslint:disable-next-line:interface-over-type-literal
+export interface WorkspacePath {
+    wsFolder: vscode.WorkspaceFolder;
+    fsPath: string;
+    type: "js" | "ts" | "folder" | undefined;
+}
 
+export function getWorkspacePath(param: any, activeEditor: boolean): WorkspacePath | undefined {
+    let uri;
+    let workspaceFolder;
 
-export function getCommandInfo(param: any, activeEditor: boolean): string {
-    let fsPath;
-    if (param) {
-        fsPath = param._fsPath;
+    if (param && param instanceof vscode.Uri) {
+        uri = param;
+    } else if (activeEditor && vscode.window.activeTextEditor) {
+        uri = vscode.window.activeTextEditor.document.uri;
     }
-    if (activeEditor && !fsPath && vscode.window.activeTextEditor) {
-        fsPath = vscode.window.activeTextEditor.document.fileName;
+
+    if (uri) {
+        workspaceFolder = vscode.workspace.getWorkspaceFolder(uri);
     }
-    return fsPath;
+
+    if (uri && workspaceFolder) {
+        return {
+            wsFolder: workspaceFolder,
+            fsPath: uri.fsPath,
+            // todo
+            type: undefined
+        };
+    }
+
+    return undefined;
 }
 
 
