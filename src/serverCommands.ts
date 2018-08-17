@@ -22,17 +22,18 @@ const fs = require('fs-extra');
  * @param param
  */
 async function uploadScriptCommon(loginData: nodeDoc.ConnectionInformation, param: any): Promise<void> {
+    const conf = vscode.workspace.getConfiguration('vscode-janus-debug');
     await login.ensureLoginInformation(loginData);
 
     return new Promise<void>((resolve, reject) => {
         helpers.ensureScript(param).then((_script) => {
 
             // get information from settings and hash values
-            helpers.setConflictModes([_script]);
-            helpers.readHashValues([_script], loginData.server);
-            helpers.readEncryptionFlag([_script]);
-            helpers.setScriptInfoJson([_script]);
-            helpers.foldersToCategories(loginData, [_script]);
+            helpers.setConflictModes(conf, [_script]);
+            helpers.readHashValues(conf, [_script], loginData.server);
+            helpers.readEncryptionFlag(conf, [_script]);
+            helpers.setScriptInfoJson(conf, [_script]);
+            helpers.foldersToCategories(conf, loginData, [_script]);
 
             return nodeDoc.serverSession(loginData, [_script], nodeDoc.uploadScript).then((value) => {
 
@@ -42,11 +43,11 @@ async function uploadScriptCommon(loginData: nodeDoc.ConnectionInformation, para
                 const script: nodeDoc.scriptT = value[0];
 
                 // in case of conflict, ask if script should be force-uploaded
-                helpers.ensureForceUpload([script]).then(([noConflict, forceUpload]) => {
+                helpers.ensureForceUpload(conf, [script]).then(([noConflict, forceUpload]) => {
 
                     // if forceUpload is empty, function resolves
                     nodeDoc.serverSession(loginData, forceUpload, nodeDoc.uploadScript).then(() => {
-                        helpers.updateHashValues([script], loginData.server);
+                        helpers.updateHashValues(conf, [script], loginData.server);
 
                         // script not uploaded, if conflict is true
                         if (script.conflict) {
@@ -88,8 +89,10 @@ export function uploadScript(loginData: nodeDoc.ConnectionInformation, param: an
  * Upload script on save
  */
 export function uploadScriptOnSave(loginData: nodeDoc.ConnectionInformation, fileName: string): Promise<boolean> {
+    const conf = vscode.workspace.getConfiguration('vscode-janus-debug');
+
     return new Promise<boolean>((resolve, reject) => {
-        helpers.ensureUploadOnSave(fileName).then((value) => {
+        helpers.ensureUploadOnSave(conf, fileName).then((value) => {
 
             if (helpers.autoUpload.yes === value) {
                 uploadScriptCommon(loginData, fileName).then(() => {
@@ -113,6 +116,8 @@ export function uploadScriptOnSave(loginData: nodeDoc.ConnectionInformation, fil
  * Upload all
  */
 export function uploadAll(loginData: nodeDoc.ConnectionInformation, paramPath: any): Promise<void> {
+    const conf = vscode.workspace.getConfiguration('vscode-janus-debug');
+
     return new Promise<void>(async (resolve, reject) => {
         try {
             await login.ensureLoginInformation(loginData);
@@ -126,17 +131,17 @@ export function uploadAll(loginData: nodeDoc.ConnectionInformation, paramPath: a
             const folderScripts = nodeDoc.getScriptsFromFolderSync(folder);
 
 
-            helpers.setConflictModes(folderScripts);
-            helpers.readHashValues(folderScripts, loginData.server);
-            helpers.readEncryptionFlag(folderScripts);
-            helpers.setScriptInfoJson(folderScripts);
-            helpers.foldersToCategories(loginData, folderScripts);
+            helpers.setConflictModes(conf, folderScripts);
+            helpers.readHashValues(conf, folderScripts, loginData.server);
+            helpers.readEncryptionFlag(conf, folderScripts);
+            helpers.setScriptInfoJson(conf, folderScripts);
+            helpers.foldersToCategories(conf, loginData, folderScripts);
 
             return nodeDoc.serverSession(loginData, folderScripts, nodeDoc.uploadAll).then((value1) => {
                 const retScripts: nodeDoc.scriptT[] = value1;
 
                 // ask user about how to handle conflict scripts
-                helpers.ensureForceUpload(retScripts).then(([noConflict, forceUpload]) => {
+                helpers.ensureForceUpload(conf, retScripts).then(([noConflict, forceUpload]) => {
 
                     // forceUpload might be empty, function resolves anyway
                     nodeDoc.serverSession(loginData, forceUpload, nodeDoc.uploadAll).then((value2) => {
@@ -145,7 +150,7 @@ export function uploadAll(loginData: nodeDoc.ConnectionInformation, paramPath: a
                         // retscripts2 might be empty
                         const uploaded = noConflict.concat(retScripts2);
 
-                        helpers.updateHashValues(uploaded, loginData.server);
+                        helpers.updateHashValues(conf, uploaded, loginData.server);
 
                         vscode.window.setStatusBarMessage('uploaded ' + uploaded.length + ' scripts from ' + folder);
                         resolve();
@@ -165,8 +170,8 @@ export function uploadAll(loginData: nodeDoc.ConnectionInformation, paramPath: a
 
 
 function runScriptCommon(loginData: nodeDoc.ConnectionInformation, param: any, outputChannel: vscode.OutputChannel): Promise<string> {
-    const extensionSettings = vscode.workspace.getConfiguration('vscode-janus-debug');
-    const openOutputChannel = extensionSettings.get('openScriptConsoleOnRunScript', true);
+    const conf = vscode.workspace.getConfiguration('vscode-janus-debug');
+    const openOutputChannel = conf.get('openScriptConsoleOnRunScript', true);
 
     return new Promise<string>(async (resolve, reject) => {
         try {
@@ -197,7 +202,7 @@ function runScriptCommon(loginData: nodeDoc.ConnectionInformation, param: any, o
                 outputChannel.show();
             }
 
-            helpers.scriptLog(script.output);
+            helpers.scriptLog(conf, script.output);
 
             resolve(scriptName);
         } catch (reason) {
@@ -231,6 +236,7 @@ export async function runScript(loginData: nodeDoc.ConnectionInformation, param:
  * Upload and debug script
  */
 export async function uploadDebugScript(loginData: nodeDoc.ConnectionInformation, param: any, outputChannel: vscode.OutputChannel): Promise<void> {
+    const conf = vscode.workspace.getConfiguration('vscode-janus-debug');
 
     try {
         await uploadScriptCommon(loginData, param);
@@ -259,7 +265,7 @@ export async function uploadDebugScript(loginData: nodeDoc.ConnectionInformation
         outputChannel.append(`Script finished at ` + getTime() + ` on DOCUMENTS ${ver}` + os.EOL);
         outputChannel.show();
 
-        helpers.scriptLog(script.output);
+        helpers.scriptLog(conf, script.output);
 
         vscode.window.setStatusBarMessage('Script ' + scriptName + ' finished at ' + getTime());
     } catch (e) {
@@ -304,6 +310,8 @@ export function uploadRunScript(loginData: nodeDoc.ConnectionInformation, param:
  * Otherwise it is undefined.
  */
 export async function downloadScript(loginData: nodeDoc.ConnectionInformation, contextMenuPath: string | undefined): Promise<void> {
+    const conf = vscode.workspace.getConfiguration('vscode-janus-debug');
+
     return new Promise<void>(async (resolve, reject) => {
         let serverScriptNames;
         let onFolder = false;
@@ -329,7 +337,7 @@ export async function downloadScript(loginData: nodeDoc.ConnectionInformation, c
             const scriptPath = path.join(scriptDir, scriptName + '.js');
             let script: nodeDoc.scriptT = new nodeDoc.scriptT(scriptName, scriptPath);
 
-            helpers.getScriptInfoJson([script]);
+            helpers.getScriptInfoJson(conf, [script]);
 
             return nodeDoc.serverSession(loginData, [script], nodeDoc.downloadScript).then((value) => {
                 script = value[0];
@@ -337,12 +345,12 @@ export async function downloadScript(loginData: nodeDoc.ConnectionInformation, c
                 if (onFolder) {
                     // if download is called directly on a script, the path
                     // should not be changed
-                    helpers.categoriesToFolders(loginData, [script], scriptDir);
+                    helpers.categoriesToFolders(conf, loginData, [script], scriptDir);
                 }
 
                 return nodeDoc.saveScriptUpdateSyncHash([script]).then(() => {
-                    helpers.updateHashValues([script], loginData.server);
-                    helpers.writeScriptInfoJson([script]);
+                    helpers.updateHashValues(conf, [script], loginData.server);
+                    helpers.writeScriptInfoJson(conf, [script]);
                     vscode.window.setStatusBarMessage('downloaded: ' + script.name);
 
                     if (!script.path) {
@@ -371,11 +379,13 @@ export async function downloadScript(loginData: nodeDoc.ConnectionInformation, c
  * @param reload set to true if called from reload, because reaload should not change any script path
  */
 export async function downloadAllCommon(loginData: nodeDoc.ConnectionInformation, inputScripts: nodeDoc.scriptT[], downloadFolder: string, categories = false): Promise<number> {
+    const conf = vscode.workspace.getConfiguration('vscode-janus-debug');
+
     return new Promise<number>(async (resolve, reject) => {
 
         // set downloadParameters flag in script structure,
         // if scriptParameters is true in settings.json
-        helpers.getScriptInfoJson(inputScripts);
+        helpers.getScriptInfoJson(conf, inputScripts);
 
         // download scripts from server
         return nodeDoc.serverSession(loginData, inputScripts, nodeDoc.downloadAll).then((outputScripts) => {
@@ -386,17 +396,17 @@ export async function downloadAllCommon(loginData: nodeDoc.ConnectionInformation
                 // if it is a normal folder that contains category folders
 
                 // change script paths from scripts with categories
-                helpers.categoriesToFolders(loginData, outputScripts, downloadFolder);
+                helpers.categoriesToFolders(conf, loginData, outputScripts, downloadFolder);
             }
 
             // save script to file and update hash value in script structure
             return nodeDoc.saveScriptUpdateSyncHash(outputScripts).then((numSavedScripts) => {
 
                 // write hash values from script structure to file
-                helpers.updateHashValues(outputScripts, loginData.server);
+                helpers.updateHashValues(conf, outputScripts, loginData.server);
 
                 // write parameters to file
-                helpers.writeScriptInfoJson(outputScripts);
+                helpers.writeScriptInfoJson(conf, outputScripts);
 
                 // if a script from inputScripts list is not downloaded but the function resolves,
                 // the script is encrypted on server

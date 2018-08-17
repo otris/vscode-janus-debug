@@ -174,14 +174,8 @@ export function getCategoryFromPath(parampath?: string) {
 /**
  * @param serverInfo to be removed
  */
-export function categoriesToFolders(serverInfo: nodeDoc.ConnectionInformation, scripts: nodeDoc.scriptT[], targetDir: string) {
+export function categoriesToFolders(conf: vscode.WorkspaceConfiguration, serverInfo: nodeDoc.ConnectionInformation, scripts: nodeDoc.scriptT[], targetDir: string) {
 
-    // get extension-part of settings.json
-    const conf = vscode.workspace.getConfiguration('vscode-janus-debug');
-    if (!conf) {
-        vscode.window.showWarningMessage('vscode-janus-debug missing in settings');
-        return false;
-    }
     // get category flag
     const categories = conf.get('categories', false);
     if (!categories) {
@@ -233,14 +227,8 @@ export function categoriesToFolders(serverInfo: nodeDoc.ConnectionInformation, s
 /**
  * @param serverInfo to be removed
  */
-export function foldersToCategories(serverInfo: nodeDoc.ConnectionInformation, scripts: nodeDoc.scriptT[]) {
+export function foldersToCategories(conf: vscode.WorkspaceConfiguration, serverInfo: nodeDoc.ConnectionInformation, scripts: nodeDoc.scriptT[]) {
 
-    // get extension-part of settings.json
-    const conf = vscode.workspace.getConfiguration('vscode-janus-debug');
-    if (!conf) {
-        vscode.window.showWarningMessage('vscode-janus-debug missing in settings');
-        return false;
-    }
     // get category flag
     const categories = conf.get('categories', false);
     if (!categories) {
@@ -349,17 +337,11 @@ export async function askForUpload(script: nodeDoc.scriptT, all: boolean, none: 
  * @return Two arrays containing scripts of input array.
  * 1. array: scripts that are already uploaded 2. array: scripts that user marked to force upload.
  */
-export async function ensureForceUpload(scripts: nodeDoc.scriptT[]): Promise<[nodeDoc.scriptT[], nodeDoc.scriptT[]]> {
+export async function ensureForceUpload(conf: vscode.WorkspaceConfiguration, scripts: nodeDoc.scriptT[]): Promise<[nodeDoc.scriptT[], nodeDoc.scriptT[]]> {
     return new Promise<[nodeDoc.scriptT[], nodeDoc.scriptT[]]>((resolve, reject) => {
         const forceUpload: nodeDoc.scriptT[] = [];
         const noConflict: nodeDoc.scriptT[] = [];
 
-        // get extension-part of settings.json
-        const conf = vscode.workspace.getConfiguration('vscode-janus-debug');
-        if (!conf) {
-            vscode.window.showWarningMessage('vscode-janus-debug missing in settings');
-            return;
-        }
         let all = conf.get('forceUpload', false);
         let none = false;
         const singlescript = (1 === scripts.length);
@@ -403,20 +385,13 @@ export async function ensureForceUpload(scripts: nodeDoc.scriptT[]): Promise<[no
  *
  * @param param script-name or -path
  */
-export async function ensureUploadOnSave(param: string): Promise<autoUpload> {
+export async function ensureUploadOnSave(conf: vscode.WorkspaceConfiguration, param: string): Promise<autoUpload> {
     return new Promise<autoUpload>((resolve, reject) => {
         let always: string[] = [];
         let never: string[] = [];
 
-        // get extension-part of settings.json
-        const conf = vscode.workspace.getConfiguration('vscode-janus-debug');
-        if (!conf) {
-            vscode.window.showWarningMessage('vscode-janus-debug missing in settings');
-            return;
-        }
-
-        if (!vscode.workspace || !param || 0 === param.length || !conf) {
-            return reject('something is undefined');
+        if (0 === param.length) {
+            return reject('Scriptname is missing');
         }
 
         const scriptname = path.basename(param, '.js');
@@ -520,14 +495,8 @@ export function writeScriptNamesToFile(scripts: nodeDoc.scriptT[]) {
 
 
 
-export function setScriptInfoJson(scripts: nodeDoc.scriptT[]) {
-    if (!vscode.workspace || !vscode.workspace.rootPath) {
-        return;
-    }
-    // get extension-part of settings.json
-    const conf = vscode.workspace.getConfiguration('vscode-janus-debug');
-    if (!conf) {
-        vscode.window.showWarningMessage('vscode-janus-debug missing in settings');
+export function setScriptInfoJson(conf: vscode.WorkspaceConfiguration, scripts: nodeDoc.scriptT[]) {
+    if (!vscode.workspace.rootPath) {
         return;
     }
     const scriptParameters = conf.get('scriptParameters', false);
@@ -547,16 +516,7 @@ export function setScriptInfoJson(scripts: nodeDoc.scriptT[]) {
     });
 }
 
-export function getScriptInfoJson(scripts: nodeDoc.scriptT[]) {
-    if (!vscode.workspace || !vscode.workspace.rootPath) {
-        return;
-    }
-    // get extension-part of settings.json
-    const conf = vscode.workspace.getConfiguration('vscode-janus-debug');
-    if (!conf) {
-        vscode.window.showWarningMessage('vscode-janus-debug missing in settings');
-        return;
-    }
+export function getScriptInfoJson(conf: vscode.WorkspaceConfiguration, scripts: nodeDoc.scriptT[]) {
     const scriptParameters = conf.get('scriptParameters', false);
     if (!scriptParameters) {
         return;
@@ -568,24 +528,18 @@ export function getScriptInfoJson(scripts: nodeDoc.scriptT[]) {
     });
 }
 
-export async function writeScriptInfoJson(scripts: nodeDoc.scriptT[]) {
-    if (!vscode.workspace || !vscode.workspace.rootPath) {
-        return;
-    }
-    // get extension-part of settings.json
-    const conf = vscode.workspace.getConfiguration('vscode-janus-debug');
-    if (!conf) {
-        vscode.window.showWarningMessage('vscode-janus-debug missing in settings');
+export async function writeScriptInfoJson(conf: vscode.WorkspaceConfiguration, scripts: nodeDoc.scriptT[]) {
+    if (!vscode.workspace.rootPath) {
         return;
     }
     const scriptParameters = conf.get('scriptParameters', false);
     if (!scriptParameters) {
         return;
     }
-    const wsRoot = vscode.workspace.rootPath;
+    const rootPath = vscode.workspace.rootPath;
     scripts.forEach(async (script) => {
         if (script.parameters) {
-            const parpath = path.join(wsRoot, '.scriptParameters', script.name + '.json');
+            const parpath = path.join(rootPath, '.scriptParameters', script.name + '.json');
             await nodeDoc.writeFileEnsureDir(script.parameters, parpath);
         }
     });
@@ -594,15 +548,8 @@ export async function writeScriptInfoJson(scripts: nodeDoc.scriptT[]) {
 
 
 
-export function readEncryptionFlag(pscripts: nodeDoc.scriptT[]) {
-    if (!pscripts || 0 === pscripts.length || !vscode.workspace) {
-        return;
-    }
-
-    // get extension-part of settings.json
-    const conf = vscode.workspace.getConfiguration('vscode-janus-debug');
-    if (!conf) {
-        vscode.window.showWarningMessage('vscode-janus-debug missing in settings');
+export function readEncryptionFlag(conf: vscode.WorkspaceConfiguration, pscripts: nodeDoc.scriptT[]) {
+    if (0 === pscripts.length) {
         return;
     }
 
@@ -643,18 +590,11 @@ export function readEncryptionFlag(pscripts: nodeDoc.scriptT[]) {
 
 
 
-export function setConflictModes(pscripts: nodeDoc.scriptT[]) {
+export function setConflictModes(conf: vscode.WorkspaceConfiguration, pscripts: nodeDoc.scriptT[]) {
     if (!pscripts || 0 === pscripts.length) {
         return;
     }
     if (!vscode.workspace) {
-        return;
-    }
-
-    // get extension-part of settings.json
-    const conf = vscode.workspace.getConfiguration('vscode-janus-debug');
-    if (!conf) {
-        vscode.window.showWarningMessage('vscode-janus-debug missing in settings');
         return;
     }
 
@@ -671,21 +611,15 @@ export function setConflictModes(pscripts: nodeDoc.scriptT[]) {
 /**
  * Reads the conflict mode and hash value of any script in pscripts.
  */
-export function readHashValues(pscripts: nodeDoc.scriptT[], server: string) {
+export function readHashValues(conf: vscode.WorkspaceConfiguration, pscripts: nodeDoc.scriptT[], server: string) {
     if (!pscripts || 0 === pscripts.length) {
         return;
     }
 
-    if (!vscode.workspace || !vscode.workspace.rootPath) {
+    if (!vscode.workspace.rootPath) {
         return;
     }
 
-    // get extension-part of settings.json
-    const conf = vscode.workspace.getConfiguration('vscode-janus-debug');
-    if (!conf) {
-        vscode.window.showWarningMessage('vscode-janus-debug missing in settings');
-        return;
-    }
     if (conf.get('vscode-janus-debug.forceUpload', false)) {
         return;
     }
@@ -720,7 +654,7 @@ export function readHashValues(pscripts: nodeDoc.scriptT[], server: string) {
     });
 }
 
-export function updateHashValues(pscripts: nodeDoc.scriptT[], server: string) {
+export function updateHashValues(conf: vscode.WorkspaceConfiguration, pscripts: nodeDoc.scriptT[], server: string) {
     if (!pscripts || 0 === pscripts.length) {
         return;
     }
@@ -728,12 +662,6 @@ export function updateHashValues(pscripts: nodeDoc.scriptT[], server: string) {
         return;
     }
 
-    // get extension-part of settings.json
-    const conf = vscode.workspace.getConfiguration('vscode-janus-debug');
-    if (!conf) {
-        vscode.window.showWarningMessage('vscode-janus-debug missing in settings');
-        return;
-    }
     if (conf.get('vscode-janus-debug.forceUpload', false)) {
         return;
     }
@@ -782,15 +710,8 @@ export function updateHashValues(pscripts: nodeDoc.scriptT[], server: string) {
 }
 
 
-export function scriptLog(scriptOutput: string | undefined) {
-    if (!vscode.workspace.rootPath || !vscode.workspace.rootPath) {
-        return;
-    }
+export function scriptLog(conf: vscode.WorkspaceConfiguration, scriptOutput: string | undefined) {
     if (!scriptOutput || 0 >= scriptOutput.length) {
-        return;
-    }
-    const conf = vscode.workspace.getConfiguration('vscode-janus-debug');
-    if (!conf) {
         return;
     }
     const log: any = conf.get('scriptLog');
@@ -804,7 +725,7 @@ export function scriptLog(scriptOutput: string | undefined) {
             returnValue = line.substr(14) + os.EOL;
         }
     });
-    if (returnValue.length > 0 && log.fileName && vscode.workspace && vscode.workspace.rootPath) {
+    if (returnValue.length > 0 && log.fileName && vscode.workspace.rootPath) {
         const fileName = log.fileName.replace(/[$]{workspaceRoot}/, vscode.workspace.rootPath);
         if (conf.get('scriptLog.append', false)) {
             fs.writeFileSync(fileName, returnValue, {flag: "a"});
