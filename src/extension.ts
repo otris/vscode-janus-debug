@@ -155,18 +155,14 @@ function readAutoConnectServerConsole() {
     autoConnectServerConsole = extensionSettings.get('serverConsole.autoConnect', false);
 }
 
-function printVersion(outputChannel: vscode.OutputChannel) {
-    if (vscode.workspace !== undefined) {
-        outputChannel.appendLine('Extension activated');
-        try {
-            outputChannel.appendLine("Version: " + version.getVersion().toString(true));
-        } catch (err) {
-            /* swallow */
-        }
-    }
-}
 
 function initServerConsole(outputChannel: vscode.OutputChannel) {
+    outputChannel.appendLine('Extension activated');
+    try {
+        outputChannel.appendLine("Version: " + version.getVersion().toString(true));
+    } catch (err) {
+        //
+    }
     serverConsole = new ServerConsole(outputChannel);
     if (autoConnectServerConsole) {
         reconnectServerConsole(serverConsole);
@@ -266,7 +262,6 @@ export function activate(context: vscode.ExtensionContext): void {
     // Initialize server console and launch.json watcher.
     // Print version before server console is initialized.
     readAutoConnectServerConsole();
-    printVersion(serverChannel);
     initServerConsole(serverChannel);
     initLaunchJsonWatcher(serverChannel, loginData);
 
