@@ -37,15 +37,6 @@ function initLaunchJsonWatcher(outputChannel: vscode.OutputChannel, loginData: n
         }
         const fsPath = file ? file.fsPath : '';
         login.loadLoginInformationOnCreate(loginData, fsPath);
-
-        // // check, if typings should be acquired automatically
-        // const config = vscode.workspace.getConfiguration('vscode-janus-debug');
-        // if (config) {
-        //     const autoAcquire = config.get("autoAcquireTypings", false);
-        //     if (autoAcquire) {
-        //         intellisense.getAllTypings(loginData);
-        //     }
-        // }
     });
 
     launchJsonWatcher.onDidChange((file) => {
@@ -56,15 +47,6 @@ function initLaunchJsonWatcher(outputChannel: vscode.OutputChannel, loginData: n
         if (file) {
             login.loadLoginInformation(loginData, file.fsPath);
         }
-
-        // // check, if typings should be updated automatically
-        // const config = vscode.workspace.getConfiguration('vscode-janus-debug');
-        // if (config) {
-        //     const autoAcquire = config.get("autoAcquireTypings", false);
-        //     if (autoAcquire) {
-        //         intellisense.getAllTypings(loginData);
-        //     }
-        // }
     });
 
     launchJsonWatcher.onDidDelete((file) => {
@@ -109,8 +91,6 @@ class JanusDebugConfigurationProvider implements vscode.DebugConfigurationProvid
 }
 
 export function activate(context: vscode.ExtensionContext): void {
-
-    const isFolderOpen: boolean = vscode.workspace !== undefined;
 
     // set extension path
     // get location fo the extensions source folder
@@ -396,9 +376,7 @@ export function activate(context: vscode.ExtensionContext): void {
             try {
                 await serverCommands.showImports(loginData, (wsp ? wsp.fsPath : undefined), scriptChannel);
             } catch (err) {
-                if (err) {
-                    vscode.window.showErrorMessage(err);
-                }
+                //
             }
             helpers.showWarning(loginData);
         })
@@ -419,7 +397,7 @@ export function activate(context: vscode.ExtensionContext): void {
     );
 
 
-    if (isFolderOpen && vscode.workspace.rootPath) {
+    if (vscode.workspace.rootPath) {
 
         // create activation file if it does not exist
         const activationFile = path.join(vscode.workspace.rootPath, helpers.CACHE_FILE);

@@ -552,7 +552,8 @@ export async function showImports(loginData: nodeDoc.ConnectionInformation, cont
                 resolve();
             });
         }).catch((reason) => {
-            reject(reason);
+            vscode.window.showErrorMessage('Show imports failed: ' + reason);
+            reject();
         });
     });
 }
