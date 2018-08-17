@@ -290,9 +290,9 @@ export function activate(context: vscode.ExtensionContext): void {
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.uploadScript', async (param) => {
 
-            const wsp = helpers.getWorkspacePath(param, true);
+            const pc = helpers.getPathContext(param, true);
             try {
-                await serverCommands.uploadScript(loginData, (wsp ? wsp.fsPath : undefined));
+                await serverCommands.uploadScript(loginData, (pc ? pc.fsPath : undefined));
             } catch (err) {
                 //
             }
@@ -304,9 +304,9 @@ export function activate(context: vscode.ExtensionContext): void {
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.generatePortalScript', async (param) => {
 
-            const wsp = helpers.getWorkspacePath(param, true);
+            const pc = helpers.getPathContext(param, true);
             try {
-                await transpile.generatePortalScript((wsp ? wsp.fsPath : undefined));
+                await transpile.generatePortalScript((pc ? pc.fsPath : undefined));
             } catch (err) {
                 //
             }
@@ -318,9 +318,9 @@ export function activate(context: vscode.ExtensionContext): void {
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.uploadScriptsFromFolder', async (param) => {
 
-            const wsp = helpers.getWorkspacePath(param, false);
+            const pc = helpers.getPathContext(param, false);
             try {
-                await serverCommands.uploadAll(loginData, (wsp ? wsp.fsPath : undefined));
+                await serverCommands.uploadAll(loginData, (pc ? pc.fsPath : undefined));
             } catch (err) {
                 //
             }
@@ -332,9 +332,9 @@ export function activate(context: vscode.ExtensionContext): void {
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.downloadScript', async (param) => {
 
-            const wsp = helpers.getWorkspacePath(param, false);
+            const pc = helpers.getPathContext(param, false);
             try {
-                await serverCommands.downloadScript(loginData, (wsp ? wsp.fsPath : undefined));
+                await serverCommands.downloadScript(loginData, (pc ? pc.fsPath : undefined));
             } catch (err) {
                 //
             }
@@ -346,9 +346,9 @@ export function activate(context: vscode.ExtensionContext): void {
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.downloadAllScripts', async (param) => {
 
-            const wsp = helpers.getWorkspacePath(param, false);
+            const pc = helpers.getPathContext(param, false);
             try {
-                await serverCommands.downloadAllSelected(loginData, (wsp ? wsp.fsPath : undefined));
+                await serverCommands.downloadAllSelected(loginData, (pc ? pc.fsPath : undefined));
             } catch (err) {
                 //
             }
@@ -360,9 +360,9 @@ export function activate(context: vscode.ExtensionContext): void {
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.reloadScripts', async (param) => {
 
-            const wsp = helpers.getWorkspacePath(param, false);
+            const pc = helpers.getPathContext(param, false);
             try {
-                await serverCommands.reloadScripts(loginData, (wsp ? wsp.fsPath : undefined));
+                await serverCommands.reloadScripts(loginData, (pc ? pc.fsPath : undefined));
             } catch (err) {
                 //
             }
@@ -374,9 +374,9 @@ export function activate(context: vscode.ExtensionContext): void {
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.runScript', async (param) => {
 
-            const wsp = helpers.getWorkspacePath(param, true);
+            const pc = helpers.getPathContext(param, true);
             try {
-                await serverCommands.runScript(loginData, (wsp ? wsp.fsPath : undefined), scriptChannel);
+                await serverCommands.runScript(loginData, (pc ? pc.fsPath : undefined), scriptChannel);
             } catch (err) {
                 //
             }
@@ -388,7 +388,7 @@ export function activate(context: vscode.ExtensionContext): void {
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.debugScript', async (param) => {
 
-            const wsp = helpers.getWorkspacePath(param, true);
+            const pc = helpers.getPathContext(param, true);
             try {
                 let folder: vscode.WorkspaceFolder | undefined;
                 if (vscode.workspace.workspaceFolders) {
@@ -400,7 +400,7 @@ export function activate(context: vscode.ExtensionContext): void {
                     if (element.type === 'janus' && element.request === 'launch') {
                         config = element;
                         config.portal = true;
-                        config.script = (wsp ? wsp.fsPath : undefined);
+                        config.script = (pc ? pc.fsPath : undefined);
                     }
                 });
 
@@ -409,7 +409,7 @@ export function activate(context: vscode.ExtensionContext): void {
                     return;
                 }
 
-                serverCommands.uploadDebugScript(loginData, (wsp ? wsp.fsPath : undefined), scriptChannel);
+                serverCommands.uploadDebugScript(loginData, (pc ? pc.fsPath : undefined), scriptChannel);
 
                 // This essentially calls the Debugger Extension's launchRequest. We take a
                 // launch config and overwrite 'script' property.
@@ -426,9 +426,9 @@ export function activate(context: vscode.ExtensionContext): void {
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.uploadRunScript', async (param) => {
 
-            const wsp = helpers.getWorkspacePath(param, true);
+            const pc = helpers.getPathContext(param, true);
             try {
-                await serverCommands.uploadRunScript(loginData, (wsp ? wsp.fsPath : undefined), scriptChannel);
+                await serverCommands.uploadRunScript(loginData, (pc ? pc.fsPath : undefined), scriptChannel);
             } catch (err) {
                 //
             }
@@ -440,9 +440,9 @@ export function activate(context: vscode.ExtensionContext): void {
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.compareScript', async (param) => {
 
-            const wsp = helpers.getWorkspacePath(param, true);
+            const pc = helpers.getPathContext(param, true);
             try {
-                await serverCommands.compareScript(loginData, (wsp ? wsp.fsPath : undefined));
+                await serverCommands.compareScript(loginData, (pc ? pc.fsPath : undefined));
             } catch (err) {
                 //
             }
@@ -513,9 +513,9 @@ export function activate(context: vscode.ExtensionContext): void {
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.showImports', async (param) => {
 
-            const wsp = helpers.getWorkspacePath(param, true);
+            const pc = helpers.getPathContext(param, true);
             try {
-                await serverCommands.showImports(loginData, (wsp ? wsp.fsPath : undefined), scriptChannel);
+                await serverCommands.showImports(loginData, (pc ? pc.fsPath : undefined), scriptChannel);
             } catch (err) {
                 //
             }

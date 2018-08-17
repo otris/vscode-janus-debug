@@ -54,7 +54,7 @@ export function extend<T, U>(target: T, source: U): T & U {
  * log-files and everything that could be in a workspace folder
  */
 // tslint:disable-next-line:interface-over-type-literal
-export interface WorkspacePath {
+export interface PathContext {
     wsFolder: vscode.WorkspaceFolder | undefined;
     fsPath: string;
     type: "js" | "ts" | "folder" | undefined;
@@ -64,7 +64,7 @@ export interface WorkspacePath {
  * If the path is not a workspace folder, only the path is returned.
  * Because some features are possible without workspace folders.
  */
-export function getWorkspacePath(param: any, activeEditor: boolean): WorkspacePath | undefined {
+export function getPathContext(param: any, activeEditor: boolean): PathContext | undefined {
     let uri;
 
     if (param && param instanceof vscode.Uri) {
