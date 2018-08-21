@@ -2,13 +2,21 @@
 
 You'll find a complete list of changes at our project site on [GitHub](https://github.com/otris/vscode-janus-debug).
 
+### 1.0.4 (2018-08-21)
+
+- Only show warnings for categories when category feature is used.
+- Avoid errors when using multi-root workspaces. There are still some problems with multi-root workspaces (see [#173](https://github.com/otris/vscode-janus-debug/issues/173))
+
 ### 1.0.3 (2018-07-10)
+
 - Only update typings.
 
 ### 1.0.2 (2018-06-19)
+
 - Add a first simple command for generateing portalScripts from typescript files.
 
 ### 1.0.1 (2018-06-13)
+
 - Ability to clone a git repository to the typings folder instead of using the local portal scripting file.
 
 ### 1.0.0 (2018-05-30)
