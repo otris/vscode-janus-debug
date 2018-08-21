@@ -392,9 +392,12 @@ export async function downloadAllCommon(loginData: nodeDoc.ConnectionInformation
         return nodeDoc.serverSession(loginData, inputScripts, nodeDoc.downloadAll).then((outputScripts) => {
 
             if (categories) {
-                // the next two functions behave differently if downloadFolder is
-                // a category folder or if it is a normal empty folder or
-                // if it is a normal folder that contains category folders
+                // the next two functions decide where to save the scripts and save the scripts,
+                // the locations where scripts are saved vary depending on downloadFolder
+                // downloadFolder could be a ...
+                // * category folder
+                // * normal folder that does not contain category folders
+                // * normal folder that contains category folders
 
                 // change script paths from scripts with categories
                 settings.categoriesToFolders(conf, loginData, outputScripts, downloadFolder);
@@ -413,7 +416,7 @@ export async function downloadAllCommon(loginData: nodeDoc.ConnectionInformation
                 // the script is encrypted on server
                 const encryptedScripts = inputScripts.length - outputScripts.length;
                 if (1 <= encryptedScripts) {
-                    vscode.window.showWarningMessage(`couldn't download ${encryptedScripts} scripts (scripts encrypted or not found)`);
+                    vscode.window.showWarningMessage(`couldn't download ${encryptedScripts} scripts (scripts probalby encrypted)`);
                 }
 
                 resolve(numSavedScripts);
