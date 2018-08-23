@@ -403,7 +403,7 @@ export function setConflictModes(conf: vscode.WorkspaceConfiguration, pscripts: 
  * Reads the conflict mode and hash value of any script in pscripts.
  */
 export function readHashValues(conf: vscode.WorkspaceConfiguration, pscripts: nodeDoc.scriptT[], server: string) {
-    if (!pscripts || 0 === pscripts.length) {
+    if (0 === pscripts.length) {
         return;
     }
 
@@ -411,7 +411,9 @@ export function readHashValues(conf: vscode.WorkspaceConfiguration, pscripts: no
         return;
     }
 
-    if (conf.get('vscode-janus-debug.forceUpload', false)) {
+    // when forceUpload is true, this function is unnecessary
+    const forceUpload = conf.get('forceUpload', false);
+    if (forceUpload) {
         return;
     }
 
