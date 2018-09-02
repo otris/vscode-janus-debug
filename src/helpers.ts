@@ -12,7 +12,6 @@ const fs = require('fs-extra');
 export const COMPARE_FOLDER = '.compare';
 export const COMPARE_FILE_PREFIX = 'compare_';
 
-export const CATEGORY_FOLDER_POSTFIX = '.cat';
 
 
 export const CACHE_FILE = '.vscode-janus-debug';
@@ -119,7 +118,7 @@ export function setPaths(scripts: nodeDoc.scriptT[], targetDir: string) {
  * @param folderScripts the set of scripts to check
  * @return true, if the user wants to cancel the upload, false if not
  */
-export function checkDuplicateScripts(folderScripts: nodeDoc.scriptT[]): Promise<boolean> {
+function checkDuplicateScripts(folderScripts: nodeDoc.scriptT[]): Promise<boolean> {
     return new Promise<boolean>(async (resolve, reject) => {
         const duplicate = folderScripts.filter(e => e.duplicate);
         if (duplicate && duplicate.length) {
@@ -140,25 +139,6 @@ export function checkDuplicateScripts(folderScripts: nodeDoc.scriptT[]): Promise
         return resolve(false);
     });
 }
-
-
-
-
-
-export function getCategoryFromPath(parampath?: string) {
-    if (!parampath) {
-        return undefined;
-    }
-    const dir = (path.extname(parampath) === ".js") ? path.dirname(parampath) : parampath;
-    if (!dir.endsWith(CATEGORY_FOLDER_POSTFIX)) {
-        return undefined;
-    }
-    const postfixPos = dir.lastIndexOf(CATEGORY_FOLDER_POSTFIX);
-    return path.normalize(dir.slice(0, postfixPos)).split(path.sep).pop();
-}
-
-
-
 
 
 
