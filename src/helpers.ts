@@ -19,11 +19,6 @@ export const CACHE_FILE = '.vscode-janus-debug';
 const SCRIPT_NAMES_FILE = '.documents-script-names';
 
 
-export enum autoUpload {
-    yes,
-    no,
-    neverAsk
-}
 
 /**
  * Extends an object with another object's properties.

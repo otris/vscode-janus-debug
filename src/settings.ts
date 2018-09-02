@@ -18,28 +18,22 @@ const reduce = require('reduce-for-promises');
 const invalidCharacters = /[\\\/:\*\?"<>\|]/;
 
 
-// todo:
-// spend a class here with vscode.workspace.getConfiguration('vscode-janus-debug', ...) in constructor
 
 
 /**
  * @param serverInfo to be removed
  */
-export function categoriesToFolders(conf: vscode.WorkspaceConfiguration, serverInfo: nodeDoc.ConnectionInformation, scripts: nodeDoc.scriptT[], targetDir: string) {
+export function categoriesToFolders(confCategories: boolean, documentsVersion: string, scripts: nodeDoc.scriptT[], targetDir: string): string[] {
 
-    // get category flag
-    const categories = conf.get('categories', false);
-    if (!categories) {
-        return false;
+    if (confCategories !== true) {
+        return [];
     }
 
-    // move this check to node-documents-scripting!
-    if (Number(serverInfo.documentsVersion) < Number(nodeDoc.VERSION_CATEGORIES)) {
-        vscode.window.showWarningMessage(`Using categories only available with server version ${nodeDoc.VERSION_CATEGORIES} or higher`);
-        return;
+    if (Number(documentsVersion) < Number(nodeDoc.VERSION_CATEGORIES)) {
+        return [];
     }
 
-    let invalidName;
+    const invalidNames: string[] = [];
     const category = helpers.getCategoryFromPath(targetDir);
     if (category) {
         // the target folder is a category-folder
@@ -61,7 +55,7 @@ export function categoriesToFolders(conf: vscode.WorkspaceConfiguration, serverI
                 if (invalidCharacters.test(script.category)) {
                     path.parse(script.category);
                     script.path = "";
-                    invalidName = script.category;
+                    invalidNames.push(script.category);
                 } else {
                     script.path = path.join(targetDir, script.category + helpers.CATEGORY_FOLDER_POSTFIX, script.name + '.js');
                 }
@@ -69,26 +63,20 @@ export function categoriesToFolders(conf: vscode.WorkspaceConfiguration, serverI
         });
     }
 
-    if (invalidName) {
-        vscode.window.showWarningMessage(`Cannot create folder from category '${invalidName}' - please remove special characters`);
-    }
+    return invalidNames;
 }
 
 
 /**
  * @param serverInfo to be removed
  */
-export function foldersToCategories(conf: vscode.WorkspaceConfiguration, serverInfo: nodeDoc.ConnectionInformation, scripts: nodeDoc.scriptT[]) {
+export function foldersToCategories(confCategories: boolean, serverInfo: nodeDoc.ConnectionInformation, scripts: nodeDoc.scriptT[]) {
 
-    // get category flag
-    const categories = conf.get('categories', false);
-    if (!categories) {
-        return false;
+    if (confCategories !== true) {
+        return;
     }
 
-    // remove this check! this is already checked in node-documents-scripting!
     if (Number(serverInfo.documentsVersion) < Number(nodeDoc.VERSION_CATEGORIES)) {
-        vscode.window.showWarningMessage(`Using categories only available with server version ${nodeDoc.VERSION_CATEGORIES} or higher`);
         return;
     }
 
@@ -188,20 +176,19 @@ async function askForUpload(script: nodeDoc.scriptT, all: boolean, none: boolean
  * @return Two arrays containing scripts of input array.
  * 1. array: scripts that are already uploaded 2. array: scripts that user marked to force upload.
  */
-export async function ensureForceUpload(conf: vscode.WorkspaceConfiguration, scripts: nodeDoc.scriptT[]): Promise<[nodeDoc.scriptT[], nodeDoc.scriptT[]]> {
+export async function ensureForceUpload(confForceUpload: boolean, confCategories: boolean, scripts: nodeDoc.scriptT[]): Promise<[nodeDoc.scriptT[], nodeDoc.scriptT[]]> {
     return new Promise<[nodeDoc.scriptT[], nodeDoc.scriptT[]]>((resolve, reject) => {
         const forceUpload: nodeDoc.scriptT[] = [];
         const noConflict: nodeDoc.scriptT[] = [];
 
-        let all = conf.get('forceUpload', false);
+        let all = confForceUpload;
         let none = false;
         const singlescript = (1 === scripts.length);
-        const categories = conf.get('categories', false);
 
         // todo: using async/await here probably makes the whole procedure
         // a bit simpler
         return reduce(scripts, (numScripts: number, script: any): Promise<number> => {
-            return askForUpload(script, all, none, singlescript, categories).then((value) => {
+            return askForUpload(script, all, none, singlescript, confCategories).then((value) => {
                 if (NO_CONFLICT === value) {
                     noConflict.push(script);
                 } else if (FORCE_UPLOAD_ALL === value) {
@@ -227,66 +214,6 @@ export async function ensureForceUpload(conf: vscode.WorkspaceConfiguration, scr
     });
 }
 
-
-/**
- * Read from settings.json if the script must be uploaded.
- * If it's not set, ask user, if the script should be uploaded and if
- * the answer should be saved. If so, save it to settings.json.
- *
- * @param param script-name or -path
- */
-export async function ensureUploadOnSave(conf: vscode.WorkspaceConfiguration, param: string): Promise<helpers.autoUpload> {
-    return new Promise<helpers.autoUpload>((resolve, reject) => {
-        let always: string[] = [];
-        let never: string[] = [];
-
-        if (0 === param.length) {
-            return reject('Scriptname is missing');
-        }
-
-        const scriptname = path.basename(param, '.js');
-
-        const _always = conf.get('uploadOnSave');
-        const _never = conf.get('uploadManually');
-        if (_always instanceof Array && _never instanceof Array) {
-            always = _always;
-            never = _never;
-        } else {
-            vscode.window.showWarningMessage('Cannot read upload mode from settings.json');
-            return reject();
-        }
-        if (0 <= never.indexOf(scriptname)) {
-            resolve(helpers.autoUpload.no);
-        } else if (0 <= always.indexOf(scriptname)) {
-            resolve(helpers.autoUpload.yes);
-        } else {
-            const QUESTION: string = `Upload script ${scriptname}?`;
-            const YES: string = `Yes`;
-            const NO: string = `No`;
-            const ALWAYS: string = `Always upload ${scriptname} automatically`;
-            const NEVER: string = `Never upload ${scriptname} automatically`;
-            const NEVERASK: string = `Never upload scripts automatically`;
-            vscode.window.showQuickPick([YES, NO, ALWAYS, NEVER, NEVERASK], { placeHolder: QUESTION }).then((answer) => {
-                if (YES === answer) {
-                    resolve(helpers.autoUpload.yes);
-                } else if (NO === answer) {
-                    resolve(helpers.autoUpload.no);
-                } else if (ALWAYS === answer) {
-                    always.push(scriptname);
-                    conf.update('uploadOnSave', always);
-                    resolve(helpers.autoUpload.yes);
-                } else if (NEVER === answer) {
-                    never.push(scriptname);
-                    conf.update('uploadManually', never);
-                    resolve(helpers.autoUpload.no);
-                } else if (NEVERASK === answer) {
-                    conf.update('uploadOnSaveGlobal', false, true);
-                    resolve(helpers.autoUpload.neverAsk);
-                }
-            });
-        }
-    });
-}
 
 export function setScriptInfoJson(conf: vscode.WorkspaceConfiguration, scripts: nodeDoc.scriptT[]) {
     if (!vscode.workspace.rootPath) {
@@ -500,13 +427,18 @@ export function updateHashValues(conf: vscode.WorkspaceConfiguration, pscripts: 
     fs.writeFileSync(hashValueFile, hashValStr);
 }
 
+interface ScriptLog {
+    returnValue: string;
+    append: boolean;
+    fileName: string;
+}
 
-export function scriptLog(conf: vscode.WorkspaceConfiguration, scriptOutput: string | undefined) {
+export function scriptLog(scriptLog: ScriptLog | undefined, workspaceFolder: string | undefined, scriptOutput: string | undefined) {
     if (!scriptOutput || 0 >= scriptOutput.length) {
         return;
     }
-    const log: any = conf.get('scriptLog');
-    if (!log || !log.returnValue) {
+
+    if (!scriptLog || !scriptLog.returnValue) {
         return;
     }
     let returnValue = '';
@@ -516,9 +448,9 @@ export function scriptLog(conf: vscode.WorkspaceConfiguration, scriptOutput: str
             returnValue = line.substr(14) + os.EOL;
         }
     });
-    if (returnValue.length > 0 && log.fileName && vscode.workspace.rootPath) {
-        const fileName = log.fileName.replace(/[$]{workspaceRoot}/, vscode.workspace.rootPath);
-        if (conf.get('scriptLog.append', false)) {
+    if (returnValue.length > 0 && scriptLog.fileName && workspaceFolder) {
+        const fileName = scriptLog.fileName.replace(/[$]{workspaceRoot}/, workspaceFolder);
+        if (!scriptLog.append) {
             fs.writeFileSync(fileName, returnValue, {flag: "a"});
         } else {
             fs.writeFileSync(fileName, returnValue);

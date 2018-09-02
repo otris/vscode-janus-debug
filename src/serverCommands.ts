@@ -34,7 +34,7 @@ async function uploadScriptCommon(loginData: nodeDoc.ConnectionInformation, para
             settings.readHashValues(conf, [_script], loginData.server);
             settings.readEncryptionFlag(conf, [_script]);
             settings.setScriptInfoJson(conf, [_script]);
-            settings.foldersToCategories(conf, loginData, [_script]);
+            settings.foldersToCategories(conf.get('categories', false), loginData, [_script]);
 
             return nodeDoc.serverSession(loginData, [_script], nodeDoc.uploadScript).then((value) => {
 
@@ -44,7 +44,7 @@ async function uploadScriptCommon(loginData: nodeDoc.ConnectionInformation, para
                 const script: nodeDoc.scriptT = value[0];
 
                 // in case of conflict, ask if script should be force-uploaded
-                settings.ensureForceUpload(conf, [script]).then(([noConflict, forceUpload]) => {
+                settings.ensureForceUpload(conf.get('forceUpload', false), conf.get('categories', false), [script]).then(([noConflict, forceUpload]) => {
 
                     // if forceUpload is empty, function resolves
                     nodeDoc.serverSession(loginData, forceUpload, nodeDoc.uploadScript).then(() => {
@@ -86,6 +86,71 @@ export function uploadScript(loginData: nodeDoc.ConnectionInformation, param: an
     });
 }
 
+
+
+
+export enum autoUpload {
+    yes,
+    no,
+    neverAsk
+}
+
+/**
+ * Read from settings.json if the script must be uploaded.
+ * If it's not set, ask user, if the script should be uploaded and if
+ * the answer should be saved. If so, save it to settings.json.
+ *
+ * @param param script-name or -path
+ */
+async function ensureUploadOnSave(conf: vscode.WorkspaceConfiguration, param: string): Promise<autoUpload> {
+    return new Promise<autoUpload>((resolve, reject) => {
+        let always: string[] = [];
+        let never: string[] = [];
+
+        const scriptname = path.basename(param, '.js');
+
+        const _always = conf.get('uploadOnSave');
+        const _never = conf.get('uploadManually');
+        if (_always instanceof Array && _never instanceof Array) {
+            always = _always;
+            never = _never;
+        } else {
+            vscode.window.showWarningMessage('Cannot read upload mode from settings.json');
+            return reject();
+        }
+        if (0 <= never.indexOf(scriptname)) {
+            resolve(autoUpload.no);
+        } else if (0 <= always.indexOf(scriptname)) {
+            resolve(autoUpload.yes);
+        } else {
+            const QUESTION: string = `Upload script ${scriptname}?`;
+            const YES: string = `Yes`;
+            const NO: string = `No`;
+            const ALWAYS: string = `Always upload ${scriptname} automatically`;
+            const NEVER: string = `Never upload ${scriptname} automatically`;
+            const NEVERASK: string = `Never upload scripts automatically`;
+            vscode.window.showQuickPick([YES, NO, ALWAYS, NEVER, NEVERASK], { placeHolder: QUESTION }).then((answer) => {
+                if (YES === answer) {
+                    resolve(autoUpload.yes);
+                } else if (NO === answer) {
+                    resolve(autoUpload.no);
+                } else if (ALWAYS === answer) {
+                    always.push(scriptname);
+                    conf.update('uploadOnSave', always);
+                    resolve(autoUpload.yes);
+                } else if (NEVER === answer) {
+                    never.push(scriptname);
+                    conf.update('uploadManually', never);
+                    resolve(autoUpload.no);
+                } else if (NEVERASK === answer) {
+                    conf.update('uploadOnSaveGlobal', false, true);
+                    resolve(autoUpload.neverAsk);
+                }
+            });
+        }
+    });
+}
+
 /**
  * Upload script on save
  */
@@ -93,17 +158,17 @@ export function uploadScriptOnSave(loginData: nodeDoc.ConnectionInformation, fil
     const conf = vscode.workspace.getConfiguration('vscode-janus-debug');
 
     return new Promise<boolean>((resolve, reject) => {
-        settings.ensureUploadOnSave(conf, fileName).then((value) => {
+        ensureUploadOnSave(conf, fileName).then((value) => {
 
-            if (helpers.autoUpload.yes === value) {
+            if (autoUpload.yes === value) {
                 uploadScriptCommon(loginData, fileName).then(() => {
                     resolve(true);
                 }).catch((reason) => {
                     reject();
                 });
-            } else if (helpers.autoUpload.no === value) {
+            } else if (autoUpload.no === value) {
                 resolve(true);
-            } else if (helpers.autoUpload.neverAsk === value) {
+            } else if (autoUpload.neverAsk === value) {
                 resolve(false);
             }
         }).catch((reason) => {
@@ -136,13 +201,13 @@ export function uploadAll(loginData: nodeDoc.ConnectionInformation, paramPath: a
             settings.readHashValues(conf, folderScripts, loginData.server);
             settings.readEncryptionFlag(conf, folderScripts);
             settings.setScriptInfoJson(conf, folderScripts);
-            settings.foldersToCategories(conf, loginData, folderScripts);
+            settings.foldersToCategories(conf.get('categories', false), loginData, folderScripts);
 
             return nodeDoc.serverSession(loginData, folderScripts, nodeDoc.uploadAll).then((value1) => {
                 const retScripts: nodeDoc.scriptT[] = value1;
 
                 // ask user about how to handle conflict scripts
-                settings.ensureForceUpload(conf, retScripts).then(([noConflict, forceUpload]) => {
+                settings.ensureForceUpload(conf.get('forceUpload', false), conf.get('categories', false), retScripts).then(([noConflict, forceUpload]) => {
 
                     // forceUpload might be empty, function resolves anyway
                     nodeDoc.serverSession(loginData, forceUpload, nodeDoc.uploadAll).then((value2) => {
@@ -203,7 +268,9 @@ function runScriptCommon(loginData: nodeDoc.ConnectionInformation, param: any, o
                 outputChannel.show();
             }
 
-            settings.scriptLog(conf, script.output);
+            if (vscode.workspace.workspaceFolders) {
+                settings.scriptLog(conf.get('scriptLog'), vscode.workspace.workspaceFolders[0].uri.fsPath, script.output);
+            }
 
             resolve(scriptName);
         } catch (reason) {
@@ -266,7 +333,9 @@ export async function uploadDebugScript(loginData: nodeDoc.ConnectionInformation
         outputChannel.append(`Script finished at ` + getTime() + ` on DOCUMENTS ${ver}` + os.EOL);
         outputChannel.show();
 
-        settings.scriptLog(conf, script.output);
+        if (vscode.workspace.workspaceFolders) {
+            settings.scriptLog(conf.get('scriptLog'), vscode.workspace.workspaceFolders[0].uri.fsPath, script.output);
+        }
 
         vscode.window.setStatusBarMessage('Script ' + scriptName + ' finished at ' + getTime());
     } catch (e) {
@@ -346,7 +415,10 @@ export async function downloadScript(loginData: nodeDoc.ConnectionInformation, c
                 if (onFolder) {
                     // if download is called directly on a script, the path
                     // should not be changed
-                    settings.categoriesToFolders(conf, loginData, [script], scriptDir);
+                    const invalidNames = settings.categoriesToFolders(conf.get('categories', false), loginData.documentsVersion, [script], scriptDir);
+                    if (invalidNames.length > 0) {
+                        vscode.window.showWarningMessage(`Cannot create folder from category '${invalidNames[0]}' - please remove special characters`);
+                    }
                 }
 
                 return nodeDoc.saveScriptUpdateSyncHash([script]).then(() => {
@@ -400,7 +472,10 @@ export async function downloadAllCommon(loginData: nodeDoc.ConnectionInformation
                 // * normal folder that contains category folders
 
                 // change script paths from scripts with categories
-                settings.categoriesToFolders(conf, loginData, outputScripts, downloadFolder);
+                const invalidNames = settings.categoriesToFolders(conf.get('categories', false), loginData.documentsVersion, outputScripts, downloadFolder);
+                if (invalidNames.length > 0) {
+                    vscode.window.showWarningMessage(`Cannot create folder from category '${invalidNames[0]}' - please remove special characters`);
+                }
             }
 
             // save script to file and update hash value in script structure
