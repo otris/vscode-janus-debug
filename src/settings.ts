@@ -382,18 +382,15 @@ export function readEncryptionFlag(conf: vscode.WorkspaceConfiguration, pscripts
 
 
 export function setConflictModes(conf: vscode.WorkspaceConfiguration, pscripts: nodeDoc.scriptT[]) {
-    if (!pscripts || 0 === pscripts.length) {
-        return;
-    }
-    if (!vscode.workspace) {
+    if (0 === pscripts.length) {
         return;
     }
 
-    const forceUpload = conf.get('forceUpload', false);
+    const confForceUpload = conf.get('forceUpload', false);
 
     // read values
     pscripts.forEach((script) => {
-        if (forceUpload) {
+        if (confForceUpload) {
             script.conflictMode = false;
         }
     });
@@ -412,8 +409,8 @@ export function readHashValues(conf: vscode.WorkspaceConfiguration, pscripts: no
     }
 
     // when forceUpload is true, this function is unnecessary
-    const forceUpload = conf.get('forceUpload', false);
-    if (forceUpload) {
+    const confForceUpload = conf.get('forceUpload', false);
+    if (confForceUpload) {
         return;
     }
 
@@ -448,14 +445,15 @@ export function readHashValues(conf: vscode.WorkspaceConfiguration, pscripts: no
 }
 
 export function updateHashValues(conf: vscode.WorkspaceConfiguration, pscripts: nodeDoc.scriptT[], server: string) {
-    if (!pscripts || 0 === pscripts.length) {
+    if (0 === pscripts.length) {
         return;
     }
-    if (!vscode.workspace || !vscode.workspace.rootPath) {
+    if (!vscode.workspace.rootPath) {
         return;
     }
 
-    if (conf.get('vscode-janus-debug.forceUpload', false)) {
+    const confForceUpload = conf.get('forceUpload', false);
+    if (confForceUpload) {
         return;
     }
 
