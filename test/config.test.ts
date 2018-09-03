@@ -28,7 +28,13 @@ suite('config tests', () => {
 
             teardown(() => {
                 fs.unlinkSync(packageJsonPath);
-                setTimeout(() => { fs.rmdirSync(tempDir); }, 1000);
+                setTimeout(() => {
+                    try {
+                        fs.rmdirSync(tempDir);
+                    } catch (err) {
+                        //
+                    }
+                }, 1000);
             });
 
             test('should prepend path with placeholder', () => {
@@ -59,7 +65,13 @@ suite('config tests', () => {
 
             teardown(() => {
                 fs.unlinkSync(packageJsonPath);
-                setTimeout(() => { fs.rmdirSync(tempDir); }, 1000);
+                setTimeout(() => {
+                    try {
+                        fs.rmdirSync(tempDir);
+                    } catch (err) {
+                        //
+                    }
+                }, 1000);
             });
 
             test('should return the path', () => {
@@ -87,7 +99,13 @@ suite('config tests', () => {
 
             teardown(() => {
                 fs.unlinkSync(packageJsonPath);
-                setTimeout(() => { fs.rmdirSync(tempDir); }, 1000);
+                setTimeout(() => {
+                    try {
+                        fs.rmdirSync(tempDir);
+                    } catch (err) {
+                        //
+                    }
+                }, 1000);
             });
 
             test('should return undefined', () => {

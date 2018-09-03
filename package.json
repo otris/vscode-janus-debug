@@ -657,14 +657,14 @@
     "winattr": "^2.0.0"
   },
   "devDependencies": {
-    "@types/mocha": "^2.2.41",
+    "@types/mocha": "^5.2.5",
     "@types/node": "^7.0.22",
     "@types/node-ipc": "^9.0.0",
     "@types/strip-json-comments": "0.0.28",
-    "mocha": "^2.4.5",
+    "mocha": "^5.2.0",
     "nyc": "^11.0.3",
     "tslint": "5.3.2",
-    "vscode": "^1.1.0",
+    "vscode": "^1.1.21",
     "vscode-debugadapter-testsupport": "^1.19.0"
   }
 }

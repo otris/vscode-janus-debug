@@ -148,8 +148,7 @@ export function ensurePortalScriptingTSD(extensionPath: string, outputPath: stri
     fs.writeFileSync(config, configContent);
 
     // execute jsdoc
-    execSync(jsdoc + " " + input + " -c " + config + " -t " + template + " -d " + output);
-    console.log(`Generated typings for version ${version}`);
+    const ret = execSync(jsdoc + " " + input + " -c " + config + " -t " + template + " -d " + output);
 
     // add fileTypeMapper and comment to typings
     try {

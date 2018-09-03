@@ -32,7 +32,7 @@ suite('debug Session', () => {
         suite('basic functionality', () => {
 
             test('initialize: should respond with supported features', done => {
-                return debugClient.initializeRequest().then((response) => {
+                debugClient.initializeRequest().then((response) => {
                     const body = response.body || {};
                     assert.equal(body.supportsConfigurationDoneRequest, true);
                     assert.equal(body.supportsConditionalBreakpoints, false);
