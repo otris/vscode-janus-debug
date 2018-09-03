@@ -46,10 +46,13 @@ export enum autoUpload {
 async function askForUpload(script: nodeDoc.scriptT, all: boolean, none: boolean, singlescript: boolean, categories: boolean): Promise<string> {
     return new Promise<string>(async (resolve, reject) => {
 
-        // if lastSyncHash is not set, then confict has been set to true
-        // so actually the case !conflict && !lastSyncHash is not possible here
-        if (!script.conflict && script.lastSyncHash) {
-            return resolve(NO_CONFLICT);
+        if (!script.conflict) {
+            if (script.lastSyncHash) {
+                return resolve(NO_CONFLICT);
+            } else {
+                // if !lastSyncHash -> we have no information about the script
+                // but actually conflict should have been set to true in this case
+            }
         }
 
         let answers = [FORCE_UPLOAD_YES, FORCE_UPLOAD_NO];
@@ -86,16 +89,26 @@ async function askForUpload(script: nodeDoc.scriptT, all: boolean, none: boolean
         if (script.conflict && (script.conflict & nodeDoc.CONFLICT_SOURCE_CODE)) {
             if (script.encrypted === 'true') {
                 question = `${script.name} cannot be decrypted, source code might have been changed on server, upload anyway?`;
-            } else if (script.lastSyncHash) {
-                question = `Source code of ${script.name} has been changed on server, upload anyway?`;
-            } else {
-                // lastSyncHash not set, so we have no information if the source code on server has been changed
-                question = `Source code of ${script.name} might have been changed on server, upload anyway?`;
+            } else if (script.lastSyncHash && script.serverCode) {
+                    question = `${script.name} has been changed on server, upload anyway?`;
+            } else if (script.lastSyncHash && !script.serverCode) {
+                    question = `${script.name} has been deleted on server, upload anyway?`;
+            } else if (!script.lastSyncHash && script.serverCode) {
+                // serverCode set -> script is on server
+                // lastSyncHash not set -> we don't know if source code on server has been changed
+                question = `${script.name} might have been changed on server, upload anyway?`;
+            } else if (!script.lastSyncHash && !script.serverCode) {
+                // serverCode not set -> script not on server
+                // lastSyncHash not set -> script not known
+                // ==> probably a new script is created, so don't ask
+                answer = FORCE_UPLOAD_YES;
             }
             if (!singlescript) {
                 answers = [FORCE_UPLOAD_YES, FORCE_UPLOAD_NO, FORCE_UPLOAD_ALL, FORCE_UPLOAD_NONE];
             }
-            answer = await vscode.window.showQuickPick(answers, { placeHolder: question });
+            if (question) {
+                answer = await vscode.window.showQuickPick(answers, { placeHolder: question });
+            }
         }
 
         return resolve(answer);
@@ -157,26 +170,16 @@ export async function ensureForceUpload(confForceUpload: boolean, confCategories
  *
  * @param param script-name or -path
  */
-export async function ensureUploadOnSave(conf: vscode.WorkspaceConfiguration, param: string): Promise<autoUpload> {
-    return new Promise<autoUpload>((resolve, reject) => {
-        let always: string[] = [];
-        let never: string[] = [];
+export async function ensureUploadOnSave(conf: vscode.WorkspaceConfiguration, scriptname: string): Promise<autoUpload> {
+    return new Promise<autoUpload>(async (resolve, reject) => {
 
-        const scriptname = path.basename(param, '.js');
-
-        const _always = conf.get('uploadOnSave');
-        const _never = conf.get('uploadManually');
-        if (_always instanceof Array && _never instanceof Array) {
-            always = _always;
-            never = _never;
-        } else {
-            vscode.window.showWarningMessage('Cannot read upload mode from settings.json');
-            return reject();
-        }
+        const always: string[] = conf.get('uploadOnSave', []);
+        const never: string[] = conf.get('uploadManually', []);
         if (0 <= never.indexOf(scriptname)) {
             resolve(autoUpload.no);
         } else if (0 <= always.indexOf(scriptname)) {
             resolve(autoUpload.yes);
+
         } else {
             const QUESTION: string = `Upload script ${scriptname}?`;
             const YES: string = `Yes`;
@@ -184,24 +187,58 @@ export async function ensureUploadOnSave(conf: vscode.WorkspaceConfiguration, pa
             const ALWAYS: string = `Always upload ${scriptname} automatically`;
             const NEVER: string = `Never upload ${scriptname} automatically`;
             const NEVERASK: string = `Never upload scripts automatically`;
-            vscode.window.showQuickPick([YES, NO, ALWAYS, NEVER, NEVERASK], { placeHolder: QUESTION }).then((answer) => {
-                if (YES === answer) {
-                    resolve(autoUpload.yes);
-                } else if (NO === answer) {
-                    resolve(autoUpload.no);
-                } else if (ALWAYS === answer) {
-                    always.push(scriptname);
-                    conf.update('uploadOnSave', always);
-                    resolve(autoUpload.yes);
-                } else if (NEVER === answer) {
-                    never.push(scriptname);
-                    conf.update('uploadManually', never);
-                    resolve(autoUpload.no);
-                } else if (NEVERASK === answer) {
-                    conf.update('uploadOnSaveGlobal', false, true);
-                    resolve(autoUpload.neverAsk);
-                }
-            });
+            const answer = await vscode.window.showQuickPick([YES, NO, ALWAYS, NEVER, NEVERASK], { placeHolder: QUESTION });
+            if (YES === answer) {
+                resolve(autoUpload.yes);
+            } else if (NO === answer) {
+                resolve(autoUpload.no);
+            } else if (ALWAYS === answer) {
+                always.push(scriptname);
+                conf.update('uploadOnSave', always);
+                resolve(autoUpload.yes);
+            } else if (NEVER === answer) {
+                never.push(scriptname);
+                conf.update('uploadManually', never);
+                resolve(autoUpload.no);
+            } else if (NEVERASK === answer) {
+                conf.update('uploadOnSaveGlobal', false, true);
+                resolve(autoUpload.neverAsk);
+            }
         }
+    });
+}
+
+
+
+
+
+
+
+
+/**
+ * Check, if the scripts contain scripts with same name.
+ * If so, show a warning and ask the user, if they want to cancel the upload.
+ * @param folderScripts the set of scripts to check
+ * @return true, if the user wants to cancel the upload, false if not
+ */
+function checkDuplicateScripts(folderScripts: nodeDoc.scriptT[]): Promise<boolean> {
+    return new Promise<boolean>(async (resolve, reject) => {
+        const duplicate = folderScripts.filter(e => e.duplicate);
+        if (duplicate && duplicate.length) {
+            const aShow = "Show duplicate scripts and cancel upload";
+            const aContinue = "Continue anyway";
+            const aCancel = "Cancel upload";
+            const duplDecision = await vscode.window.showQuickPick([aShow, aContinue, aCancel], {placeHolder: `Found scripts with same name`});
+            if (duplDecision !== aContinue) {
+                if (duplDecision === aShow) {
+                    const duplpaths = duplicate.map(e => e.path || e.name);
+                    if (duplpaths) {
+                        vscode.window.showQuickPick(duplpaths);
+                    }
+                }
+                return resolve(true);
+            }
+        }
+        return resolve(false);
     });
 }

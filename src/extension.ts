@@ -7,6 +7,7 @@ import * as documentation from './documentation';
 import { extend } from './helpers';
 import * as helpers from './helpers';
 import * as intellisense from './intellisense';
+import * as interactive from './interactive';
 import { VSCodeExtensionIPC } from './ipcServer';
 import * as login from './login';
 import * as serverCommands from './serverCommands';
@@ -146,14 +147,6 @@ function disconnectServerConsole(console: ServerConsole): void {
 }
 
 
-/**
- * The flag vscode-janus-debug.serverConsole.autoConnect is read
- * once on startup.
- */
-function readAutoConnectServerConsole() {
-    const extensionSettings = vscode.workspace.getConfiguration('vscode-janus-debug');
-    autoConnectServerConsole = extensionSettings.get('serverConsole.autoConnect', false);
-}
 
 
 function initServerConsole(outputChannel: vscode.OutputChannel) {
@@ -233,6 +226,7 @@ class JanusDebugConfigurationProvider implements vscode.DebugConfigurationProvid
 }
 
 export function activate(context: vscode.ExtensionContext): void {
+    let conf = vscode.workspace.getConfiguration('vscode-janus-debug');
 
     // set extension path
     // get location fo the extensions source folder
@@ -259,9 +253,10 @@ export function activate(context: vscode.ExtensionContext): void {
     const serverChannel = vscode.window.createOutputChannel('Server Console');
     scriptChannel = vscode.window.createOutputChannel('Script Console');
 
-    // Initialize server console and launch.json watcher.
-    // Print version before server console is initialized.
-    readAutoConnectServerConsole();
+    // initServerConsole and initLaunchJsonWatcher access
+    // the global variable autoConnectServerConsole
+    // todo: create parameter autoConnectServerConsole
+    autoConnectServerConsole = conf.get('serverConsole.autoConnect', false);
     initServerConsole(serverChannel);
     initLaunchJsonWatcher(serverChannel, loginData);
 
@@ -538,10 +533,31 @@ export function activate(context: vscode.ExtensionContext): void {
     );
 
 
-    if (vscode.workspace.rootPath) {
+    // Upload script on save
+    const autoUploadEnabled = conf.get('uploadOnSaveGlobal', true);
+    if (autoUploadEnabled) {
+        disposableOnSave = vscode.workspace.onDidSaveTextDocument(async (textDocument) => {
+            if ('.js' !== path.extname(textDocument.fileName)) {
+                return;
+            }
+            // configuration must be reloaded
+            conf = vscode.workspace.getConfiguration('vscode-janus-debug');
+            const answer = await interactive.ensureUploadOnSave(conf, path.basename(textDocument.fileName, '.js'));
+            if (interactive.autoUpload.yes === answer) {
+                await serverCommands.uploadScript(loginData, textDocument.fileName);
+            } else if (interactive.autoUpload.neverAsk === answer) {
+                if (disposableOnSave) {
+                    disposableOnSave.dispose();
+                }
+            }
+        });
+        context.subscriptions.push(disposableOnSave);
+    }
 
-        // create activation file if it does not exist
-        const activationFile = path.join(vscode.workspace.rootPath, helpers.CACHE_FILE);
+
+    // create activation file if it does not exist
+    if (vscode.workspace.workspaceFolders) {
+        const activationFile = path.join(vscode.workspace.workspaceFolders[0].uri.fsPath, helpers.CACHE_FILE);
         try {
             fs.readFileSync(activationFile);
         } catch (err) {
@@ -549,27 +565,11 @@ export function activate(context: vscode.ExtensionContext): void {
                 fs.writeFileSync(activationFile, '');
             }
         }
-
-        // Upload script on save
-        const extensionSettings = vscode.workspace.getConfiguration('vscode-janus-debug');
-        const autoUploadEnabled = extensionSettings.get('uploadOnSaveGlobal', true);
-        if (autoUploadEnabled) {
-            disposableOnSave = vscode.workspace.onDidSaveTextDocument((textDocument) => {
-                if ('.js' === path.extname(textDocument.fileName)) {
-                    serverCommands.uploadScriptOnSave(loginData, textDocument.fileName).then((value) => {
-                        if (!value && disposableOnSave) {
-                            disposableOnSave.dispose();
-                        }
-                    });
-                }
-            });
-            context.subscriptions.push(disposableOnSave);
-        }
     }
-
 
     vscode.window.setStatusBarMessage('vscode-janus-debug is active');
 }
+
 
 
 

@@ -5,10 +5,10 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import * as helpers from './helpers';
 import { getTime } from './helpers';
+import * as interactive from './interactive';
 import * as login from './login';
 import { getExactVersion } from './serverVersion';
 import * as settings from './settings';
-import * as userInput from './userInput';
 
 // tslint:disable-next-line:no-var-requires
 const fs = require('fs-extra');
@@ -47,7 +47,7 @@ async function uploadScriptCommon(loginData: nodeDoc.ConnectionInformation, para
                 const script: nodeDoc.scriptT = value[0];
 
                 // in case of conflict, ask if script should be force-uploaded
-                userInput.ensureForceUpload(conf.get('forceUpload', false), conf.get('categories', false), [script]).then(([noConflict, forceUpload]) => {
+                interactive.ensureForceUpload(conf.get('forceUpload', false), conf.get('categories', false), [script]).then(([noConflict, forceUpload]) => {
 
                     // if forceUpload is empty, function resolves
                     nodeDoc.serverSession(loginData, forceUpload, nodeDoc.uploadScript).then(() => {
@@ -94,31 +94,6 @@ export function uploadScript(loginData: nodeDoc.ConnectionInformation, param: an
 
 
 
-/**
- * Upload script on save
- */
-export function uploadScriptOnSave(loginData: nodeDoc.ConnectionInformation, fileName: string): Promise<boolean> {
-    const conf = vscode.workspace.getConfiguration('vscode-janus-debug');
-
-    return new Promise<boolean>((resolve, reject) => {
-        userInput.ensureUploadOnSave(conf, fileName).then((value) => {
-
-            if (userInput.autoUpload.yes === value) {
-                uploadScriptCommon(loginData, fileName).then(() => {
-                    resolve(true);
-                }).catch((reason) => {
-                    reject();
-                });
-            } else if (userInput.autoUpload.no === value) {
-                resolve(true);
-            } else if (userInput.autoUpload.neverAsk === value) {
-                resolve(false);
-            }
-        }).catch((reason) => {
-            reject();
-        });
-    });
-}
 
 
 /**
@@ -151,7 +126,7 @@ export function uploadAll(loginData: nodeDoc.ConnectionInformation, paramPath: a
                 const retScripts: nodeDoc.scriptT[] = value1;
 
                 // ask user about how to handle conflict scripts
-                userInput.ensureForceUpload(conf.get('forceUpload', false), conf.get('categories', false), retScripts).then(([noConflict, forceUpload]) => {
+                interactive.ensureForceUpload(conf.get('forceUpload', false), conf.get('categories', false), retScripts).then(([noConflict, forceUpload]) => {
 
                     // forceUpload might be empty, function resolves anyway
                     nodeDoc.serverSession(loginData, forceUpload, nodeDoc.uploadAll).then((value2) => {

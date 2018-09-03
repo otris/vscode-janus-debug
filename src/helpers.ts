@@ -112,33 +112,6 @@ export function setPaths(scripts: nodeDoc.scriptT[], targetDir: string) {
 
 
 
-/**
- * Check, if the scripts contain scripts with same name.
- * If so, show a warning and ask the user, if they want to cancel the upload.
- * @param folderScripts the set of scripts to check
- * @return true, if the user wants to cancel the upload, false if not
- */
-function checkDuplicateScripts(folderScripts: nodeDoc.scriptT[]): Promise<boolean> {
-    return new Promise<boolean>(async (resolve, reject) => {
-        const duplicate = folderScripts.filter(e => e.duplicate);
-        if (duplicate && duplicate.length) {
-            const aShow = "Show duplicate scripts and cancel upload";
-            const aContinue = "Continue anyway";
-            const aCancel = "Cancel upload";
-            const duplDecision = await vscode.window.showQuickPick([aShow, aContinue, aCancel], {placeHolder: `Found scripts with same name`});
-            if (duplDecision !== aContinue) {
-                if (duplDecision === aShow) {
-                    const duplpaths = duplicate.map(e => e.path || e.name);
-                    if (duplpaths) {
-                        vscode.window.showQuickPick(duplpaths);
-                    }
-                }
-                return resolve(true);
-            }
-        }
-        return resolve(false);
-    });
-}
 
 
 
