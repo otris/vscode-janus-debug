@@ -552,16 +552,6 @@
           "group": "DOCUMENTS@8"
         },
         {
-          "command": "extension.vscode-janus-debug.reloadScripts",
-          "when": "explorerResourceIsFolder",
-          "group": "DOCUMENTS@9"
-        },
-        {
-          "command": "extension.vscode-janus-debug.reloadScripts",
-          "when": "resourceLangId == javascript",
-          "group": "DOCUMENTS@9"
-        },
-        {
           "command": "extension.vscode-janus-debug.getAllTSD",
           "group": "DOCUMENTS@11"
         },
