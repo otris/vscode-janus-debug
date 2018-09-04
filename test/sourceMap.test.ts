@@ -1,8 +1,9 @@
 import * as assert from 'assert';
-import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import { LocalSource, ServerSource, SourceMap } from '../src/sourceMap';
+// tslint:disable-next-line:no-var-requires
+const fs = require('fs-extra');
 
 suite('local source tests', () => {
 
@@ -29,12 +30,15 @@ suite('local source tests', () => {
             somePath = tempDir + path.sep + 'baz.js';
             const fd = fs.openSync(somePath, 'w');
             fs.writeFileSync(somePath, sourceCode);
+            // close fd, otherwise we get an EPERM in removeSync
+            fs.closeSync(fd);
         });
 
         teardown(() => {
             fs.unlinkSync(somePath);
+            // removeSync instead of rmdirSync, otherwise we get an ENOTEMPTY here
             // Timeout because otherwise we get a ENOTEMPTY in fs.rmdir; bug in node?
-            setTimeout(() => { fs.rmdirSync(tempDir); }, 1000);
+            setTimeout(() => { fs.removeSync(tempDir); }, 1000);
         });
 
         test('load code from disk', () => {
@@ -205,6 +209,8 @@ suite('source map tests', () => {
                     const p = tempDir + path.sep + fileName;
                     const fd = fs.openSync(p, 'w');
                     fs.writeFileSync(p, sourceCode);
+                    // close fd, otherwise we get an EPERM in removeSync
+                    fs.closeSync(fd);
                     paths.push(p);
                 };
 
@@ -216,8 +222,9 @@ suite('source map tests', () => {
 
             teardown(() => {
                 paths.forEach(p => fs.unlinkSync(p));
+                // removeSync instead of rmdirSync, otherwise we get an ENOTEMPTY here
                 // Timeout because otherwise we get a ENOTEMPTY in fs.rmdir
-                setTimeout(() => { fs.rmdirSync(tempDir); }, 1000);
+                setTimeout(() => { fs.removeSync(tempDir); }, 1000);
             });
 
             /*
@@ -277,6 +284,8 @@ suite('source map tests', () => {
                 const p = tempDir + path.sep + fileName;
                 const fd = fs.openSync(p, 'w');
                 fs.writeFileSync(p, sourceCode);
+                // close fd, otherwise we get an EPERM in removeSync
+                fs.closeSync(fd);
                 paths.push(p);
             };
 
@@ -289,8 +298,9 @@ suite('source map tests', () => {
 
         teardown(() => {
             paths.forEach(p => fs.unlinkSync(p));
+            // removeSync instead of rmdirSync, otherwise we get an ENOTEMPTY here
             // Timeout because otherwise we get a ENOTEMPTY in fs.rmdir
-            setTimeout(() => { fs.rmdirSync(tempDir); }, 1000);
+            setTimeout(() => { fs.removeSync(tempDir); }, 1000);
         });
 
         /*
@@ -350,6 +360,8 @@ suite('source map tests', () => {
                 const p = tempDir + path.sep + fileName;
                 const fd = fs.openSync(p, 'w');
                 fs.writeFileSync(p, sourceCode);
+                // close fd, otherwise we get an EPERM in removeSync
+                fs.closeSync(fd);
                 paths.push(p);
             };
 
@@ -362,8 +374,9 @@ suite('source map tests', () => {
 
         teardown(() => {
             paths.forEach(p => fs.unlinkSync(p));
+            // removeSync instead of rmdirSync, otherwise we get an ENOTEMPTY here
             // Timeout because otherwise we get a ENOTEMPTY in fs.rmdir
-            setTimeout(() => { fs.rmdirSync(tempDir); }, 1000);
+            setTimeout(() => { fs.removeSync(tempDir); }, 1000);
         });
         /*
         test("remote line to local position", () => {
@@ -432,6 +445,8 @@ suite('source map tests', () => {
                 const p = tempDir + path.sep + fileName;
                 const fd = fs.openSync(p, 'w');
                 fs.writeFileSync(p, sourceCode);
+                // close fd, otherwise we get an EPERM in removeSync
+                fs.closeSync(fd);
                 paths.push(p);
             };
 
@@ -447,8 +462,9 @@ suite('source map tests', () => {
 
         teardown(() => {
             paths.forEach(p => fs.unlinkSync(p));
+            // removeSync instead of rmdirSync, otherwise we get an ENOTEMPTY here
             // Timeout because otherwise we get a ENOTEMPTY in fs.rmdir
-            setTimeout(() => { fs.rmdirSync(tempDir); }, 1000);
+            setTimeout(() => { fs.removeSync(tempDir); }, 1000);
             paths = [];
         });
 

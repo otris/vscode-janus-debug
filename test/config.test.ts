@@ -1,8 +1,9 @@
 import * as assert from 'assert';
-import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import { parseEntryPoint } from '../src/config';
+// tslint:disable-next-line:no-var-requires
+const fs = require('fs-extra');
 
 suite('config tests', () => {
 
@@ -24,17 +25,14 @@ suite('config tests', () => {
                 packageJsonPath = tempDir + path.sep + 'package.json';
                 const fd = fs.openSync(packageJsonPath, 'w');
                 fs.writeFileSync(packageJsonPath, minimalPackageJson);
+                // close fd, otherwise we get an EPERM in removeSync
+                fs.closeSync(fd);
             });
 
             teardown(() => {
                 fs.unlinkSync(packageJsonPath);
-                setTimeout(() => {
-                    try {
-                        fs.rmdirSync(tempDir);
-                    } catch (err) {
-                        //
-                    }
-                }, 1000);
+                // removeSync instead of rmdirSync, otherwise we get an ENOTEMPTY here
+                setTimeout(() => { fs.removeSync(tempDir); }, 1000);
             });
 
             test('should prepend path with placeholder', () => {
@@ -61,17 +59,14 @@ suite('config tests', () => {
                     '}',
                 ].join('\n');
                 fs.writeFileSync(packageJsonPath, minimalPackageJson);
+                // close fd, otherwise we get an EPERM in removeSync
+                fs.closeSync(fd);
             });
 
             teardown(() => {
                 fs.unlinkSync(packageJsonPath);
-                setTimeout(() => {
-                    try {
-                        fs.rmdirSync(tempDir);
-                    } catch (err) {
-                        //
-                    }
-                }, 1000);
+                // removeSync instead of rmdirSync, otherwise we get an ENOTEMPTY here
+                setTimeout(() => { fs.removeSync(tempDir); }, 1000);
             });
 
             test('should return the path', () => {
@@ -95,17 +90,14 @@ suite('config tests', () => {
                 packageJsonPath = tempDir + path.sep + 'package.json';
                 const fd = fs.openSync(packageJsonPath, 'w');
                 fs.writeFileSync(packageJsonPath, minimalPackageJson);
+                // close fd, otherwise we get an EPERM in removeSync
+                fs.closeSync(fd);
             });
 
             teardown(() => {
                 fs.unlinkSync(packageJsonPath);
-                setTimeout(() => {
-                    try {
-                        fs.rmdirSync(tempDir);
-                    } catch (err) {
-                        //
-                    }
-                }, 1000);
+                // removeSync instead of rmdirSync, otherwise we get an ENOTEMPTY here
+                setTimeout(() => { fs.removeSync(tempDir); }, 1000);
             });
 
             test('should return undefined', () => {
