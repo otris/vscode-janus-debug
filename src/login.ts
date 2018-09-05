@@ -212,7 +212,7 @@ let launchJsonCreatedByExtension = false;
 export function loadLoginInformationOnCreate(login: nodeDoc.ConnectionInformation, configFile: string) {
     if (launchJsonCreatedByExtension) {
         launchJsonCreatedByExtension = false;
-    } else if (configFile && configFile.length > 0) {
+    } else {
         loadLoginInformation(login, configFile);
     }
 }
@@ -249,7 +249,12 @@ export function loadLoginInformation(connection: nodeDoc.ConnectionInformation, 
         const jsonContent = fs.readFileSync(connection.configFile, 'utf8');
         const jsonObject = JSON.parse(stripJsonComments(jsonContent));
         configurations = jsonObject.configurations;
+        // actually this API should be used, but this function does not
+        // read the most current file, meaning the latest changes are missing...
+        // const launch = vscode.workspace.getConfiguration('launch');
+        // configurations = launch.get("configurations");
     } catch (err) {
+        vscode.window.showErrorMessage("Cannot load launch.json: " + err);
         return false;
     }
 
