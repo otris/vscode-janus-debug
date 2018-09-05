@@ -2,6 +2,11 @@
 
 You'll find a complete list of changes at our project site on [GitHub](https://github.com/otris/vscode-janus-debug).
 
+### 1.0.5 (2018-09-05)
+
+- Show error message when unable to parse launch.json
+- Some minor fixes
+
 ### 1.0.4 (2018-08-21)
 
 - Only show warnings for categories when category feature is used.
