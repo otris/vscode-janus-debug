@@ -28,7 +28,10 @@ const invalidCharacters = /[\\\/:\*\?"<>\|]/;
 const CATEGORY_FOLDER_POSTFIX = '.cat';
 
 
-export function getCategoryFromPath(parampath?: string) {
+export function getCategoryFromPath(confCategories: boolean, parampath?: string) {
+    if (confCategories !== true) {
+        return undefined;
+    }
     if (!parampath) {
         return undefined;
     }
@@ -55,7 +58,7 @@ export function categoriesToFolders(confCategories: boolean, documentsVersion: s
     }
 
     const invalidNames: string[] = [];
-    const category = getCategoryFromPath(targetDir);
+    const category = getCategoryFromPath(confCategories, targetDir);
     if (category) {
         // the target folder is a category-folder
         // only save scripts from this category
@@ -103,7 +106,7 @@ export function foldersToCategories(confCategories: boolean, serverInfo: nodeDoc
 
     scripts.forEach((script: nodeDoc.scriptT) => {
         if (script.path) {
-            script.category = getCategoryFromPath(script.path);
+            script.category = getCategoryFromPath(confCategories, script.path);
         }
     });
 }

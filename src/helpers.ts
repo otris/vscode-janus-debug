@@ -334,43 +334,42 @@ export async function ensurePath(fileOrDir: string | undefined, allowSubDir = fa
 
 
 
+/**
+ * This function shows a list of scripts to the user.
+ * If the user selects a script, this script is returned.
+ * The function is called for the following commands
+ * + runScript
+ * + debugScript
+ * + downloadScript
+ * + showImports
+ * These commands all require a script on server, meaning if the
+ * list of server scripts is empty, the function can simply reject.
+ *
+ * @param paramScript this param should be removed
+ * @param serverScripts the list of scripts, should contain all scripts on server
+ * @returns the selected script
+ */
+export async function ensureServerScriptName(paramScript: string | undefined, serverScripts: string[] = []): Promise<string> {
+    return new Promise<string>(async (resolve, reject) => {
 
-export async function ensureScriptName(paramScript?: string, serverScripts: string[] = []): Promise<string> {
-    return new Promise<string>((resolve, reject) => {
-
+        // todo
+        // move this to none-vscode file
+        // because this is required in mocha tests
         if (paramScript && '.js' === path.extname(paramScript)) {
-            resolve(path.basename(paramScript, '.js'));
+            return resolve(path.basename(paramScript, '.js'));
+        }
 
-        } else {
-            let activeScript = '';
-            const editor = vscode.window.activeTextEditor;
-            if (editor) {
-                activeScript = path.basename(editor.document.fileName, '.js');
-            }
-            if (0 === serverScripts.length) {
-                vscode.window.showInputBox({
-                    prompt: 'Please enter the script name or path',
-                    value: activeScript,
-                    ignoreFocusOut: true,
-                }).then((scriptName) => {
-                    if (scriptName) {
-                        resolve(path.basename(scriptName, '.js'));
-                    } else {
-                        reject('no script');
-                    }
-                });
+        // show the list of server script names where the user can pick one
+        if (serverScripts.length > 0) {
+            const scriptName = await vscode.window.showQuickPick(serverScripts);
+            if (typeof scriptName === "string") {
+                return resolve(scriptName);
             } else {
-                vscode.window.showQuickPick(
-                    serverScripts
-                ).then((scriptName) => {
-                    if (scriptName) {
-                        resolve(scriptName);
-                    } else {
-                        reject('no script');
-                    }
-                });
+                return reject("No script selected");
             }
         }
+
+        return reject("No server scripts for selection");
     });
 }
 

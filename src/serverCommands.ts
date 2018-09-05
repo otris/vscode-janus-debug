@@ -162,12 +162,15 @@ function runScriptCommon(loginData: nodeDoc.ConnectionInformation, param: any, o
     return new Promise<string>(async (resolve, reject) => {
         try {
             await login.ensureLoginInformation(loginData);
+
+
             let serverScriptNames;
             if (!param || '.js' !== path.extname(param)) {
                 serverScriptNames = await getServerScriptNames(loginData);
             }
-            const scriptName = await helpers.ensureScriptName(param, serverScriptNames);
+            const scriptName = await helpers.ensureServerScriptName(param, serverScriptNames);
             const script = new nodeDoc.scriptT(scriptName, '');
+
 
             outputChannel.append(`Starting script ${scriptName} at ${getTime()}${os.EOL}`);
             if (openOutputChannel) {
@@ -227,16 +230,17 @@ export async function uploadDebugScript(loginData: nodeDoc.ConnectionInformation
 
     try {
         await uploadScriptCommon(loginData, param);
-
-        let scriptName = "";
-
         await login.ensureLoginInformation(loginData);
+
+
         let serverScriptNames;
         if (!param || '.js' !== path.extname(param)) {
             serverScriptNames = await getServerScriptNames(loginData);
         }
-        scriptName = await helpers.ensureScriptName(param, serverScriptNames);
+        const scriptName = await helpers.ensureServerScriptName(param, serverScriptNames);
         const script = new nodeDoc.scriptT(scriptName, '');
+
+
 
         outputChannel.append('Start script at ' + getTime() + os.EOL);
         outputChannel.show();
@@ -296,63 +300,68 @@ export function uploadRunScript(loginData: nodeDoc.ConnectionInformation, param:
  * contain the corresponding path. Then it is either a folder or a .js file.
  * Otherwise it is undefined.
  */
-export async function downloadScript(loginData: nodeDoc.ConnectionInformation, contextMenuPath: string | undefined): Promise<void> {
+export async function downloadScript(loginData: nodeDoc.ConnectionInformation, param: string | undefined): Promise<void> {
     const conf = vscode.workspace.getConfiguration('vscode-janus-debug');
     const rootPath = vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
 
     return new Promise<void>(async (resolve, reject) => {
-        let serverScriptNames;
-        let onFolder = false;
+        const categoriesToFolders = (!param || '.js' !== path.extname(param));
         let scriptDir = "";
+        let script: nodeDoc.scriptT;
 
         try {
             await login.ensureLoginInformation(loginData);
-            scriptDir = await helpers.ensurePath(contextMenuPath, true);
+            scriptDir = await helpers.ensurePath(param, true);
 
-            if (!contextMenuPath || '.js' !== path.extname(contextMenuPath)) {
-                onFolder = true;
-                const category = settings.getCategoryFromPath(scriptDir);
+
+
+            let serverScriptNames;
+            if (!param || '.js' !== path.extname(param)) {
+                const category = settings.getCategoryFromPath(conf.get('categories', false), scriptDir);
                 serverScriptNames = await getServerScriptNames(loginData, category ? [category] : []);
             }
+            const scriptName = await helpers.ensureServerScriptName(param, serverScriptNames);
+            script = new nodeDoc.scriptT(scriptName);
+
+
+
+            script.path = path.join(scriptDir, scriptName + '.js');
+
         } catch (err) {
             vscode.window.showErrorMessage('download script failed: ' + err);
             return reject();
         }
 
 
-        helpers.ensureScriptName(contextMenuPath, serverScriptNames).then((scriptName) => {
 
-            const scriptPath = path.join(scriptDir, scriptName + '.js');
-            let script: nodeDoc.scriptT = new nodeDoc.scriptT(scriptName, scriptPath);
 
-            settings.getScriptInfoJson(conf.get('scriptParameters', false), [script]);
+        settings.getScriptInfoJson(conf.get('scriptParameters', false), [script]);
 
-            return nodeDoc.serverSession(loginData, [script], nodeDoc.downloadScript).then((value) => {
-                script = value[0];
+        return nodeDoc.serverSession(loginData, [script], nodeDoc.downloadScript).then((value) => {
+            script = value[0];
 
-                if (onFolder) {
-                    // if download is called directly on a script, the path
-                    // should not be changed
-                    const invalidNames = settings.categoriesToFolders(conf.get('categories', false), loginData.documentsVersion, [script], scriptDir);
-                    if (invalidNames.length > 0) {
-                        vscode.window.showWarningMessage(`Cannot create folder from category '${invalidNames[0]}' - please remove special characters`);
-                    }
+            if (categoriesToFolders) {
+                // if download is called directly on a script, the path
+                // should not be changed
+                const invalidNames = settings.categoriesToFolders(conf.get('categories', false), loginData.documentsVersion, [script], scriptDir);
+                if (invalidNames.length > 0) {
+                    vscode.window.showWarningMessage(`Cannot create folder from category '${invalidNames[0]}' - please remove special characters`);
                 }
+            }
 
-                return nodeDoc.saveScriptUpdateSyncHash([script]).then(() => {
-                    settings.updateHashValues(conf.get('forceUpload', false), rootPath, [script], loginData.server);
-                    settings.writeScriptInfoJson(conf.get('scriptParameters', false), rootPath, [script]);
-                    vscode.window.setStatusBarMessage('downloaded: ' + script.name);
+            return nodeDoc.saveScriptUpdateSyncHash([script]).then(() => {
+                settings.updateHashValues(conf.get('forceUpload', false), rootPath, [script], loginData.server);
+                settings.writeScriptInfoJson(conf.get('scriptParameters', false), rootPath, [script]);
+                vscode.window.setStatusBarMessage('downloaded: ' + script.name);
 
-                    if (!script.path) {
-                        return resolve();
-                    }
-                    const openPath = vscode.Uri.file(script.path);
-                    vscode.workspace.openTextDocument(openPath).then(doc => {
-                        vscode.window.showTextDocument(doc);
-                    });
-                    resolve();
+                if (!script.path) {
+                    return resolve();
+                }
+                const openPath = vscode.Uri.file(script.path);
+                vscode.workspace.openTextDocument(openPath).then(doc => {
+                    vscode.window.showTextDocument(doc);
                 });
+                resolve();
             });
         }).catch((reason) => {
             vscode.window.showErrorMessage('download script failed: ' + reason);
@@ -549,22 +558,27 @@ export async function compareScript(loginData: nodeDoc.ConnectionInformation, co
 }
 
 
-export async function showImports(loginData: nodeDoc.ConnectionInformation, contextMenuPath: string | undefined, outputChannel: vscode.OutputChannel): Promise<void> {
+export async function showImports(loginData: nodeDoc.ConnectionInformation, param: string | undefined, outputChannel: vscode.OutputChannel): Promise<void> {
     return new Promise<void>(async (resolve, reject) => {
-        await login.ensureLoginInformation(loginData);
+        try {
+            await login.ensureLoginInformation(loginData);
 
-        helpers.ensureScriptName(contextMenuPath, []).then((scriptName) => {
-            return nodeDoc.serverSession(loginData, [scriptName], nodeDoc.getSourceCodeForEditor).then((value) => {
-                vscode.workspace.openTextDocument({ content: value[0], language: 'javascript' }).then(doc => {
-                    vscode.window.showTextDocument(doc);
-                });
+            let serverScriptNames;
+            if (!param || '.js' !== path.extname(param)) {
+                serverScriptNames = await getServerScriptNames(loginData);
+            }
+            const scriptName = await helpers.ensureServerScriptName(param, serverScriptNames);
+            // const script = new nodeDoc.scriptT(scriptName, '');
 
-                resolve();
-            });
-        }).catch((reason) => {
+            const returnValue = await nodeDoc.serverSession(loginData, [scriptName], nodeDoc.getSourceCodeForEditor);
+            const doc = await vscode.workspace.openTextDocument({ content: returnValue[0], language: 'javascript' });
+            const editor = await vscode.window.showTextDocument(doc);
+            resolve();
+
+        } catch (reason) {
             vscode.window.showErrorMessage('Show imports failed: ' + reason);
             reject();
-        });
+        }
     });
 }
 
