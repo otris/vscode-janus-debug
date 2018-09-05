@@ -170,8 +170,10 @@ function initLaunchJsonWatcher(outputChannel: vscode.OutputChannel, loginData: n
             outputChannel.appendLine('launch.json created; trying to connect...');
             reconnectServerConsole(serverConsole);
         }
-        const fsPath = file ? file.fsPath : '';
-        login.loadLoginInformationOnCreate(loginData, fsPath);
+        const wsFolder = vscode.workspace.getWorkspaceFolder(file);
+        if (wsFolder && wsFolder.index === 0) {
+            login.loadLoginInformationOnCreate(loginData, file.fsPath);
+        }
     });
 
     launchJsonWatcher.onDidChange((file) => {
@@ -179,7 +181,8 @@ function initLaunchJsonWatcher(outputChannel: vscode.OutputChannel, loginData: n
             outputChannel.appendLine('launch.json changed; trying to (re)connect...');
             reconnectServerConsole(serverConsole);
         }
-        if (file) {
+        const wsFolder = vscode.workspace.getWorkspaceFolder(file);
+        if (wsFolder && wsFolder.index === 0) {
             login.loadLoginInformation(loginData, file.fsPath);
         }
     });
@@ -190,7 +193,10 @@ function initLaunchJsonWatcher(outputChannel: vscode.OutputChannel, loginData: n
         if (autoConnectServerConsole && serverConsole) {
             disconnectServerConsole(serverConsole);
         }
-        loginData.resetLoginData();
+        const wsFolder = vscode.workspace.getWorkspaceFolder(file);
+        if (wsFolder && wsFolder.index === 0) {
+            loginData.resetLoginData();
+        }
     });
 }
 
