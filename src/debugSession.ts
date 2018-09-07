@@ -243,7 +243,7 @@ export class JanusDebugSession extends DebugSession {
                     }
                 });
 
-                if (!this.attachedContextId) {
+                if (this.attachedContextId === undefined) {
                     log.warn(`this.attachedContextId is ${this.attachedContextId}`);
                 }
 
