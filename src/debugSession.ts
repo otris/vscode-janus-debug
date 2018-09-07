@@ -249,7 +249,7 @@ export class JanusDebugSession extends DebugSession {
 
                 if (stopOnEntry || args.portal) {
                     // Single step because of debugger; statement.
-                    if (this.attachedContextId) {
+                    if (this.attachedContextId !== undefined) {
                         await connection.sendRequest(new Command('next', this.attachedContextId));
                     }
                 }
@@ -871,7 +871,7 @@ export class JanusDebugSession extends DebugSession {
             threads: [],
         };
 
-        if (this.attachedContextId) {
+        if (this.attachedContextId !== undefined) {
 
             let attachedContext: Context;
             try {
