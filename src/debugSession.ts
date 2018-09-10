@@ -987,9 +987,11 @@ export class JanusDebugSession extends DebugSession {
                     throw new Error('Internal error: Current frame not found.');
                 }
 
-                const frameId = frame.frameId;
+                // it is necessary that variablesReference > 0, see scopesRequest()
+                // frame ids start with 0
+                const frameRef = frame.frameId + 1;
                 locals.forEach(variable => {
-                    this.variablesMap.createVariable(variable.name, variable.value, contextId, frameId);
+                    this.variablesMap.createVariable(variable.name, variable.value, contextId, frameRef);
                 });
                 log.debug(`stackTraceRequest succeeded`);
                 response.success = true;
@@ -1012,10 +1014,13 @@ export class JanusDebugSession extends DebugSession {
 
         // The variablesReference is just the frameId because we do not keep track of individual scopes in a frame.
 
+        // vscode only calls variablesRequest() when
+        // variablesReference > 0
+        const frameRef = args.frameId + 1;
         const scopes: DebugProtocol.Scope[] = [{
             expensive: false,
             name: 'Locals',
-            variablesReference: args.frameId,
+            variablesReference: frameRef,
         }];
 
         response.body = {
