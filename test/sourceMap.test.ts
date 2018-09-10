@@ -106,8 +106,11 @@ suite('source map tests', () => {
             const s = ServerSource.fromSources('test1', sourceLines);
             assert.equal(s.chunks.length, 2);
             assert.equal(s.chunks[0].name, 'lib');
-            assert.equal(s.chunks[0].pos.start, 3);
-            assert.equal(s.chunks[0].pos.len, 5);
+
+            // the chunks start at //#
+            // => so start of first chunk is 2 and length is 6
+            assert.equal(s.chunks[0].pos.start, 2);
+            assert.equal(s.chunks[0].pos.len, 6);
 
             assert.equal(s.chunks[1].name, 'test1');
             assert.equal(s.chunks[1].pos.start, 8);
@@ -116,7 +119,9 @@ suite('source map tests', () => {
 
         test("map to individual source files", () => {
             const s = ServerSource.fromSources('test1', sourceLines);
-            assert.deepEqual(s.toLocalPosition(10), { source: 'test1', line: 3 });
+            // in line 8: "//# 2 test1" means that this chunk starts at line 2 in file "test1"
+            // so: line 10 must be mapped to line 2 + 2 = 4 int "test1"
+            assert.deepEqual(s.toLocalPosition(10), { source: 'test1', line: 4 });
             assert.deepEqual(s.toLocalPosition(3), { source: 'lib', line: 1 });
         });
 
@@ -127,8 +132,11 @@ suite('source map tests', () => {
 
         test("pre-processor line maps to first line of next chunk", () => {
             const s = ServerSource.fromSources('test1', sourceLines);
-            assert.deepEqual(s.toLocalPosition(2), { source: 'lib', line: 1 });
-            assert.deepEqual(s.toLocalPosition(8), { source: 'test1', line: 1 });
+            // in line 2: "//# 0 lib" means that this chunk starts at line 2 in file "lib"
+            // so: line 0 is mapped to line 2
+            assert.deepEqual(s.toLocalPosition(2), { source: 'lib', line: 0 });
+            // see test "map to individual source files"
+            assert.deepEqual(s.toLocalPosition(8), { source: 'test1', line: 2 });
         });
 
         test("parse pre-processor comment line", () => {
@@ -456,7 +464,9 @@ suite('source map tests', () => {
             writeTestFile('main.js', mainSourceCode);
 
             sourceMap = new SourceMap();
-            sourceMap.serverSource = ServerSource.fromSources('main', sourceLines3);
+            // we can see in the server code, that the debugger added the "debugger;" statement here,
+            // so we have to call fromSources with debugAdded = true
+            sourceMap.serverSource = ServerSource.fromSources('main', sourceLines3, true);
             sourceMap.setLocalUrls(paths);
         });
 
