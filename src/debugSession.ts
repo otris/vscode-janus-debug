@@ -229,7 +229,7 @@ export class JanusDebugSession extends DebugSession {
                             return res.content.source;
                         });
                     log.info(`retrieved server sources: ${JSON.stringify(sources)}`);
-                    this.sourceMap.serverSource = ServerSource.fromSources(source.sourceName(), sources);
+                    this.sourceMap.serverSource = ServerSource.fromSources(source.sourceName(), sources, true);
                 } catch (e) {
                     log.error(`Command.getSource failed ${e}`);
                 }
