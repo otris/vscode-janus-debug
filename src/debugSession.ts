@@ -991,12 +991,18 @@ export class JanusDebugSession extends DebugSession {
                 locals.forEach(variable => {
                     this.variablesMap.createVariable(variable.name, variable.value, contextId, frameId);
                 });
+                log.debug(`stackTraceRequest succeeded`);
+                response.success = true;
+                this.sendResponse(response);
             }).catch(reason => {
                 log.error(`could not update variablesMap: ${reason}`);
+                log.debug(`stackTraceRequest succeeded`);
+                response.success = true;
+                this.sendResponse(response);
             });
-
-            log.debug(`stackTraceRequest succeeded`);
-            response.success = true;
+        }).catch(reason => {
+            log.debug(`stackTraceRequest failed`);
+            response.success = false;
             this.sendResponse(response);
         });
     }
