@@ -709,6 +709,14 @@ export class JanusDebugSession extends DebugSession {
         });
     }
 
+    /**
+     * When 'next' is executed, the debugger stops and sends a stop response.
+     * This triggeres 'this.connection.on('contextPaused')' where reportStopped() is called.
+     * reportStopped() tells vscode that the debugger has stopped.
+     * After vscode gets the stopped event, it calls some functions like getStacktrace, getScope, etc.
+     * See last section in this documentation for further information:
+     * https://code.visualstudio.com/docs/extensionAPI/api-debugging#_the-debug-adapter-protocol-in-a-nutshell
+     */
     protected nextRequest(response: DebugProtocol.NextResponse, args: DebugProtocol.NextArguments): void {
         log.info(`nextRequest for threadId: ${args.threadId}`);
 
@@ -733,7 +741,9 @@ export class JanusDebugSession extends DebugSession {
             log.debug('nextRequest succeeded');
             response.success = true;
             this.sendResponse(response);
-            this.reportStopped('step', contextId);
+            // reportStopped is called in this.connection.on('contextPaused'),
+            // that is when debugger has really stopped
+            // this.reportStopped('step', contextId);
         }, err => {
             log.error('nextRequest failed: ' + err);
             response.success = false;
@@ -758,6 +768,7 @@ export class JanusDebugSession extends DebugSession {
             log.debug('first stepInRequest succeeded');
             response.success = true;
             this.sendResponse(response);
+            // todo: see 'next'
             this.reportStopped('step in', contextId);
         } catch (err) {
             log.error('stepInRequest failed: ' + err);
@@ -782,6 +793,7 @@ export class JanusDebugSession extends DebugSession {
             log.debug('first stepOutRequest succeeded');
             response.success = true;
             this.sendResponse(response);
+            // todo: see 'next'
             this.reportStopped('step out', contextId);
         } catch (err) {
             log.error('stepOutRequest failed: ' + err);
@@ -818,6 +830,7 @@ export class JanusDebugSession extends DebugSession {
                 log.debug('pauseRequest succeeded');
                 response.success = true;
                 this.sendResponse(response);
+                // todo: see 'next'
                 this.reportStopped('pause', contextId);
             }).catch(reason => {
                 log.error('pauseRequest failed: ' + reason);
