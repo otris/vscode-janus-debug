@@ -32,13 +32,13 @@ export class FrameMap {
     private frameIdToFrame: Map<FrameId, StackFrame> = new Map();
 
     public addFrames(contextId: ContextId, frames: protocol.StackFrame[]): StackFrame[] {
-        log.debug(`adding frames ${JSON.stringify(frames)} for context id ${contextId}`);
+        // log.debug(`adding frames ${JSON.stringify(frames)} for context id ${contextId}`);
 
         const added: StackFrame[] = [];
         frames.forEach(frame => {
             const entry = new StackFrame(contextId, frame);
             if (this.frameIdToFrame.has(entry.frameId)) {
-                log.warn(`already mapped entry: ${entry.frameId} -> (${contextId}, ${entry.rDepth})`);
+                // log.warn(`already mapped entry: ${entry.frameId} -> (${contextId}, ${entry.rDepth})`);
             }
             this.frameIdToFrame.set(entry.frameId, entry);
             added.push(entry);

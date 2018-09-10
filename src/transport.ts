@@ -21,7 +21,7 @@ export class DebugProtocolTransport extends EventEmitter {
         this.bufferedLength = 0;
 
         this.socket.on('data', (chunk: Buffer) => {
-            log.debug(`received data on the socket: "${chunk}"`);
+            // log.debug(`received data on the socket: "${chunk}"`);
             this.scanParseAndEmit(chunk);
         });
 
@@ -31,7 +31,7 @@ export class DebugProtocolTransport extends EventEmitter {
     }
 
     public sendMessage(msg: string): void {
-        log.debug(`write on the socket`);
+        // log.debug(`write on the socket`);
         const buf = Buffer.from(msg, 'utf-8');
         this.socket.write(buf);
     }

@@ -126,7 +126,7 @@ export function variableValueToString(value: VariableValue): string {
 }
 
 export function parseResponse(responseString: string): Response {
-    log.debug(`parsing response string: "${responseString}"`);
+    // log.debug(`parsing response string: "${responseString}"`);
 
     let contextId: number | undefined;
     let indexStart = 0;

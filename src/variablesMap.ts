@@ -74,7 +74,7 @@ export class VariablesMap {
             evaluateName = '';
         }
 
-        log.info(`Creating variable ${variableName} with value ${variableValue}`);
+        // log.info(`Creating variable ${variableName} with value ${variableValue}`);
         const variablesContainer: VariablesContainer = this.variablesMap.get(frameId) || new VariablesContainer(contextId);
 
         // If the container already contains a variable with this name => update

@@ -40,14 +40,14 @@ export class Context {
     }
 
     public continue(): Promise<void> {
-        contextLog.debug(`request 'continue' for context ${this.id}`);
+        // contextLog.debug(`request 'continue' for context ${this.id}`);
 
         const cmd = new Command('continue', this.id);
         return this.connection.sendRequest(cmd);
     }
 
     public getStacktrace(): Promise<StackFrame[]> {
-        contextLog.debug(`request 'get_stacktrace' for context ${this.id}`);
+        // contextLog.debug(`request 'get_stacktrace' for context ${this.id}`);
 
         const req = new Command('get_stacktrace', this.id);
         return this.connection.sendRequest(req, (res: Response) => {
@@ -67,7 +67,7 @@ export class Context {
      * Returns all variables in the top-most frame of this context.
      */
     public getVariables(): Promise<Variable[]> {
-        contextLog.debug(`request 'get_variables' for context ${this.id}`);
+        // contextLog.debug(`request 'get_variables' for context ${this.id}`);
 
         const req = Command.getVariables(this.id, {
             depth: 0,
@@ -105,17 +105,17 @@ export class Context {
     }
 
     public next(): Promise<void> {
-        contextLog.debug(`request 'next' for context ${this.id}`);
+        // contextLog.debug(`request 'next' for context ${this.id}`);
         return this.connection.sendRequest(new Command('next', this.id));
     }
 
     public stepIn(): Promise<void> {
-        contextLog.debug(`request 'stepIn' for context ${this.id}`);
+        // contextLog.debug(`request 'stepIn' for context ${this.id}`);
         return this.connection.sendRequest(new Command('step', this.id));
     }
 
     public stepOut(): Promise<void> {
-        contextLog.debug(`request 'stepOut' for context ${this.id}`);
+        // contextLog.debug(`request 'stepOut' for context ${this.id}`);
         return this.connection.sendRequest(new Command('step_out', this.id));
     }
 
@@ -216,7 +216,7 @@ export class Context {
     }
 
     public handleResponse(response: Response): Promise<void> {
-        contextLog.debug(`handleResponse ${JSON.stringify(response)} for context ${this.id}`);
+        // contextLog.debug(`handleResponse ${JSON.stringify(response)} for context ${this.id}`);
         return Promise.resolve();
     }
 }
@@ -267,7 +267,7 @@ export class ContextCoordinator {
     }
 
     public handleResponse(response: Response): Promise<void> {
-        coordinatorLog.debug(`handleResponse`);
+        // coordinatorLog.debug(`handleResponse`);
 
         return new Promise<void>((resolve, reject) => {
 

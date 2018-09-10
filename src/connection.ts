@@ -39,12 +39,12 @@ export class DebugConnection extends EventEmitter implements ConnectionLike {
     }
 
     public handleResponse = (response: Response): void => {
-        log.info(`handle response: ${JSON.stringify(response)}`);
+        // log.info(`handle response: ${JSON.stringify(response)}`);
 
         if (response.content.hasOwnProperty('id')) {
             const uuid: string = response.content.id;
             if (this.responseHandlers.has(uuid)) {
-                log.debug(`found a response handler for response id "${uuid}"`);
+                // log.debug(`found a response handler for response id "${uuid}"`);
 
                 // Meant to be handled by a particular response handler function that was given when sending the
                 // request
@@ -101,7 +101,7 @@ export class DebugConnection extends EventEmitter implements ConnectionLike {
             }
 
             const message = request.toString();
-            log.debug(`sendRequest: ${message.trim()}\\n`);
+            // log.debug(`sendRequest: ${message.trim()}\\n`);
             this.transport.sendMessage(message);
 
             // If we don't have to wait for a response, resolve immediately
@@ -112,7 +112,7 @@ export class DebugConnection extends EventEmitter implements ConnectionLike {
     }
 
     private registerResponseHandler(requestId: string, handler: (response: Response) => void): void {
-        log.debug(`registerResponseHandler: adding handler function for request: "${requestId}"`);
+        // log.debug(`registerResponseHandler: adding handler function for request: "${requestId}"`);
         this.responseHandlers.set(requestId, handler);
     }
 }
