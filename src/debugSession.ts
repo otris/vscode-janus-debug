@@ -888,7 +888,8 @@ export class JanusDebugSession extends DebugSession {
                 name: attachedContext.name
             });
         }
-        log.debug(`threadsRequest succeeded with ${JSON.stringify(response.body.threads)}`);
+        log.debug(`threadsRequest succeeded`);
+        // log.debug(`threadsRequest succeeded with ${JSON.stringify(response.body.threads)}`);
         this.sendResponse(response);
     }
 
@@ -974,7 +975,7 @@ export class JanusDebugSession extends DebugSession {
                 stackFrames,
                 totalFrames: trace.length,
             };
-            log.info(`stackTraceRequest response.body: ${JSON.stringify(response.body)}`);
+            // log.info(`stackTraceRequest response.body: ${JSON.stringify(response.body)}`);
 
             // Update variablesMap
             context.getVariables().then((locals: Variable[]) => {
@@ -1070,7 +1071,7 @@ export class JanusDebugSession extends DebugSession {
             response.body = {
                 variables: variablesContainer.variables
             };
-            log.debug(`variablesRequest succeeded`);
+            // log.debug(`variablesRequest succeeded`);
 
         } catch (e) {
             log.error(`variablesRequest failed: ${e}`);
