@@ -146,6 +146,7 @@ export class ServerConsole {
 
             sock.on('close', (hadError: boolean) => {
                 this.out.appendLine('Remote closed the connection');
+                this.conn = undefined;
                 let msg = 'remote closed the connection';
                 if (hadError) {
                     msg += ' because of an error';
