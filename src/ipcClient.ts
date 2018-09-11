@@ -78,7 +78,7 @@ export class DebugAdapterIPC {
                         }
                         );
                     }
-                    log.debug(`found following files '${JSON.stringify(uris)}'`);
+                    // log.debug(`found following files '${JSON.stringify(uris)}'`);
                     resolve(uris);
                 });
             }),

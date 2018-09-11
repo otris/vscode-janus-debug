@@ -173,7 +173,7 @@ export class JanusDebugSession extends DebugSession {
         let uris: string[] | undefined;
         try {
             uris = await this.ipcClient.findURIsInWorkspace();
-            log.debug(`found ${JSON.stringify(uris)} URIs in workspace`);
+            // log.debug(`found ${JSON.stringify(uris)} URIs in workspace`);
             this.sourceMap.setLocalUrls(uris);
         } catch (e) {
             log.error(`error ${e}`);
@@ -228,7 +228,7 @@ export class JanusDebugSession extends DebugSession {
                             }
                             return res.content.source;
                         });
-                    log.info(`retrieved server sources: ${JSON.stringify(sources)}`);
+                    // log.info(`retrieved server sources: ${JSON.stringify(sources)}`);
                     this.sourceMap.serverSource = ServerSource.fromSources(source.sourceName(), sources, true);
                 } catch (e) {
                     log.error(`Command.getSource failed ${e}`);
@@ -391,7 +391,7 @@ export class JanusDebugSession extends DebugSession {
         let uris: string[] | undefined;
         try {
             uris = await this.ipcClient.findURIsInWorkspace();
-            log.debug(`found ${JSON.stringify(uris)} URIs in workspace`);
+            // log.debug(`found ${JSON.stringify(uris)} URIs in workspace`);
             this.sourceMap.setLocalUrls(uris);
         } catch (e) {
             log.error(`error ${e}`);
@@ -450,7 +450,7 @@ export class JanusDebugSession extends DebugSession {
                         try {
                             const sources = await connection.sendRequest(Command.getSource(targetContext.name),
                                 async (res: Response) => res.content.source);
-                            log.info(`retrieved server sources: ${JSON.stringify(sources)}`);
+                            // log.info(`retrieved server sources: ${JSON.stringify(sources)}`);
                             this.sourceMap.serverSource = ServerSource.fromSources(targetContext.name, sources);
                             // good guess
                             this.sourceMap.serverSource.yOffset = 0;
