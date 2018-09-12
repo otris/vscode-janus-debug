@@ -940,50 +940,41 @@ export class JanusDebugSession extends DebugSession {
                     line: 0
                 };
 
-                let localSource: LocalSource | undefined;
                 try {
                     const localPos = this.sourceMap.toLocalPosition(frame.sourceLine);
-                    localSource = this.sourceMap.getSource(localPos.source);
-
-                    if (localSource) {
-                        result.line = localPos.line;
-                        result.name = localSource.name;
-                        result.source = {
-                            presentationHint: 'emphasize',
-                            path: localSource.path,
-                            sourceReference: localSource.sourceReference,
-                        };
-                    } else {
-                        result.line = frame.sourceLine;
-                        result.name = localPos.source;
-                        result.source = {
-                            presentationHint: 'deemphasize', // Indicate that the source code is not available
-                            path: `${context.name} (Server)`,
-                            // this value must just be > 0 (so we could also set it to 1),
-                            // only if sourceReference > 0, vscode calls sourceRequest()
-                            // in sourceRequest() returns the server sources
-                            sourceReference: contextId + 1
-                        };
-                        log.warn(`stackTraceRequest: could not find LocalSource for '${localPos.source}' result ${JSON.stringify(result)}`);
+                    const localSource = this.sourceMap.getSource(localPos.source);
+                    // when local source not available toLocalPosition should
+                    // have thrown an exception
+                    if (!localSource) {
+                        throw new Error("Unexpected error");
                     }
+
+                    // local source found
+                    result.line = localPos.line;
+                    result.name = localSource.name;
+                    result.source = {
+                        presentationHint: 'emphasize',
+                        path: localSource.path,
+                        sourceReference: localSource.sourceReference,
+                    };
+
                 } catch (e) {
                     result = {
                         column: 0,
                         id: frame.frameId,
                         line: frame.sourceLine,
-                        name: localSource ? localSource.name : `${context.name} (Server)`,
-                        source: localSource ? {
-                            // if there is a local source, sourceReference should not
-                            // be set, see documentation above
-                            path: localSource.path,
-                        } : {
-                            // see documentation above
+                        name: `${context.name} (Server)`,
+                        source: {
+                            presentationHint: 'deemphasize', // Indicate that the source code is not available
+                            // this value must just be > 0 (so we could also simply set it to 1),
+                            // only if sourceReference > 0, vscode calls sourceRequest()
+                            // in sourceRequest() the server source is returned to vscode
                             sourceReference: contextId + 1,
                             path: `${context.name} (Server)`
-                        },
+                        }
                     };
 
-                    log.error(`Exception in stackTraceRequest: ${e}, result ${JSON.stringify(result)}`);
+                    log.error(`Exception while getting local position: ${e}, get remote source: result ${JSON.stringify(result)}`);
 
                     if (this.displaySourceNoticeCount < 1) {
                         this.ipcClient.displaySourceNotice();
@@ -1009,8 +1000,11 @@ export class JanusDebugSession extends DebugSession {
                     throw new Error('Internal error: Current frame not found.');
                 }
 
-                // it is necessary that variablesReference > 0, see scopesRequest()
-                // frame ids start with 0
+                // it is necessary that variablesReference > 0 (see scopesRequest())
+                // the frame ids start with 0, so add 1
+                // we use the frameId, because the variableReference must be
+                //   different for each scope
+                // the frameId itself is not used in variablesMap
                 const frameRef = frame.frameId + 1;
                 locals.forEach(variable => {
                     this.variablesMap.createVariable(variable.name, variable.value, contextId, frameRef);

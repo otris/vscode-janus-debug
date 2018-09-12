@@ -115,26 +115,28 @@ export class SourceMap {
         const localPos = this._serverSource.toLocalPosition(line);
 
         const localSource = this.getSource(localPos.source);
-        if (localSource) {
-            const localSourceLine = localSource.getSourceLine(localPos.line);
-            const remoteSourceLine = this._serverSource.getSourceLine(line);
+        if (!localSource) {
+            throw new Error(`Local source not found ${localPos.source}, remote line ${line}, local line ${localPos.line}`);
+        }
 
-            sourceMapLog.info(
-                `remote [${line}: "${remoteSourceLine}"] ` +
+        const localSourceLine = localSource.getSourceLine(localPos.line);
+        const remoteSourceLine = this._serverSource.getSourceLine(line);
+
+        sourceMapLog.info(
+            `remote [${line}: "${remoteSourceLine}"] ` +
+            `→ local [${localPos.line} in ${localSource.name}: "${localSourceLine}"]`);
+
+        if (localSourceLine.trim() !== remoteSourceLine.trim()) {
+            sourceMapLog.debug(`(toLocalPosition) try utf8...`);
+            const utf8string = utf8.decode(remoteSourceLine);
+            sourceMapLog.info(`(toLocalPosition) ` +
+                `remote [${line}: "${utf8string}"] ` +
                 `→ local [${localPos.line} in ${localSource.name}: "${localSourceLine}"]`);
-
-            if (localSourceLine.trim() !== remoteSourceLine.trim()) {
-                sourceMapLog.debug(`(toLocalPosition) try utf8...`);
-                const utf8string = utf8.decode(remoteSourceLine);
-                sourceMapLog.info(`(toLocalPosition) ` +
-                    `remote [${line}: "${utf8string}"] ` +
-                    `→ local [${localPos.line} in ${localSource.name}: "${localSourceLine}"]`);
-                if (localSourceLine.trim() !== utf8string.trim()) {
-                    sourceMapLog.debug(`We're off. Current offset: ${this._serverSource.yOffset}`);
-                    throw new Error('Not on same source line');
-                }
+            if (localSourceLine.trim() !== utf8string.trim()) {
+                throw new Error('Not on same source line');
             }
         }
+
         return localPos;
     }
 
