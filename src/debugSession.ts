@@ -848,10 +848,14 @@ export class JanusDebugSession extends DebugSession {
     }
 
     protected async sourceRequest(response: DebugProtocol.SourceResponse, args: DebugProtocol.SourceArguments): Promise<void> {
-        // When sourceReference was set in stackTraceRequest (rather than path), VS Code requests the source with that reference here.
+        // When sourceReference was set in stackTraceRequest (rather than path), VS Code requests the source.
+        // The number of the reference is not considered here, the source code has already been loaded at start (launch or attach).
         // We deliver Server Sources here. This way we can selectively choose whether it makes sense to show sources from the server
-        // or local source files
+        // or local source files.
 
+
+        // this function is only called if sourceReference > 0
+        // so actually this check is redundant...
         if (args.sourceReference === undefined) {
             log.info('sourceRequest');
             log.warn('args.sourceReference is undefined');
@@ -940,9 +944,6 @@ export class JanusDebugSession extends DebugSession {
                 try {
                     const localPos = this.sourceMap.toLocalPosition(frame.sourceLine);
                     localSource = this.sourceMap.getSource(localPos.source);
-                    if (!localSource) {
-                        log.warn(`stackTraceRequest: could not find LocalSource for '${localPos.source}' in SourceMap`);
-                    }
 
                     result.line = localPos.line;
                     if (localSource) {
@@ -956,25 +957,32 @@ export class JanusDebugSession extends DebugSession {
                         result.name = localPos.source;
                         result.source = {
                             presentationHint: 'deemphasize', // Indicate that the source code is not available
-                            path: localPos.source + '.js',
-                            sourceReference: 0
+                            path: `${context.name} (Server)`,
+                            // this value must just be > 0 (so we could also set it to 1),
+                            // only if sourceReference > 0, vscode calls sourceRequest()
+                            // in sourceRequest() returns the server sources
+                            sourceReference: contextId + 1
                         };
+                        log.warn(`stackTraceRequest: could not find LocalSource for '${localPos.source}' result ${JSON.stringify(result)}`);
                     }
                 } catch (e) {
-                    log.error(`stackTraceRequest failed with ${e}`);
-
                     result = {
                         column: 0,
                         id: frame.frameId,
                         line: frame.sourceLine,
-                        name: localSource ? localSource.name : `${context.name} (Sources from server)`,
+                        name: localSource ? localSource.name : `${context.name} (Server)`,
                         source: localSource ? {
+                            // if there is a local source, sourceReference should not
+                            // be set, see documentation above
                             path: localSource.path,
                         } : {
-                                sourceReference: contextId,
-                                path: `${context.name} (Server)`
-                            },
+                            // see documentation above
+                            sourceReference: contextId + 1,
+                            path: `${context.name} (Server)`
+                        },
                     };
+
+                    log.error(`Exception in stackTraceRequest: ${e}, result ${JSON.stringify(result)}`);
 
                     if (this.displaySourceNoticeCount < 1) {
                         this.ipcClient.displaySourceNotice();
