@@ -945,8 +945,8 @@ export class JanusDebugSession extends DebugSession {
                     const localPos = this.sourceMap.toLocalPosition(frame.sourceLine);
                     localSource = this.sourceMap.getSource(localPos.source);
 
-                    result.line = localPos.line;
                     if (localSource) {
+                        result.line = localPos.line;
                         result.name = localSource.name;
                         result.source = {
                             presentationHint: 'emphasize',
@@ -954,6 +954,7 @@ export class JanusDebugSession extends DebugSession {
                             sourceReference: localSource.sourceReference,
                         };
                     } else {
+                        result.line = frame.sourceLine;
                         result.name = localPos.source;
                         result.source = {
                             presentationHint: 'deemphasize', // Indicate that the source code is not available
