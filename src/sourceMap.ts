@@ -261,7 +261,7 @@ export class ServerSource {
     }
 
     set yOffset(newOffset: number | undefined) {
-        serverSourceLog.debug(`setting new yOffset to ${newOffset}, was ${this._yOffset}`);
+        // serverSourceLog.debug(`setting new yOffset to ${newOffset}, was ${this._yOffset}`);
         this._yOffset = newOffset;
     }
 
@@ -275,12 +275,8 @@ export class ServerSource {
         const idx = this._chunks.findIndex(chunk =>
             (line >= chunk.pos.start) && (line < (chunk.pos.start + chunk.pos.len)));
         if (idx >= 0) {
-            // yOffset is an offset that we calculate from the total chunk count. During
-            // pre-processing JANUS and/or DOCUMENTS adds yOffset = n - 1 lines at the beginning
-            // of the actual script whereas n is the no. of chunks. Why? I don't know. But
-            // we have to take this into account when we calculate the local line offset.
-            // Anyway, there can be more code before the first chunk (probably just a
-            // 'debugger;' statement) but who knows.
+            // yOffset is actually not necessary anymore, because we get
+            // the local position from the comment in the remote file
             if (this._yOffset === undefined) {
                 if (this._chunks.length === 1) {
                     this._yOffset = 1;
