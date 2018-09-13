@@ -225,11 +225,8 @@ export class ServerSource {
                         current = undefined;
                     }
                 }
-                let start = lineNo;
-                if (!current) {
-                    start = lineNo;
-                }
-                current = new Chunk(name, new Pos(start, 0), localPos);
+                const remotePos = lineNo;
+                current = new Chunk(name, new Pos(remotePos, 0), localPos);
             }
         });
 
@@ -244,8 +241,9 @@ export class ServerSource {
         // if a chunk has no length, it's not a chunk
         assert.equal(chunks.filter(c => c.pos.len === 0).length, 0);
         if (chunks.length === 0) {
-            // serverSourceLog.info(`(CHUNK[0]) name ${contextName} pos ${1} len ${sourceLines.length} local ${1}`);
-            chunks.push(new Chunk(contextName, new Pos(1, sourceLines.length), 1));
+            const remotePos = debugAdded ? 1 : 0;
+            chunks.push(new Chunk(contextName, new Pos(remotePos, sourceLines.length), 1));
+            // serverSourceLog.info(`(CHUNK[0]) name ${contextName} remote pos ${remotePos} len ${sourceLines.length} local pos ${1}`);
         }
         s._chunks = chunks;
         s._sourceLines = sourceLines;
