@@ -1005,8 +1005,8 @@ export class JanusDebugSession extends DebugSession {
                 //   different for each scope
                 // the frameId itself is not used in variablesMap
                 const frameRef = frame.frameId + 1;
-                locals.forEach(variable => {
-                    this.variablesMap.createVariable(variable.name, variable.value, contextId, frameRef);
+                locals.forEach(async variable => {
+                    await this.variablesMap.createVariable(variable.name, variable.value, contextId, context, frameRef);
                 });
                 log.debug(`stackTraceRequest succeeded`);
                 response.success = true;
@@ -1072,10 +1072,11 @@ export class JanusDebugSession extends DebugSession {
                     // Request the variable and insert it to the variables map
                     const evaluateName = collapsedVariable.evaluateName.replace(".___jsrdbg_collapsed___", "");
                     const variable = await context.evaluate(evaluateName);
-                    this.variablesMap.createVariable(
+                    await this.variablesMap.createVariable(
                         evaluateName.substr(evaluateName.lastIndexOf('.')),
                         JSON.parse(variable.value),
                         variablesContainer.contextId,
+                        context,
                         args.variablesReference,
                         evaluateName
                     );

@@ -1,4 +1,5 @@
 import * as assert from 'assert';
+import { Context } from "../src/context";
 import { VariablesContainer, VariablesMap } from '../src/variablesMap';
 
 suite('variables map tests', () => {
@@ -12,7 +13,7 @@ suite('variables map tests', () => {
         });
 
         test('createStringVariable', () => {
-            variablesMap.createVariable('stringVariable', 'myValue', 1, 1);
+            variablesMap.createVariable('stringVariable', 'myValue', 1, null as any, 1);
             const variablesContainer: VariablesContainer = variablesMap.getVariables(1);
 
             assert.equal(variablesContainer.variables.length, 1);
@@ -24,7 +25,7 @@ suite('variables map tests', () => {
         });
 
         test('createIntVariable', () => {
-            variablesMap.createVariable('intVariable', 666, 1, 2);
+            variablesMap.createVariable('intVariable', 666, 1, null as any, 2);
             const variablesContainer: VariablesContainer = variablesMap.getVariables(2);
 
             assert.equal(variablesContainer.variables.length, 1);
@@ -36,7 +37,7 @@ suite('variables map tests', () => {
         });
 
         test('createBooleanVariable', () => {
-            variablesMap.createVariable('booleanVariable', true, 1, 3);
+            variablesMap.createVariable('booleanVariable', true, 1, null as any, 3);
             const variablesContainer: VariablesContainer = variablesMap.getVariables(3);
 
             assert.equal(variablesContainer.variables.length, 1);
@@ -48,7 +49,7 @@ suite('variables map tests', () => {
         });
 
         test('createUndefinedVariable', () => {
-            variablesMap.createVariable('undefinedVariable', undefined, 1, 4);
+            variablesMap.createVariable('undefinedVariable', undefined, 1, null as any, 4);
             const variablesContainer: VariablesContainer = variablesMap.getVariables(4);
 
             assert.equal(variablesContainer.variables.length, 1);

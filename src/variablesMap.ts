@@ -1,7 +1,7 @@
 import { Logger } from 'node-file-log';
 import { DebugProtocol } from 'vscode-debugprotocol';
 import { cantorPairing, reverseCantorPairing } from './cantor';
-
+import { Context } from "./context";
 const log = Logger.create('VariablesMap');
 
 export type VariablesReference = number;
@@ -69,7 +69,7 @@ export class VariablesMap {
      * @param {number} frameId The frame id.
      * @param {string} [evaluateName] This param is need for evaluate variables that are properties of object or elements of arrays. For this variables we need also the name of their parent to access the value.
      */
-    public createVariable(variableName: string, variableValue: any, contextId: number, frameId: number, evaluateName?: string) {
+    public async createVariable(variableName: string, variableValue: any, contextId: number, context: Context, frameId: number, evaluateName?: string) {
         if (typeof evaluateName === 'undefined') {
             evaluateName = '';
         }
@@ -78,7 +78,7 @@ export class VariablesMap {
         const variablesContainer: VariablesContainer = this.variablesMap.get(frameId) || new VariablesContainer(contextId);
 
         // If the container already contains a variable with this name => update
-        const variable = this._createVariable(variableName, variableValue, contextId, frameId, evaluateName);
+        const variable = await this._createVariable(variableName, variableValue, contextId, context, frameId, evaluateName);
 
         if (variablesContainer.variables.length > 0) {
             const filterResult = variablesContainer.variables.filter((element) => {
@@ -109,7 +109,7 @@ export class VariablesMap {
      * @param {string} [evaluateName=variableName] This param is need for evaluate variables that are properties of object or elements of arrays. For this variables we need also the name of their parent to access the value.
      * @returns {Variable} A full qualified variable object
      */
-    private _createVariable(variableName: string, variableValue: any, contextId: number, frameId: number, evaluateName?: string): DebugProtocol.Variable {
+    private async _createVariable(variableName: string, variableValue: any, contextId: number, context: Context, frameId: number, evaluateName?: string): Promise<DebugProtocol.Variable> {
         if (typeof evaluateName === 'undefined' || evaluateName === '') {
             evaluateName = variableName;
         }
@@ -183,9 +183,9 @@ export class VariablesMap {
                 if (variableValue === null) {
                     return this.createPrimitiveVariable(variableName, variableValue, evaluateName);
                 } else if (variableValue.hasOwnProperty("length")) {
-                    return this.createArrayVariable(variableName, variableValue, contextId, frameId, evaluateName);
+                    return await this.createArrayVariable(variableName, variableValue, contextId, context, frameId, evaluateName);
                 } else {
-                    return this.createObjectVariable(variableName, variableValue, contextId, frameId, evaluateName);
+                    return await this.createObjectVariable(variableName, variableValue, contextId, context, frameId, evaluateName);
                 }
 
             default:
@@ -232,7 +232,7 @@ export class VariablesMap {
      * @param {string} evaluateName This param is need for evaluate variables that are properties of object or elements of arrays. For this variables we need also the name of their parent to access the value.
      * @returns {Variable} A full qualified variables object.
      */
-    private createArrayVariable(variableName: string, variableValue: any[], contextId: number, frameId: number, evaluateName: string): DebugProtocol.Variable {
+    private async createArrayVariable(variableName: string, variableValue: any[], contextId: number, context: Context, frameId: number, evaluateName: string): Promise<DebugProtocol.Variable> {
         if (variableName === '') {
             throw new Error('Variables name cannot be empty.');
         }
@@ -249,7 +249,7 @@ export class VariablesMap {
                 const _evaluateName = (key === 'length') ? `${evaluateName}.length` : `${evaluateName}[${index.toString()}]`;
 
                 variablesContainer.variables.push(
-                    this._createVariable(_variableName, variableValue[key], contextId, frameId, _evaluateName)
+                    await this._createVariable(_variableName, variableValue[key], contextId, context, frameId, _evaluateName)
                 );
 
                 index++;
@@ -277,12 +277,53 @@ export class VariablesMap {
      * @param {string} evaluateName This param is need for evaluate variables that are properties of object or elements of arrays. For this variables we need also the name of their parent to access the value.
      * @returns {Variable} A full qualified variables object.
      */
-    private createObjectVariable(variableName: string, variableValue: any, contextId: number, frameId: number, evaluateName: string): DebugProtocol.Variable {
+    private async createObjectVariable(variableName: string, variableValue: any, contextId: number, context: Context, frameId: number, evaluateName: string): Promise<DebugProtocol.Variable> {
         if (variableName === '') {
             throw new Error('Variables name cannot be empty.');
         }
 
         const variablesContainer: VariablesContainer = new VariablesContainer(contextId);
+
+        // if it's an object, request the string representation to parse it
+        const stringifyFunctionsReplacer = (key: any, value: any) => {
+            if (typeof value === "function") {
+                return "function " + value.toString().match(/(\([^\)]*\))/)[1] + "{ ... }";
+            } else {
+                return value;
+            }
+        };
+        const evaluateExpression = `(function () {
+            if (${variableName}) {
+                if (typeof ${variableName} === "object") {
+                    if (${variableName} instanceof DocFile) {
+                        return ${variableName}.asJSON();
+                    } else if (${variableName} instanceof Date) {
+                        return "new Date(" + ${variableName}.getTime() + ")";
+                    } else if (${variableName} instanceof FileResultset) {
+                        return JSON.stringify({
+                            getIds: ${variableName}.getIds(),
+                            size: ${variableName}.size()
+                        });
+                    } else if (${variableName} instanceof HitResultset) {
+                        return JSON.stringify({
+                            getHitIds: (typeof ${variableName}.getHitIds === "function") ? ${variableName}.getHitIds() : null,
+                            size: ${variableName}.size()
+                        });
+                    }
+                }
+            }
+
+            return JSON.stringify(${variableName}, ${stringifyFunctionsReplacer.toString()});
+        }`.replace(/\r?\n|\t/g, "") + ")()";
+
+        try {
+            let _variableValue = await context.evaluate2(evaluateExpression);
+            /* tslint:disable-next-line */
+            _variableValue = eval("_variableValue = " + _variableValue + ";");
+            variableValue = _variableValue;
+        } catch (err) {
+            log.debug(`evaluate failed: ${JSON.stringify(err)} => ${err.message}`);
+        }
 
         if (variableValue.hasOwnProperty('___jsrdbg_function_desc___')) {
             // Functions will be recognized as objects because of the way the debugger evaluate functions
@@ -290,12 +331,12 @@ export class VariablesMap {
             functionParams = functionParams.toString().replace(/,/, ', ');
 
             return this.createPrimitiveVariable(variableName, 'function (' + functionParams + ') { ... }', `${evaluateName}.${variableName}`);
-        } else {
+        } else if (!(variableValue instanceof Date)) {
             // Create a new variable for each property on this object and chain them together with the reference property
             for (const key in variableValue) {
                 if (variableValue.hasOwnProperty(key)) {
                     variablesContainer.variables.push(
-                        this._createVariable(key, variableValue[key], contextId, frameId, `${evaluateName}.${key}`)
+                        await this._createVariable(key, variableValue[key], contextId, context, frameId, `${evaluateName}.${key}`)
                     );
                 }
             }
@@ -308,7 +349,7 @@ export class VariablesMap {
             name: variableName,
             evaluateName,
             type: 'object',
-            value: '[Object]',
+            value: (variableValue.constructor.name === "Date") ? variableValue : variableValue.constructor.name,
             variablesReference: reference
         };
     }
