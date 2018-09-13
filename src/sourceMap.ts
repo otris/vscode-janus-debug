@@ -272,8 +272,8 @@ export class ServerSource {
     public toLocalPosition(line: number): { source: string, line: number } {
         assert.ok(this._chunks.length > 0, "expected at least one chunk");
 
-        const idx = this._chunks.findIndex(chunk =>
-            (line >= chunk.pos.start) && (line < (chunk.pos.start + chunk.pos.len)));
+        // lines start at 1
+        const idx = this._chunks.findIndex(chunk => (line > chunk.pos.start) && (line <= (chunk.pos.start + chunk.pos.len)));
         if (idx >= 0) {
             // yOffset is actually not necessary anymore, because we get
             // the local position from the comment in the remote file
@@ -289,10 +289,10 @@ export class ServerSource {
             let localLine: number;
             // the offset inside the chunk
             const chunkOffset = (line - (chunk.pos.start + 1));
-            // serverSourceLog.info(`(Source-Mapping/toLocalPosition) CHUNK[${idx}]: start ${chunk.pos.start} line ${line} => offset ${chunkOffset}`);
+            serverSourceLog.info(`(Source-Mapping/toLocalPosition) CHUNK[${idx}]: start ${chunk.pos.start} line ${line} => offset ${chunkOffset}`);
             // the line in local source
             localLine = chunk.localStart + chunkOffset;
-            // serverSourceLog.info(`(Source-Mapping/toLocalPosition) LOCAL: chunk-start ${chunk.localStart} => line (start + offset) ${localLine}`);
+            serverSourceLog.info(`(Source-Mapping/toLocalPosition) LOCAL: chunk-start ${chunk.localStart} => line (start + offset) ${localLine}`);
             return {
                 source: chunk.name, line: localLine
             };
