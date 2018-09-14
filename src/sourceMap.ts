@@ -272,7 +272,6 @@ export class ServerSource {
 
     private _chunks: Chunk[] = [];
     private _sourceLines: string[] = [];
-    private _yOffset: number | undefined;
 
     get chunks() {
         return this._chunks;
@@ -282,13 +281,6 @@ export class ServerSource {
         return this._sourceLines.reduce((a: any, b: any) => a + "\n" + b);
     }
 
-    set yOffset(newOffset: number | undefined) {
-        this._yOffset = newOffset;
-    }
-
-    get yOffset(): number | undefined {
-        return this._yOffset;
-    }
 
     /**
      * See documentation in "test/sourceMap.test.ts"

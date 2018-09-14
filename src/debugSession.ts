@@ -452,8 +452,6 @@ export class JanusDebugSession extends DebugSession {
                                 async (res: Response) => res.content.source);
                             // log.info(`retrieved server sources: ${JSON.stringify(sources)}`);
                             this.sourceMap.serverSource = ServerSource.fromSources(targetContext.name, sources);
-                            // good guess
-                            this.sourceMap.serverSource.yOffset = 0;
 
                         } catch (e) {
                             log.error(`Command.getSource failed ${e}`);
