@@ -119,7 +119,9 @@ export class SourceMap {
             throw new Error(`Local source not found ${localPos.source}, remote line ${line}, local line ${localPos.line}`);
         }
 
+        // sourceMapLog.info(`(SourceMap/toLocalPosition) line ${line} localPos.line ${localPos.line}`);
         const localSourceLine = localSource.getSourceLine(localPos.line);
+        // sourceMapLog.info(`(SourceMap/toLocalPosition) localSourceLine ${localSourceLine}`);
         const remoteSourceLine = this._serverSource.getSourceLine(line);
 
         sourceMapLog.info(
@@ -127,11 +129,11 @@ export class SourceMap {
             `→ local [${localPos.line} in ${localSource.name}: "${localSourceLine}"]`);
 
         if (localSourceLine.trim() !== remoteSourceLine.trim()) {
-            sourceMapLog.debug(`(toLocalPosition) try utf8...`);
+            // sourceMapLog.debug(`(SourceMap/toLocalPosition) try utf8...`);
             const utf8string = utf8.decode(remoteSourceLine);
-            sourceMapLog.info(`(toLocalPosition) ` +
-                `remote [${line}: "${utf8string}"] ` +
-                `→ local [${localPos.line} in ${localSource.name}: "${localSourceLine}"]`);
+            // sourceMapLog.info(`(SourceMap/toLocalPosition) ` +
+            //     `remote [${line}: "${utf8string}"] ` +
+            //     `→ local [${localPos.line} in ${localSource.name}: "${localSourceLine}"]`);
             if (localSourceLine.trim() !== utf8string.trim()) {
                 throw new Error('Not on same source line');
             }
@@ -241,7 +243,9 @@ export class ServerSource {
         // if a chunk has no length, it's not a chunk
         assert.equal(chunks.filter(c => c.pos.len === 0).length, 0);
         if (chunks.length === 0) {
-            const remotePos = debugAdded ? 1 : 0;
+            // when debugger;-statement added to first line, the server file starts
+            // in line 2, because the debug-adapter internally jumped over the first line
+            const remotePos = debugAdded ? 2 : 1;
             chunks.push(new Chunk(contextName, new Pos(remotePos, sourceLines.length), 1));
             // serverSourceLog.info(`(CHUNK[0]) name ${contextName} remote pos ${remotePos} len ${sourceLines.length} local pos ${1}`);
         }
@@ -272,31 +276,44 @@ export class ServerSource {
     public toLocalPosition(line: number): { source: string, line: number } {
         assert.ok(this._chunks.length > 0, "expected at least one chunk");
 
-        const idx = this._chunks.findIndex(chunk =>
-            (line >= chunk.pos.start) && (line < (chunk.pos.start + chunk.pos.len)));
-        if (idx >= 0) {
-            // yOffset is actually not necessary anymore, because we get
-            // the local position from the comment in the remote file
-            if (this._yOffset === undefined) {
-                if (this._chunks.length === 1) {
-                    this._yOffset = 1;
-                } else {
-                    this._yOffset = this._chunks[0].pos.start - 1;
-                }
-            }
+        let idx;
 
-            const chunk = this._chunks[idx];
-            let localLine: number;
-            // the offset inside the chunk
-            const chunkOffset = (line - (chunk.pos.start + 1));
-            // serverSourceLog.info(`(Source-Mapping/toLocalPosition) CHUNK[${idx}]: start ${chunk.pos.start} line ${line} => offset ${chunkOffset}`);
-            // the line in local source
-            localLine = chunk.localStart + chunkOffset;
-            // serverSourceLog.info(`(Source-Mapping/toLocalPosition) LOCAL: chunk-start ${chunk.localStart} => line (start + offset) ${localLine}`);
+        if (this.chunks.length === 1) {
+            idx = 0;
+            // there is only one chunk! the mapping is a bit different, because
+            // there is no //# ... in the server file
+
+            const chunk = this._chunks[0];
+            // do not add 1 to chunk.pos.start, because here is no //#... in server file
+            const chunkOffset = (line - (chunk.pos.start));
+            // serverSourceLog.info(`(ServerSource/toLocalPosition #) CHUNK[${idx}]: start ${chunk.pos.start} line ${line} => offset ${chunkOffset}`);
+            const localLine = chunk.localStart + chunkOffset;
+            // serverSourceLog.info(`(ServerSource/toLocalPosition #) LOCAL: chunk-start ${chunk.localStart} => line (start + offset) ${localLine}`);
             return {
-                source: chunk.name, line: localLine
+                source: chunk.name,
+                line: localLine
             };
         }
+
+        idx = this._chunks.findIndex(chunk =>
+            (line >= chunk.pos.start) && (line < (chunk.pos.start + chunk.pos.len)));
+        if (idx >= 0) {
+            // there are several chunks, each chunk starts at //# ... in server file
+
+            const chunk = this._chunks[idx];
+            // the offset inside the chunk
+            const chunkOffset = (line - (chunk.pos.start + 1));
+            // serverSourceLog.info(`(ServerSource/toLocalPosition) CHUNK[${idx}]: start ${chunk.pos.start} line ${line} => offset ${chunkOffset}`);
+            // the line in local source
+            const localLine = chunk.localStart + chunkOffset;
+            // serverSourceLog.info(`(ServerSource/toLocalPosition) LOCAL: chunk-start ${chunk.localStart} => line (start + offset) ${localLine}`);
+            return {
+                source: chunk.name,
+                line: localLine
+            };
+        }
+
+
         // Fallback
         return {
             source: this._chunks[0].name, line: 1
