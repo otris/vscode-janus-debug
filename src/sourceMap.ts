@@ -111,6 +111,9 @@ export class SourceMap {
         this.map.set(remoteName, localSource);
     }
 
+    /**
+     * See documentation in "test/sourceMap.test.ts"
+     */
     public toLocalPosition(line: number): { source: string, line: number } {
         const localPos = this._serverSource.toLocalPosition(line);
 
@@ -202,6 +205,9 @@ class Chunk {
 const serverSourceLog = Logger.create('ServerSource');
 
 export class ServerSource {
+    /**
+     * See documentation in "test/sourceMap.test.ts"
+     */
     public static fromSources(contextName: string, sourceLines: string[], debugAdded = false) {
         const chunks: Chunk[] = [];
         const pattern = /^\/\/#\s([0-9]+)\s([\w\_\-\.#]+)$/;
@@ -273,6 +279,9 @@ export class ServerSource {
         return this._yOffset;
     }
 
+    /**
+     * See documentation in "test/sourceMap.test.ts"
+     */
     public toLocalPosition(line: number): { source: string, line: number } {
         assert.ok(this._chunks.length > 0, "expected at least one chunk");
 
@@ -303,10 +312,10 @@ export class ServerSource {
             const chunk = this._chunks[idx];
             // the offset inside the chunk
             const chunkOffset = (line - (chunk.pos.start + 1));
-            // serverSourceLog.info(`(ServerSource/toLocalPosition) CHUNK[${idx}]: start ${chunk.pos.start} line ${line} => offset ${chunkOffset}`);
+            // serverSourceLog.info(`(ServerSource/toLocalPosition) REMOTE CHUNK[${idx}]: content-start ${chunk.pos.start + 1} current line ${line} => offset ${chunkOffset}`);
             // the line in local source
             const localLine = chunk.localStart + chunkOffset;
-            // serverSourceLog.info(`(ServerSource/toLocalPosition) LOCAL: chunk-start ${chunk.localStart} => line (start + offset) ${localLine}`);
+            // serverSourceLog.info(`(ServerSource/toLocalPosition) LOCAL: content-start ${chunk.localStart} => current line (content-start + offset) ${localLine}`);
             return {
                 source: chunk.name,
                 line: localLine

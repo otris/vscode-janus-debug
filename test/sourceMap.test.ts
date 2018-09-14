@@ -117,11 +117,58 @@ suite('source map tests', () => {
             assert.equal(s.chunks[1].pos.len, 7);
         });
 
+
+        // Documentation of Source Mapping
+        // -------------------------------
+
+        // (a) General Case:
+        // -----------------
+        // Assume you have the files "test1" and "lib".
+        // "lib" is imported in "test 1" (with #import "lib").
+        // On execution, the server always generates ONE file! named here: "test1 (server)".
+        // This server file contains comments with the information that we need for the mapping.
+        //
+        // Explaining the comments:
+        // 1. comments seperate the server file into chunks!
+        // 2. comments look like this: "//# i myfile"
+        // 3. comments mean: the following chunk starts in file "myfile" at offset "i"
+        //
+        //
+        // (b) Special Case ("Upload and Debug Script")
+        // --------------------------------------------
+        // Only for this command, the server generates the server file in 2 steps!
+        // 1. Add "debugger;"-statement in first line of the main file (here: "test1") (only internal, never seen in database or filesystem!)
+        // 2. Generate the file "test1 (server)" with comments as described above (see (a) General Case).
+        //
+        // (c) Lines
+        // ---------
+        // Lines start at 1!
+
+        // General Example
+        // ---------------
+        //
+        // "//# i myfile"
+        // ... (chunk-content)
+        // =>
+        // if (myfile === mainfile)      chunk-content starts at line 1 + i - 1 in "myfile"
+        // if (myfile any imported file) chunk-content starts at line 1 + i in "myfile"
+
+        // Test Example
+        // ------------
+        //
+        // "//# 2 test1"
+        // =>
+        // chunk-content starts at line 1 + 2 - 1 = 2 in "test1"
+        //  8: not mapped (see "pre-processor line maps to first line of next chunk")
+        //  9: mapped to 2
+        // 10: mapped to 3
+        // ...
+
+
         test("map to individual source files", () => {
-            const s = ServerSource.fromSources('test1', sourceLines);
-            // in line 8: "//# 2 test1" means that this chunk starts at line 2 in file "test1"
-            // so: line 10 must be mapped to line 2 + 2 = 4 int "test1"
-            assert.deepEqual(s.toLocalPosition(10), { source: 'test1', line: 4 });
+            // the debugger;-statement was internally added in sourceLines (see (b) in Documentation above)
+            const s = ServerSource.fromSources('test1', sourceLines, true);
+            assert.deepEqual(s.toLocalPosition(10), { source: 'test1', line: 3 });
             assert.deepEqual(s.toLocalPosition(3), { source: 'lib', line: 1 });
         });
 
@@ -131,15 +178,21 @@ suite('source map tests', () => {
         });
 
         test("pre-processor line maps to first line of next chunk", () => {
-            const s = ServerSource.fromSources('test1', sourceLines);
-            // in line 2: "//# 0 lib" means that this chunk starts at line 2 in file "lib"
-            // so: line 0 is mapped to line 2
-            assert.deepEqual(s.toLocalPosition(2), { source: 'lib', line: 0 });
-            // see test "map to individual source files"
-            assert.deepEqual(s.toLocalPosition(8), { source: 'test1', line: 2 });
+            // pre-processor lines contain the information "//# i myfile"
+            // these lines are only added in remote file, they are not visible in local file
+            // so they cannot be mapped!
+            // but they don't have to be mapped, because they are only comments!
+
+            // todo
+            // the first line after //# i myfile shoould be tested here
         });
 
         test("parse pre-processor comment line", () => {
+
+            // todo
+            // the pre-processor comments are usually not ordered numbers
+            // so add a more useful case here!
+
             const lines = [
                 "//# 0 Gadget_appConnectOfflineApp",
                 "",
