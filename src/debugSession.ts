@@ -509,7 +509,9 @@ export class JanusDebugSession extends DebugSession {
 
     protected async setBreakPointsRequest(response: DebugProtocol.SetBreakpointsResponse, args: DebugProtocol.SetBreakpointsArguments): Promise<void> {
         const numberOfBreakpoints: number = args.breakpoints ? args.breakpoints.length : 0;
-        log.info(`setBreakPointsRequest for ${numberOfBreakpoints} breakpoint(s): ${JSON.stringify(args)}`);
+        log.info(`setBreakPointsRequest for ${numberOfBreakpoints} breakpoint(s)`);
+        // log.info(`setBreakPointsRequest for ${numberOfBreakpoints} breakpoint(s): ${JSON.stringify(args)}`);
+
         if (this.connection === undefined) {
             throw new Error('No connection');
         }
