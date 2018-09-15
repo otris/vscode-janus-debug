@@ -847,14 +847,8 @@ export class JanusDebugSession extends DebugSession {
     }
 
     protected async sourceRequest(response: DebugProtocol.SourceResponse, args: DebugProtocol.SourceArguments): Promise<void> {
-        // When sourceReference was set in stackTraceRequest (rather than path), VS Code requests the source.
-        // The number of the reference is not considered here, the source code has already been loaded at start (launch or attach).
-        // We deliver Server Sources here. This way we can selectively choose whether it makes sense to show sources from the server
-        // or local source files.
 
 
-        // this function is only called if sourceReference > 0
-        // so actually this check is redundant...
         if (args.sourceReference === undefined) {
             log.info('sourceRequest');
             log.warn('args.sourceReference is undefined');
@@ -958,18 +952,16 @@ export class JanusDebugSession extends DebugSession {
                     };
 
                 } catch (e) {
+                    const contextFile = this.sourceMap.getSource(context.name);
                     result = {
                         column: 0,
                         id: frame.frameId,
-                        line: frame.sourceLine,
-                        name: `${context.name} (Server)`,
+                        line: contextFile ? frame.sourceLine : 0,
+                        name: contextFile ? `${context.name}.js` : '',
                         source: {
-                            presentationHint: 'deemphasize', // Indicate that the source code is not available
-                            // this value must just be > 0 (so we could also simply set it to 1),
-                            // only if sourceReference > 0, vscode calls sourceRequest()
-                            // in sourceRequest() the server source is returned to vscode
-                            sourceReference: contextId + 1,
-                            path: `${context.name} (Server)`
+                            presentationHint: 'deemphasize',
+                            sourceReference: 0,
+                            path: contextFile ? contextFile.path : ''
                         }
                     };
 
