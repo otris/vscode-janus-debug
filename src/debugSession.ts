@@ -958,7 +958,7 @@ export class JanusDebugSession extends DebugSession {
                     result = {
                         column: 0,
                         id: frame.frameId,
-                        line: contextFile ? frame.sourceLine : 0,
+                        line: contextFile ? 1 : 0,
                         name: contextFile ? `${context.name}.js` : '',
                         source: {
                             presentationHint: 'deemphasize',
