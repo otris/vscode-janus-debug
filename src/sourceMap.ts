@@ -111,9 +111,6 @@ export class SourceMap {
         this.map.set(remoteName, localSource);
     }
 
-    /**
-     * See documentation in "test/sourceMap.test.ts"
-     */
     public toLocalPosition(line: number): { source: string, line: number } {
         const localPos = this._serverSource.toLocalPosition(line);
 
@@ -122,17 +119,13 @@ export class SourceMap {
             throw new Error(`Local source not found ${localPos.source}, remote line ${line}, local line ${localPos.line}`);
         }
 
-        // sourceMapLog.info(`(SourceMap/toLocalPosition) line ${line} localPos.line ${localPos.line}`);
         const localSourceLine = localSource.getSourceLine(localPos.line);
-        // sourceMapLog.info(`(SourceMap/toLocalPosition) localSourceLine ${localSourceLine}`);
         const remoteSourceLine = this._serverSource.getSourceLine(line);
 
         sourceMapLog.info(`remote [${line}: "${remoteSourceLine}"] ` + `→ local [${localPos.line} in ${localSource.name}: "${localSourceLine}"]`);
 
         if (localSourceLine.trim() !== remoteSourceLine.trim()) {
-            // sourceMapLog.debug(`(SourceMap/toLocalPosition) try utf8...`);
             const utf8string = utf8.decode(remoteSourceLine);
-            // sourceMapLog.info(`(SourceMap/toLocalPosition) ` + `remote [${line}: "${utf8string}"] ` + `→ local [${localPos.line} in ${localSource.name}: "${localSourceLine}"]`);
             if (localSourceLine.trim() !== utf8string.trim()) {
                 throw new Error('Not on same source line');
             }
