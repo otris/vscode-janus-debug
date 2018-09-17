@@ -283,6 +283,7 @@ export class VariablesMap {
         }
 
         const variablesContainer: VariablesContainer = new VariablesContainer(contextId);
+        log.debug(`Create a object variable for variable ${variableName} with value ${variableValue} of type ${typeof variableValue}`);
 
         // if it's an object, request the string representation to parse it
         const stringifyFunctionsReplacer = (key: any, value: any) => {
@@ -318,11 +319,15 @@ export class VariablesMap {
 
         try {
             let _variableValue = await context.evaluate2(evaluateExpression);
+            log.debug(`Evaluate for variable ${variableName} succeeded with ${_variableValue} of type ${typeof _variableValue}`);
+
             /* tslint:disable-next-line */
             _variableValue = eval("_variableValue = " + _variableValue + ";");
+            log.debug(`New variable value for variable ${variableName} => ${JSON.stringify(_variableValue)} => ${_variableValue} with type ${typeof _variableValue}`);
+
             variableValue = _variableValue;
         } catch (err) {
-            log.debug(`evaluate failed: ${JSON.stringify(err)} => ${err.message}`);
+            log.debug(`Evaluate for variable ${variableName} failed: ${JSON.stringify(err)} => ${err.message}`);
         }
 
         if (variableValue.hasOwnProperty('___jsrdbg_function_desc___')) {
