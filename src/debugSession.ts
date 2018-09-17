@@ -569,42 +569,45 @@ export class JanusDebugSession extends DebugSession {
         const source = path.parse(args.source.path).name;
         const requestedBreakpoints = args.breakpoints;
         requestedBreakpoints.forEach((breakpoint => {
+            try {
+                const remoteLine = this.sourceMap.toRemoteLine({
+                    source,
+                    line: breakpoint.line
+                });
+                const setBreakpointCommand = Command.setBreakpoint(remoteSourceUrl, remoteLine, false, this.attachedContextId);
 
-            const remoteLine = this.sourceMap.toRemoteLine({
-                source,
-                line: breakpoint.line
-            });
-            const setBreakpointCommand = Command.setBreakpoint(remoteSourceUrl, remoteLine, false, this.attachedContextId);
-
-            actualBreakpoints.push(
-                conn.sendRequest(setBreakpointCommand, (res: Response): Promise<Breakpoint> => {
-                    return new Promise<Breakpoint>((resolve, reject) => {
-                        // When the debugger give a error back but send a message that a breakpoint
-                        // cant set, we do no reject but make the specific breakpoint unverified.
-                        // We do this by passing a new breakpoint to the resolve function with the
-                        // pending attribute set to false.
-                        if ((res.type === 'error' && res.content.message) && (res.content.message === 'Cannot set breakpoint at given line.')) {
-                            log.info(`cannot set breakpoint at requested line ${remoteLine} response line ${res.content.line} local line ${breakpoint.line}`);
-                            return resolve({
-                                line: remoteLine,
-                                pending: false,
-                            } as Breakpoint);
-                        }
-                        // When the debugger give a error back and the message
-                        // dont tell us that a breakpoint cant set we reject this one, cause a 'unknown'
-                        // error occur.
-                        // That results in a complete reject of every breakpoint.
-                        if ((res.type === 'error') && res.content.message && (res.content.message !== 'Cannot set breakpoint at given line.')) {
-                            reject(new Error(`Target responded with error '${res.content.message}'`));
-                        } else {
-                            // The debug engine tells us that the current breakpoint can set, so
-                            // the breakpoint will verified in vscode.
-                            res.content.pending = true;
-                            // log.info(`set breakpoint at requested line ${remoteLine} response line ${res.content.line} local line ${breakpoint.line}`);
-                            resolve(res.content);
-                        }
-                    });
-                }));
+                actualBreakpoints.push(
+                    conn.sendRequest(setBreakpointCommand, (res: Response): Promise<Breakpoint> => {
+                        return new Promise<Breakpoint>((resolve, reject) => {
+                            // When the debugger give a error back but send a message that a breakpoint
+                            // cant set, we do no reject but make the specific breakpoint unverified.
+                            // We do this by passing a new breakpoint to the resolve function with the
+                            // pending attribute set to false.
+                            if ((res.type === 'error' && res.content.message) && (res.content.message === 'Cannot set breakpoint at given line.')) {
+                                log.info(`cannot set breakpoint at requested line ${remoteLine} response line ${res.content.line} local line ${breakpoint.line}`);
+                                return resolve({
+                                    line: remoteLine,
+                                    pending: false,
+                                } as Breakpoint);
+                            }
+                            // When the debugger give a error back and the message
+                            // dont tell us that a breakpoint cant set we reject this one, cause a 'unknown'
+                            // error occur.
+                            // That results in a complete reject of every breakpoint.
+                            if ((res.type === 'error') && res.content.message && (res.content.message !== 'Cannot set breakpoint at given line.')) {
+                                reject(new Error(`Target responded with error '${res.content.message}'`));
+                            } else {
+                                // The debug engine tells us that the current breakpoint can set, so
+                                // the breakpoint will verified in vscode.
+                                res.content.pending = true;
+                                // log.info(`set breakpoint at requested line ${remoteLine} response line ${res.content.line} local line ${breakpoint.line}`);
+                                resolve(res.content);
+                            }
+                        });
+                    }));
+                } catch (err) {
+                    log.debug(`setBreakPointsRequest ${err}`);
+                }
         }));
 
         Promise.all(actualBreakpoints).then((res: Breakpoint[]) => {
