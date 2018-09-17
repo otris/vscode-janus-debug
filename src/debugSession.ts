@@ -698,7 +698,7 @@ export class JanusDebugSession extends DebugSession {
         }
 
         context.continue().then(() => {
-            log.debug('continueRequest succeeded');
+            // log.debug('continueRequest succeeded');
 
             const continuedEvent = new ContinuedEvent(context.id);
             this.sendEvent(continuedEvent);
@@ -740,7 +740,7 @@ export class JanusDebugSession extends DebugSession {
         }
 
         context.next().then(() => {
-            log.debug('nextRequest succeeded');
+            // log.debug('nextRequest succeeded');
             response.success = true;
             this.sendResponse(response);
             // reportStopped is called in this.connection.on('contextPaused'),
@@ -767,7 +767,7 @@ export class JanusDebugSession extends DebugSession {
         try {
             // We have to step in twice to get the correct stack frame
             await context.stepIn();
-            log.debug('first stepInRequest succeeded');
+            // log.debug('first stepInRequest succeeded');
             response.success = true;
             this.sendResponse(response);
             // todo: see 'next'
@@ -792,7 +792,7 @@ export class JanusDebugSession extends DebugSession {
 
         try {
             await context.stepOut();
-            log.debug('first stepOutRequest succeeded');
+            // log.debug('first stepOutRequest succeeded');
             response.success = true;
             this.sendResponse(response);
             // todo: see 'next'
@@ -829,7 +829,7 @@ export class JanusDebugSession extends DebugSession {
 
             const context = this.connection.coordinator.getContext(contextId);
             context.pause().then(() => {
-                log.debug('pauseRequest succeeded');
+                // log.debug('pauseRequest succeeded');
                 response.success = true;
                 this.sendResponse(response);
                 // todo: see 'next'
@@ -901,7 +901,6 @@ export class JanusDebugSession extends DebugSession {
                 name: attachedContext.name
             });
         }
-        log.debug(`threadsRequest succeeded`);
         // log.debug(`threadsRequest succeeded with ${JSON.stringify(response.body.threads)}`);
         this.sendResponse(response);
     }
@@ -968,7 +967,7 @@ export class JanusDebugSession extends DebugSession {
                         }
                     };
 
-                    log.error(`Exception while getting local position: ${e}, get remote source: result ${JSON.stringify(result)}`);
+                    log.error(`Exception while getting local position: ${e}`);
 
                     if (this.displaySourceNoticeCount < 1) {
                         this.ipcClient.displaySourceNotice();
@@ -1003,7 +1002,7 @@ export class JanusDebugSession extends DebugSession {
                 locals.forEach(variable => {
                     this.variablesMap.createVariable(variable.name, variable.value, contextId, frameRef);
                 });
-                log.debug(`stackTraceRequest succeeded`);
+                // log.debug(`stackTraceRequest succeeded`);
                 response.success = true;
                 this.sendResponse(response);
             }).catch(reason => {
