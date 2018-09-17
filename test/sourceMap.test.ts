@@ -104,17 +104,22 @@ suite('source map tests', () => {
 
         test("parse into chunks", () => {
             const s = ServerSource.fromSources('test1', sourceLines);
-            assert.equal(s.chunks.length, 2);
-            assert.equal(s.chunks[0].name, 'lib');
+            // in fromSources the first chunk is added now
+            // it starts at start of server file
+            // it does not start with a "//..."-comment
+            // it can have length 0
+
+            assert.equal(s.chunks.length, 3);
+            assert.equal(s.chunks[1].name, 'lib');
 
             // the chunks start at //#
             // => so start of first chunk is 2 and length is 6
-            assert.equal(s.chunks[0].pos.start, 2);
-            assert.equal(s.chunks[0].pos.len, 6);
+            assert.equal(s.chunks[1].pos.start, 2);
+            assert.equal(s.chunks[1].pos.len, 6);
 
-            assert.equal(s.chunks[1].name, 'test1');
-            assert.equal(s.chunks[1].pos.start, 8);
-            assert.equal(s.chunks[1].pos.len, 7);
+            assert.equal(s.chunks[2].name, 'test1');
+            assert.equal(s.chunks[2].pos.start, 8);
+            assert.equal(s.chunks[2].pos.len, 7);
         });
 
 
@@ -173,8 +178,9 @@ suite('source map tests', () => {
         });
 
         test("first line debugger; statement maps to first line of first chunk", () => {
-            const s = ServerSource.fromSources('test1', sourceLines);
-            assert.deepEqual(s.toLocalPosition(1), { source: 'lib', line: 1 });
+            const s = ServerSource.fromSources('test1', sourceLines, true);
+            // first chunk is in main file: here "test1"
+            assert.deepEqual(s.toLocalPosition(1), { source: 'test1', line: 1 });
         });
 
         test("pre-processor line maps to first line of next chunk", () => {
@@ -242,7 +248,9 @@ suite('source map tests', () => {
                 "",
             ];
             const s = ServerSource.fromSources('fubar', lines);
-            assert.equal(s.chunks.length, 23);
+            // first chunk is added in fromSources
+            // it starts before the first "//#..." comment and has length 0 here
+            assert.equal(s.chunks.length, 24);
         });
         suite("mapping 2 chunks", () => {
             let sourceMap: SourceMap;
