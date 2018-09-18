@@ -6,6 +6,8 @@ Visual Studio Code plugin for developing and debugging JavaScript on DOCUMENTS 5
 
 ## Features
 
+### Debugger
+
 This extension allows you to debug portal scripts on a DOCUMENTS 5 server. This includes launching a script from within VS Code and executing it remotely on the server, setting breakpoints, stepping through the code, and evaluating expressions. Also you can watch values...
 
 ![Screenshot](img/debugger.gif "Screenshot")
