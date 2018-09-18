@@ -12,7 +12,7 @@ This extension allows you to debug portal scripts on a DOCUMENTS 5 server. This 
 
 ... or you can view some important variable types from portal scripting in the debug side bar.
 
-![Screenshot](img/debugger-variables.gif "Screenshot")
+![Screenshot](img/debugger-variables.png "Screenshot")
 
 
 The extension includes lots of additional features that ease the development, especially on DOCUMENTS 5.
