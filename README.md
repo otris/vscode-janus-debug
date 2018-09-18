@@ -4,15 +4,13 @@
 
 Visual Studio Code plugin for developing and debugging JavaScript on DOCUMENTS 5.0 and other JANUS-based applications.
 
-![Screenshot](https://github.com/otris/vscode-janus-debug/raw/master/img/extension-screenshot-1.png "Screenshot")
-
+![Screenshot](https://github.com/otris/vscode-janus-debug/raw/master/img/debugger.gif "Screenshot")
 
 ## Features
 
 This extension allows you to debug your JavaScript code directly on a JANUS-based server like DOCUMENTS, otris contract, and otris privacy. This includes launching a script from within VS Code and executing it remotely on the server, setting breakpoints, stepping through the code, and evaluating expressions<sup>1</sup>.
 
 This extensions includes lots of additional features that ease the development, especially on DOCUMENTS 5.
-
 
 ### Commands
 
