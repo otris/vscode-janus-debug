@@ -4,7 +4,7 @@
 
 Visual Studio Code plugin for developing and debugging JavaScript on DOCUMENTS 5.0 and other JANUS-based applications.
 
-![Screenshot](https://github.com/otris/vscode-janus-debug/raw/master/img/debugger.gif "Screenshot")
+![Screenshot](img/debugger.gif "Screenshot")
 
 ## Features
 
