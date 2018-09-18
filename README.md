@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/otris/vscode-janus-debug.svg?branch=master)](https://travis-ci.org/otris/vscode-janus-debug)
 
-Visual Studio Code plugin for developing and debugging JavaScript on DOCUMENTS 5.0 and other JANUS-based applications.
+Visual Studio Code plugin for developing and debugging JavaScript on DOCUMENTS 5.0.
 
 ## Features
 
@@ -14,6 +14,7 @@ This extension allows you to debug portal scripts on a DOCUMENTS 5 server. This 
 
 ![Screenshot](img/debugger-variables.png "Screenshot")
 
+----
 
 The extension includes lots of additional features that ease the development, especially on DOCUMENTS 5.
 
@@ -40,7 +41,6 @@ The following commands are supported.
 | Connect Server Console | Show all messages of the DOCUMENTS server in terminal |
 | Disconnect Server Console | Stop showing server messages in terminal |
 | Show DOCUMENTS Version | Show version of the DOCUMENTS server |
-
 
 ### Settings
 
