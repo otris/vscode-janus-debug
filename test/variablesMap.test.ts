@@ -1,4 +1,5 @@
 import * as assert from 'assert';
+import { Context } from "../src/context";
 import { VariablesContainer, VariablesMap } from '../src/variablesMap';
 
 suite('variables map tests', () => {
@@ -11,8 +12,8 @@ suite('variables map tests', () => {
             variablesMap = new VariablesMap();
         });
 
-        test('createStringVariable', () => {
-            variablesMap.createVariable('stringVariable', 'myValue', 1, 1);
+        test('createStringVariable', async () => {
+            await variablesMap.createVariable('stringVariable', 'myValue', 1, null as any, 1);
             const variablesContainer: VariablesContainer = variablesMap.getVariables(1);
 
             assert.equal(variablesContainer.variables.length, 1);
@@ -23,8 +24,8 @@ suite('variables map tests', () => {
             assert.equal(variablesContainer.variables[0].variablesReference, 0);
         });
 
-        test('createIntVariable', () => {
-            variablesMap.createVariable('intVariable', 666, 1, 2);
+        test('createIntVariable', async () => {
+            await variablesMap.createVariable('intVariable', 666, 1, null as any, 2);
             const variablesContainer: VariablesContainer = variablesMap.getVariables(2);
 
             assert.equal(variablesContainer.variables.length, 1);
@@ -35,8 +36,8 @@ suite('variables map tests', () => {
             assert.equal(variablesContainer.variables[0].variablesReference, 0);
         });
 
-        test('createBooleanVariable', () => {
-            variablesMap.createVariable('booleanVariable', true, 1, 3);
+        test('createBooleanVariable', async () => {
+            await variablesMap.createVariable('booleanVariable', true, 1, null as any, 3);
             const variablesContainer: VariablesContainer = variablesMap.getVariables(3);
 
             assert.equal(variablesContainer.variables.length, 1);
@@ -47,8 +48,8 @@ suite('variables map tests', () => {
             assert.equal(variablesContainer.variables[0].variablesReference, 0);
         });
 
-        test('createUndefinedVariable', () => {
-            variablesMap.createVariable('undefinedVariable', undefined, 1, 4);
+        test('createUndefinedVariable', async () => {
+            await variablesMap.createVariable('undefinedVariable', undefined, 1, null as any, 4);
             const variablesContainer: VariablesContainer = variablesMap.getVariables(4);
 
             assert.equal(variablesContainer.variables.length, 1);
