@@ -82,6 +82,7 @@ export class LocalSource {
 }
 
 type JSContextName = string;
+type RemoteUrl = string;
 
 const sourceMapLog = Logger.create('SourceMap');
 
@@ -93,10 +94,12 @@ const sourceMapLog = Logger.create('SourceMap');
 export class SourceMap {
     private map: ValueMap<JSContextName, LocalSource>;
     private _serverSource: ServerSource;
+    private _dynamicScripts: ValueMap<RemoteUrl, ServerSource>;
 
     constructor() {
         this.map = new ValueMap<JSContextName, LocalSource>();
         this._serverSource = new ServerSource();
+        this._dynamicScripts = new ValueMap<RemoteUrl, ServerSource>();
     }
 
     set serverSource(sources: ServerSource) {
@@ -107,12 +110,19 @@ export class SourceMap {
         return this._serverSource;
     }
 
+    public addDynamicScript(remoteUrl: RemoteUrl, serverSource: ServerSource): void {
+        this._dynamicScripts.set(remoteUrl, serverSource);
+    }
+
     public addMapping(localSource: LocalSource, remoteName: JSContextName): void { // ← fake rocket science
         this.map.set(remoteName, localSource);
     }
 
-    public toLocalPosition(line: number): { source: string, line: number } {
-        const localPos = this._serverSource.toLocalPosition(line);
+    public toLocalPosition(line: number, url?: string): { source: string, line: number } {
+        const dynamicSource = url ? this.getDynamicServerSource(url) : undefined;
+        const serverSource = dynamicSource ? dynamicSource : this._serverSource;
+
+        const localPos = serverSource.toLocalPosition(line);
 
         const localSource = this.getSource(localPos.source);
         if (!localSource) {
@@ -120,7 +130,7 @@ export class SourceMap {
         }
 
         const localSourceLine = localSource.getSourceLine(localPos.line);
-        const remoteSourceLine = this._serverSource.getSourceLine(line);
+        const remoteSourceLine = serverSource.getSourceLine(line);
 
         sourceMapLog.info(`remote [${line}: "${remoteSourceLine}"] ` + `→ local [${localPos.line} in ${localSource.name}: "${localSourceLine}"]`);
 
@@ -170,6 +180,10 @@ export class SourceMap {
         return this.map.get(remoteName);
     }
 
+    public getDynamicServerSource(remoteUrl: RemoteUrl): ServerSource | undefined {
+        return this._dynamicScripts.get(remoteUrl);
+    }
+
     public getSourceByReference(sourceReference: number): LocalSource | undefined {
         return sourceReference > 0 ?
             this.map.findValueIf(value => value.sourceReference === sourceReference) : undefined;
@@ -216,7 +230,7 @@ export class ServerSource {
                     // because toLocalPosition() is easier to handle then,
                     // because first chunk looks different (no "//#..." at start)
                     chunks.push(new Chunk(contextName, new Pos(1, lineNo - 1), 1));
-                    // serverSourceLog.debug(`(CHUNK[0]) name ${contextName} remote pos ${remotePos} len ${sourceLines.length} local pos ${1}`);
+                    // serverSourceLog.debug(`(CHUNK[0]) name ${contextName} remote pos ${1} len ${sourceLines.length} local pos ${1}`);
                 }
 
                 const offset = Number(match[1]);
@@ -259,7 +273,7 @@ export class ServerSource {
         // this chunk looks different, because there's no "//#..."-line at start
         if (chunks.length === 0) {
             chunks.push(new Chunk(contextName, new Pos(1, sourceLines.length), 1));
-            // serverSourceLog.debug(`(CHUNK[0]) name ${contextName} remote pos ${remotePos} len ${sourceLines.length} local pos ${1}`);
+            // serverSourceLog.debug(`(CHUNK[0]) name ${contextName} remote pos ${1} len ${sourceLines.length} local pos ${1}`);
         }
 
 
@@ -270,12 +284,14 @@ export class ServerSource {
         s._chunks = chunks;
         s._sourceLines = sourceLines;
         s._debugAdded = debugAdded;
+        s._name = contextName;
         return s;
     }
 
     private _chunks: Chunk[] = [];
     private _sourceLines: string[] = [];
     private _debugAdded: boolean = false;
+    private _name: string = "";
 
     get chunks() {
         return this._chunks;
@@ -285,6 +301,9 @@ export class ServerSource {
     }
     get debugAdded() {
         return this._debugAdded;
+    }
+    get name() {
+        return this._name;
     }
 
 

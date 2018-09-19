@@ -936,6 +936,22 @@ export class JanusDebugSession extends DebugSession {
                 };
 
                 try {
+                    // // just a first test for 'required' scripts
+                    // // actually this can be executed immediately when require() was executed in the script
+                    // log.debug(`Frame url ${frame.sourceUrl} line ${frame.sourceLine}`);
+                    // if (frame.sourceUrl !== context.name && !this.sourceMap.getDynamicServerSource(frame.sourceUrl) && this.connection) {
+                    //     // frame.sourceUrl belongs to a script that is imported using require()
+                    //     this.connection.sendRequest(Command.getSource(frame.sourceUrl), async (res: Response) => res.content.source).then((dynamicSource) => {
+                    //         log.info(`retrieved dynamic server sources: ${JSON.stringify(dynamicSource)}`);
+                    //         const dynamicServerSource = ServerSource.fromSources(frame.sourceUrl, dynamicSource);
+                    //         this.sourceMap.addDynamicScript(frame.sourceUrl, dynamicServerSource);
+                    //         const localPos = this.sourceMap.toLocalPosition(frame.sourceLine, frame.sourceUrl);
+                    //         log.info(`Dynamic script: local line ${localPos.line} in local file ${localPos.source}`);
+                    //         // ...
+                    //     });
+                    // } // else { ...
+
+
                     const localPos = this.sourceMap.toLocalPosition(frame.sourceLine);
                     const localSource = this.sourceMap.getSource(localPos.source);
                     // when local source not available toLocalPosition should
