@@ -1009,6 +1009,9 @@ export class JanusDebugSession extends DebugSession {
                     throw new Error('Internal error: Current frame not found.');
                 }
 
+                // See:
+                // https://code.visualstudio.com/docs/extensionAPI/api-debugging#_the-debug-adapter-protocol-in-a-nutshell
+                //
                 // it is necessary that variablesReference > 0 (see scopesRequest())
                 // the frame ids start with 0, so add 1
                 // we use the frameId, because the variableReference must be
@@ -1034,6 +1037,10 @@ export class JanusDebugSession extends DebugSession {
         });
     }
 
+    /**
+     * See:
+     * https://code.visualstudio.com/docs/extensionAPI/api-debugging#_the-debug-adapter-protocol-in-a-nutshell
+     */
     protected scopesRequest(response: DebugProtocol.ScopesResponse, args: DebugProtocol.ScopesArguments): void {
         log.info(`scopesRequest for frameId ${args.frameId}`);
 
@@ -1054,6 +1061,10 @@ export class JanusDebugSession extends DebugSession {
         this.sendResponse(response);
     }
 
+    /**
+     * See:
+     * https://code.visualstudio.com/docs/extensionAPI/api-debugging#_the-debug-adapter-protocol-in-a-nutshell
+     */
     protected async variablesRequest(response: DebugProtocol.VariablesResponse, args: DebugProtocol.VariablesArguments): Promise<void> {
         log.info(`variablesRequest with variablesReference ${args.variablesReference}`);
 
