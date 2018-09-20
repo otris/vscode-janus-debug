@@ -94,6 +94,12 @@ const sourceMapLog = Logger.create('SourceMap');
 export class SourceMap {
     private map: ValueMap<JSContextName, LocalSource>;
     private _serverSource: ServerSource;
+    /**
+     * The source of scripts, that are loaded using the require() statement,
+     * are not statically copied into the servers source, they must be loaded
+     * dynamically, when require() is called or when the user wants to debug
+     * inside a function of the required script (using breakpoints or step-in).
+     */
     private _dynamicScripts: ValueMap<RemoteUrl, ServerSource>;
 
     constructor() {
@@ -132,7 +138,7 @@ export class SourceMap {
         const localSourceLine = localSource.getSourceLine(localPos.line);
         const remoteSourceLine = serverSource.getSourceLine(line);
 
-        sourceMapLog.info(`remote [${line}: "${remoteSourceLine}"] ` + `→ local [${localPos.line} in ${localSource.name}: "${localSourceLine}"]`);
+        // sourceMapLog.info(`remote [${line}: "${remoteSourceLine}"] ` + `→ local [${localPos.line} in ${localSource.name}: "${localSourceLine}"]`);
 
         if (localSourceLine.trim() !== remoteSourceLine.trim()) {
             const utf8string = utf8.decode(remoteSourceLine);
@@ -151,8 +157,7 @@ export class SourceMap {
             const localSourceLine = localSource.getSourceLine(localPos.line);
             const remoteSourceLine = this._serverSource.getSourceLine(remoteLine);
 
-            sourceMapLog.info(`local [${localPos.line} in ${localPos.source}: "${localSourceLine}"] ` +
-                `→ remote [${remoteLine}: "${remoteSourceLine}"]`);
+            // sourceMapLog.info(`local [${localPos.line} in ${localPos.source}: "${localSourceLine}"] ` + `→ remote [${remoteLine}: "${remoteSourceLine}"]`);
         }
         return remoteLine;
     }
@@ -201,16 +206,55 @@ class Pos {
     constructor(public start: number, public len: number) { }
 }
 
+
+/**
+ * The generator of the server source added comment-lines and maybe a debugger-statement to
+ * the server source. These comments and statements do not exist in the original source.
+ *
+ * But using the comment-lines, the server source can be seperated into chunks:
+ * - The first chunk starts at line 1 of the server code.
+ * - Every chunk, except the last one, ends immediately before a generated comment-line.
+ * - Every chunk, except the first one, starts at a generated comment-line.
+ *
+ * A generated comment-line looks like this: "//# i name", meaning the original source of
+ * this chunk starts at position i in the local file with name "name"(.js).
+ *
+ * The debugger-statement is generated to the first line of the main file before the server
+ * source is generated, but only in the case that 'Upload and Debug Script' is executed.
+ *
+ * If a chunk starts at a comment-line, or contains the generated debugger-statement
+ * the original source in the chunk starts one line behind the comment-line.
+ * So we have 3 cases for the original source position inside the chunk:
+ * - (1+2) The first chunk does not contain a generated comment but maybe it contains the generated debugger-statement.
+ * - (3) All other chunks start at a generated comment-line and they do not contain a generated debugger-statement.
+ *
+ * See Documentation of Source Mapping with example in sourcemap.test.ts
+ */
 class Chunk {
-    constructor(public name: string, public pos: Pos, public localStart: number) { }
+    /**
+     * Position of the original source in the chunk.
+     * Calculated in constructor.
+     */
+    public originalPos: Pos;
+
+    constructor(public name: string, public pos: Pos, public localStart: number, public debugAdded: boolean) {
+        if (pos.start === 1) {
+            // first chunk
+            if (debugAdded) {
+                this.originalPos = new Pos(pos.start + 1, pos.len - 1);
+            } else {
+                // the chunk matches the original source
+                this.originalPos = new Pos(pos.start, pos.len);
+            }
+        } else {
+            this.originalPos = new Pos(pos.start + 1, pos.len - 1);
+        }
+    }
 }
 
 const serverSourceLog = Logger.create('ServerSource');
 
 export class ServerSource {
-    /**
-     * See documentation in "test/sourceMap.test.ts"
-     */
     public static fromSources(contextName: string, sourceLines: string[], debugAdded = false) {
         const chunks: Chunk[] = [];
         const pattern = /^\/\/#\s([0-9]+)\s([\w\_\-\.#]+)$/;
@@ -229,19 +273,21 @@ export class ServerSource {
                     // add first chunk, don't check length, add it anyway
                     // because toLocalPosition() is easier to handle then,
                     // because first chunk looks different (no "//#..." at start)
-                    chunks.push(new Chunk(contextName, new Pos(1, lineNo - 1), 1));
+                    chunks.push(new Chunk(contextName, new Pos(1, lineNo - 1), 1, debugAdded));
                     // serverSourceLog.debug(`(CHUNK[0]) name ${contextName} remote pos ${1} len ${sourceLines.length} local pos ${1}`);
                 }
 
                 const offset = Number(match[1]);
                 const name = match[2];
 
+                // the start of the source in the local file
                 // lines start at 1
                 let localPos = 1 + offset;
 
                 if (debugAdded && (name === contextName)) {
-                    // meaning if debugger;-statement was added to this file
-                    // (debugger;-statement is only added to main file)
+                    // the chunk belongs to the mainfile and the debugger-statement was added,
+                    // we have to subtract 1, because the debugger-statement does not exist
+                    // in local file
                     localPos -= 1;
                 }
 
@@ -257,7 +303,7 @@ export class ServerSource {
 
                 const remotePos = lineNo;
                 // pos.len must be set in next iteration
-                current = new Chunk(name, new Pos(remotePos, 0), localPos);
+                current = new Chunk(name, new Pos(remotePos, 0), localPos, debugAdded);
             }
         });
         if (current) {
@@ -272,7 +318,7 @@ export class ServerSource {
         // if no "//#..."-comments in source, add only one first chunk
         // this chunk looks different, because there's no "//#..."-line at start
         if (chunks.length === 0) {
-            chunks.push(new Chunk(contextName, new Pos(1, sourceLines.length), 1));
+            chunks.push(new Chunk(contextName, new Pos(1, sourceLines.length), 1, debugAdded));
             // serverSourceLog.debug(`(CHUNK[0]) name ${contextName} remote pos ${1} len ${sourceLines.length} local pos ${1}`);
         }
 
@@ -324,7 +370,7 @@ export class ServerSource {
         const chunk = this._chunks[idx];
 
         if (!firstChunk && (line === chunk.pos.start)) {
-            // line is at a "//#..."-comment
+            // line is a generated comment-line
             // this line cannot be mapped, because it does not exist in local code,
             // but additional it's a comment so the debugger should not be in this line,
             // something must be wrong...
@@ -332,19 +378,15 @@ export class ServerSource {
         }
 
         if (this.debugAdded && firstChunk && (line === 1)) {
-            // line is at (internal) debugger;-statement in first line
-            // map to first line, the debug-adapter skips this line anyway
+            // line is at the generated debugger-statement in first line
+            // map to first line, but the debug-adapter skips this line anyway
             return {
                 source: chunk.name,
                 line: 1
             };
         }
 
-
-        // get the start of the local code in chunk
-        // ==> "//#..."-comment and debugger;-statement do not exist in local code
-        // (1) first chunk doesn't contain "//#..."-comment but could contain the internal debugger;-statement
-        // (2) other chunks start at "//#..."-comment
+        // todo: localCodeStart = chunk.originalPos.start
         const localCodeStart = chunk.pos.start + ((!firstChunk || this.debugAdded) ? 1 : 0);
 
         // the offset of the line inside the chunk
@@ -377,7 +419,7 @@ export class ServerSource {
         // the chunk offset in the local file
         const localChunkOffset = pos.line - chunk.localStart;
 
-        // See documentation of chunkCodeStart in toLocalPosition
+        // todo: chunkCodeStart = chunk.originalPos.start
         const chunkCodeStart = chunk.pos.start + ((!firstChunk || this.debugAdded) ? 1 : 0);
 
         const lineNo = chunkCodeStart + localChunkOffset;
