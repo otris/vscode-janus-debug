@@ -296,23 +296,29 @@ suite('source map tests', () => {
                 setTimeout(() => { fs.removeSync(tempDir); }, 1000);
             });
 
-            /*
             test("remote line to local position", () => {
-                sourceMap.serverSource = ServerSource.fromSources('test1', sourceLines);
+                sourceMap.serverSource = ServerSource.fromSources('test1', sourceLines, true);
                 sourceMap.setLocalUrls(paths);
-                assert.deepEqual(sourceMap.toLocalPosition(1), { source: 'lib', line: 1 });
+                // line 1 cannot be mapped, because the remote file in server file is the debugger-statement
+                // this statement does not exist in local file, because it was only internally added
+                // so: we can never be "on the same line" in this case
+                // assert.deepEqual(sourceMap.toLocalPosition(1), { source: 'test1', line: 1 });
                 assert.deepEqual(sourceMap.toLocalPosition(3), { source: 'lib', line: 1 });
                 assert.deepEqual(sourceMap.toLocalPosition(4), { source: 'lib', line: 2 });
                 assert.deepEqual(sourceMap.toLocalPosition(6), { source: 'lib', line: 4 });
                 assert.deepEqual(sourceMap.toLocalPosition(10), { source: 'test1', line: 3 });
                 assert.deepEqual(sourceMap.toLocalPosition(14), { source: 'test1', line: 7 });
             });
-            */
         });
     });
 
     suite("mapping 3 chunks without debugger; line", () => {
         let sourceMap: SourceMap;
+        /**
+         * When you run these scripts on the server without adding a debug statement, the server source
+         * in line 10 looks like this: "//# 1 main" so the position is 1 (when debug statement was
+         * added internally then the position would be 2 here)
+         */
         const sourceLines = [
             /* line on server                                                 line on disk                           */
             /*  1                     */ "//# 0 lib2",                     /*                                        */
@@ -324,7 +330,7 @@ suite('source map tests', () => {
             /*  7                     */ "util.out(\">>> in lib2.js\");",  /*  2       util.out(">>> in lib2.js");   */
             /*  8                     */ "val = val + 1;",                 /*  3       val = val + 1;                */
             /*  9                     */ "",                               /*  4                                     */
-            /* 10                     */ "//# 2 main",                     /*  1       //#import "lib2"              */
+            /* 10                     */ "//# 1 main",                     /*  1       //#import "lib2"              */
             /* 11                     */ "util.out(\">>> in main.js\");",  /*  2       util.out(">>> in main.js");   */
             /* 12                     */ "val = val + 1;",                 /*  3       val = val + 1;                */
             /* 13                     */ "util.out(\">>> val = \" + val);" /*  4       util.out(">>> val = " + val); */
@@ -372,17 +378,17 @@ suite('source map tests', () => {
             setTimeout(() => { fs.removeSync(tempDir); }, 1000);
         });
 
-        /*
         test("remote line to local position", () => {
             sourceMap.serverSource = ServerSource.fromSources('main', sourceLines);
             sourceMap.setLocalUrls(paths);
-            assert.deepEqual(sourceMap.toLocalPosition(1), { source: 'lib1', line: 1 });
+            // we cannot map the first line, because it's a comment-line and this
+            // line does not exist in local source
+            // assert.deepEqual(sourceMap.toLocalPosition(1), { source: 'lib1', line: 1 });
             assert.deepEqual(sourceMap.toLocalPosition(3), { source: 'lib1', line: 1 });
             assert.deepEqual(sourceMap.toLocalPosition(4), { source: 'lib1', line: 2 });
             assert.deepEqual(sourceMap.toLocalPosition(7), { source: 'lib2', line: 2 });
             assert.deepEqual(sourceMap.toLocalPosition(12), { source: 'main', line: 3 });
         });
-        */
     });
 
     suite("mapping 3 chunks", () => {
