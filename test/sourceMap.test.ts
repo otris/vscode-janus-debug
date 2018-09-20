@@ -453,17 +453,17 @@ suite('source map tests', () => {
             // Timeout because otherwise we get a ENOTEMPTY in fs.rmdir
             setTimeout(() => { fs.removeSync(tempDir); }, 1000);
         });
-        /*
         test("remote line to local position", () => {
-            sourceMap.serverSource = ServerSource.fromSources('main', sourceLines2);
+            // debug-statement added
+            sourceMap.serverSource = ServerSource.fromSources('main', sourceLines2, true);
             sourceMap.setLocalUrls(paths);
-            assert.deepEqual(sourceMap.toLocalPosition(1), { source: 'lib1', line: 1 });
+            // first line cannot be mapped, see comments in other tests
+            // assert.deepEqual(sourceMap.toLocalPosition(1), { source: 'lib1', line: 1 });
             assert.deepEqual(sourceMap.toLocalPosition(4), { source: 'lib1', line: 1 });
             assert.deepEqual(sourceMap.toLocalPosition(5), { source: 'lib1', line: 2 });
             assert.deepEqual(sourceMap.toLocalPosition(8), { source: 'lib2', line: 2 });
             assert.deepEqual(sourceMap.toLocalPosition(12), { source: 'main', line: 2 });
         });
-        */
     });
 
     suite("mapping 4 chunks", () => {
@@ -545,14 +545,13 @@ suite('source map tests', () => {
             paths = [];
         });
 
-        /*
         test("remote line to local position", () => {
-            assert.deepEqual(sourceMap.toLocalPosition(1), { source: 'lib1', line: 1 });
+            // cannot map first line, see comments in the other tests
+            // assert.deepEqual(sourceMap.toLocalPosition(1), { source: 'lib1', line: 1 });
             assert.deepEqual(sourceMap.toLocalPosition(5), { source: 'lib1', line: 1 });
             assert.deepEqual(sourceMap.toLocalPosition(9), { source: 'lib2', line: 2 });
             assert.deepEqual(sourceMap.toLocalPosition(17), { source: 'main', line: 2 });
         });
-        */
 
         test("local position to remote line", () => {
             assert.equal(sourceMap.toRemoteLine({ source: 'lib2', line: 3 }), 10);
