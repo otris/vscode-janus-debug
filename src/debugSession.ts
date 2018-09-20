@@ -1039,7 +1039,7 @@ export class JanusDebugSession extends DebugSession {
                 this.sendResponse(response);
             });
         }).catch(reason => {
-            log.debug(`stackTraceRequest failed`);
+            log.debug(`stackTraceRequest failed: ${reason}`);
             response.success = false;
             this.sendResponse(response);
         });
