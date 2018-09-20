@@ -193,6 +193,9 @@ export class JanusDebugSession extends DebugSession {
             this.logServerVersion();
 
             this.connection.on('contextPaused', (contextId: number) => {
+                // todo: this is not only called when breakpoint is set
+                // this is called every time, when the debugger stops...
+                // so also after next, step-in, step-out, ...
                 this.reportStopped('breakpoint', contextId);
             });
 
@@ -409,6 +412,9 @@ export class JanusDebugSession extends DebugSession {
         this.connection = connection;
 
         this.connection.on('contextPaused', (contextId: number) => {
+            // todo: this is not only called when breakpoint is set
+            // this is called every time, when the debugger stops...
+            // so also after next, step-in, step-out, ...
             this.reportStopped('breakpoint', contextId);
         });
 
