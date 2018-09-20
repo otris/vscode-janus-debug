@@ -777,7 +777,7 @@ export class JanusDebugSession extends DebugSession {
             response.success = true;
             this.sendResponse(response);
             // todo: see 'next'
-            this.reportStopped('step in', contextId);
+            // this.reportStopped('step in', contextId);
         } catch (err) {
             log.error('stepInRequest failed: ' + err);
             response.success = false;
@@ -801,8 +801,10 @@ export class JanusDebugSession extends DebugSession {
             // log.debug('first stepOutRequest succeeded');
             response.success = true;
             this.sendResponse(response);
-            // todo: see 'next'
-            this.reportStopped('step out', contextId);
+            // todo: debugger does not send stop event on step out,
+            // this means that the debugger has not stopped after the step out request,
+            // so we cannot call reportStopped here, because it's simply not true
+            // this.reportStopped('step out', contextId);
         } catch (err) {
             log.error('stepOutRequest failed: ' + err);
             response.success = false;
