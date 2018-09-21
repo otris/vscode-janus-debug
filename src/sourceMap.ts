@@ -235,19 +235,23 @@ class Chunk {
      * Position of the original source in the chunk.
      * Calculated in constructor.
      */
-    public originalPos: Pos;
+    public originalStart: number;
 
     constructor(public name: string, public pos: Pos, public localStart: number, public debugAdded: boolean) {
         if (pos.start === 1) {
             // first chunk
             if (debugAdded) {
-                this.originalPos = new Pos(pos.start + 1, pos.len - 1);
+                // first chunk and debugger-statement added
+                // length is not set on creation
+                this.originalStart = pos.start + 1;
             } else {
                 // the chunk matches the original source
-                this.originalPos = new Pos(pos.start, pos.len);
+                this.originalStart = pos.start;
             }
         } else {
-            this.originalPos = new Pos(pos.start + 1, pos.len - 1);
+            // not the first chunk ==> comment-line at start
+            // length is not set on creation
+            this.originalStart = pos.start + 1;
         }
     }
 }
@@ -259,6 +263,7 @@ export class ServerSource {
         const chunks: Chunk[] = [];
         const pattern = /^\/\/#\s([0-9]+)\s([\w\_\-\.#]+)$/;
         let current: Chunk | undefined;
+        // serverSourceLog.debug(`# server source lines ${sourceLines.length}`);
         sourceLines.forEach((line, index) => {
 
             // lines start at 1
@@ -386,7 +391,7 @@ export class ServerSource {
             };
         }
 
-        // todo: localCodeStart = chunk.originalPos.start
+        // todo: localCodeStart = chunk.originalPos.start => use chunk.originalPos.start
         const localCodeStart = chunk.pos.start + ((!firstChunk || this.debugAdded) ? 1 : 0);
 
         // the offset of the line inside the chunk
@@ -419,7 +424,7 @@ export class ServerSource {
         // the chunk offset in the local file
         const localChunkOffset = pos.line - chunk.localStart;
 
-        // todo: chunkCodeStart = chunk.originalPos.start
+        // todo: localCodeStart = chunk.originalPos.start => use chunk.originalPos.start
         const chunkCodeStart = chunk.pos.start + ((!firstChunk || this.debugAdded) ? 1 : 0);
 
         const lineNo = chunkCodeStart + localChunkOffset;
