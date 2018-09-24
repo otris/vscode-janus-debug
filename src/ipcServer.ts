@@ -71,10 +71,8 @@ export class VSCodeExtensionIPC {
             ipc.server.emit(socket, 'urisFound', uris.map(uri => uri.path));
         });
 
-        ipc.server.on('displaySourceNotice', async (ignored: any, socket) => {
-            log.info('displaySourceNotice');
-            const message = `Sorry, we couldn't find the sources locally ` +
-                `or your local sources are different from the server. We show the sources from the server.`;
+        ipc.server.on('displaySourceNotice', async (message: any, socket) => {
+            // log.info('displaySourceNotice');
             await window.showInformationMessage(message);
         });
     }

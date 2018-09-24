@@ -997,10 +997,11 @@ export class JanusDebugSession extends DebugSession {
                         }
                     };
 
-                    log.error(`Exception while getting local position: ${e}`);
+                    log.error(`Get local position failed for context '${context.name}': ${e}`);
 
                     if (this.displaySourceNoticeCount < 1) {
-                        this.ipcClient.displaySourceNotice();
+                        // or simply use e.message here?
+                        this.ipcClient.displaySourceNotice(`Sources don't match. More information in log file.`);
                         this.displaySourceNoticeCount++;
                     }
                 }

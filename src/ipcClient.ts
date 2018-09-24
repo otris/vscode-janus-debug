@@ -95,9 +95,9 @@ export class DebugAdapterIPC {
         return result;
     }
 
-    public async displaySourceNotice(): Promise<void> {
-        log.debug(`displaySourceNotice`);
-        ipc.of.sock.emit('displaySourceNotice');
+    public async displaySourceNotice(message: string): Promise<void> {
+        // log.debug(`displaySourceNotice`);
+        ipc.of.sock.emit('displaySourceNotice', message);
     }
 
     private contextChosenDefaultHandler(data: any) {
