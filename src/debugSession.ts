@@ -241,6 +241,9 @@ export class JanusDebugSession extends DebugSession {
                 contexts.forEach(async context => {
                     if (context.isStopped()) {
                         if (context.name === sourceUrl) {
+                            if (this.attachedContextId !== undefined) {
+                                log.error(`Error: Multiple contexts with same name! Finish all context using 'attach' and 'continue'`);
+                            }
                             this.attachedContextId = context.id;
                         }
                     }
@@ -924,6 +927,9 @@ export class JanusDebugSession extends DebugSession {
         let context: Context;
         try {
             context = this.connection.coordinator.getContext(contextId);
+            if (context.name.length === 0) {
+                log.error(`Found context with id ${contextId}, but it has no name`);
+            }
         } catch (e) {
             log.warn(`stackTraceRequest getContext: ${e}`);
             if (e.message.startsWith('No such context')) {

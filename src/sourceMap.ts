@@ -132,7 +132,9 @@ export class SourceMap {
 
         const localSource = this.getSource(localPos.source);
         if (!localSource) {
-            throw new Error(`Local source not found ${localPos.source}, remote line ${line}, local line ${localPos.line}`);
+            const message = `Local source '${localPos.source}' not found, remote line ${line}, local line ${localPos.line}`;
+            sourceMapLog.error(message);
+            throw new Error(message);
         }
 
         const localSourceLine = localSource.getSourceLine(localPos.line);
@@ -141,9 +143,22 @@ export class SourceMap {
         // sourceMapLog.info(`remote [${line}: "${remoteSourceLine}"] ` + `→ local [${localPos.line} in ${localSource.name}: "${localSourceLine}"]`);
 
         if (localSourceLine.trim() !== remoteSourceLine.trim()) {
+            const first = this._serverSource.chunks.find(chunk => (line >= chunk.pos.start) && (line < (chunk.pos.start + chunk.pos.len)));
+            let duplicate;
+            if (first) {
+                duplicate = this._serverSource.chunks.find(chunk => (first.name === chunk.name) && (first.localStart === chunk.localStart) && (first.pos.len !== chunk.pos.len));
+            }
+            if (duplicate) {
+                const message = `Duplicate #import in ${duplicate.name}, first occurrence at line ${duplicate.localStart - 1}`;
+                sourceMapLog.error(message);
+                throw new Error(message);
+            }
+
             const utf8string = utf8.decode(remoteSourceLine);
             if (localSourceLine.trim() !== utf8string.trim()) {
-                throw new Error('Not on same source line');
+                const message = 'Not on same source line';
+                sourceMapLog.error(message);
+                throw new Error(message);
             }
         }
 
