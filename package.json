@@ -457,7 +457,12 @@
       },
       {
         "command": "extension.vscode-janus-debug.showImports",
-        "title": "Show Imports",
+        "title": "Show Server File",
+        "category": "DOCUMENTS"
+      },
+      {
+        "command": "extension.vscode-janus-debug.exportXML",
+        "title": "Export XML ...",
         "category": "DOCUMENTS"
       },
       {

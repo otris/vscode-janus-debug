@@ -558,7 +558,7 @@ export async function compareScript(loginData: nodeDoc.ConnectionInformation, co
 }
 
 
-export async function showImports(loginData: nodeDoc.ConnectionInformation, param: string | undefined, outputChannel: vscode.OutputChannel): Promise<void> {
+export async function showImports(loginData: nodeDoc.ConnectionInformation, param: string | undefined): Promise<void> {
     return new Promise<void>(async (resolve, reject) => {
         try {
             await login.ensureLoginInformation(loginData);
@@ -576,12 +576,42 @@ export async function showImports(loginData: nodeDoc.ConnectionInformation, para
             resolve();
 
         } catch (reason) {
-            vscode.window.showErrorMessage('Show imports failed: ' + reason);
+            vscode.window.showErrorMessage('Show Server File failed: ' + reason);
             reject();
         }
     });
 }
 
+
+
+/**
+ * No vscode inside function
+ * ==> prepared for mocha test (special tests using Documents server)
+ */
+export async function exportXML(loginData: nodeDoc.ConnectionInformation, param: string[], workspaceFolder: string): Promise<void> {
+    return new Promise<void>(async (resolve, reject) => {
+        if (param.length < 2) {
+            return reject('Export XML failed: incorrect input');
+        }
+
+        const subFolder = param[0] === "DlcFileType" ? "fileTypes" : "portalScripts";
+        const baseName = param[0] === "DlcFileType" ? "allFileTypes.xml" : "allPortalScripts.xml";
+        const exportDir = path.join(workspaceFolder, subFolder);
+
+        try {
+            await login.ensureLoginInformation(loginData);
+
+            const returnValue: string[] = await nodeDoc.serverSession(loginData, param, nodeDoc.exportXML);
+            const xmlOutput = returnValue[0];
+            fs.ensureDirSync(exportDir);
+            fs.writeFileSync(path.join(exportDir, baseName), xmlOutput);
+            resolve();
+
+        } catch (reason) {
+            reject('Export XML failed: ' + reason);
+        }
+    });
+}
 
 
 
