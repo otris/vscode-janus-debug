@@ -2,6 +2,11 @@
 
 You'll find a complete list of changes at our project site on [GitHub](https://github.com/otris/vscode-janus-debug).
 
+### 1.0.17 (2018-09-25)
+
+- First version of export XML is inserted (see [Issue 86](https://github.com/otris/vscode-janus-debug/issues/86))
+- Some fixes in debugger (the current state of everything that we tested is described in [Wiki](https://github.com/otris/vscode-janus-debug/wiki/Launching-the-Debugger))
+
 ### 1.0.5 (2018-09-05)
 
 - Show error message when unable to parse launch.json
