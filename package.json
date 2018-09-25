@@ -492,37 +492,32 @@
     "menus": {
       "explorer/context": [
         {
-          "command": "extension.vscode-janus-debug.wizardDownloadProject",
-          "when": "explorerResourceIsFolder",
+          "command": "extension.vscode-janus-debug.uploadScript",
+          "when": "resourceLangId == javascript",
           "group": "DOCUMENTS@1"
         },
         {
-          "command": "extension.vscode-janus-debug.uploadScript",
+          "command": "extension.vscode-janus-debug.downloadScript",
           "when": "resourceLangId == javascript",
           "group": "DOCUMENTS@2"
         },
         {
           "command": "extension.vscode-janus-debug.downloadScript",
+          "when": "explorerResourceIsFolder",
+          "group": "DOCUMENTS@2"
+        },
+        {
+          "command": "extension.vscode-janus-debug.runScript",
           "when": "resourceLangId == javascript",
           "group": "DOCUMENTS@3"
         },
         {
-          "command": "extension.vscode-janus-debug.downloadScript",
-          "when": "explorerResourceIsFolder",
-          "group": "DOCUMENTS@3"
-        },
-        {
-          "command": "extension.vscode-janus-debug.runScript",
+          "command": "extension.vscode-janus-debug.uploadRunScript",
           "when": "resourceLangId == javascript",
           "group": "DOCUMENTS@4"
         },
         {
           "command": "extension.vscode-janus-debug.debugScript",
-          "when": "resourceLangId == javascript",
-          "group": "DOCUMENTS@4"
-        },
-        {
-          "command": "extension.vscode-janus-debug.uploadRunScript",
           "when": "resourceLangId == javascript",
           "group": "DOCUMENTS@5"
         },
@@ -548,11 +543,16 @@
         },
         {
           "command": "extension.vscode-janus-debug.getAllTSD",
-          "group": "DOCUMENTS@11"
+          "group": "DOCUMENTS@10"
         },
         {
           "command": "extension.vscode-janus-debug.getScriptNames",
           "when": "resourceFilename == .documents-script-names",
+          "group": "DOCUMENTS@11"
+        },
+        {
+          "command": "extension.vscode-janus-debug.wizardDownloadProject",
+          "when": "explorerResourceIsFolder",
           "group": "DOCUMENTS@12"
         }
       ],
@@ -565,42 +565,42 @@
         {
           "command": "extension.vscode-janus-debug.runScript",
           "when": "resourceLangId == javascript",
+          "group": "DOCUMENTS@2"
+        },
+        {
+          "command": "extension.vscode-janus-debug.uploadRunScript",
+          "when": "resourceLangId == javascript",
           "group": "DOCUMENTS@3"
         },
         {
           "command": "extension.vscode-janus-debug.debugScript",
           "when": "resourceLangId == javascript",
-          "group": "DOCUMENTS@3"
-        },
-        {
-          "command": "extension.vscode-janus-debug.uploadRunScript",
-          "when": "resourceLangId == javascript",
           "group": "DOCUMENTS@4"
-        },
-        {
-          "command": "extension.vscode-janus-debug.compareScript",
-          "when": "resourceLangId == javascript",
-          "group": "DOCUMENTS@5"
-        },
-        {
-          "command": "extension.vscode-janus-debug.getScriptNames",
-          "when": "resourceFilename == .documents-script-names",
-          "group": "DOCUMENTS@6"
-        },
-        {
-          "command": "extension.vscode-janus-debug.viewDocumentation",
-          "when": "resourceLangId == javascript",
-          "group": "DOCUMENTS@7"
-        },
-        {
-          "command": "extension.vscode-janus-debug.viewDocumentation",
-          "when": "resourceLangId == typescript",
-          "group": "DOCUMENTS@7"
         },
         {
           "command": "extension.vscode-janus-debug.showImports",
           "when": "resourceLangId == javascript",
+          "group": "DOCUMENTS@5"
+        },
+        {
+          "command": "extension.vscode-janus-debug.compareScript",
+          "when": "resourceLangId == javascript",
+          "group": "DOCUMENTS@6"
+        },
+        {
+          "command": "extension.vscode-janus-debug.getScriptNames",
+          "when": "resourceFilename == .documents-script-names",
+          "group": "DOCUMENTS@7"
+        },
+        {
+          "command": "extension.vscode-janus-debug.viewDocumentation",
+          "when": "resourceLangId == javascript",
           "group": "DOCUMENTS@8"
+        },
+        {
+          "command": "extension.vscode-janus-debug.viewDocumentation",
+          "when": "resourceLangId == typescript",
+          "group": "DOCUMENTS@9"
         }
       ]
     },
