@@ -232,7 +232,7 @@ function loadConfiguration(connection: nodeDoc.ConnectionInformation, configurat
         connection.askForPassword = false;
         connection.password = nodeDoc.getJanusPassword(configuration.password);
     }
-    connection.sdsTimeout = configuration.sdsTimeout;
+    connection.sdsTimeout = configuration.timeout;
     connection.documentsVersion = 'unknown';
 }
 
