@@ -1024,7 +1024,7 @@ export class JanusDebugSession extends DebugSession {
                     throw new Error('Internal error: Current frame not found.');
                 }
 
-                // See:
+                // createVariable() should be called in scopesRequest, see:
                 // https://code.visualstudio.com/docs/extensionAPI/api-debugging#_the-debug-adapter-protocol-in-a-nutshell
                 //
                 // it is necessary that variablesReference > 0 (see scopesRequest())
@@ -1033,9 +1033,12 @@ export class JanusDebugSession extends DebugSession {
                 //   different for each scope
                 // the frameId itself is not used in variablesMap
                 const frameRef = frame.frameId + 1;
+                // todo: with await it might be better to use a for loop
+                // because forEach does not wait for the createVariable() calls
                 locals.forEach(async variable => {
                     await this.variablesMap.createVariable(variable.name, variable.value, contextId, context, frameRef);
                 });
+
                 // log.debug(`stackTraceRequest succeeded`);
                 response.success = true;
                 this.sendResponse(response);
