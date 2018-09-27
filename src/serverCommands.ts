@@ -157,7 +157,11 @@ export function uploadAll(loginData: nodeDoc.ConnectionInformation, paramPath: a
 function runScriptCommon(loginData: nodeDoc.ConnectionInformation, param: any, outputChannel: vscode.OutputChannel): Promise<string> {
     const conf = vscode.workspace.getConfiguration('vscode-janus-debug');
     const rootPath = vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
-    const openOutputChannel = conf.get('openScriptConsoleOnRunScript', true);
+
+    // openScriptConsoleOnRunScript is deprecated and will be removed
+    // default of both is true, if one of them is false, the user doesn't want to see the console
+    const keepHidden = !conf.get('scriptConsole.open', true) || !conf.get('openScriptConsoleOnRunScript', true);
+    const clear = conf.get('scriptConsole.clear', true);
 
     return new Promise<string>(async (resolve, reject) => {
         try {
@@ -173,8 +177,11 @@ function runScriptCommon(loginData: nodeDoc.ConnectionInformation, param: any, o
 
 
             outputChannel.append(`Starting script ${scriptName} at ${getTime()}${os.EOL}`);
-            if (openOutputChannel) {
+            if (!keepHidden) {
                 outputChannel.show();
+            }
+            if (clear) {
+                outputChannel.clear();
             }
 
             await nodeDoc.serverSession(loginData, [script], nodeDoc.runScript);
@@ -187,7 +194,7 @@ function runScriptCommon(loginData: nodeDoc.ConnectionInformation, param: any, o
 
             outputChannel.append(script.output + os.EOL);
             outputChannel.append(`Script finished at ${getTime()} on ${loginData.server} ${ver}${os.EOL}`);
-            if (openOutputChannel) {
+            if (!keepHidden) {
                 outputChannel.show();
             }
 

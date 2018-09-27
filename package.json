@@ -343,9 +343,25 @@
         },
         "vscode-janus-debug.openScriptConsoleOnRunScript": {
           "type": "boolean",
-          "title": "Automatically open the Script Console when running a script.",
           "default": true,
-          "description": "When set to 'true' the Script Console will be opened when the user runs a script from this extension."
+          "deprecationMessage": "Deprecated, use scriptConsole.open"
+        },
+        "vscode-janus-debug.scriptConsole": {
+          "type": "object",
+          "properties": {
+            "open":{
+              "type": "boolean",
+              "title": "Automatically open the Script Console when running a script.",
+              "default": true,
+              "description": "When set to 'true' the Script Console will be opened when the user runs a script from this extension."
+            },
+            "clear":{
+              "type": "boolean",
+              "title": "Automatically clears the Script Console before running a script.",
+              "default": true,
+              "description": "When set to 'true' the Script Console will be cleared before the output of the started script is shown."
+            }
+          }
         },
         "vscode-janus-debug.browser": {
           "type": "string",
