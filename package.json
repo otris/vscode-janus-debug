@@ -2,7 +2,7 @@
   "name": "vscode-janus-debug",
   "displayName": "JavaScript Remote Debugger for JANUS Apps",
   "description": "Debug your JANUS-based applications in Visual Studio Code",
-  "version": "1.0.17",
+  "version": "1.0.18",
   "publisher": "otris-software",
   "author": {
     "name": "otris software",
@@ -349,13 +349,13 @@
         "vscode-janus-debug.scriptConsole": {
           "type": "object",
           "properties": {
-            "open":{
+            "open": {
               "type": "boolean",
               "title": "Automatically open the Script Console when running a script.",
               "default": true,
               "description": "When set to 'true' the Script Console will be opened when the user runs a script from this extension."
             },
-            "clear":{
+            "clear": {
               "type": "boolean",
               "title": "Automatically clears the Script Console before running a script.",
               "default": true,

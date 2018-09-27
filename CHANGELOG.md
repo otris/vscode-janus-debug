@@ -2,6 +2,12 @@
 
 You'll find a complete list of changes at our project site on [GitHub](https://github.com/otris/vscode-janus-debug).
 
+### 1.0.18 (2018-09-27)
+
+- The script console is cleared when script is started. Can be turned off by setting `scriptConsole.clear = flase`.
+- `openScriptConsoleOnRunScript` is deprecated now, instead `scriptConsole.open` was inserted.
+- Fix for timeout. Now the timeout from `launch.json` is used in extension for the connection to the server.
+
 ### 1.0.17 (2018-09-25)
 
 - First version of export XML is inserted (see [Issue 86](https://github.com/otris/vscode-janus-debug/issues/86))
