@@ -4,6 +4,7 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import { provideInitialConfigurations } from './config';
 import * as documentation from './documentation';
+import * as extensionCommands from './extensionCommands';
 import { extend } from './helpers';
 import * as helpers from './helpers';
 import * as intellisense from './intellisense';
@@ -527,24 +528,7 @@ export function activate(context: vscode.ExtensionContext): void {
     // Export XML ...
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.exportXML', async (param) => {
-            if (!vscode.workspace.workspaceFolders || !vscode.workspace.workspaceFolders[0]) {
-                vscode.window.showErrorMessage('Export XML failed: workspace folder required');
-                return;
-            }
-            const workspaceFolder = vscode.workspace.workspaceFolders[0];
-
-            // const pc = helpers.getPathContext(param, true);
-            try {
-                const exportClass = await vscode.window.showQuickPick(["DlcFileType", "PortalScript"], {placeHolder: "Select class"});
-                if (!exportClass || exportClass.length === 0) {
-                    // probably the user simply changed their mind
-                    return;
-                }
-                await serverCommands.exportXML(loginData, [exportClass, ""], workspaceFolder.uri.fsPath);
-            } catch (err) {
-                vscode.window.showErrorMessage(err);
-            }
-            // helpers.showWarning(loginData);
+            await extensionCommands.exportXML(loginData);
         })
     );
 
