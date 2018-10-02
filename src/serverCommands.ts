@@ -610,12 +610,48 @@ export async function exportXML(loginData: nodeDoc.ConnectionInformation, param:
 
             const returnValue: string[] = await nodeDoc.serverSession(loginData, param, nodeDoc.exportXML);
             const xmlOutput = returnValue[0];
-            fs.ensureDirSync(exportDir);
-            fs.writeFileSync(path.join(exportDir, baseName), xmlOutput);
+            if (xmlOutput && xmlOutput.length > 0) {
+                fs.ensureDirSync(exportDir);
+                fs.writeFileSync(path.join(exportDir, baseName), xmlOutput);
+            }
             resolve();
 
         } catch (reason) {
             reject('Export XML failed: ' + reason);
+        }
+    });
+}
+
+
+/**
+ * No vscode inside function
+ * ==> prepared for mocha test (special tests using Documents server)
+ */
+export async function exportXMLSeperateFiles(loginData: nodeDoc.ConnectionInformation, xmlExports: nodeDoc.xmlExport[], workspaceFolder: string): Promise<void> {
+    return new Promise<void>(async (resolve, reject) => {
+        if (xmlExports.length === 0) {
+            return reject('Export XML failed: incorrect input');
+        }
+
+        const subFolder = xmlExports[0].className === "DlcFileType" ? "fileTypes" : "portalScripts";
+        const exportDir = path.join(workspaceFolder, subFolder);
+
+        try {
+            await login.ensureLoginInformation(loginData);
+
+            await nodeDoc.serverSession(loginData, xmlExports, nodeDoc.exportXMLSeperateFiles);
+            fs.ensureDirSync(exportDir);
+            xmlExports.forEach((item) => {
+                const baseName = item.fileName + ".xml";
+                const xmlOutput = item.content;
+                if (xmlOutput) {
+                    fs.writeFileSync(path.join(exportDir, baseName), item.content);
+                }
+            });
+            resolve();
+
+        } catch (reason) {
+            reject('Export XML (seperate files) failed: ' + reason);
         }
     });
 }
@@ -653,16 +689,28 @@ async function getSelectedScriptNames(loginData: nodeDoc.ConnectionInformation, 
 }
 
 
-async function getServerScriptNames(loginData: nodeDoc.ConnectionInformation, params: string[] = []): Promise<string[]> {
+export async function getServerScriptNames(loginData: nodeDoc.ConnectionInformation, params: string[] = []): Promise<string[]> {
     return new Promise<string[]>((resolve, reject) => {
 
-        nodeDoc.serverSession(loginData, params, nodeDoc.getScriptNamesFromServer).then((serverScripts) => {
-            resolve(serverScripts);
+        nodeDoc.serverSession(loginData, params, nodeDoc.getScriptNamesFromServer).then((names) => {
+            resolve(names);
         }).catch((reason) => {
             reject(reason);
         });
     });
 }
+
+export async function getServerFileTypeNames(loginData: nodeDoc.ConnectionInformation, params: string[] = []): Promise<string[]> {
+    return new Promise<string[]>((resolve, reject) => {
+
+        nodeDoc.serverSession(loginData, params, nodeDoc.getFileTypeNames).then((names) => {
+            resolve(names);
+        }).catch((reason) => {
+            reject(reason);
+        });
+    });
+}
+
 
 
 export function getFileTypesTSD(loginData: nodeDoc.ConnectionInformation): Promise<string> {
