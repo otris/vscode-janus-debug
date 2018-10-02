@@ -242,3 +242,34 @@ function checkDuplicateScripts(folderScripts: nodeDoc.scriptT[]): Promise<boolea
         return resolve(false);
     });
 }
+
+
+export async function getXMLExportClass(): Promise<string | undefined> {
+    const exportClass = await vscode.window.showQuickPick(["DlcFileType", "PortalScript"], {placeHolder: "Select class"});
+    return Promise.resolve(exportClass);
+}
+
+export async function createXMLExportFilter(className: string, names: string[]): Promise<string | nodeDoc.xmlExport[] | undefined> {
+    return new Promise<string | nodeDoc.xmlExport[] | undefined>(async (resolve, reject) => {
+        const all = "All in seperate files";
+        const allInOne = "All in one file";
+        const items = [all, allInOne].concat(names);
+        const prefix = (className === "DlcFileType") ? "Title=" : "Name=";
+
+
+        const selected = await vscode.window.showQuickPick(items);
+        if (selected === all) {
+            const xmlExports = names.map((name, i) => {
+                return new nodeDoc.xmlExport(className, prefix + `'${names[i]}'`, names[i]);
+            });
+            return resolve(xmlExports);
+        } else if (selected === allInOne) {
+            return resolve("");
+        } else if (selected) {
+            const xmlExports = [];
+            xmlExports.push(new nodeDoc.xmlExport(className, prefix + `'${selected}'`, selected));
+            return resolve(xmlExports);
+        }
+        return resolve(undefined);
+    });
+}
