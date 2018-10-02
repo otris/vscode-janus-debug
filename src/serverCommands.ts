@@ -688,7 +688,9 @@ async function getSelectedScriptNames(loginData: nodeDoc.ConnectionInformation, 
     });
 }
 
-
+/**
+ * @param params not used for now
+ */
 export async function getServerScriptNames(loginData: nodeDoc.ConnectionInformation, params: string[] = []): Promise<string[]> {
     return new Promise<string[]>((resolve, reject) => {
 
@@ -700,6 +702,9 @@ export async function getServerScriptNames(loginData: nodeDoc.ConnectionInformat
     });
 }
 
+/**
+ * @param params not used for now
+ */
 export async function getServerFileTypeNames(loginData: nodeDoc.ConnectionInformation, params: string[] = []): Promise<string[]> {
     return new Promise<string[]>((resolve, reject) => {
 
