@@ -2,6 +2,13 @@
 
 You'll find a complete list of changes at our project site on [GitHub](https://github.com/otris/vscode-janus-debug).
 
+### 1.0.19 (2018-10-2)
+
+- Export XML:
+  - One or all file types / portal scripts can be generated.
+  - All file types / portal scripts can be generated in one or in seperate files.
+  - See [Wiki](https://github.com/otris/vscode-janus-debug/wiki/XML-Export)
+
 ### 1.0.18 (2018-09-27)
 
 - The script console is cleared when script is started. Can be turned off by setting `scriptConsole.clear = flase`.
