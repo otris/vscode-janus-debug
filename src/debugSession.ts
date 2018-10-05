@@ -903,6 +903,7 @@ export class JanusDebugSession extends DebugSession {
             } catch (e) {
                 log.warn(`threadsRequest getContext: ${e}`);
                 if (e.message.startsWith('No such context')) {
+                    // see description in stackTraceRequest()
                     this.connection.sendRequest(new Command('exit'));
                 }
                 return;
@@ -923,6 +924,7 @@ export class JanusDebugSession extends DebugSession {
             throw new Error('No connection');
         }
 
+        // get the context
         const contextId: ContextId = args.threadId || 0;
         let context: Context;
         try {
@@ -933,15 +935,23 @@ export class JanusDebugSession extends DebugSession {
         } catch (e) {
             log.warn(`stackTraceRequest getContext: ${e}`);
             if (e.message.startsWith('No such context')) {
-                // Remote probably finished w/o telling us. This worked some time ago. Anyway, hang up
+                // Remote probably finished without telling us. This worked some time ago.
+                // However, stopping here should be correct, because the debugger is only
+                // connected to one special context. And this context does not exist anymore.
                 this.connection.sendRequest(new Command('exit'));
             }
             return;
         }
 
+        // get the stacktrace and create the stackframes
+        // with the current local position
         context.getStacktrace().then((trace: StackFrame[]) => {
+
+            // create the frames
             const frames = this.frameMap.addFrames(contextId, trace);
             const stackFrames: DebugProtocol.StackFrame[] = frames.map(frame => {
+
+                // this default result is not actually used
                 let result: DebugProtocol.StackFrame = {
                     column: 0,
                     id: frame.frameId,
@@ -968,9 +978,9 @@ export class JanusDebugSession extends DebugSession {
 
                     const localPos = this.sourceMap.toLocalPosition(frame.sourceLine);
                     const localSource = this.sourceMap.getSource(localPos.source);
-                    // when local source not available toLocalPosition should
-                    // have thrown an exception
                     if (!localSource) {
+                        // when local source not available toLocalPosition() should
+                        // have thrown an exception
                         throw new Error("Unexpected error");
                     }
 
@@ -982,71 +992,41 @@ export class JanusDebugSession extends DebugSession {
                         path: localSource.path,
                         sourceReference: localSource.sourceReference,
                     };
-
                 } catch (e) {
                     const contextFile = this.sourceMap.getSource(context.name);
                     result = {
                         column: 0,
                         id: frame.frameId,
+                        name: `${context.name}.js`,
+                        // if source is undefined, line must be 0
                         line: contextFile ? 1 : 0,
-                        name: contextFile ? `${context.name}.js` : '',
-                        source: {
+                        source: contextFile ? {
                             presentationHint: 'deemphasize',
                             sourceReference: 0,
-                            path: contextFile ? contextFile.path : ''
-                        }
+                            path: contextFile.path
+                        } : undefined
                     };
 
                     log.error(`Get local position failed for context '${context.name}': ${e}`);
-
                     if (this.displaySourceNoticeCount < 1) {
                         // or simply use e.message here?
                         this.ipcClient.displaySourceNotice(`Sources don't match. More information in log file.`);
                         this.displaySourceNoticeCount++;
                     }
                 }
-
                 return result;
             });
+
+
+            // return the created stackframes
             response.body = {
                 stackFrames,
                 totalFrames: trace.length,
             };
-            // log.info(`stackTraceRequest response.body: ${JSON.stringify(response.body)}`);
-
-            // Update variablesMap
-            context.getVariables().then(async (locals: Variable[]) => {
-                log.info(`updating variables map for ${locals.length} variables`);
-
-                const frame = this.frameMap.getCurrentStackFrame(contextId);
-                if (frame === undefined) {
-                    log.error('[update variablesMap]: current frame is undefined.');
-                    throw new Error('Internal error: Current frame not found.');
-                }
-
-                // createVariable() should be called in scopesRequest, see:
-                // https://code.visualstudio.com/docs/extensionAPI/api-debugging#_the-debug-adapter-protocol-in-a-nutshell
-                //
-                // it is necessary that variablesReference > 0 (see scopesRequest())
-                // the frame ids start with 0, so add 1
-                // we use the frameId, because the variableReference must be
-                //   different for each scope
-                // the frameId itself is not used in variablesMap
-                const frameRef = frame.frameId + 1;
-                // for...of instead of forEach (forEach does not wait!)
-                for (const variable of locals) {
-                    await this.variablesMap.createVariable(variable.name, variable.value, contextId, context, frameRef);
-                }
-
-                // log.debug(`stackTraceRequest succeeded`);
-                response.success = true;
-                this.sendResponse(response);
-            }).catch(reason => {
-                log.error(`could not update variablesMap: ${reason}`);
-                log.debug(`stackTraceRequest succeeded`);
-                response.success = true;
-                this.sendResponse(response);
-            });
+            // log.debug(`stackTraceRequest succeeded response.body: ${JSON.stringify(response.body)}`);
+            // log.debug(`stackTraceRequest succeeded`);
+            response.success = true;
+            this.sendResponse(response);
         }).catch(reason => {
             log.debug(`stackTraceRequest failed: ${reason}`);
             response.success = false;
@@ -1055,35 +1035,63 @@ export class JanusDebugSession extends DebugSession {
     }
 
     /**
-     * See:
-     * https://code.visualstudio.com/docs/extensionAPI/api-debugging#_the-debug-adapter-protocol-in-a-nutshell
+     * See: https://code.visualstudio.com/docs/extensionAPI/api-debugging#_the-debug-adapter-protocol-in-a-nutshell
      */
     protected scopesRequest(response: DebugProtocol.ScopesResponse, args: DebugProtocol.ScopesArguments): void {
         log.info(`scopesRequest for frameId ${args.frameId}`);
 
+        if (this.connection === undefined) {
+            throw new Error('Internal error: No connection');
+        }
+        const frame = this.frameMap.getStackFrame(args.frameId);
+        const contextId: ContextId = frame.contextId;
+        const context = this.connection.coordinator.getContext(contextId);
+
         // The variablesReference is just the frameId because we do not keep track of individual scopes in a frame.
+        // vscode only calls variablesRequest() when variablesReference > 0, the frame ids start with 0, so add 1.
+        // We use the frameId, because the variableReference must be different for each scope
+        // the frameId itself is not used in variablesMap
+        const frameRef = frame.frameId + 1;
 
-        // vscode only calls variablesRequest() when
-        // variablesReference > 0
-        const frameRef = args.frameId + 1;
-        const scopes: DebugProtocol.Scope[] = [{
-            expensive: false,
-            name: 'Locals',
-            variablesReference: frameRef,
-        }];
+        // Update variablesMap
+        context.getVariables().then(async (locals: Variable[]) => {
+            log.info(`updating variables map for ${locals.length} variables`);
 
-        response.body = {
-            scopes,
-        };
-        this.sendResponse(response);
+            // for...of instead of forEach (forEach does not wait!)
+            for (const variable of locals) {
+                // TODO
+                // context.evaluate2() is called inside createVariable(). This function gets the internal
+                // values of structured variables from the server. So for now, the values of all variables
+                // are retrieved, anyway, if the user wants to see them or not.
+                // So actually, context.evaluate2() should be called in variablesRequest(). Because in that
+                // function we get the id of the variable that is currently expanded by the user. And then
+                // we can call context.evaluate2() only for that variable, that the user wants to see.
+                await this.variablesMap.createVariable(variable.name, variable.value, contextId, context, frameRef);
+            }
+
+            const scopes: DebugProtocol.Scope[] = [{
+                expensive: false,
+                name: 'Locals',
+                variablesReference: frameRef,
+            }];
+            response.body = {
+                scopes,
+            };
+            response.success = true;
+            this.sendResponse(response);
+        }).catch(reason => {
+            log.error(`could not update variablesMap: ${reason}`);
+            response.success = false;
+            this.sendResponse(response);
+        });
     }
 
-    /**
-     * See:
-     * https://code.visualstudio.com/docs/extensionAPI/api-debugging#_the-debug-adapter-protocol-in-a-nutshell
-     */
     protected async variablesRequest(response: DebugProtocol.VariablesResponse, args: DebugProtocol.VariablesArguments): Promise<void> {
         log.info(`variablesRequest with variablesReference ${args.variablesReference}`);
+
+        // TODO:
+        // context.evaluate2() must be called from this function
+        // see TODO in scopesRequest
 
         try {
             // Get variables from the variables map
