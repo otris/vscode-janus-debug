@@ -2,7 +2,11 @@
 
 You'll find a complete list of changes at our project site on [GitHub](https://github.com/otris/vscode-janus-debug).
 
-### 1.0.19 (2018-10-2)
+### 1.0.20 (2018-10-05)
+
+- Fix updating variables in debugger.
+
+### 1.0.19 (2018-10-02)
 
 - Export XML:
   - One or all file types / portal scripts can be generated.
