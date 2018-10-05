@@ -1015,8 +1015,8 @@ export class JanusDebugSession extends DebugSession {
             // log.info(`stackTraceRequest response.body: ${JSON.stringify(response.body)}`);
 
             // Update variablesMap
-            context.getVariables().then((locals: Variable[]) => {
-                log.info(`Updating variables map for ${locals.length} variables`);
+            context.getVariables().then(async (locals: Variable[]) => {
+                log.info(`updating variables map for ${locals.length} variables`);
 
                 const frame = this.frameMap.getCurrentStackFrame(contextId);
                 if (frame === undefined) {
@@ -1033,11 +1033,10 @@ export class JanusDebugSession extends DebugSession {
                 //   different for each scope
                 // the frameId itself is not used in variablesMap
                 const frameRef = frame.frameId + 1;
-                // todo: with await it might be better to use a for loop
-                // because forEach does not wait for the createVariable() calls
-                locals.forEach(async variable => {
+                // for...of instead of forEach (forEach does not wait!)
+                for (const variable of locals) {
                     await this.variablesMap.createVariable(variable.name, variable.value, contextId, context, frameRef);
-                });
+                }
 
                 // log.debug(`stackTraceRequest succeeded`);
                 response.success = true;
