@@ -133,7 +133,7 @@ export class SourceMap {
         const localSource = this.getSource(localPos.source);
         if (!localSource) {
             const message = `Local source '${localPos.source}' not found, remote line ${line}, local line ${localPos.line}`;
-            sourceMapLog.error(message);
+            // sourceMapLog.error(message);
             throw new Error(message);
         }
 
@@ -150,14 +150,14 @@ export class SourceMap {
             }
             if (duplicate) {
                 const message = `Duplicate #import in ${duplicate.name}, first occurrence at line ${duplicate.localStart - 1}`;
-                sourceMapLog.error(message);
+                // sourceMapLog.error(message);
                 throw new Error(message);
             }
 
             const utf8string = utf8.decode(remoteSourceLine);
             if (localSourceLine.trim() !== utf8string.trim()) {
                 const message = 'Not on same source line';
-                sourceMapLog.error(message);
+                // sourceMapLog.error(message);
                 throw new Error(message);
             }
         }
