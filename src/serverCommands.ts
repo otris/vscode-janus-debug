@@ -267,7 +267,7 @@ export async function uploadDebugScript(loginData: nodeDoc.ConnectionInformation
 
         vscode.window.setStatusBarMessage('Script ' + scriptName + ' finished at ' + getTime());
     } catch (e) {
-        // Swallow
+        vscode.window.showErrorMessage(`Upload and Debug failed: ${e}`);
     }
 }
 
