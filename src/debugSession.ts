@@ -949,9 +949,13 @@ export class JanusDebugSession extends DebugSession {
 
             // create the frames
             const frames = this.frameMap.addFrames(contextId, trace);
-            const stackFrames: DebugProtocol.StackFrame[] = frames.map(frame => {
+            const stackFrames: Array<Promise<DebugProtocol.StackFrame>> = frames.map(async frame => {
+                if (this.connection === undefined) {
+                    // not expected here
+                    throw new Error('No connection');
+                }
 
-                // this default result is not actually used
+                // this default result is actually not used
                 let result: DebugProtocol.StackFrame = {
                     column: 0,
                     id: frame.frameId,
@@ -959,24 +963,27 @@ export class JanusDebugSession extends DebugSession {
                     line: 0
                 };
 
+
                 try {
-                    // // just a first test for 'required' scripts
-                    // // actually this can be executed immediately when require() was executed in the script
-                    // log.debug(`Frame url ${frame.sourceUrl} line ${frame.sourceLine}`);
-                    // if (frame.sourceUrl !== context.name && !this.sourceMap.getDynamicServerSource(frame.sourceUrl) && this.connection) {
-                    //     // frame.sourceUrl belongs to a script that is imported using require()
-                    //     this.connection.sendRequest(Command.getSource(frame.sourceUrl), async (res: Response) => res.content.source).then((dynamicSource) => {
-                    //         log.info(`retrieved dynamic server sources: ${JSON.stringify(dynamicSource)}`);
-                    //         const dynamicServerSource = ServerSource.fromSources(frame.sourceUrl, dynamicSource);
-                    //         this.sourceMap.addDynamicScript(frame.sourceUrl, dynamicServerSource);
-                    //         const localPos = this.sourceMap.toLocalPosition(frame.sourceLine, frame.sourceUrl);
-                    //         log.info(`Dynamic script: local line ${localPos.line} in local file ${localPos.source}`);
-                    //         // ...
-                    //     });
-                    // } // else { ...
+                    let localPos;
+                    // log.debug(`frame: url '${frame.sourceUrl}' line ${frame.sourceLine}`);
+
+                    // 'required' scripts
+                    if (frame.sourceUrl !== context.name) {
+                        if (!this.sourceMap.getDynamicServerSource(frame.sourceUrl)) {
+                            const dynamicSource = await this.connection.sendRequest(Command.getSource(frame.sourceUrl), async (res: Response) => res.content.source);
+                            // log.info(`retrieved dynamic server sources: ${JSON.stringify(dynamicSource)}`);
+                            const serverSource = ServerSource.fromSources(frame.sourceUrl, dynamicSource);
+                            this.sourceMap.addDynamicScript(frame.sourceUrl, serverSource);
+                        }
+                        localPos = this.sourceMap.toLocalPosition(frame.sourceLine, frame.sourceUrl);
+                        log.info(`dynamic script: local line ${localPos.line} in local file '${localPos.source}'`);
+                    } else {
+                        localPos = this.sourceMap.toLocalPosition(frame.sourceLine);
+                        log.info(`static script: local line ${localPos.line} in local file '${localPos.source}'`);
+                    }
 
 
-                    const localPos = this.sourceMap.toLocalPosition(frame.sourceLine);
                     const localSource = this.sourceMap.getSource(localPos.source);
                     if (!localSource) {
                         // when local source not available toLocalPosition() should
@@ -1017,16 +1024,16 @@ export class JanusDebugSession extends DebugSession {
                 return result;
             });
 
-
-            // return the created stackframes
-            response.body = {
-                stackFrames,
-                totalFrames: trace.length,
-            };
-            // log.debug(`stackTraceRequest succeeded response.body: ${JSON.stringify(response.body)}`);
-            // log.debug(`stackTraceRequest succeeded`);
-            response.success = true;
-            this.sendResponse(response);
+            Promise.all(stackFrames).then(result => {
+                // return the created stackframes to vscode
+                response.body = {
+                    stackFrames: result,
+                    totalFrames: trace.length,
+                };
+                // log.debug(`stackTraceRequest succeeded response.body: ${JSON.stringify(response.body)}`);
+                response.success = true;
+                this.sendResponse(response);
+            });
         }).catch(reason => {
             log.debug(`stackTraceRequest failed: ${reason}`);
             response.success = false;
@@ -1055,7 +1062,7 @@ export class JanusDebugSession extends DebugSession {
 
         // Update variablesMap
         context.getVariables().then(async (locals: Variable[]) => {
-            log.info(`updating variables map for ${locals.length} variables`);
+            // log.info(`updating variables map for ${locals.length} variables`);
 
             const pArray: Array<Promise<void>> = [];
             locals.forEach((variable) => {
@@ -1080,11 +1087,13 @@ export class JanusDebugSession extends DebugSession {
                     scopes,
                 };
                 response.success = true;
+                // log.info(`scopesRequest succeeded`);
                 this.sendResponse(response);
             });
         }).catch(reason => {
             log.error(`could not update variablesMap: ${reason}`);
             response.success = false;
+            log.info(`scopesRequest failed`);
             this.sendResponse(response);
         });
     }
