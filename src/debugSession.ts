@@ -1057,8 +1057,8 @@ export class JanusDebugSession extends DebugSession {
         context.getVariables().then(async (locals: Variable[]) => {
             log.info(`updating variables map for ${locals.length} variables`);
 
-            // for...of instead of forEach (forEach does not wait!)
-            for (const variable of locals) {
+            const pArray: Array<Promise<void>> = [];
+            locals.forEach((variable) => {
                 // TODO
                 // context.evaluate2() is called inside createVariable(). This function gets the internal
                 // values of structured variables from the server. So for now, the values of all variables
@@ -1066,19 +1066,22 @@ export class JanusDebugSession extends DebugSession {
                 // So actually, context.evaluate2() should be called in variablesRequest(). Because in that
                 // function we get the id of the variable that is currently expanded by the user. And then
                 // we can call context.evaluate2() only for that variable, that the user wants to see.
-                await this.variablesMap.createVariable(variable.name, variable.value, contextId, context, frameRef);
-            }
+                pArray.push(this.variablesMap.createVariable(variable.name, variable.value, contextId, context, frameRef));
+            });
 
-            const scopes: DebugProtocol.Scope[] = [{
-                expensive: false,
-                name: 'Locals',
-                variablesReference: frameRef,
-            }];
-            response.body = {
-                scopes,
-            };
-            response.success = true;
-            this.sendResponse(response);
+            // wait for all createVariable() calls to be finished
+            Promise.all(pArray).then(() => {
+                const scopes: DebugProtocol.Scope[] = [{
+                    expensive: false,
+                    name: 'Locals',
+                    variablesReference: frameRef,
+                }];
+                response.body = {
+                    scopes,
+                };
+                response.success = true;
+                this.sendResponse(response);
+            });
         }).catch(reason => {
             log.error(`could not update variablesMap: ${reason}`);
             response.success = false;
