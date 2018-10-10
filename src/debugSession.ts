@@ -1065,8 +1065,9 @@ export class JanusDebugSession extends DebugSession {
         context.getVariables().then(async (locals: Variable[]) => {
             // log.info(`updating variables map for ${locals.length} variables`);
 
-            const pArray: Array<Promise<void>> = [];
-            locals.forEach((variable) => {
+            // use await with createVariable()! because createVariable cannot be called parallel
+            // use for...of instead of forEach because forEach does not wait!
+            for (const variable of locals) {
                 // TODO
                 // context.evaluate2() is called inside createVariable(). This function gets the internal
                 // values of structured variables from the server. So for now, the values of all variables
@@ -1074,23 +1075,20 @@ export class JanusDebugSession extends DebugSession {
                 // So actually, context.evaluate2() should be called in variablesRequest(). Because in that
                 // function we get the id of the variable that is currently expanded by the user. And then
                 // we can call context.evaluate2() only for that variable, that the user wants to see.
-                pArray.push(this.variablesMap.createVariable(variable.name, variable.value, contextId, context, frameRef));
-            });
+                await this.variablesMap.createVariable(variable.name, variable.value, contextId, context, frameRef);
+            }
 
-            // wait for all createVariable() calls to be finished
-            Promise.all(pArray).then(() => {
-                const scopes: DebugProtocol.Scope[] = [{
-                    expensive: false,
-                    name: 'Locals',
-                    variablesReference: frameRef,
-                }];
-                response.body = {
-                    scopes,
-                };
-                response.success = true;
-                // log.info(`scopesRequest succeeded`);
-                this.sendResponse(response);
-            });
+            const scopes: DebugProtocol.Scope[] = [{
+                expensive: false,
+                name: 'Locals',
+                variablesReference: frameRef,
+            }];
+            response.body = {
+                scopes,
+            };
+            response.success = true;
+            // log.info(`scopesRequest succeeded`);
+            this.sendResponse(response);
         }).catch(reason => {
             log.error(`could not update variablesMap: ${reason}`);
             response.success = false;
@@ -1109,6 +1107,9 @@ export class JanusDebugSession extends DebugSession {
         try {
             // Get variables from the variables map
             let variablesContainer = this.variablesMap.getVariables(args.variablesReference);
+            // variablesContainer.variables.forEach((variable) => {
+            //     log.info(`variable: ${JSON.stringify(variable)}`);
+            // });
 
             // Check if the returned variables container contains a object variable that is collapsed.
             // If so, we have to request the debugger to evaluate this variable.
