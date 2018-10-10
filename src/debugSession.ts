@@ -658,6 +658,7 @@ export class JanusDebugSession extends DebugSession {
 
     protected setExceptionBreakPointsRequest(response: DebugProtocol.SetExceptionBreakpointsResponse, args: DebugProtocol.SetExceptionBreakpointsArguments): void {
         log.info("setExceptionBreakPointsRequest");
+        this.sendResponse(response);
     }
 
     protected async configurationDoneRequest(response: DebugProtocol.ConfigurationDoneResponse, args: DebugProtocol.ConfigurationDoneArguments): Promise<void> {
