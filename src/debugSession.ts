@@ -451,7 +451,11 @@ export class JanusDebugSession extends DebugSession {
                         if (contexts.length > 1) {
                             const targetContextName = await this.ipcClient.showContextQuickPick(contexts.map(context => context.name));
                             log.info(`got ${targetContextName} to attach to`);
-                            targetContext = contexts.filter(context => context.name === targetContextName)[0];
+                            const targetContexts = contexts.filter(context => context.name === targetContextName);
+                            if (targetContexts.length > 1) {
+                                log.error(`Error: Multiple contexts with same name! Finish all contexts using 'attach' and 'continue'`);
+                            }
+                            targetContext = targetContexts[0];
                         } else {
                             targetContext = contexts[0];
                         }
