@@ -274,10 +274,16 @@ class Chunk {
 const serverSourceLog = Logger.create('ServerSource');
 
 export class ServerSource {
-    public static fromSources(contextName: string, sourceLines: string[], debugAdded = false) {
+    public static fromSources(contextName: string, sourceLines: string[], hiddenStatement = false) {
         const chunks: Chunk[] = [];
         const pattern = /^\/\/#\s([0-9]+)\s([\w\_\-\.#]+)$/;
         let current: Chunk | undefined;
+
+        // check, if "debugger;" statement really added to server source
+        if (hiddenStatement && !sourceLines[0].trim().startsWith("debugger;")) {
+            hiddenStatement = false;
+        }
+
         // serverSourceLog.debug(`# server source lines ${sourceLines.length}`);
         sourceLines.forEach((line, index) => {
 
@@ -293,7 +299,7 @@ export class ServerSource {
                     // add first chunk, don't check length, add it anyway
                     // because toLocalPosition() is easier to handle then,
                     // because first chunk looks different (no "//#..." at start)
-                    chunks.push(new Chunk(contextName, new Pos(1, lineNo - 1), 1, debugAdded));
+                    chunks.push(new Chunk(contextName, new Pos(1, lineNo - 1), 1, hiddenStatement));
                     // serverSourceLog.debug(`(CHUNK[0]) name ${contextName} remote pos ${1} len ${sourceLines.length} local pos ${1}`);
                 }
 
@@ -304,7 +310,7 @@ export class ServerSource {
                 // lines start at 1
                 let localPos = 1 + offset;
 
-                if (debugAdded && (name === contextName)) {
+                if (hiddenStatement && (name === contextName)) {
                     // the chunk belongs to the mainfile and the debugger-statement was added,
                     // we have to subtract 1, because the debugger-statement does not exist
                     // in local file
@@ -323,7 +329,7 @@ export class ServerSource {
 
                 const remotePos = lineNo;
                 // pos.len must be set in next iteration
-                current = new Chunk(name, new Pos(remotePos, 0), localPos, debugAdded);
+                current = new Chunk(name, new Pos(remotePos, 0), localPos, hiddenStatement);
             }
         });
         if (current) {
@@ -338,7 +344,7 @@ export class ServerSource {
         // if no "//#..."-comments in source, add only one first chunk
         // this chunk looks different, because there's no "//#..."-line at start
         if (chunks.length === 0) {
-            chunks.push(new Chunk(contextName, new Pos(1, sourceLines.length), 1, debugAdded));
+            chunks.push(new Chunk(contextName, new Pos(1, sourceLines.length), 1, hiddenStatement));
             // serverSourceLog.debug(`(CHUNK[0]) name ${contextName} remote pos ${1} len ${sourceLines.length} local pos ${1}`);
         }
 
@@ -349,14 +355,14 @@ export class ServerSource {
         const s = new ServerSource();
         s._chunks = chunks;
         s._sourceLines = sourceLines;
-        s._debugAdded = debugAdded;
+        s._hiddenStatement = hiddenStatement;
         s._name = contextName;
         return s;
     }
 
     private _chunks: Chunk[] = [];
     private _sourceLines: string[] = [];
-    private _debugAdded: boolean = false;
+    private _hiddenStatement: boolean = false;
     private _name: string = "";
 
     get chunks() {
@@ -365,8 +371,12 @@ export class ServerSource {
     public getSourceCode(): string {
         return this._sourceLines.reduce((a: any, b: any) => a + "\n" + b);
     }
-    get debugAdded() {
-        return this._debugAdded;
+    /**
+     * returns true, if the internal "debugger;" statement was inserted to
+     * this server source
+     */
+    get hiddenStatement() {
+        return this._hiddenStatement;
     }
     get name() {
         return this._name;
@@ -397,7 +407,7 @@ export class ServerSource {
             throw new Error(`Unexpected call of ServerSource.toLocalPosition with line: ${line} === chunk-start: ${chunk.pos.start}`);
         }
 
-        if (this.debugAdded && firstChunk && (line === 1)) {
+        if (this.hiddenStatement && firstChunk && (line === 1)) {
             // line is at the generated debugger-statement in first line
             // map to first line, but the debug-adapter skips this line anyway
             return {
@@ -407,7 +417,7 @@ export class ServerSource {
         }
 
         // todo: localCodeStart = chunk.originalPos.start => use chunk.originalPos.start
-        const localCodeStart = chunk.pos.start + ((!firstChunk || this.debugAdded) ? 1 : 0);
+        const localCodeStart = chunk.pos.start + ((!firstChunk || this.hiddenStatement) ? 1 : 0);
 
         // the offset of the line inside the chunk
         const chunkOffset = line - localCodeStart;
@@ -440,7 +450,7 @@ export class ServerSource {
         const localChunkOffset = pos.line - chunk.localStart;
 
         // todo: localCodeStart = chunk.originalPos.start => use chunk.originalPos.start
-        const chunkCodeStart = chunk.pos.start + ((!firstChunk || this.debugAdded) ? 1 : 0);
+        const chunkCodeStart = chunk.pos.start + ((!firstChunk || this.hiddenStatement) ? 1 : 0);
 
         const lineNo = chunkCodeStart + localChunkOffset;
         // serverSourceLog.debug(`(toRemoteLine) chunk offset in local file ${localChunkOffset} => REMOTE offset ${lineNo}`);

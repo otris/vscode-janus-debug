@@ -254,8 +254,8 @@ export class JanusDebugSession extends DebugSession {
                 }
 
                 if (stopOnEntry || args.portal) {
-                    // Single step because of debugger; statement.
-                    if (this.attachedContextId !== undefined) {
+                    // execute single step, when the server source contains the internal "debugger;" statement.
+                    if (this.attachedContextId !== undefined && this.sourceMap.serverSource.hiddenStatement) {
                         await connection.sendRequest(new Command('next', this.attachedContextId));
                     }
                 }
