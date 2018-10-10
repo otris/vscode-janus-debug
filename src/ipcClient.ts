@@ -18,10 +18,12 @@ const log = Logger.create('DebugAdapterIPC');
 export class DebugAdapterIPC {
 
     public async connect() {
+        // TODO: return new Promise<void>((resolve)...
         ipc.connectTo('sock', () => {
 
             ipc.of.sock.on('connect', () => {
                 log.debug(`connected to VS Code extension`);
+                // TODO: resolve();
             });
 
             ipc.of.sock.on('disconnect', () => {
@@ -40,6 +42,8 @@ export class DebugAdapterIPC {
 
     public async showContextQuickPick(contextList: string[]): Promise<string> {
         log.debug(`showContextQuickPick ${JSON.stringify(contextList)}`);
+        // TODO: set handlers off, see findURIsInWorkspace
+        // let tmpHandler;
 
         const waitForResponse = timeout({
             promise: new Promise<string>(resolve => {
@@ -63,10 +67,16 @@ export class DebugAdapterIPC {
 
     public async findURIsInWorkspace(): Promise<string[]> {
         log.debug('findURIsInWorkspace');
+        let tmpHandler;
 
+        // TODO
+        // handlers are not replaced by 'on'
+        // they must be set 'on' and 'off'
+        // if only 'on' is called, the handlers are added!
+        // ipc.of.sock.off('urisFound', this.urisFoundDefaultHandler);
         const waitForResponse = timeout({
             promise: new Promise<string[]>(resolve => {
-                ipc.of.sock.on('urisFound', (uris: string[]) => {
+                ipc.of.sock.on('urisFound', tmpHandler = (uris: string[]) => {
                     if (os.type() === 'Windows_NT') {
                         // Sanitize paths. Seriously, this is VS Code, a Microsoft product, _and_ Windows. Why isn't this working?
                         // "/c:/Users/test/Documents/lib.js", we'll remove the leading slash.
@@ -90,6 +100,8 @@ export class DebugAdapterIPC {
         try {
             result = await waitForResponse;
         } finally {
+            // TODO
+            // ipc.of.sock.off('urisFound', tmpHandler);
             ipc.of.sock.on('urisFound', this.urisFoundDefaultHandler);
         }
         return result;
