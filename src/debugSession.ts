@@ -219,8 +219,9 @@ export class JanusDebugSession extends DebugSession {
                 }
 
                 const sourceUrl = scriptIdentifier ? scriptIdentifier : source.sourceName();
+                let remoteSourceId: number;
                 try {
-                    const sources = await connection.sendRequest(Command.getSource(sourceUrl),
+                    const remoteSource = await connection.sendRequest(Command.getSource(sourceUrl),
                         async (res: Response) => {
                             if (res.type === 'error') {
                                 if (res.content.hasOwnProperty('message')) {
@@ -229,10 +230,16 @@ export class JanusDebugSession extends DebugSession {
                                     throw new Error('Unknown error');
                                 }
                             }
-                            return res.content.source;
+                            // log.info(`getSource content: ${JSON.stringify(res)}`);
+                            return {
+                                script: res.content.script,
+                                source: res.content.source,
+                                contextId: res.contextId
+                            };
                         });
-                    // log.info(`retrieved server sources: ${JSON.stringify(sources)}`);
-                    this.sourceMap.serverSource = ServerSource.fromSources(source.sourceName(), sources, true);
+                    // log.info(`retrieved server source: ${JSON.stringify(remoteSource.source)} id: ${remoteSource.id} script: ${remoteSource.script}`);
+                    this.sourceMap.serverSource = ServerSource.fromSources(source.sourceName(), remoteSource.source, true);
+                    remoteSourceId = remoteSource.contextId;
                 } catch (e) {
                     log.error(`Command.getSource failed ${e}`);
                 }
@@ -242,15 +249,20 @@ export class JanusDebugSession extends DebugSession {
                     if (context.isStopped()) {
                         if (context.name === sourceUrl) {
                             if (this.attachedContextId !== undefined) {
-                                log.error(`Error: Multiple contexts with same name! Finish all context using 'attach' and 'continue'`);
+                                log.error(`Error: Multiple contexts with same name! Finish all contexts using 'attach' and 'continue'`);
                             }
-                            this.attachedContextId = context.id;
+                            if (context.id === remoteSourceId) {
+                                this.attachedContextId = context.id;
+                            }
                         }
                     }
                 });
 
+                log.debug(`attached to context ${this.attachedContextId}`);
                 if (this.attachedContextId === undefined) {
-                    log.warn(`this.attachedContextId is ${this.attachedContextId}`);
+                    // TODO
+                    // response.success = false;
+                    // sendResponse
                 }
 
                 if (stopOnEntry || args.portal) {
