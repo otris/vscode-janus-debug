@@ -219,6 +219,17 @@ export class JanusDebugSession extends DebugSession {
                 }
 
                 const sourceUrl = scriptIdentifier ? scriptIdentifier : source.sourceName();
+
+                const contexts = await connection.coordinator.getAllAvailableContexts();
+                const nameContexts = contexts.filter(context => (context.name === sourceUrl));
+                log.info(`available contexts: ${contexts.length}`);
+                if (nameContexts.length < 1) {
+                    response.success = false;
+                    response.message = `Could not launch remote JS context: no context with name ${sourceUrl} found`;
+                    this.sendResponse(response);
+                    return;
+                }
+
                 let remoteSourceId: number;
                 try {
                     const remoteSource = await connection.sendRequest(Command.getSource(sourceUrl),
@@ -244,8 +255,6 @@ export class JanusDebugSession extends DebugSession {
                     log.error(`Command.getSource failed ${e}`);
                 }
 
-                const contexts = await connection.coordinator.getAllAvailableContexts();
-                const nameContexts = contexts.filter(context => (context.name === sourceUrl));
                 if (nameContexts.length > 1) {
                     log.error(`Error: Multiple scripts with same name executed! Finish all scripts using 'attach' and 'continue'`);
                 }
