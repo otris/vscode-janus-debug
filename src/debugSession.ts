@@ -245,16 +245,13 @@ export class JanusDebugSession extends DebugSession {
                 }
 
                 const contexts = await connection.coordinator.getAllAvailableContexts();
-                contexts.forEach(async context => {
-                    if (context.isStopped()) {
-                        if (context.name === sourceUrl) {
-                            if (this.attachedContextId !== undefined) {
-                                log.error(`Error: Multiple contexts with same name! Finish all contexts using 'attach' and 'continue'`);
-                            }
-                            if (context.id === remoteSourceId) {
-                                this.attachedContextId = context.id;
-                            }
-                        }
+                const nameContexts = contexts.filter(context => (context.name === sourceUrl));
+                if (nameContexts.length > 1) {
+                    log.error(`Error: Multiple scripts with same name executed! Finish all scripts using 'attach' and 'continue'`);
+                }
+                nameContexts.forEach(async context => {
+                    if (context.isStopped() && context.id === remoteSourceId) {
+                        this.attachedContextId = context.id;
                     }
                 });
 
@@ -462,10 +459,10 @@ export class JanusDebugSession extends DebugSession {
                         let targetContext: Context;
                         if (contexts.length > 1) {
                             const targetContextName = await this.ipcClient.showContextQuickPick(contexts.map(context => context.name));
-                            log.info(`got ${targetContextName} to attach to`);
+                            // log.info(`got ${targetContextName} to attach to`);
                             const targetContexts = contexts.filter(context => context.name === targetContextName);
                             if (targetContexts.length > 1) {
-                                log.error(`Error: Multiple contexts with same name! Finish all contexts using 'attach' and 'continue'`);
+                                log.error(`Error: Multiple scripts with same name executed! Finish all scripts using 'attach' and 'continue'`);
                             }
                             targetContext = targetContexts[0];
                         } else {
@@ -654,7 +651,7 @@ export class JanusDebugSession extends DebugSession {
 
                 };
             });
-            log.debug(`setBreakPointsRequest succeeded: ${JSON.stringify(breakpoints)}`);
+            // log.debug(`setBreakPointsRequest succeeded: ${JSON.stringify(breakpoints)}`);
             response.body = {
                 breakpoints,
             };
@@ -901,8 +898,12 @@ export class JanusDebugSession extends DebugSession {
         this.sendResponse(response);
     }
 
+    /**
+     * Only return the attached context id here, we attached to only one
+     * context in attach or launch.
+     */
     protected async threadsRequest(response: DebugProtocol.ThreadsResponse): Promise<void> {
-        log.info(`threadsRequest`);
+        log.info(`threadsRequest - return attached context: ${this.attachedContextId}`);
 
         if (this.connection === undefined) {
             throw new Error('No connection');
