@@ -995,6 +995,11 @@ export class JanusDebugSession extends DebugSession {
                     let localPos;
                     // log.debug(`frame: url '${frame.sourceUrl}' line ${frame.sourceLine}`);
 
+                    // arrow-functions
+                    // if (frame.sourceUrl === 'self-hosted') {
+                    //     log.debug("TODO: handle arrow functions...");
+                    // }
+
                     // 'required' scripts
                     if (frame.sourceUrl !== context.name) {
                         if (!this.sourceMap.getDynamicServerSource(frame.sourceUrl)) {
