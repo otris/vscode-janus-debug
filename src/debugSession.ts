@@ -1049,7 +1049,7 @@ export class JanusDebugSession extends DebugSession {
                     log.error(`Get local position failed for context '${context.name}': ${e}`);
                     if (this.displaySourceNoticeCount < 1) {
                         // or simply use e.message here?
-                        this.ipcClient.displaySourceNotice(`Sources don't match. More information in log file.`);
+                        this.ipcClient.displaySourceNotice(`Source mismatch: try using Breakpoints and Continue. More information in log file.`);
                         this.displaySourceNoticeCount++;
                     }
                 }
