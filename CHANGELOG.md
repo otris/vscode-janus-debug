@@ -2,6 +2,10 @@
 
 You'll find a complete list of changes at our project site on [GitHub](https://github.com/otris/vscode-janus-debug).
 
+### 1.0.24 (2018-10-29)
+
+- Some fixes for **Upload and Debug Script**.
+
 ### 1.0.23 (2018-10-10)
 
 - Fix updating variables in debugger again.
