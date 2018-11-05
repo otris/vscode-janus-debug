@@ -52,7 +52,7 @@ export class DebugAdapterIPC {
                     resolve(contextLabel);
                 });
             }),
-            time: 10000,
+            time: (2 * 60 * 1000), // 2 min
             error: new Error('Request timed out'),
         });
         ipc.of.sock.emit('showContextQuickPick', contextList);
