@@ -262,7 +262,7 @@ export class JanusDebugSession extends DebugSession {
                 // we should attach to the context that we got the source code from
                 // and the context must be stopped
                 if (nameContexts.length > 1) {
-                    log.error(`Error: Multiple scripts with same name executed! Finish all scripts using 'attach' and 'continue'`);
+                    log.error(`Multiple scripts with name ${sourceUrl}! Finish them using 'attach' and 'continue'`);
                 }
                 nameContexts.forEach(async context => {
                     if (context.id === remoteSourceId && context.isStopped()) {
@@ -478,7 +478,7 @@ export class JanusDebugSession extends DebugSession {
                             // log.info(`got ${targetContextName} to attach to`);
                             const targetContexts = contexts.filter(context => context.name === targetContextName);
                             if (targetContexts.length > 1) {
-                                log.error(`Error: Multiple scripts with same name executed! Finish all scripts using 'attach' and 'continue'`);
+                                log.error(`Multiple scripts with name ${context.name}! Finish them using 'attach' and 'continue'`);
                             }
                             targetContext = targetContexts[0];
                         } else {
