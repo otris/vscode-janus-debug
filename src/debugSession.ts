@@ -230,6 +230,7 @@ export class JanusDebugSession extends DebugSession {
                     return;
                 }
 
+                // get source code from the context on server
                 let remoteSourceId: number;
                 try {
                     const remoteSource = await connection.sendRequest(Command.getSource(sourceUrl),
@@ -255,6 +256,11 @@ export class JanusDebugSession extends DebugSession {
                     log.error(`Command.getSource failed ${e}`);
                 }
 
+                // there can be more than one contexts with same name
+                // (e.g., if the user started the script several times, the user also
+                // could have changed the code, so: )
+                // we should attach to the context that we got the source code from
+                // and the context must be stopped
                 if (nameContexts.length > 1) {
                     log.error(`Error: Multiple scripts with same name executed! Finish all scripts using 'attach' and 'continue'`);
                 }
@@ -278,9 +284,8 @@ export class JanusDebugSession extends DebugSession {
                     }
                 }
 
-                log.debug(`sending InitializedEvent`);
                 this.sendEvent(new InitializedEvent());
-                this.debugConsole(`Debugger listening on ${host}:${debuggerPort}`);
+                this.debugConsole(`Connected to remote debugger on ${host}:${debuggerPort}`);
                 this.sendResponse(response);
             });
 
@@ -440,6 +445,7 @@ export class JanusDebugSession extends DebugSession {
         });
 
         this.connection.on('error', (reason: string) => {
+            // TODO: duplicate on-error function
             log.error(`Error on connection: ${reason}`);
             response.success = false;
             response.message = reason;
@@ -452,8 +458,8 @@ export class JanusDebugSession extends DebugSession {
 
         socket.on('connect', async () => {
 
-            // TCP connection established. It is important for this client that we first send a 'get_all_source_urls'
-            // request to the server. This way we have a list of all currently active contexts.
+            // TCP connection established. Send 'get_all_source_urls' request to server
+            // to get a list of all currently active contexts.
 
             log.info(`attachRequest: connection to ${host}:${port} established. Testing...`);
 
@@ -488,7 +494,9 @@ export class JanusDebugSession extends DebugSession {
                             log.error(`Command.getSource failed ${e}`);
                         }
 
-                        // set state for setBreakpoints
+                        // TODO
+                        // in launch we check if context is stopped,
+                        // we should also check this here
                         this.attachedContextId = targetContext.id;
                     }
                 } else {
@@ -504,9 +512,8 @@ export class JanusDebugSession extends DebugSession {
 
             // Tell the frontend that we are ready to set breakpoints and so on. The frontend will end the
             // configuration sequence by calling 'configurationDone' request
-            log.debug(`sending InitializedEvent`);
             this.sendEvent(new InitializedEvent());
-            this.debugConsole(`Debugger listening on ${host}:${port}`);
+            this.debugConsole(`Connected to remote debugger on ${host}:${port}`);
             this.sendResponse(response);
         });
 
@@ -523,6 +530,7 @@ export class JanusDebugSession extends DebugSession {
         });
 
         socket.on('error', async (err: any) => {
+            // TODO: duplicate on-error function
             log.error(`failed to connect to ${host}:${port}: ${err.code}`);
             await this.ipcClient.disconnect();
 
