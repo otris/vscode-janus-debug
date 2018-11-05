@@ -225,13 +225,13 @@ export class JanusDebugSession extends DebugSession {
                 log.info(`available contexts: ${contexts.length}`);
                 if (nameContexts.length < 1) {
                     response.success = false;
-                    response.message = `Could not launch remote JS context: no context with name ${sourceUrl} found`;
+                    response.message = `Could not launch remote script: no script with name ${sourceUrl} found`;
                     this.sendResponse(response);
                     return;
                 }
 
                 // get source code from the context on server
-                let remoteSourceId: number;
+                let remoteSourceId: any;
                 try {
                     const remoteSource = await connection.sendRequest(Command.getSource(sourceUrl),
                         async (res: Response) => {
@@ -265,16 +265,17 @@ export class JanusDebugSession extends DebugSession {
                     log.error(`Error: Multiple scripts with same name executed! Finish all scripts using 'attach' and 'continue'`);
                 }
                 nameContexts.forEach(async context => {
-                    if (context.isStopped() && context.id === remoteSourceId) {
+                    if (context.id === remoteSourceId && context.isStopped()) {
                         this.attachedContextId = context.id;
                     }
                 });
 
                 log.debug(`attached to context ${this.attachedContextId}`);
                 if (this.attachedContextId === undefined) {
-                    // TODO
-                    // response.success = false;
-                    // sendResponse
+                    response.success = false;
+                    response.message = `Could not launch remote script '${sourceUrl}': unexpected error`;
+                    this.sendResponse(response);
+                    return;
                 }
 
                 if (stopOnEntry || args.portal) {
@@ -506,7 +507,7 @@ export class JanusDebugSession extends DebugSession {
             } catch (e) {
                 log.error(`attachRequest failed: ${e}`);
                 response.success = false;
-                response.message = `Could not attach to remote JS context: ${e}`;
+                response.message = `Could not attach to remote script: ${e}`;
                 return this.sendResponse(response);
             }
 
