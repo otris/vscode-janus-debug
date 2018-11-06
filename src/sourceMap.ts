@@ -280,7 +280,7 @@ const serverSourceLog = Logger.create('ServerSource');
 export class ServerSource {
     public static fromSources(contextName: string, sourceLines: string[], hiddenStatement = false) {
         const chunks: Chunk[] = [];
-        const pattern = /^\/\/#\s([0-9]+)\s([\w\_\-\.#]+)$/;
+        const pattern = /^\/\/#\s([0-9]+)\s([\w\_\-\.#]+);?$/;
         let current: Chunk | undefined;
 
         // check, if "debugger;" statement really added to server source
