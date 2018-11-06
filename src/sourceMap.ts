@@ -80,6 +80,21 @@ export class LocalSource {
         return ret.trim();
     }
 
+    public leadingDebuggerStmts(): number {
+        let counter = 0;
+        const fileContents = this.loadFromDisk();
+        const lines = fileContents.split("\n");
+        // tslint:disable-next-line:prefer-for-of
+        for (let i = 0; i < lines.length; i++) {
+            if (lines[i].trim().startsWith("debugger;")) {
+                counter++;
+            } else {
+                break;
+            }
+        }
+        return counter;
+    }
+
     public sourceName(): string {
         return parse(this.path).name;
     }
