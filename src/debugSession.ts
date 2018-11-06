@@ -482,21 +482,32 @@ export class JanusDebugSession extends DebugSession {
                             // log.info(`got ${targetContextName} to attach to`);
                             const targetContexts = contexts.filter(context => context.name === targetContextName);
                             if (targetContexts.length > 1) {
-                                log.error(`Multiple scripts with name ${context.name}! Finish them using 'attach' and 'continue'`);
+                                log.error(`Multiple scripts with name ${targetContextName}! Finish them using 'attach' and 'continue'`);
                             }
                             targetContext = targetContexts[0];
                         } else {
                             targetContext = contexts[0];
                         }
-                        log.info(`chose context '${targetContext.name}'`);
+                        log.debug(`chose context '${targetContext.name}'`);
                         try {
                             const sources = await connection.sendRequest(Command.getSource(targetContext.name),
-                                async (res: Response) => res.content.source);
+                                async (res: Response) => {
+                                    // log.debug(`getSource content: ${JSON.stringify(res)}`);
+                                    if (res.type === 'error') {
+                                        if (res.content.hasOwnProperty('message')) {
+                                            throw new Error(res.content.message);
+                                        } else {
+                                            throw new Error('Unknown error');
+                                        }
+                                    }
+                                    return res.content.source;
+                                });
                             // log.info(`retrieved server sources: ${JSON.stringify(sources)}`);
                             this.sourceMap.serverSource = ServerSource.fromSources(targetContext.name, sources);
 
                         } catch (e) {
-                            log.error(`Command.getSource failed ${e}`);
+                            log.error(`Command.getSource failed: ${e}`);
+                            throw new Error(e.message);
                         }
 
                         // TODO
@@ -511,7 +522,7 @@ export class JanusDebugSession extends DebugSession {
             } catch (e) {
                 log.error(`attachRequest failed: ${e}`);
                 response.success = false;
-                response.message = `Could not attach to remote script: ${e}`;
+                response.message = `Attach failed: ${e}`;
                 return this.sendResponse(response);
             }
 
