@@ -112,15 +112,14 @@ export class DebugAdapterIPC {
         ipc.of.sock.emit('displaySourceNotice', message);
     }
 
+    // TODO default handlers must be set off, otherwise their messages are always shown
     private contextChosenDefaultHandler(data: any) {
-        log.warn(`got 'contextChosen' message from VS Code extension but we haven't asked!`);
+        // log.warn(`got 'contextChosen' message from VS Code extension but we haven't asked!`);
     }
-
     private urisFoundDefaultHandler(data: any) {
-        log.warn(`got 'urisFound' message from VS Code extension but we haven't asked!`);
+        // log.warn(`got 'urisFound' message from VS Code extension but we haven't asked!`);
     }
-
     private displaySourceNoticeDefaultHandler(data: any) {
-        log.warn(`got 'displaySourceNotice' message from VS Code extension but we haven't asked!`);
+        // log.warn(`got 'displaySourceNotice' message from VS Code extension but we haven't asked!`);
     }
 }
