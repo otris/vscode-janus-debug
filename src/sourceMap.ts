@@ -73,7 +73,11 @@ export class LocalSource {
     public getSourceLine(lineNo: number): string {
         const fileContents = this.loadFromDisk();
         const lines = fileContents.split("\n");
-        return lines[lineNo - 1].trim();
+        const ret = lines[lineNo - 1];
+        if (ret === undefined) {
+            throw new Error(`Line ${lineNo} does not exist in ${this.name}`);
+        }
+        return ret.trim();
     }
 
     public sourceName(): string {
