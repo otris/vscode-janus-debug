@@ -48,7 +48,7 @@ export class DebugAdapterIPC {
         const waitForResponse = timeout({
             promise: new Promise<string>(resolve => {
                 ipc.of.sock.on('contextChosen', (contextLabel: string) => {
-                    log.debug(`user picked '${contextLabel}'`);
+                    // log.debug(`user picked '${contextLabel}'`);
                     resolve(contextLabel);
                 });
             }),
