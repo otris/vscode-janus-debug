@@ -16,7 +16,7 @@ This extension allows you to debug portal scripts on a DOCUMENTS 5 server. This 
 * attaching to a script that is already running on server (and contains the `debugger;` statement)
 * setting breakpoints
 * stepping through the code
-* watching values (e.g. function return values and also script parameters):
+* watching values in the **WATCH** section of the VS Code Debug View (e.g. function return values and also script parameters):
 
 ![Screenshot](img/debugger.gif "Screenshot")
 
