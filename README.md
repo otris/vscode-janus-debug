@@ -10,15 +10,22 @@ Visual Studio Code plugin for developing and debugging JavaScript on DOCUMENTS 5
 
 See also in Wiki [Launching the Debugger](https://github.com/otris/vscode-janus-debug/wiki/Launching-the-Debugger)
 
-This extension allows you to debug portal scripts on a DOCUMENTS 5 server. This includes launching a script from within VS Code and executing it remotely on the server, setting breakpoints, stepping through the code, and evaluating expressions. Also you can watch values...
+This extension allows you to debug portal scripts on a DOCUMENTS 5 server. This includes
+
+* launching a script from within VS Code and executing it remotely on the server
+* attaching to a script that is already running on server (and contains the `debugger;` statement)
+* setting breakpoints
+* stepping through the code
+* watching values (e.g. function return values and also script parameters):
 
 ![Screenshot](img/debugger.gif "Screenshot")
 
-... or you can view some important variable types from portal scripting in the debug side bar.
+* or viewing some important variable types from portal scripting in the **VARIABLES** section of the VS Code Debug View:
 
 ![Screenshot](img/debugger-variables.png "Screenshot")
 
-----
+<br>
+<br>
 
 The extension includes lots of additional features that ease the development, especially on DOCUMENTS 5.
 
