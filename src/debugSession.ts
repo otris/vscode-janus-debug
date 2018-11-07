@@ -488,6 +488,9 @@ export class JanusDebugSession extends DebugSession {
                         } else {
                             targetContext = contexts[0];
                         }
+                        if (targetContext === undefined) {
+                            throw new Error("no context selected to attach to");
+                        }
                         log.debug(`chose context '${targetContext.name}'`);
                         try {
                             const sources = await connection.sendRequest(Command.getSource(targetContext.name),
