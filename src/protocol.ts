@@ -176,8 +176,13 @@ export class Command {
         return cmd;
     }
 
-    public static getSource(url: string): Command {
-        const cmd = new Command('get_source');
+    public static getSource(url: string, contextId?: number): Command {
+        let cmd;
+        if (contextId !== undefined) {
+            cmd = new Command('get_source', contextId);
+        } else {
+            cmd = new Command('get_source');
+        }
         cmd.payload.url = url;
         return cmd;
     }

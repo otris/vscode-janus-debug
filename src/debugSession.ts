@@ -231,12 +231,14 @@ export class JanusDebugSession extends DebugSession {
                     this.sendResponse(response);
                     return;
                 }
+                const numContexts = nameContexts.length;
+                const selectedContext = nameContexts[numContexts - 1];
 
                 // get source code from the context on server
-                let remoteSourceId: any;
                 try {
-                    const remoteSource = await connection.sendRequest(Command.getSource(sourceUrl),
+                    const remoteSource = await connection.sendRequest(Command.getSource(selectedContext.name, selectedContext.id),
                         async (res: Response) => {
+                            // log.info(`getSource content: ${JSON.stringify(res)}`);
                             if (res.type === 'error') {
                                 if (res.content.hasOwnProperty('message')) {
                                     throw new Error(res.content.message);
@@ -244,16 +246,10 @@ export class JanusDebugSession extends DebugSession {
                                     throw new Error('Unknown error');
                                 }
                             }
-                            // log.info(`getSource content: ${JSON.stringify(res)}`);
-                            return {
-                                script: res.content.script,
-                                source: res.content.source,
-                                contextId: res.contextId
-                            };
+                            return res.content.source;
                         });
                     // log.info(`retrieved server source: ${JSON.stringify(remoteSource.source)} id: ${remoteSource.id} script: ${remoteSource.script}`);
-                    this.sourceMap.serverSource = ServerSource.fromSources(source.sourceName(), remoteSource.source, true);
-                    remoteSourceId = remoteSource.contextId;
+                    this.sourceMap.serverSource = ServerSource.fromSources(source.sourceName(), remoteSource, true);
                 } catch (e) {
                     log.error(`Command.getSource failed ${e}`);
                 }
@@ -267,7 +263,7 @@ export class JanusDebugSession extends DebugSession {
                     log.error(`Multiple scripts with name ${sourceUrl}! Finish them using 'attach' and 'continue'`);
                 }
                 nameContexts.forEach(async context => {
-                    if (context.id === remoteSourceId && context.isStopped()) {
+                    if (context.id === selectedContext.id && context.isStopped()) {
                         this.attachedContextId = context.id;
                     }
                 });
@@ -493,7 +489,7 @@ export class JanusDebugSession extends DebugSession {
                         }
                         log.debug(`chose context '${targetContext.name}'`);
                         try {
-                            const sources = await connection.sendRequest(Command.getSource(targetContext.name),
+                            const sources = await connection.sendRequest(Command.getSource(targetContext.name, targetContext.id),
                                 async (res: Response) => {
                                     // log.debug(`getSource content: ${JSON.stringify(res)}`);
                                     if (res.type === 'error') {
@@ -513,9 +509,6 @@ export class JanusDebugSession extends DebugSession {
                             throw new Error(e.message);
                         }
 
-                        // TODO
-                        // in launch we check if context is stopped,
-                        // we should also check this here
                         this.attachedContextId = targetContext.id;
                     }
                 } else {
@@ -1030,7 +1023,7 @@ export class JanusDebugSession extends DebugSession {
                     // 'required' scripts
                     if (frame.sourceUrl !== context.name) {
                         if (!this.sourceMap.getDynamicServerSource(frame.sourceUrl)) {
-                            const dynamicSource = await this.connection.sendRequest(Command.getSource(frame.sourceUrl), async (res: Response) => res.content.source);
+                            const dynamicSource = await this.connection.sendRequest(Command.getSource(frame.sourceUrl, this.attachedContextId), async (res: Response) => res.content.source);
                             // log.info(`retrieved dynamic server sources: ${JSON.stringify(dynamicSource)}`);
                             const serverSource = ServerSource.fromSources(frame.sourceUrl, dynamicSource);
                             this.sourceMap.addDynamicScript(frame.sourceUrl, serverSource);
