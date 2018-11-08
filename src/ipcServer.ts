@@ -58,10 +58,13 @@ export class VSCodeExtensionIPC {
         ipc.server.on('showContextQuickPick', async (contextList: string[], socket) => {
             log.info('showContextQuickPick');
 
+            // check for scripts with same name
+            // const multiNames = contextList.filter((value, index, self) => (self.indexOf(value) !== index));
+
             const picked: string | undefined = await window.showQuickPick(contextList);
-            if (picked) {
-                ipc.server.emit(socket, 'contextChosen', picked);
-            }
+
+            // send answer in any case because server is waiting
+            ipc.server.emit(socket, 'contextChosen', picked);
         });
 
         ipc.server.on('findURIsInWorkspace', async (ignored: any, socket) => {
