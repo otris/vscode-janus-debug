@@ -293,13 +293,37 @@ class Chunk {
 const serverSourceLog = Logger.create('ServerSource');
 
 export class ServerSource {
-    public static fromSources(contextName: string, sourceLines: string[], hiddenStatement = false) {
+    public static leadingDebuggerStmts(lines: string[]): number {
+        let counter = 0;
+        // tslint:disable-next-line:prefer-for-of
+        for (let i = 0; i < lines.length; i++) {
+            if (lines[i].trim().startsWith("debugger;")) {
+                counter++;
+            } else {
+                break;
+            }
+        }
+        return counter;
+    }
+
+    public static fromSources(contextName: string, sourceLines: string[], hiddenStatement = false, localSource?: LocalSource) {
         const chunks: Chunk[] = [];
         const pattern = /^\/\/#\s([0-9]+)\s([\w\_\-\.#]+);?$/;
         let current: Chunk | undefined;
 
-        // check, if "debugger;" statement really added to server source
-        if (hiddenStatement && !sourceLines[0].trim().startsWith("debugger;")) {
+        // todo: make hiddenStatement local variable
+
+        // case attach: check, if "debugger;" statement added to server source
+        if (hiddenStatement === false && localSource !== undefined) {
+            const numLocal = localSource.leadingDebuggerStmts();
+            const numRemote = this.leadingDebuggerStmts(sourceLines);
+            if (numRemote > numLocal) {
+                hiddenStatement = true;
+            }
+        }
+
+        // case launch: check, if "debugger;" statement really added to server source
+        if (hiddenStatement === true && !sourceLines[0].trim().startsWith("debugger;")) {
             hiddenStatement = false;
         }
 

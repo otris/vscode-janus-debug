@@ -502,7 +502,8 @@ export class JanusDebugSession extends DebugSession {
                                     return res.content.source;
                                 });
                             // log.info(`retrieved server sources: ${JSON.stringify(sources)}`);
-                            this.sourceMap.serverSource = ServerSource.fromSources(targetContext.name, sources);
+                            const localSource = this.sourceMap.getSource(targetContext.name);
+                            this.sourceMap.serverSource = ServerSource.fromSources(targetContext.name, sources, false, localSource);
 
                         } catch (e) {
                             log.error(`Command.getSource failed: ${e}`);
