@@ -37,7 +37,7 @@ export class DebugProtocolTransport extends EventEmitter {
     }
 
     public disconnect(): Promise<void> {
-        log.debug(`somebody wants us to disconnect from the socket`);
+        // log.debug(`somebody wants us to disconnect from the socket`);
         return new Promise<void>((resolve, reject) => {
             this.socket.on('close', () => resolve());
             this.socket.end();
