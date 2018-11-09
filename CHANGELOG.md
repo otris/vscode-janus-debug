@@ -2,6 +2,11 @@
 
 You'll find a complete list of changes at our project site on [GitHub](https://github.com/otris/vscode-janus-debug).
 
+### 1.0.25 (2018-11-09)
+
+- Debugger works now with multiple running scripts ([Issue](https://github.com/otris/vscode-janus-debug/issues/191))
+- Mixing **Upload and Debug** and **Attach** with running scripts works now ([Issue](https://github.com/otris/vscode-janus-debug/issues/184))
+
 ### 1.0.24 (2018-10-29)
 
 - Some fixes for **Upload and Debug Script**.
