@@ -108,8 +108,6 @@ export class JanusDebugSession extends DebugSession {
     protected async disconnectRequest(response: DebugProtocol.DisconnectResponse, args: DebugProtocol.DisconnectArguments): Promise<void> {
         log.info(`disconnectRequest; debug adapter running in ${this.config} config`);
 
-        this.attachedContextId = undefined;
-
         const connection = this.connection;
         if (!connection) {
             this.sendResponse(response);
@@ -117,16 +115,26 @@ export class JanusDebugSession extends DebugSession {
         }
 
         if (this.config === 'launch') {
-            await connection.sendRequest(new Command('stop'));
+            await connection.sendRequest(new Command('stop', this.attachedContextId));
         }
-
-        this.config = undefined;
 
         await connection.sendRequest(new Command('exit'));
         await connection.disconnect();
+
+        this.attachedContextId = undefined;
+        this.config = undefined;
         this.connection = undefined;
         this.sendResponse(response);
     }
+
+    // protected async terminateRequest(response: DebugProtocol.TerminateResponse, args: DebugProtocol.TerminateArguments): Promise<void> {
+    //     log.info(`terminateRequest`);
+    //     this.sendResponse(response);
+    // }
+    // protected async terminateThreadsRequest(response: DebugProtocol.TerminateThreadsResponse, args: DebugProtocol.TerminateThreadsRequest): Promise<void> {
+    //     log.info(`terminateThreadsRequest`);
+    //     this.sendResponse(response);
+    // }
 
     protected async launchRequest(response: DebugProtocol.LaunchResponse, args: LaunchRequestArguments): Promise<void> {
         this.applyConfig(args);
@@ -474,7 +482,8 @@ export class JanusDebugSession extends DebugSession {
                     } else {
                         let targetContext: Context;
                         if (contexts.length > 1) {
-                            const targetContextName = await this.ipcClient.showContextQuickPick(contexts.map(context => context.name));
+                            const contextNames = contexts.map(context => context.name);
+                            const targetContextName = await this.ipcClient.showContextQuickPick(contextNames);
                             // log.info(`got ${targetContextName} to attach to`);
                             const targetContexts = contexts.filter(context => context.name === targetContextName);
                             if (targetContexts.length > 1) {
