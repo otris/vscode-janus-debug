@@ -16,8 +16,8 @@ export interface CommonArguments {
     timeout: number;
 }
 
-export interface AttachRequestArguments extends DebugProtocol.AttachRequestArguments,
-    CommonArguments {
+export interface AttachRequestArguments extends DebugProtocol.AttachRequestArguments, CommonArguments {
+    terminateOnDisconnect: boolean;
 }
 
 /**
@@ -25,8 +25,7 @@ export interface AttachRequestArguments extends DebugProtocol.AttachRequestArgum
  *
  * These are the arguments needed when we want to launch a script on the server.
  */
-export interface LaunchRequestArguments extends DebugProtocol.LaunchRequestArguments,
-    CommonArguments {
+export interface LaunchRequestArguments extends DebugProtocol.LaunchRequestArguments, CommonArguments {
     /** The application port to attach to. */
     applicationPort: number;
     /** A username. The script is executed in the context of this user. */

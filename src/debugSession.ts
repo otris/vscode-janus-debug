@@ -60,6 +60,7 @@ export class JanusDebugSession extends DebugSession {
     private attachedContextId: number | undefined = undefined;
     private ipcClient: DebugAdapterIPC;
     private displaySourceNoticeCount = 0;
+    private terminateOnDisconnect = false;
 
 
     public constructor() {
@@ -114,8 +115,14 @@ export class JanusDebugSession extends DebugSession {
             return;
         }
 
-        if (this.config === 'launch') {
-            await connection.sendRequest(new Command('stop', this.attachedContextId));
+        const contexts = await connection.coordinator.getAllAvailableContexts();
+        const existContext = contexts.find(context => (context.id === this.attachedContextId));
+        if (existContext) {
+            if (this.config === 'launch' || this.terminateOnDisconnect) {
+                await connection.sendRequest(new Command('stop', this.attachedContextId));
+            }
+        } else {
+            log.debug(`Attached script (context id: ${this.attachedContextId}) not running anymore`);
         }
 
         await connection.sendRequest(new Command('exit'));
@@ -422,6 +429,7 @@ export class JanusDebugSession extends DebugSession {
         this.frameMap = new FrameMap();
         this.variablesMap = new VariablesMap();
         this.config = 'attach';
+        this.terminateOnDisconnect = args.terminateOnDisconnect;
         await this.ipcClient.connect();
 
         let uris: string[] | undefined;

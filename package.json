@@ -183,6 +183,11 @@
                 "description": "Time in ms until we give up trying to connect or waiting for an answer.",
                 "default": 6000
               },
+              "terminateOnDisconnect": {
+                "type": "boolean",
+                "description": "When the disconnect button is pressed, the script will be stopped, like in launch",
+                "default": false
+              },
               "log": {
                 "type": "object",
                 "description": "Lets you configure diagnostic logging of the debug adapter.",
