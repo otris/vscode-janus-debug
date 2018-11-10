@@ -107,7 +107,7 @@ export class JanusDebugSession extends DebugSession {
     }
 
     protected async disconnectRequest(response: DebugProtocol.DisconnectResponse, args: DebugProtocol.DisconnectArguments): Promise<void> {
-        log.info(`disconnectRequest; debug adapter running in ${this.config} config`);
+        log.info(`disconnectRequest`);
 
         const connection = this.connection;
         if (!connection) {
@@ -119,10 +119,15 @@ export class JanusDebugSession extends DebugSession {
         const existContext = contexts.find(context => (context.id === this.attachedContextId));
         if (existContext) {
             if (this.config === 'launch' || this.terminateOnDisconnect) {
+                if (existContext.isStopped()) {
+                    log.debug(`Terminate debuggee (context ${this.attachedContextId})`);
+                } else {
+                    log.warn(`Trying to terminate debuggee (context ${this.attachedContextId}) will probably fail, because it's not stopped`);
+                }
                 await connection.sendRequest(new Command('stop', this.attachedContextId));
             }
         } else {
-            log.debug(`Attached script (context id: ${this.attachedContextId}) not running anymore`);
+            log.debug(`Debuggee (context ${this.attachedContextId}) not running anymore`);
         }
 
         await connection.sendRequest(new Command('exit'));
@@ -205,7 +210,7 @@ export class JanusDebugSession extends DebugSession {
             const connection = new DebugConnection(debuggerSocket);
             this.connection = connection;
 
-            this.logServerVersion();
+            // this.logServerVersion();
 
             this.connection.on('contextPaused', (contextId: number) => {
                 if (this.attachedContextId !== undefined && this.attachedContextId === contextId) {
@@ -253,7 +258,7 @@ export class JanusDebugSession extends DebugSession {
                 try {
                     const remoteSource = await connection.sendRequest(Command.getSource(selectedContext.name, selectedContext.id),
                         async (res: Response) => {
-                            // log.info(`getSource content: ${JSON.stringify(res)}`);
+                            // log.info(`getSource response: ${JSON.stringify(res)}`);
                             if (res.type === 'error') {
                                 if (res.content.hasOwnProperty('message')) {
                                     throw new Error(res.content.message);
@@ -471,7 +476,7 @@ export class JanusDebugSession extends DebugSession {
             this.sendEvent(new TerminatedEvent());
         });
 
-        this.logServerVersion();
+        // this.logServerVersion();
 
         socket.on('connect', async () => {
 
@@ -508,7 +513,7 @@ export class JanusDebugSession extends DebugSession {
                         try {
                             const sources = await connection.sendRequest(Command.getSource(targetContext.name, targetContext.id),
                                 async (res: Response) => {
-                                    // log.debug(`getSource content: ${JSON.stringify(res)}`);
+                                    // log.debug(`getSource response: ${JSON.stringify(res)}`);
                                     if (res.type === 'error') {
                                         if (res.content.hasOwnProperty('message')) {
                                             throw new Error(res.content.message);
@@ -890,7 +895,7 @@ export class JanusDebugSession extends DebugSession {
     }
 
     protected pauseRequest(response: DebugProtocol.PauseResponse, args: DebugProtocol.PauseArguments): void {
-        log.info(`pauseRequest for threadId: ${args.threadId}`);
+        log.info(`pauseRequest`);
 
         if (this.connection === undefined) {
             throw new Error('No connection');
@@ -904,7 +909,14 @@ export class JanusDebugSession extends DebugSession {
                 // log.debug('pauseRequest succeeded');
                 response.success = true;
                 this.sendResponse(response);
-                // todo: see 'next'
+                // in context.pause() the stopped notification is catched
+                // by another handler, so connection.handleResponse
+                // does not send the stopped report to vs code also the
+                // pause handler does not send it
+                // note:
+                // do not move reportStopped to the pause-handler for now
+                // because we want to keep a chance to NOT notify vs code
+                // (but not sure yet, if this will really be required...)
                 this.reportStopped('pause', contextId);
             }).catch(reason => {
                 log.error('pauseRequest failed: ' + reason);
@@ -950,7 +962,7 @@ export class JanusDebugSession extends DebugSession {
      * context in attach or launch.
      */
     protected async threadsRequest(response: DebugProtocol.ThreadsResponse): Promise<void> {
-        log.info(`threadsRequest - return attached context: ${this.attachedContextId}`);
+        log.info(`threadsRequest`);
 
         if (this.connection === undefined) {
             throw new Error('No connection');
@@ -983,7 +995,7 @@ export class JanusDebugSession extends DebugSession {
     }
 
     protected stackTraceRequest(response: DebugProtocol.StackTraceResponse, args: DebugProtocol.StackTraceArguments): void {
-        log.info(`stackTraceRequest for threadId ${args.threadId}`);
+        log.info(`stackTraceRequest`);
 
         if (this.connection === undefined) {
             throw new Error('No connection');
@@ -1115,7 +1127,7 @@ export class JanusDebugSession extends DebugSession {
      * See: https://code.visualstudio.com/docs/extensionAPI/api-debugging#_the-debug-adapter-protocol-in-a-nutshell
      */
     protected scopesRequest(response: DebugProtocol.ScopesResponse, args: DebugProtocol.ScopesArguments): void {
-        log.info(`scopesRequest for frameId ${args.frameId}`);
+        log.info(`scopesRequest`);
 
         if (this.connection === undefined) {
             throw new Error('Internal error: No connection');
@@ -1167,7 +1179,7 @@ export class JanusDebugSession extends DebugSession {
     }
 
     protected async variablesRequest(response: DebugProtocol.VariablesResponse, args: DebugProtocol.VariablesArguments): Promise<void> {
-        log.info(`variablesRequest with variablesReference ${args.variablesReference}`);
+        log.info(`variablesRequest`);
 
         // TODO:
         // context.evaluate2() must be called from this function
@@ -1347,7 +1359,7 @@ export class JanusDebugSession extends DebugSession {
         if (args.log) {
             Logger.config = args.log;
         }
-        log.info(`readConfig: ${JSON.stringify(args)}`);
+        // log.info(`readConfig: ${JSON.stringify(args)}`);
     }
 
     /**
