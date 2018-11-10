@@ -185,8 +185,13 @@
               },
               "terminateOnDisconnect": {
                 "type": "boolean",
-                "description": "When the disconnect button is pressed, the script will be stopped, like in launch",
+                "description": "When the script is paused on disconnect, it will be terminated.",
                 "default": false
+              },
+              "stopOnAttach": {
+                "type": "boolean",
+                "description": "When debugger attaches to a script, the script is paused immediately. (Pause button doesn't work after attach due to a VS Code problem.)",
+                "default": true
               },
               "log": {
                 "type": "object",

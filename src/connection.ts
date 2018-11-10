@@ -39,7 +39,7 @@ export class DebugConnection extends EventEmitter implements ConnectionLike {
     }
 
     public handleResponse = (response: Response): void => {
-        // log.info(`handle response: ${JSON.stringify(response)}`);
+        log.info(`handle response: ${JSON.stringify(response)}`);
 
         if (response.content.hasOwnProperty('id')) {
             const uuid: string = response.content.id;

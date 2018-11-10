@@ -61,6 +61,7 @@ export class JanusDebugSession extends DebugSession {
     private ipcClient: DebugAdapterIPC;
     private displaySourceNoticeCount = 0;
     private terminateOnDisconnect = false;
+    private stopOnAttach = true;
 
 
     public constructor() {
@@ -435,6 +436,7 @@ export class JanusDebugSession extends DebugSession {
         this.variablesMap = new VariablesMap();
         this.config = 'attach';
         this.terminateOnDisconnect = args.terminateOnDisconnect;
+        this.stopOnAttach = (args.stopOnAttach !== undefined) ? args.stopOnAttach : true ;
         await this.ipcClient.connect();
 
         let uris: string[] | undefined;
@@ -733,28 +735,40 @@ export class JanusDebugSession extends DebugSession {
             throw new Error('No connection');
         }
 
-        // Only after all configuration is done it is allowed to notify the frontend about paused contexts. We do
-        // this once initially for all already discovered contexts and then let an event handler do this for future
-        // contexts.
+        // We only consider the attached context
+        // Note:
+        // we stop the attached context, because due to a due to a VS Code problem
+        // the user cannot stop the context before reportStopped() was called
         const contexts = await this.connection.coordinator.getAllAvailableContexts();
-        contexts.forEach(context => {
-            if (context.id === this.attachedContextId && context.isStopped()) {
-                this.reportStopped('pause', context.id);
+        contexts.forEach(async context => {
+            if (context.id === this.attachedContextId) {
+                if (context.isStopped()) {
+                    // todo: hasn't this already been called in this case?
+                    log.info("configurationDoneRequest -> reportStopped");
+                    this.reportStopped('pause', context.id);
+                } else if (this.stopOnAttach && this.connection) {
+                    // stop report is triggered with the pause answer in connection.handleResponse
+                    log.info("configurationDoneRequest -> sendRequest pause");
+                    await this.connection.sendRequest(new Command('pause', this.attachedContextId));
+                } else {
+                    log.warn(`context ${this.attachedContextId} not stopped, consider using 'stopOnAttach' in config`);
+                }
             }
         });
 
         this.connection.on('newContext', (contextId: number, contextName: string, stopped: boolean) => {
             log.info(`new context on target: ${contextId}, context name: "${contextName}", stopped: ${stopped}`);
-            if (stopped) {
-                this.reportStopped('pause', contextId);
-            }
+            // we only consider the attached contxt
+            // if (stopped) {
+            //     this.reportStopped('pause', contextId);
+            // }
         });
 
         this.sendResponse(response);
     }
 
     protected continueRequest(response: DebugProtocol.ContinueResponse, args: DebugProtocol.ContinueArguments): void {
-        log.info(`continueRequest for threadId: ${args.threadId}`);
+        log.info(`continueRequest`);
 
         if (this.connection === undefined) {
             throw new Error('No connection');

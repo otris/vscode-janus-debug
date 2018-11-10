@@ -18,6 +18,7 @@ export interface CommonArguments {
 
 export interface AttachRequestArguments extends DebugProtocol.AttachRequestArguments, CommonArguments {
     terminateOnDisconnect: boolean;
+    stopOnAttach: boolean;
 }
 
 /**
