@@ -238,9 +238,11 @@ export class ContextCoordinator {
     public async getAllAvailableContexts(): Promise<Context[]> {
         // coordinatorLog.debug(`getAllAvailableContexts`);
 
-        // The protocol responses to the 'get_available_contexts' request with an id.
-        // But we simply take the next response that contains a context list,
-        // without checking the id. But this is very likely the correct answer.
+        // After connecting the remote debugger, it responses with a context list
+        // that doesn't contain an id. But when we send the 'get_available_contexts'
+        // request, the response contains an id. Anyway, for now we do not check the
+        // id but simply take the next response that contains a context list. But this
+        // is very likely a correct answer.
         // TODO: insert id check
         await this.connection.sendRequest(new Command('get_available_contexts'), (res) => this.handleResponse(res));
         const contexts = Array.from(this.contextById.values());
