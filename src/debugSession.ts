@@ -61,7 +61,7 @@ export class JanusDebugSession extends DebugSession {
     private ipcClient: DebugAdapterIPC;
     private displaySourceNoticeCount = 0;
     private terminateOnDisconnect = false;
-    private stopOnAttach = true;
+    private breakOnAttach = true;
 
 
     public constructor() {
@@ -436,7 +436,7 @@ export class JanusDebugSession extends DebugSession {
         this.variablesMap = new VariablesMap();
         this.config = 'attach';
         this.terminateOnDisconnect = args.terminateOnDisconnect;
-        this.stopOnAttach = (args.stopOnAttach !== undefined) ? args.stopOnAttach : true ;
+        this.breakOnAttach = (args.breakOnAttach !== undefined) ? args.breakOnAttach : true ;
         await this.ipcClient.connect();
 
         let uris: string[] | undefined;
@@ -740,12 +740,12 @@ export class JanusDebugSession extends DebugSession {
                 if (context.isStopped()) {
                     log.info("configurationDoneRequest -> reportStopped");
                     this.reportStopped('pause', context.id);
-                } else if (this.stopOnAttach && this.connection) {
+                } else if (this.breakOnAttach && this.connection) {
                     // stop report is triggered with the pause answer in connection.handleResponse
                     log.info("configurationDoneRequest -> sendRequest pause");
                     await this.connection.sendRequest(new Command('pause', this.attachedContextId));
                 } else {
-                    log.warn(`context ${this.attachedContextId} not stopped, consider using 'stopOnAttach' in config`);
+                    log.warn(`context ${this.attachedContextId} not stopped, consider using 'breakOnAttach' in config`);
                 }
             }
         });
