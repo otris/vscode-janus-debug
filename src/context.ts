@@ -238,9 +238,10 @@ export class ContextCoordinator {
     public async getAllAvailableContexts(): Promise<Context[]> {
         // coordinatorLog.debug(`getAllAvailableContexts`);
 
-        // The protocol does not allow to send the 'get_available_contexts' request with an id,
-        // so we simply take the next response that contains a context list, but this is very
-        // likely the correct answer
+        // The protocol responses to the 'get_available_contexts' request with an id.
+        // But we simply take the next response that contains a context list,
+        // without checking the id. But this is very likely the correct answer.
+        // TODO: insert id check
         await this.connection.sendRequest(new Command('get_available_contexts'), (res) => this.handleResponse(res));
         const contexts = Array.from(this.contextById.values());
         const contextNames = contexts.map(context => context.name);
