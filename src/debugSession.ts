@@ -297,11 +297,11 @@ export class JanusDebugSession extends DebugSession {
                     return;
                 }
 
-                if (stopOnEntry || args.portal) {
-                    // execute single step, when the server source contains the internal "debugger;" statement.
-                    if (this.attachedContextId !== undefined && this.sourceMap.serverSource.hiddenStatement) {
-                        await connection.sendRequest(new Command('next', this.attachedContextId));
-                    }
+                // execute single step, when the server source contains the internal "debugger;" statement.
+                if (this.sourceMap.serverSource.hiddenStatement) {
+                    // todo: move this to configurationDoneRequest
+                    log.debug(`hidden 'debugger;' statement -> execute one step`);
+                    await connection.sendRequest(new Command('next', this.attachedContextId));
                 }
 
                 this.sendEvent(new InitializedEvent());
