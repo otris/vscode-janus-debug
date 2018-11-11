@@ -127,7 +127,7 @@ export class JanusDebugSession extends DebugSession {
                 }
                 await connection.sendRequest(new Command('stop', this.attachedContextId));
             }
-        } else {
+        } else if (this.attachedContextId) {
             log.debug(`Debuggee (context ${this.attachedContextId}) not running anymore`);
         }
 
@@ -743,7 +743,6 @@ export class JanusDebugSession extends DebugSession {
         contexts.forEach(async context => {
             if (context.id === this.attachedContextId) {
                 if (context.isStopped()) {
-                    // todo: hasn't this already been called in this case?
                     log.info("configurationDoneRequest -> reportStopped");
                     this.reportStopped('pause', context.id);
                 } else if (this.stopOnAttach && this.connection) {
