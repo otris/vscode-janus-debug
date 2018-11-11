@@ -41,7 +41,7 @@ export class DebugAdapterIPC {
     }
 
     public async showContextQuickPick(contextList: string[]): Promise<string> {
-        log.debug(`showContextQuickPick ${JSON.stringify(contextList)}`);
+        // log.debug(`showContextQuickPick ${JSON.stringify(contextList)}`);
         // TODO: set handlers off, see findURIsInWorkspace
         // let tmpHandler;
 

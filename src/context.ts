@@ -236,31 +236,24 @@ export class ContextCoordinator {
     constructor(private connection: ConnectionLike) { }
 
     public async getAllAvailableContexts(): Promise<Context[]> {
-        coordinatorLog.debug(`getAllAvailableContexts`);
+        // coordinatorLog.debug(`getAllAvailableContexts`);
 
-        // Meh, this is shitty. We return (most probably) an old state here. But protocol does not allow an id send in
-        // an 'get_available_contexts' request so no way to handle and synchronize with the particular response here
+        // The protocol does not allow to send the 'get_available_contexts' request with an id,
+        // so we simply take the next response that contains a context list, but this is very
+        // likely the correct answer
         await this.connection.sendRequest(new Command('get_available_contexts'), (res) => this.handleResponse(res));
-        return Array.from(this.contextById.values());
+        const contexts = Array.from(this.contextById.values());
+        const contextNames = contexts.map(context => context.name);
+        coordinatorLog.debug(`contexts on server ${JSON.stringify(contextNames)}`);
+        return contexts;
     }
 
     public getContext(id: ContextId): Context {
         const context = this.contextById.get(id);
         if (context === undefined) {
-
-            // Well, somebody requests a context that does not exist. What could we possibly do?
-
             const contents = Array.from(this.contextById.values());
-            coordinatorLog.warn(
-                `unknown context ${id} requested; available: ${contents.map(someContext => {
-                    return someContext.id;
-                })}`);
-
-            // Shitty but maybe helps in cases we're caught by surprise
-            // if (id === 0 && contents.length === 1) {
-            //    return contents[0];
-            // }
-
+            const contextIds = contents.map(someContext => someContext.id);
+            coordinatorLog.warn(`unknown context ${id} requested, available: ${JSON.stringify(contextIds)}`);
             throw new Error(`No such context ${id}`);
         }
         return context;
@@ -276,13 +269,21 @@ export class ContextCoordinator {
                 // Not meant for a particular context
 
                 if (response.type === 'info' && response.subtype === 'contexts_list') {
-                    coordinatorLog.debug('updating list of available contexts');
+                    // coordinatorLog.debug('updating list of available contexts');
+
+                    if (!response.content.hasOwnProperty('id')) {
+                        // no id and subtype 'contexts_list' so this means, that this is the
+                        // first response that we get after we connected the remote debugger
+                        // simply log an information message
+                        coordinatorLog.info(`connected to remote debugger`);
+                    }
+
                     assert.ok(response.content.hasOwnProperty('contexts'));
 
                     // Add new contexts
                     response.content.contexts.forEach((element: any) => {
                         if (!this.contextById.has(element.contextId)) {
-                            coordinatorLog.debug(`creating new context with id: ${element.contextId}`);
+                            // coordinatorLog.debug(`creating new context with id: ${element.contextId}`);
                             const newContext: Context =
                                 new Context(this.connection, element.contextId, element.contextName,
                                     element.paused);
@@ -293,7 +294,7 @@ export class ContextCoordinator {
                         }
                     });
 
-                    // Purge the ones that no longer exist
+                    // Delete the contexts that no longer exist
                     const dead: ContextId[] = [];
                     this.contextById.forEach(context => {
                         if (!response.content.contexts.find((element: any) => element.contextId === context.id)) {
