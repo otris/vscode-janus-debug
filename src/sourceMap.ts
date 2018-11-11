@@ -162,6 +162,15 @@ export class SourceMap {
         // sourceMapLog.info(`remote [${line}: "${remoteSourceLine}"] ` + `→ local [${localPos.line} in ${localSource.name}: "${localSourceLine}"]`);
 
         if (localSourceLine.trim() !== remoteSourceLine.trim()) {
+            // source line doesn't match, there can be many reasons
+            // we're trying to help the user and analysing the source...
+
+            if (line === 1 && serverSource.hiddenStatement) {
+                // Actually we should never reach this line, but this can happen
+                // if upload was too slow and the debugger couldn't connect.
+                // So simply map this line to first line (done in serverSource.toLocalPosition).
+                return localPos;
+            }
             const first = this._serverSource.chunks.find(chunk => (line >= chunk.pos.start) && (line < (chunk.pos.start + chunk.pos.len)));
             let duplicate;
             if (first) {
