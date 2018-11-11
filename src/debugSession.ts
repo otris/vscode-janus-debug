@@ -233,7 +233,7 @@ export class JanusDebugSession extends DebugSession {
 
             debuggerSocket.on('connect', async () => {
 
-                log.info(`launchRequest: connection to ${host}:${debuggerPort} established`);
+                log.info(`connected to ${host}:${debuggerPort}`);
 
                 if (scriptIdentifier) {
                     this.sourceMap.addMapping(source, scriptIdentifier);
@@ -245,7 +245,7 @@ export class JanusDebugSession extends DebugSession {
 
                 const contexts = await connection.coordinator.getAllAvailableContexts();
                 const nameContexts = contexts.filter(context => (context.name === sourceUrl));
-                log.info(`available contexts: ${contexts.length}`);
+                // log.info(`available contexts: ${contexts.length}`);
                 if (nameContexts.length < 1) {
                     response.success = false;
                     response.message = `Could not launch remote script: no script with name ${sourceUrl} found`;
@@ -281,7 +281,7 @@ export class JanusDebugSession extends DebugSession {
                 // we should attach to the context that we got the source code from
                 // and the context must be stopped
                 if (nameContexts.length > 1) {
-                    log.error(`Multiple scripts with name ${sourceUrl}! Finish them using 'attach' and 'continue'`);
+                    log.error(`Multiple scripts with name ${sourceUrl}!`);
                 }
                 nameContexts.forEach(async context => {
                     if (context.id === selectedContext.id && context.isStopped()) {
@@ -289,7 +289,7 @@ export class JanusDebugSession extends DebugSession {
                     }
                 });
 
-                log.debug(`attached to context ${this.attachedContextId}`);
+                log.debug(`selected context '${selectedContext.name}'`);
                 if (this.attachedContextId === undefined) {
                     response.success = false;
                     response.message = `Could not launch remote script '${sourceUrl}': unexpected error`;
@@ -335,7 +335,7 @@ export class JanusDebugSession extends DebugSession {
         };
 
         if (args.portal) {
-            log.info(`Script is already running on DOCUMENTS server, just connect the debugger`);
+            // log.info(`Script is already running on DOCUMENTS server, just connect the debugger`);
             await connectDebugger();
         } else {
             const sdsSocket = connect(sdsPort, host);
@@ -481,17 +481,12 @@ export class JanusDebugSession extends DebugSession {
         // this.logServerVersion();
 
         socket.on('connect', async () => {
-
-            // TCP connection established. Send 'get_all_source_urls' request to server
-            // to get a list of all currently active contexts.
-
-            log.info(`attachRequest: connection to ${host}:${port} established. Testing...`);
+            log.info(`connected to ${host}:${port}`);
 
             try {
-
                 if (this.connection) {
                     const contexts: Context[] = await this.connection.coordinator.getAllAvailableContexts();
-                    log.info(`available contexts: ${contexts.length}`);
+                    // log.info(`available contexts: ${contexts.length}`);
                     if (contexts.length < 1) {
                         throw new Error("no context found to attach to");
                     } else {
@@ -502,7 +497,7 @@ export class JanusDebugSession extends DebugSession {
                             // log.info(`got ${targetContextName} to attach to`);
                             const targetContexts = contexts.filter(context => context.name === targetContextName);
                             if (targetContexts.length > 1) {
-                                log.error(`Multiple scripts with name ${targetContextName}! Finish them using 'attach' and 'continue'`);
+                                log.error(`Multiple scripts with name ${targetContextName}!`);
                             }
                             targetContext = targetContexts[0];
                         } else {
@@ -511,7 +506,7 @@ export class JanusDebugSession extends DebugSession {
                         if (targetContext === undefined) {
                             throw new Error("no context selected to attach to");
                         }
-                        log.debug(`chose context '${targetContext.name}'`);
+                        log.debug(`selected context '${targetContext.name}'`);
                         try {
                             const sources = await connection.sendRequest(Command.getSource(targetContext.name, targetContext.id),
                                 async (res: Response) => {
