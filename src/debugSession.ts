@@ -121,14 +121,14 @@ export class JanusDebugSession extends DebugSession {
         if (existContext) {
             if (this.config === 'launch' || this.terminateOnDisconnect) {
                 if (existContext.isStopped()) {
-                    log.debug(`Terminate debuggee (context ${this.attachedContextId})`);
+                    log.debug(`Terminating debuggee (${this.attachedContextId})`);
                 } else {
-                    log.warn(`Trying to terminate debuggee (context ${this.attachedContextId}) will probably fail, because it's not stopped`);
+                    log.warn(`Trying to terminate debuggee (${this.attachedContextId}) will probably fail, because it's not stopped`);
                 }
                 await connection.sendRequest(new Command('stop', this.attachedContextId));
             }
         } else if (this.attachedContextId) {
-            log.debug(`Debuggee (context ${this.attachedContextId}) not running anymore`);
+            log.debug(`Debuggee (${this.attachedContextId}) not running anymore`);
         }
 
         await connection.sendRequest(new Command('exit'));
@@ -1378,7 +1378,7 @@ export class JanusDebugSession extends DebugSession {
     }
 
     private reportStopped(reason: string, contextId: number): void {
-        log.debug(`sending StoppedEvent with reason '${reason}' for context ${contextId}`);
+        log.debug(`sending stopped event to VS Code`);
         this.sendEvent(new StoppedEvent(reason, contextId));
     }
 }
