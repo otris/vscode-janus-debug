@@ -287,7 +287,7 @@ export class JanusDebugSession extends DebugSession {
                     }
                 });
 
-                log.debug(`selected context '${selectedContext.name}'`);
+                log.debug(`selected context '${selectedContext.name}' (${selectedContext.id})`);
                 if (this.attachedContextId === undefined) {
                     response.success = false;
                     response.message = `Could not launch remote script '${sourceUrl}': unexpected error`;
@@ -500,7 +500,8 @@ export class JanusDebugSession extends DebugSession {
                         if (targetContext === undefined) {
                             throw new Error("no context selected to attach to");
                         }
-                        log.debug(`selected context '${targetContext.name}'`);
+
+                        log.debug(`selected context '${targetContext.name}' (${targetContext.id})`);
                         try {
                             const sources = await connection.sendRequest(Command.getSource(targetContext.name, targetContext.id),
                                 async (res: Response) => {
