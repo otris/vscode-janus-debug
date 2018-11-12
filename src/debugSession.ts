@@ -280,9 +280,6 @@ export class JanusDebugSession extends DebugSession {
                 // could have changed the code, so: )
                 // we should attach to the context that we got the source code from
                 // and the context must be stopped
-                if (nameContexts.length > 1) {
-                    log.error(`Multiple scripts with name ${sourceUrl}!`);
-                }
                 nameContexts.forEach(async context => {
                     if (context.id === selectedContext.id && context.isStopped()) {
                         this.attachedContextId = context.id;
@@ -495,9 +492,6 @@ export class JanusDebugSession extends DebugSession {
                             const targetContextName = await this.ipcClient.showContextQuickPick(contextNames);
                             // log.info(`got ${targetContextName} to attach to`);
                             const targetContexts = contexts.filter(context => context.name === targetContextName);
-                            if (targetContexts.length > 1) {
-                                log.error(`Multiple scripts with name ${targetContextName}!`);
-                            }
                             targetContext = targetContexts[0];
                         } else {
                             targetContext = contexts[0];
@@ -540,6 +534,7 @@ export class JanusDebugSession extends DebugSession {
                 response.message = `Attach failed: ${e}`;
                 return this.sendResponse(response);
             }
+
 
             // Tell the frontend that we are ready to set breakpoints and so on. The frontend will end the
             // configuration sequence by calling 'configurationDone' request
@@ -1381,7 +1376,7 @@ export class JanusDebugSession extends DebugSession {
     }
 
     private reportStopped(reason: string, contextId: number): void {
-        log.debug(`sending stopped event to VS Code`);
+        log.debug(`sending 'stopped' to VS Code`);
         this.sendEvent(new StoppedEvent(reason, contextId));
     }
 }
