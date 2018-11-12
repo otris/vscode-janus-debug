@@ -252,6 +252,7 @@ export class JanusDebugSession extends DebugSession {
                     this.sendResponse(response);
                     return;
                 }
+                nameContexts.sort((c1, c2) => (c1.id - c2.id));
                 const numContexts = nameContexts.length;
                 const selectedContext = nameContexts[numContexts - 1];
 
