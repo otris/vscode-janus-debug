@@ -191,7 +191,7 @@
               "breakOnAttach": {
                 "type": "boolean",
                 "description": "When debugger attaches to a script, the script is paused immediately. (Pause button doesn't work after attach due to a VS Code problem.)",
-                "default": true
+                "default": false
               },
               "log": {
                 "type": "object",

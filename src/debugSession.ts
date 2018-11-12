@@ -61,7 +61,7 @@ export class JanusDebugSession extends DebugSession {
     private ipcClient: DebugAdapterIPC;
     private displaySourceNoticeCount = 0;
     private terminateOnDisconnect = false;
-    private breakOnAttach = true;
+    private breakOnAttach = false;
 
 
     public constructor() {
@@ -435,7 +435,7 @@ export class JanusDebugSession extends DebugSession {
         this.variablesMap = new VariablesMap();
         this.config = 'attach';
         this.terminateOnDisconnect = args.terminateOnDisconnect;
-        this.breakOnAttach = (args.breakOnAttach !== undefined) ? args.breakOnAttach : true ;
+        this.breakOnAttach = args.breakOnAttach;
         await this.ipcClient.connect();
 
         let uris: string[] | undefined;
