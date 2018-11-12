@@ -731,21 +731,21 @@ export class JanusDebugSession extends DebugSession {
         }
 
         // We only consider the attached context
-        // Note:
-        // we stop the attached context, because due to a due to a VS Code problem
-        // the user cannot stop the context before reportStopped() was called
         const contexts = await this.connection.coordinator.getAllAvailableContexts();
         contexts.forEach(async context => {
             if (context.id === this.attachedContextId) {
                 if (context.isStopped()) {
-                    log.info("configurationDoneRequest -> reportStopped");
+                    log.info("configurationDoneRequest -> reportStopped()");
                     this.reportStopped('pause', context.id);
                 } else if (this.breakOnAttach && this.connection) {
-                    // stop report is triggered with the pause answer in connection.handleResponse
+                    // With breakOnAttach context can be paused on attach, this is useful,
+                    // because due to a due to a VS Code problem the user cannot pause the
+                    // context before reportStopped() was called.
+                    // The stop report is triggered with the pause answer in connection.handleResponse.
                     log.info("configurationDoneRequest -> sendRequest pause");
                     await this.connection.sendRequest(new Command('pause', this.attachedContextId));
                 } else {
-                    log.warn(`context ${this.attachedContextId} not stopped, consider using 'breakOnAttach' in config`);
+                    log.warn(`configurationDoneRequest -> context ${this.attachedContextId} not paused, consider using 'breakOnAttach' in config`);
                 }
             }
         });
