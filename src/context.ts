@@ -250,7 +250,7 @@ export class ContextCoordinator {
         // TODO: insert id check
         await this.connection.sendRequest(new Command('get_available_contexts'), (res) => this.handleResponse(res));
         const contexts = Array.from(this.contextById.values());
-        const contextNames = contexts.map(context => context.stopped ? ` '${context.name}' (${context.id}) paused` : `${context.name}`);
+        const contextNames = contexts.map(context => context.stopped ? ` '${context.name}' (${context.id}) paused` : ` '${context.name}' (${context.id})`);
         coordinatorLog.debug(`contexts on server:${contextNames}`);
         return contexts;
     }
