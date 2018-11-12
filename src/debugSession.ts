@@ -295,10 +295,16 @@ export class JanusDebugSession extends DebugSession {
                     return;
                 }
 
-                // execute single step, when the server source contains the internal "debugger;" statement.
+                // the script is paused, so we must notify VS Code to get the
+                // debugging information in the UI
                 if (this.sourceMap.serverSource.hiddenStatement) {
-                    log.debug(`launchRequest -> sending 'next' request to remote`);
+                    // execute single step, when the server source contains the internal "debugger;" statement,
+                    // the response handler of the next request sends the stopped event to VS Code
+                    log.debug(`'debugger;' statement -> sending 'next' to remote`);
                     await connection.sendRequest(new Command('next', this.attachedContextId));
+                } else {
+                    log.info("no 'debugger;' statement");
+                    this.reportStopped('pause', this.attachedContextId);
                 }
 
                 this.sendEvent(new InitializedEvent());
@@ -530,6 +536,19 @@ export class JanusDebugSession extends DebugSession {
                         }
 
                         this.attachedContextId = targetContext.id;
+                        // if the script is paused, we must notify VS Code to get the
+                        // debugging information in the UI
+                        if (targetContext.isStopped()) {
+                            this.reportStopped('pause', targetContext.id);
+                        } else if (this.breakOnAttach && this.connection) {
+                            // Due to a problem in VS Code, the user cannot use the pause button
+                            // before the stoppedEvent was sent to VS Code.
+                            // Sending the stoppedEvent is triggered by the response of the pause request.
+                            log.info("sending 'pause' request to remote");
+                            await this.connection.sendRequest(new Command('pause', this.attachedContextId));
+                        } else {
+                            log.warn(`context ${this.attachedContextId} not paused`);
+                        }
                     }
                 } else {
                     throw new Error(`not connected to a remote debugger`);
@@ -732,28 +751,6 @@ export class JanusDebugSession extends DebugSession {
         }
 
         // We only consider the attached context.
-        // It is important, that we cause the stop report to VS Code, if the context
-        // is in state stop. Because the little yellow debugging arrow
-        // will only appear, after VS Code got a stop notification.
-        // TODO: move this to launchRequest and attachRequest
-        const contexts = await this.connection.coordinator.getAllAvailableContexts();
-        contexts.forEach(async context => {
-            if (context.id === this.attachedContextId) {
-                if (context.isStopped()) {
-                    log.info("configurationDoneRequest -> reportStopped()");
-                    this.reportStopped('pause', context.id);
-                } else if (this.breakOnAttach && this.connection) {
-                    // With breakOnAttach context can be paused on attach, this is useful,
-                    // because due to a due to a VS Code problem the user cannot pause the
-                    // context before reportStopped() was called.
-                    // The stop report is triggered with the pause answer in connection.handleResponse.
-                    log.info("configurationDoneRequest -> sending 'pause' request to remote");
-                    await this.connection.sendRequest(new Command('pause', this.attachedContextId));
-                } else {
-                    log.warn(`configurationDoneRequest -> context ${this.attachedContextId} not paused`);
-                }
-            }
-        });
 
         this.connection.on('newContext', (contextId: number, contextName: string, stopped: boolean) => {
             log.info(`new context on target: ${contextId}, context name: "${contextName}", stopped: ${stopped}`);
