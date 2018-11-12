@@ -483,6 +483,11 @@ export class JanusDebugSession extends DebugSession {
             try {
                 if (this.connection) {
                     const contexts: Context[] = await this.connection.coordinator.getAllAvailableContexts();
+
+                    // sort contexts by ids meaning by starting time
+                    // that might help the user when they must select one from list
+                    contexts.sort((c1, c2) => (c1.id - c2.id));
+
                     // log.info(`available contexts: ${contexts.length}`);
                     if (contexts.length < 1) {
                         throw new Error("no context found to attach to");
