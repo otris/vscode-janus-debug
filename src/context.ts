@@ -10,7 +10,7 @@ export type ContextId = number;
 const contextLog = Logger.create('Context');
 
 export class Context {
-    constructor(private connection: ConnectionLike, public readonly id: ContextId, public readonly name: string, private readonly stopped?: boolean) { }
+    constructor(private connection: ConnectionLike, public readonly id: ContextId, public readonly name: string, public stopped?: boolean) {}
 
     public isStopped(): boolean {
         return this.stopped ? this.stopped : false;
@@ -217,6 +217,10 @@ export class Context {
 
     public handleResponse(response: Response): Promise<void> {
         // contextLog.debug(`handleResponse ${JSON.stringify(response)} for context ${this.id}`);
+        if (response.type === "info" && response.subtype && response.subtype === "paused") {
+            contextLog.debug(`${this.id} -> paused`);
+            this.stopped = true;
+        }
         return Promise.resolve();
     }
 }
@@ -285,15 +289,16 @@ export class ContextCoordinator {
 
                     // Add new contexts
                     response.content.contexts.forEach((element: any) => {
-                        if (!this.contextById.has(element.contextId)) {
+                        const context = this.contextById.get(element.contextId);
+                        if (context === undefined) {
                             // coordinatorLog.debug(`creating new context with id: ${element.contextId}`);
-                            const newContext: Context =
-                                new Context(this.connection, element.contextId, element.contextName,
-                                    element.paused);
+                            const newContext: Context = new Context(this.connection, element.contextId, element.contextName, element.paused);
                             this.contextById.set(element.contextId, newContext);
 
                             // Notify the frontend that we have a new context in the target
                             this.connection.emit('newContext', newContext.id, newContext.name, newContext.isStopped());
+                        } else {
+                            context.stopped = element.paused;
                         }
                     });
 
