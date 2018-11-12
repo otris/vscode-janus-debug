@@ -299,8 +299,7 @@ export class JanusDebugSession extends DebugSession {
 
                 // execute single step, when the server source contains the internal "debugger;" statement.
                 if (this.sourceMap.serverSource.hiddenStatement) {
-                    // todo: move this to configurationDoneRequest
-                    log.debug(`hidden 'debugger;' statement -> execute one step`);
+                    log.debug(`launchRequest -> sending 'next' request to remote`);
                     await connection.sendRequest(new Command('next', this.attachedContextId));
                 }
 
@@ -730,7 +729,11 @@ export class JanusDebugSession extends DebugSession {
             throw new Error('No connection');
         }
 
-        // We only consider the attached context
+        // We only consider the attached context.
+        // It is important, that we cause the stop report to VS Code, if the context
+        // is in state stop. Because the little yellow debugging arrow
+        // will only appear, after VS Code got a stop notification.
+        // TODO: move this to launchRequest and attachRequest
         const contexts = await this.connection.coordinator.getAllAvailableContexts();
         contexts.forEach(async context => {
             if (context.id === this.attachedContextId) {
@@ -742,10 +745,10 @@ export class JanusDebugSession extends DebugSession {
                     // because due to a due to a VS Code problem the user cannot pause the
                     // context before reportStopped() was called.
                     // The stop report is triggered with the pause answer in connection.handleResponse.
-                    log.info("configurationDoneRequest -> sendRequest pause");
+                    log.info("configurationDoneRequest -> sending 'pause' request to remote");
                     await this.connection.sendRequest(new Command('pause', this.attachedContextId));
                 } else {
-                    log.warn(`configurationDoneRequest -> context ${this.attachedContextId} not paused, consider using 'breakOnAttach' in config`);
+                    log.warn(`configurationDoneRequest -> context ${this.attachedContextId} not paused`);
                 }
             }
         });
