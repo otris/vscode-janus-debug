@@ -501,7 +501,17 @@ export class JanusDebugSession extends DebugSession {
                         let targetContext: Context;
                         if (contexts.length > 1) {
                             const contextNames = contexts.map(context => context.name);
-                            const targetContextName = await this.ipcClient.showContextQuickPick(contextNames);
+                            const quickPickList = contextNames;
+                            const terminateAll = "<Terminate all paused scripts>";
+                            quickPickList.push(terminateAll);
+                            const targetContextName = await this.ipcClient.showContextQuickPick(quickPickList);
+                            if (targetContextName === terminateAll) {
+                                connection.sendRequest(new Command("stop"));
+                                response.success = false;
+                                response.message = "Terminated all paused scripts";
+                                this.sendResponse(response);
+                                return;
+                            }
                             // log.info(`got ${targetContextName} to attach to`);
                             const targetContexts = contexts.filter(context => context.name === targetContextName);
                             targetContext = targetContexts[0];
@@ -558,7 +568,8 @@ export class JanusDebugSession extends DebugSession {
                 log.error(`attachRequest failed: ${e}`);
                 response.success = false;
                 response.message = `Attach failed: ${e}`;
-                return this.sendResponse(response);
+                this.sendResponse(response);
+                return;
             }
 
 
