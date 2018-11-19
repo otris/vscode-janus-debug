@@ -71,7 +71,11 @@ export class VSCodeExtensionIPC {
             log.info('findURIsInWorkspace');
 
             const uris = await workspace.findFiles('**/*.js', '**/node_modules/**', 1000);
-            ipc.server.emit(socket, 'urisFound', uris.map(uri => uri.path));
+            const uriPaths = uris.map(uri => uri.path);
+            if (uriPaths) {
+                log.debug(`first uri path ${uriPaths[0]}`);
+            }
+            ipc.server.emit(socket, 'janusDebugUrisFound', uriPaths);
         });
 
         ipc.server.on('displaySourceNotice', async (message: any, socket) => {

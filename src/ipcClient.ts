@@ -31,7 +31,7 @@ export class DebugAdapterIPC {
             });
 
             ipc.of.sock.on('contextChosen', this.contextChosenDefaultHandler);
-            ipc.of.sock.on('urisFound', this.urisFoundDefaultHandler);
+            ipc.of.sock.on('janusDebugUrisFound', this.urisFoundDefaultHandler);
             ipc.of.sock.on('displaySourceNotice', this.displaySourceNoticeDefaultHandler);
         });
     }
@@ -73,10 +73,10 @@ export class DebugAdapterIPC {
         // handlers are not replaced by 'on'
         // they must be set 'on' and 'off'
         // if only 'on' is called, the handlers are added!
-        // ipc.of.sock.off('urisFound', this.urisFoundDefaultHandler);
+        // ipc.of.sock.off('janusDebugUrisFound', this.urisFoundDefaultHandler);
         const waitForResponse = timeout({
             promise: new Promise<string[]>(resolve => {
-                ipc.of.sock.on('urisFound', tmpHandler = (uris: string[]) => {
+                ipc.of.sock.on('janusDebugUrisFound', tmpHandler = (uris: string[]) => {
                     if (os.type() === 'Windows_NT') {
                         // Sanitize paths. Seriously, this is VS Code, a Microsoft product, _and_ Windows. Why isn't this working?
                         // "/c:/Users/test/Documents/lib.js", we'll remove the leading slash.
@@ -101,8 +101,11 @@ export class DebugAdapterIPC {
             result = await waitForResponse;
         } finally {
             // TODO
-            // ipc.of.sock.off('urisFound', tmpHandler);
-            ipc.of.sock.on('urisFound', this.urisFoundDefaultHandler);
+            // ipc.of.sock.off('janusDebugUrisFound', tmpHandler);
+            ipc.of.sock.on('janusDebugUrisFound', this.urisFoundDefaultHandler);
+        }
+        if (result) {
+            log.debug(`first uri path ${result[0]}`);
         }
         return result;
     }
@@ -117,7 +120,7 @@ export class DebugAdapterIPC {
         // log.warn(`got 'contextChosen' message from VS Code extension but we haven't asked!`);
     }
     private urisFoundDefaultHandler(data: any) {
-        // log.warn(`got 'urisFound' message from VS Code extension but we haven't asked!`);
+        // log.warn(`got 'janusDebugUrisFound' message from VS Code extension but we haven't asked!`);
     }
     private displaySourceNoticeDefaultHandler(data: any) {
         // log.warn(`got 'displaySourceNotice' message from VS Code extension but we haven't asked!`);
