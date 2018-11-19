@@ -43,7 +43,7 @@ function getLogConfiguration(): LogConfiguration | undefined {
         return {
             fileName: log.fileName.replace(/[$]{workspaceRoot}/, workspaceRoot),
             logLevel: {
-                "vscode-janus-debug": log.logLevel ? log.logLevel : "Debug"
+                "default": log.logLevel ? log.logLevel : "Debug"
             }
         };
     }
