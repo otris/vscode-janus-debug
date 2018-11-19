@@ -58,7 +58,7 @@ async function uploadScriptCommon(loginData: nodeDoc.ConnectionInformation, para
                             return resolve();
                         }
 
-                        vscode.window.setStatusBarMessage(`uploaded ${script.name} at ` + getTime());
+                        vscode.window.setStatusBarMessage(`uploaded ${script.name} at ${getTime()} to ${loginData.server}/${loginData.principal}`);
                         return resolve();
                     }).catch((reason) => {
                         vscode.window.showErrorMessage('force upload ' + script.name + ' failed: ' + reason);
@@ -279,15 +279,14 @@ export function uploadRunScript(loginData: nodeDoc.ConnectionInformation, param:
         let scriptName;
 
         try {
-            vscode.window.setStatusBarMessage('Upload script at ' + getTime());
-            scriptName = await uploadScriptCommon(loginData, param);
-            vscode.window.setStatusBarMessage('Uploaded ' + scriptName + ' at ' + getTime());
+            vscode.window.setStatusBarMessage(`Uploading script at ${getTime()}`);
+            await uploadScriptCommon(loginData, param);
         } catch (reason) {
             return reject();
         }
 
         try {
-            vscode.window.setStatusBarMessage('Start script ' + scriptName + ' at ' + getTime());
+            vscode.window.setStatusBarMessage(`Starting script at ${getTime()}`);
             scriptName = await runScriptCommon(loginData, param, outputChannel);
             vscode.window.setStatusBarMessage('Script ' + scriptName + ' finished at ' + getTime());
         } catch (reason) {
