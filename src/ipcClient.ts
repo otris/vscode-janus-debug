@@ -80,6 +80,10 @@ export class DebugAdapterIPC {
                     if (os.type() === 'Windows_NT') {
                         // Sanitize paths. Seriously, this is VS Code, a Microsoft product, _and_ Windows. Why isn't this working?
                         // "/c:/Users/test/Documents/lib.js", we'll remove the leading slash.
+                        //
+                        // ... or simply read the documentation of Uri,
+                        // in ipcServer uri.fsPath must be returned instead of uri.path
+                        // then this will work without sanitizing paths
                         uris = uris.map(uri => {
                             if (uri.startsWith('/')) {
                                 return uri.substring(1);

@@ -71,6 +71,7 @@ export class VSCodeExtensionIPC {
             log.info('findURIsInWorkspace');
 
             const uris = await workspace.findFiles('**/*.js', '**/node_modules/**', 1000);
+            // todo use uri.fsPath
             const uriPaths = uris.map(uri => uri.path);
             if (uriPaths) {
                 log.debug(`first uri path ${uriPaths[0]}`);
