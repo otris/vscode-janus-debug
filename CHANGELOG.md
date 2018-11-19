@@ -2,6 +2,11 @@
 
 You'll find a complete list of changes at our project site on [GitHub](https://github.com/otris/vscode-janus-debug).
 
+### 1.0.26 (2018-11-19)
+
+- Add options to terminate scripts ([see Wiki](https://github.com/otris/vscode-janus-debug/wiki/Terminating-scripts))
+- Add option to pause scripts without `debugger;` statement on attach ([see Wiki](https://github.com/otris/vscode-janus-debug/wiki/Launching-the-Debugger#without-debugger-statement))
+
 ### 1.0.25 (2018-11-09)
 
 - Debugger works now with multiple running scripts ([Issue](https://github.com/otris/vscode-janus-debug/issues/191))
