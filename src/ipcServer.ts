@@ -70,7 +70,7 @@ export class VSCodeExtensionIPC {
         ipc.server.on('findURIsInWorkspace', async (ignored: any, socket) => {
             log.info('findURIsInWorkspace');
 
-            const uris = await workspace.findFiles('**/*.js', '**/node_modules/**', 1000);
+            const uris = await workspace.findFiles('**/*.js', '**/node_modules/**');
             // todo use uri.fsPath
             const uriPaths = uris.map(uri => uri.path);
             if (uriPaths) {
