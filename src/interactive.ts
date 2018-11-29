@@ -5,8 +5,8 @@
  */
 
 
+import * as fs from 'fs';
 import * as nodeDoc from 'node-documents-scripting';
-import * as path from 'path';
 import * as vscode from 'vscode';
 
 // tslint:disable-next-line:no-var-requires
@@ -253,7 +253,8 @@ export async function createXMLExportFilter(className: string, names: string[]):
     return new Promise<string | nodeDoc.xmlExport[] | undefined>(async (resolve, reject) => {
         const all = "All in seperate files";
         const allInOne = "All in one file";
-        const items = [all, allInOne].concat(names);
+        const fromJson = "Get names from JSON";
+        const items = [all, allInOne, fromJson].concat(names);
         const prefix = (className === "DlcFileType") ? "Title=" : "Name=";
 
 
@@ -265,6 +266,35 @@ export async function createXMLExportFilter(className: string, names: string[]):
             return resolve(xmlExports);
         } else if (selected === allInOne) {
             return resolve("");
+        } else if (selected === fromJson) {
+            const jsonFile = await vscode.window.showInputBox({prompt: "Insert Path to JSON File", ignoreFocusOut: true});
+            if (jsonFile === undefined) {
+                return resolve(undefined);
+            }
+            const jsonString = fs.readFileSync(jsonFile, 'utf8');
+            const jsonObj = JSON.parse(jsonString);
+            const keys = Object.keys(jsonObj);
+            if (keys.length === 0) {
+                vscode.window.showWarningMessage("Expected array in JSON file");
+                return resolve(undefined);
+            } else {
+                let jsonArray;
+                if (keys.length > 1) {
+                    const selectedArray = await vscode.window.showQuickPick(keys);
+                    jsonArray = selectedArray ? jsonObj[selectedArray] : undefined;
+                } else {
+                    jsonArray = jsonObj[keys[0]];
+                }
+                if (jsonArray !== undefined && jsonArray instanceof Array) {
+                    const xmlExports = jsonArray.map((name, i) => {
+                        return new nodeDoc.xmlExport(className, prefix + `'${name}'`, name);
+                    });
+                    return resolve(xmlExports);
+                } else {
+                    vscode.window.showWarningMessage("Expected array in JSON file");
+                    return resolve(undefined);
+                }
+            }
         } else if (selected) {
             const xmlExports = [];
             xmlExports.push(new nodeDoc.xmlExport(className, prefix + `'${selected}'`, selected));
