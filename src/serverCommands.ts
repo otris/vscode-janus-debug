@@ -594,20 +594,24 @@ export async function showImports(loginData: nodeDoc.ConnectionInformation, para
  * No vscode inside function
  * ==> prepared for mocha test (special tests using Documents server)
  */
-export async function exportXML(loginData: nodeDoc.ConnectionInformation, param: string[], workspaceFolder: string): Promise<void> {
+export async function exportXML(loginData: nodeDoc.ConnectionInformation, param: nodeDoc.xmlExport, workspaceFolder: string): Promise<void> {
     return new Promise<void>(async (resolve, reject) => {
-        if (param.length < 2) {
-            return reject('Export XML failed: incorrect input');
-        }
 
-        const subFolder = param[0] === "DlcFileType" ? "fileTypes" : "portalScripts";
-        const baseName = param[0] === "DlcFileType" ? "allFileTypes.xml" : "allPortalScripts.xml";
+        const subFolder = param.className === "DlcFileType" ? "fileTypes" : "portalScripts";
+        let baseName;
+        if (param.fileName) {
+            baseName = param.fileName + ".xml";
+        } else if (param.className === "DlcFileType") {
+            baseName = "allFileTypes.xml";
+        } else {
+            baseName = "allPortalScripts.xml";
+        }
         const exportDir = path.join(workspaceFolder, subFolder);
 
         try {
             await login.ensureLoginInformation(loginData);
 
-            const returnValue: string[] = await nodeDoc.serverSession(loginData, param, nodeDoc.exportXML);
+            const returnValue: string[] = await nodeDoc.serverSession(loginData, [param.className, param.filter], nodeDoc.exportXML);
             const xmlOutput = returnValue[0];
             if (xmlOutput && xmlOutput.length > 0) {
                 fs.ensureDirSync(exportDir);

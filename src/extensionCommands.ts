@@ -33,16 +33,17 @@ export async function exportXML(loginData: nodeDoc.ConnectionInformation) {
         }
 
         // show the user the names list and ask for special name or all
-        const filter = await interactive.createXMLExportFilter(exportClass, names);
+        const exp = await interactive.createXMLExportFilter(exportClass, names);
 
-        if (typeof(filter) === 'string') {
+
+        if (exp instanceof nodeDoc.xmlExport) {
             // if the user wants all portal scripts / file types in one file, the function
             // call is a bit simpler because the filter only contains the class name
-            await serverCommands.exportXML(loginData, [exportClass, filter], workspaceFolder);
-        } else if (filter) {
+            await serverCommands.exportXML(loginData, exp, workspaceFolder);
+        } else if (exp) {
             // if the user wants seperate files for every portal script / file type, the function
             // call is the same, however if they want one or all portal scripts / file types
-            await serverCommands.exportXMLSeperateFiles(loginData, filter, workspaceFolder);
+            await serverCommands.exportXMLSeperateFiles(loginData, exp, workspaceFolder);
         }
     } catch (err) {
         vscode.window.showErrorMessage(err);

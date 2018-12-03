@@ -245,16 +245,16 @@ function checkDuplicateScripts(folderScripts: nodeDoc.scriptT[]): Promise<boolea
 
 
 export async function getXMLExportClass(): Promise<string | undefined> {
-    const exportClass = await vscode.window.showQuickPick(["DlcFileType", "PortalScript"], {placeHolder: "Select class"});
+    const exportClass = await vscode.window.showQuickPick(["DlcFileType", "PortalScript"], {placeHolder: "Select class", ignoreFocusOut: true});
     return Promise.resolve(exportClass);
 }
 
-export async function createXMLExportFilter(className: string, names: string[]): Promise<string | nodeDoc.xmlExport[] | undefined> {
-    return new Promise<string | nodeDoc.xmlExport[] | undefined>(async (resolve, reject) => {
+export async function createXMLExportFilter(className: string, names: string[]): Promise<nodeDoc.xmlExport | nodeDoc.xmlExport[] | undefined> {
+    return new Promise<nodeDoc.xmlExport | nodeDoc.xmlExport[] | undefined>(async (resolve, reject) => {
         const all = "All in seperate files";
         const allInOne = "All in one file";
         const fromJson = "Get names from JSON";
-        const items = [all, allInOne, fromJson].concat(names);
+        const items = (className === "DlcFileType") ? [all, allInOne].concat(names) : [all, allInOne, fromJson].concat(names);
         const prefix = (className === "DlcFileType") ? "Title=" : "Name=";
 
 
@@ -265,7 +265,8 @@ export async function createXMLExportFilter(className: string, names: string[]):
             });
             return resolve(xmlExports);
         } else if (selected === allInOne) {
-            return resolve("");
+            const xmlExport = new nodeDoc.xmlExport(className, "", "");
+            return resolve(xmlExport);
         } else if (selected === fromJson) {
             const jsonFile = await vscode.window.showInputBox({prompt: "Insert Path to JSON File", ignoreFocusOut: true});
             if (jsonFile === undefined) {
@@ -279,17 +280,22 @@ export async function createXMLExportFilter(className: string, names: string[]):
                 return resolve(undefined);
             } else {
                 let jsonArray;
+                let label;
                 if (keys.length > 1) {
-                    const selectedArray = await vscode.window.showQuickPick(keys);
-                    jsonArray = selectedArray ? jsonObj[selectedArray] : undefined;
+                    label = await vscode.window.showQuickPick(keys);
+                    jsonArray = label ? jsonObj[label] : undefined;
                 } else {
-                    jsonArray = jsonObj[keys[0]];
+                    label = keys[0];
+                    jsonArray = jsonObj[label];
                 }
                 if (jsonArray !== undefined && jsonArray instanceof Array) {
-                    const xmlExports = jsonArray.map((name, i) => {
-                        return new nodeDoc.xmlExport(className, prefix + `'${name}'`, name);
+                    // e.g. filter = "(Name='crmNote'||Name='crmCase')"
+                    const titles = jsonArray.map((name) => {
+                        return prefix + `'${name}'`;
                     });
-                    return resolve(xmlExports);
+                    const filter = "(" + titles.join("||") + ")";
+                    const xmlExport = new nodeDoc.xmlExport(className, filter, (label ? label : ""));
+                    return resolve(xmlExport);
                 } else {
                     vscode.window.showWarningMessage("Expected array in JSON file");
                     return resolve(undefined);
