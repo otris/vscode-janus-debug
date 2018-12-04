@@ -9,6 +9,8 @@ export type VariablesReference = number;
 export class VariablesContainer {
     public contextId: number;
     public variables: DebugProtocol.Variable[];
+    public parentId?: number;
+    public variableName?: string;
 
     constructor(contextId: number) {
         this.contextId = contextId;
@@ -270,21 +272,8 @@ export class VariablesMap {
         };
     }
 
-    /**
-     * Creates a variable object for object types.
-     * @param {string} variableName The display name of the variable.
-     * @param {any} variableValue The content of the variable.
-     * @param {string} evaluateName This param is need for evaluate variables that are properties of object or elements of arrays. For this variables we need also the name of their parent to access the value.
-     * @returns {Variable} A full qualified variables object.
-     */
-    private async createObjectVariable(variableName: string, variableValue: any, contextId: number, context: Context, frameId: number, evaluateName: string): Promise<DebugProtocol.Variable> {
-        if (variableName === '') {
-            throw new Error('Variables name cannot be empty.');
-        }
 
-        const variablesContainer: VariablesContainer = new VariablesContainer(contextId);
-        // log.debug(`Create a object variable for variable ${variableName} with value ${variableValue} of type ${typeof variableValue}`);
-
+    private generateExpression(variableName: string): string {
         // if it's an object, request the string representation to parse it
         const stringifyFunctionsReplacer = (key: any, value: any) => {
             if (typeof value === "function") {
@@ -293,6 +282,7 @@ export class VariablesMap {
                 return value;
             }
         };
+
         const evaluateExpression = `(function () {
             if (${variableName}) {
                 if (typeof ${variableName} === "object") {
@@ -317,35 +307,87 @@ export class VariablesMap {
             return JSON.stringify(${variableName}, ${stringifyFunctionsReplacer.toString()});
         }`.replace(/\r?\n|\t/g, "") + ")()";
 
-        try {
-            let _variableValue = await context.evaluate2(evaluateExpression);
-            // log.debug(`Evaluate for variable ${variableName} succeeded with ${_variableValue} of type ${typeof _variableValue}`);
+        return evaluateExpression;
+    }
 
-            /* tslint:disable-next-line */
-            _variableValue = eval("_variableValue = " + _variableValue + ";");
-            // log.debug(`New variable value for variable ${variableName} => ${JSON.stringify(_variableValue)} => ${_variableValue} with type ${typeof _variableValue}`);
 
-            variableValue = _variableValue;
-        } catch (err) {
-            // log.debug(`Evaluate for variable ${variableName} failed: ${JSON.stringify(err)} => ${err.message}`);
+    public async evaluateObject(context: Context, variableName: string): Promise<any> {
+        const evaluateExpression = this.generateExpression(variableName);
+
+        return new Promise<any>(async (resolve, reject) => {
+            try {
+                let _variableValue = await context.evaluate2(evaluateExpression);
+                // log.debug(`Evaluate for variable ${variableName} succeeded with ${_variableValue} of type ${typeof _variableValue}`);
+
+                /* tslint:disable-next-line */
+                _variableValue = eval("_variableValue = " + _variableValue + ";");
+                // log.debug(`New variable value for variable ${variableName} => ${JSON.stringify(_variableValue)} => ${_variableValue} with type ${typeof _variableValue}`);
+
+                resolve(_variableValue);
+            } catch (err) {
+                log.debug(`Evaluate for variable ${variableName} failed: ${JSON.stringify(err)} => ${err.message}`);
+                reject();
+            }
+        });
+    }
+
+
+    // tslint:disable-next-line:member-ordering
+    public async addObjectMembers(context: Context, variablesContainer: VariablesContainer): Promise<void> {
+        if (variablesContainer.variableName === undefined) {
+            return;
         }
-
-        if (variableValue.hasOwnProperty('___jsrdbg_function_desc___')) {
-            // Functions will be recognized as objects because of the way the debugger evaluate functions
-            let functionParams = variableValue.___jsrdbg_function_desc___.parameterNames;
-            functionParams = functionParams.toString().replace(/,/, ', ');
-
-            return this.createPrimitiveVariable(variableName, 'function (' + functionParams + ') { ... }', `${evaluateName}.${variableName}`);
-        } else if (!(variableValue instanceof Date)) {
+        if (variablesContainer.parentId === undefined) {
+            return;
+        }
+        const variableName = variablesContainer.variableName;
+        log.debug("addObjectMembers " + variableName);
+        const variableValue = await this.evaluateObject(context, variableName);
+        if (!(variableValue instanceof Date)) {
             // Create a new variable for each property on this object and chain them together with the reference property
             for (const key in variableValue) {
                 if (variableValue.hasOwnProperty(key)) {
                     variablesContainer.variables.push(
-                        await this._createVariable(key, variableValue[key], contextId, context, frameId, `${evaluateName}.${key}`)
+                        await this._createVariable(key, variableValue[key], context.id, context, variablesContainer.parentId, `${variableName}.${key}`)
                     );
                 }
             }
         }
+    }
+
+    /**
+     * Creates a variable object for object types.
+     * @param {string} variableName The display name of the variable.
+     * @param {any} variableValue The content of the variable.
+     * @param {string} evaluateName This param is need for evaluate variables that are properties of object or elements of arrays. For this variables we need also the name of their parent to access the value.
+     * @returns {Variable} A full qualified variables object.
+     */
+    private async createObjectVariable(variableName: string, variableValue: any, contextId: number, context: Context, frameId: number, evaluateName: string): Promise<DebugProtocol.Variable> {
+        if (variableName === '') {
+            throw new Error('Variables name cannot be empty.');
+        }
+
+        // log.debug(`Create an object variable for variable ${variableName} with value ${variableValue} of type ${typeof variableValue}`);
+
+
+
+        // todo: if evaluate must be called here, it must be simpler, because
+        // this will be executed in every step when object variables in frame
+        // variableValue = await this.evaluateObject(context, variableName);
+        if (variableValue.hasOwnProperty('___jsrdbg_function_desc___')) {
+            // functions will be recognized as objects because of the way the debugger evaluate functions
+            // actually this case was handled earlier, so probably this is never executed
+            let functionParams = variableValue.___jsrdbg_function_desc___.parameterNames;
+            functionParams = functionParams.toString().replace(/,/, ', ');
+            log.debug('createObjectVariable ___jsrdbg_function_desc___ params: ' + functionParams);
+            return this.createPrimitiveVariable(variableName, 'function (' + functionParams + ') { ... }', `${evaluateName}.${variableName}`);
+        } // else
+
+
+        const variablesContainer: VariablesContainer = new VariablesContainer(contextId);
+        variablesContainer.variableName = variableName;
+        variablesContainer.parentId = frameId;
+
 
         const reference = this.createReference(contextId, frameId, evaluateName);
         this.variablesMap.set(reference, variablesContainer);

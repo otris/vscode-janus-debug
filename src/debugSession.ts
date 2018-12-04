@@ -1170,13 +1170,6 @@ export class JanusDebugSession extends DebugSession {
             // use await with createVariable()! because createVariable cannot be called parallel
             // use for...of instead of forEach because forEach does not wait!
             for (const variable of locals) {
-                // TODO
-                // context.evaluate2() is called inside createVariable(). This function gets the internal
-                // values of structured variables from the server. So for now, the values of all variables
-                // are retrieved, anyway, if the user wants to see them or not.
-                // So actually, context.evaluate2() should be called in variablesRequest(). Because in that
-                // function we get the id of the variable that is currently expanded by the user. And then
-                // we can call context.evaluate2() only for that variable, that the user wants to see.
                 await this.variablesMap.createVariable(variable.name, variable.value, contextId, context, frameRef);
             }
 
@@ -1200,11 +1193,10 @@ export class JanusDebugSession extends DebugSession {
     }
 
     protected async variablesRequest(response: DebugProtocol.VariablesResponse, args: DebugProtocol.VariablesArguments): Promise<void> {
-        log.info(`variablesRequest`);
-
-        // TODO:
-        // context.evaluate2() must be called from this function
-        // see TODO in scopesRequest
+        log.info(`variablesRequest ${args.variablesReference}`);
+        if (this.connection === undefined) {
+            throw new Error('Internal error: No connection');
+        }
 
         try {
             // Get variables from the variables map
@@ -1212,6 +1204,11 @@ export class JanusDebugSession extends DebugSession {
             // variablesContainer.variables.forEach((variable) => {
             //     log.info(`variable: ${JSON.stringify(variable)}`);
             // });
+            const context = this.connection.coordinator.getContext(variablesContainer.contextId);
+            if (variablesContainer.parentId !== undefined && variablesContainer.variableName !== undefined) {
+                // this conainer belongs to an object and we have to add the object members
+                await this.variablesMap.addObjectMembers(context, variablesContainer);
+            }
 
             // Check if the returned variables container contains a object variable that is collapsed.
             // If so, we have to request the debugger to evaluate this variable.
@@ -1221,11 +1218,7 @@ export class JanusDebugSession extends DebugSession {
 
             if (collapsedVariables.length > 0) {
                 // We have some collapsed variables => send a evaluation request to the debugger
-                if (this.connection === undefined) {
-                    throw new Error('Internal error: No connection');
-                }
 
-                const context = this.connection.coordinator.getContext(variablesContainer.contextId);
                 for (const collapsedVariable of collapsedVariables) {
                     if (typeof collapsedVariable.evaluateName === 'undefined' || collapsedVariable.evaluateName === '') {
                         throw new Error(`Internal error: The variable "${collapsedVariable.name}" has no evaluate name.`);
