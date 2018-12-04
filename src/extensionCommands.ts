@@ -7,8 +7,22 @@
 
 import * as nodeDoc from 'node-documents-scripting';
 import * as vscode from 'vscode';
+import * as helpers from './helpers';
 import * as interactive from './interactive';
 import * as serverCommands from './serverCommands';
+
+
+
+export async function showServerFile(loginData: nodeDoc.ConnectionInformation, param: any) {
+    const pc = helpers.getPathContext(param, true);
+    try {
+        await serverCommands.showImports(loginData, (pc ? pc.fsPath : undefined));
+    } catch (err) {
+        //
+    }
+    helpers.showWarning(loginData);
+}
+
 
 export async function exportXML(loginData: nodeDoc.ConnectionInformation) {
     if (!vscode.workspace.workspaceFolders || !vscode.workspace.workspaceFolders[0]) {

@@ -514,14 +514,7 @@ export function activate(context: vscode.ExtensionContext): void {
     // Show server file
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus-debug.showImports', async (param) => {
-
-            const pc = helpers.getPathContext(param, true);
-            try {
-                await serverCommands.showImports(loginData, (pc ? pc.fsPath : undefined));
-            } catch (err) {
-                //
-            }
-            helpers.showWarning(loginData);
+            await extensionCommands.showServerFile(loginData, param);
         })
     );
 
