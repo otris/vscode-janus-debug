@@ -37,12 +37,11 @@ export async function exportXML(loginData: nodeDoc.ConnectionInformation) {
 
 
         if (exp instanceof nodeDoc.xmlExport) {
-            // if the user wants all portal scripts / file types in one file, the function
-            // call is a bit simpler because the filter only contains the class name
+            // all portal scripts / file types in one file
             await serverCommands.exportXML(loginData, exp, workspaceFolder);
         } else if (exp) {
-            // if the user wants seperate files for every portal script / file type, the function
-            // call is the same, however if they want one or all portal scripts / file types
+            // seperate files for every portal script / file type
+            // the call is the same for one ore all portal scripts / file types
             await serverCommands.exportXMLSeperateFiles(loginData, exp, workspaceFolder);
         }
     } catch (err) {

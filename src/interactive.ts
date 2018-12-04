@@ -7,6 +7,7 @@
 
 import * as fs from 'fs';
 import * as nodeDoc from 'node-documents-scripting';
+import * as path from 'path';
 import * as vscode from 'vscode';
 
 // tslint:disable-next-line:no-var-requires
@@ -254,7 +255,7 @@ export async function createXMLExportFilter(className: string, names: string[]):
         const all = "All in seperate files";
         const allInOne = "All in one file";
         const fromJson = "Get names from JSON";
-        const items = (className === "DlcFileType") ? [all, allInOne].concat(names) : [all, allInOne, fromJson].concat(names);
+        const items = [all, allInOne, fromJson].concat(names);
         const prefix = (className === "DlcFileType") ? "Title=" : "Name=";
 
 
@@ -268,7 +269,12 @@ export async function createXMLExportFilter(className: string, names: string[]):
             const xmlExport = new nodeDoc.xmlExport(className, "", "");
             return resolve(xmlExport);
         } else if (selected === fromJson) {
-            const jsonFile = await vscode.window.showInputBox({prompt: "Insert Path to JSON File", ignoreFocusOut: true});
+            const uri = vscode.window.activeTextEditor ? vscode.window.activeTextEditor.document.uri : undefined;
+            let jsonUri;
+            if (uri && path.extname(uri.fsPath) === ".json") {
+                jsonUri = uri.fsPath;
+            }
+            const jsonFile = await vscode.window.showInputBox({prompt: "Insert Path to JSON File", ignoreFocusOut: true, value: jsonUri});
             if (jsonFile === undefined) {
                 return resolve(undefined);
             }
