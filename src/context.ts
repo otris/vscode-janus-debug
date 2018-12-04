@@ -153,7 +153,7 @@ export class Context {
 
     // FIXME: this implementation is only for evaluating variables and variable values? This shouldn't be here. Should be around variableMap.ts
     public evaluate(expression: string): Promise<Variable> {
-        contextLog.debug(`request 'evaluate' for context ${this.id}`);
+        // contextLog.debug(`request 'evaluate' for context ${this.id}`);
 
         // For now this solution is okay, in future it would be better if the debugger is smart enough to decide how the
         // value of the "thing" to evaluate should be represented.

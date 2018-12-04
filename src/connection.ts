@@ -62,7 +62,7 @@ export class DebugConnection extends EventEmitter implements ConnectionLike {
         }
 
         if (response.type === "info" && response.subtype && response.subtype === "paused") {
-            log.info(`got 'paused' from remote (${response.contextId})`);
+            // log.info(`got 'paused' from remote (${response.contextId})`);
             this.emit('contextPaused', response.contextId);
         }
 

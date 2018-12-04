@@ -123,7 +123,7 @@ export class JanusDebugSession extends DebugSession {
                 if (existContext.isStopped()) {
                     log.debug(`Terminating debuggee (${this.attachedContextId})`);
                 } else {
-                    log.warn(`Trying to terminate debuggee (${this.attachedContextId}) will probably fail, because it's not stopped`);
+                    log.warn(`Trying to terminate debuggee (${this.attachedContextId}) will fail, because it's not stopped`);
                 }
                 await connection.sendRequest(new Command('stop', this.attachedContextId));
             }
@@ -1330,7 +1330,7 @@ export class JanusDebugSession extends DebugSession {
     }
 
     protected evaluateRequest(response: DebugProtocol.EvaluateResponse, args: DebugProtocol.EvaluateArguments): void {
-        log.info(`evaluateRequest for contextId: ${args.context}`);
+        log.info(`evaluateRequest for ${args.expression}`);
 
         if (this.connection === undefined) {
             throw new Error('No connection');
@@ -1349,7 +1349,7 @@ export class JanusDebugSession extends DebugSession {
                 variablesReference: 0,
             };
 
-            log.debug('evaluateRequest succeeded');
+            // log.debug('evaluateRequest succeeded');
             this.sendResponse(response);
         }).catch((reason) => {
             log.error(`evaluateRequest failed: ${reason}`);
