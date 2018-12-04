@@ -604,11 +604,6 @@
           "group": "DOCUMENTS@4"
         },
         {
-          "command": "extension.vscode-janus-debug.showImports",
-          "when": "resourceLangId == javascript",
-          "group": "DOCUMENTS@5"
-        },
-        {
           "command": "extension.vscode-janus-debug.compareScript",
           "when": "resourceLangId == javascript",
           "group": "DOCUMENTS@6"
