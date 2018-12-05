@@ -1064,7 +1064,7 @@ export class JanusDebugSession extends DebugSession {
 
                 try {
                     let localPos;
-                    // log.debug(`frame: url '${frame.sourceUrl}' line ${frame.sourceLine}`);
+                    log.debug(`context '${context.name}' frame: url '${frame.sourceUrl}' line ${frame.sourceLine}`);
 
                     // arrow-functions
                     // if (frame.sourceUrl === 'self-hosted') {
@@ -1323,7 +1323,7 @@ export class JanusDebugSession extends DebugSession {
     }
 
     protected evaluateRequest(response: DebugProtocol.EvaluateResponse, args: DebugProtocol.EvaluateArguments): void {
-        log.info(`evaluateRequest for ${args.expression}`);
+        // log.info(`evaluateRequest for ${args.expression}`);
 
         if (this.connection === undefined) {
             throw new Error('No connection');
