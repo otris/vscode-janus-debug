@@ -686,7 +686,7 @@ export class JanusDebugSession extends DebugSession {
                             // We do this by passing a new breakpoint to the resolve function with the
                             // pending attribute set to false.
                             if ((res.type === 'error' && res.content.message) && (res.content.message === 'Cannot set breakpoint at given line.')) {
-                                log.info(`cannot set breakpoint at requested line ${remoteLine} response line ${res.content.line} local line ${breakpoint.line}`);
+                                log.info(`cannot set breakpoint at ${breakpoint.line} (remote ${remoteLine})`);
                                 return resolve({
                                     line: remoteLine,
                                     pending: false,
@@ -851,7 +851,7 @@ export class JanusDebugSession extends DebugSession {
     }
 
     protected async stepInRequest(response: DebugProtocol.StepInResponse, args: DebugProtocol.StepInArguments): Promise<void> {
-        log.info(`stepInRequest for threadId: ${args.threadId}`);
+        log.info(`stepInRequest`);
 
         if (this.connection === undefined) {
             throw new Error('No connection');
@@ -1047,6 +1047,10 @@ export class JanusDebugSession extends DebugSession {
 
             // create the frames
             const frames = this.frameMap.addFrames(contextId, trace);
+            if (frames.length > 0 && frames.length < trace.length) {
+                const serverSourceLine = this.sourceMap.serverSource.getSourceLine(frames[0].sourceLine);
+                log.debug(`server line: '${serverSourceLine}'`);
+            }
             const stackFrames: Array<Promise<DebugProtocol.StackFrame>> = frames.map(async frame => {
                 if (this.connection === undefined) {
                     // not expected here
@@ -1064,12 +1068,8 @@ export class JanusDebugSession extends DebugSession {
 
                 try {
                     let localPos;
-                    log.debug(`context '${context.name}' frame: url '${frame.sourceUrl}' line ${frame.sourceLine}`);
+                    // log.debug(`context '${context.name}' frame: url '${frame.sourceUrl}' line ${frame.sourceLine}`);
 
-                    // arrow-functions
-                    // if (frame.sourceUrl === 'self-hosted') {
-                    //     log.debug("TODO: handle arrow functions...");
-                    // }
 
                     // 'required' scripts
                     if (frame.sourceUrl !== context.name) {
@@ -1080,10 +1080,10 @@ export class JanusDebugSession extends DebugSession {
                             this.sourceMap.addDynamicScript(frame.sourceUrl, serverSource);
                         }
                         localPos = this.sourceMap.toLocalPosition(frame.sourceLine, frame.sourceUrl);
-                        log.info(`dynamic script: local line ${localPos.line} in local file '${localPos.source}'`);
+                        log.info(`dynamic script: line ${localPos.line} in file '${localPos.source}'`);
                     } else {
                         localPos = this.sourceMap.toLocalPosition(frame.sourceLine);
-                        log.info(`static script: local line ${localPos.line} in local file '${localPos.source}'`);
+                        log.info(`static script: line ${localPos.line} in file '${localPos.source}'`);
                     }
 
 
@@ -1117,7 +1117,7 @@ export class JanusDebugSession extends DebugSession {
                         } : undefined
                     };
 
-                    log.error(`Get local position failed for context '${context.name}': ${e}`);
+                    log.error(`no local position for '${context.name}': ${e}`);
                     if (this.displaySourceNoticeCount < 1) {
                         // or simply use e.message here?
                         this.ipcClient.displaySourceNotice(`Source mismatch: try using Breakpoints and Continue. More information in log file.`);
@@ -1345,7 +1345,7 @@ export class JanusDebugSession extends DebugSession {
             // log.debug('evaluateRequest succeeded');
             this.sendResponse(response);
         }).catch((reason) => {
-            log.error(`evaluateRequest failed: ${reason}`);
+            // log.error(`evaluateRequest failed: ${reason}`);
             response.success = false;
             response.message = `Could not evaluate expression "${args.expression}": ${reason}`;
             this.sendResponse(response);
