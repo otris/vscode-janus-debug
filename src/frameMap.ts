@@ -36,12 +36,18 @@ export class FrameMap {
 
         const added: StackFrame[] = [];
         frames.forEach(frame => {
-            const entry = new StackFrame(contextId, frame);
-            if (this.frameIdToFrame.has(entry.frameId)) {
-                // log.warn(`already mapped entry: ${entry.frameId} -> (${contextId}, ${entry.rDepth})`);
+            // arrow-functions contain frame with name 'self-hosted'
+            // portalScripting funtions contain frame with name '<inline>'
+            if (frame.url !== "self-hosted" && frame.url !== "<inline>") {
+                const entry = new StackFrame(contextId, frame);
+                if (this.frameIdToFrame.has(entry.frameId)) {
+                    // log.warn(`already mapped entry: ${entry.frameId} -> (${contextId}, ${entry.rDepth})`);
+                }
+                this.frameIdToFrame.set(entry.frameId, entry);
+                added.push(entry);
+            } else {
+                log.debug(`ignore internal frame '${frame.url}'`);
             }
-            this.frameIdToFrame.set(entry.frameId, entry);
-            added.push(entry);
         });
         return added;
     }
