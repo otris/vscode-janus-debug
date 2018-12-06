@@ -446,7 +446,7 @@ export class ServerSource {
 
         idx = this._chunks.findIndex(chunk => (line >= chunk.pos.start) && (line < (chunk.pos.start + chunk.pos.len)));
         if (idx < 0) {
-            throw new Error(`Chunk in server file not found for remote line ${line}`);
+            throw new Error(`Line ${line} not found on server`);
         }
         const firstChunk = (idx === 0);
         const chunk = this._chunks[idx];
@@ -491,7 +491,7 @@ export class ServerSource {
         const idx = this._chunks.findIndex(chunk => (pos.source === chunk.name) &&
             (pos.line >= chunk.localStart) && (pos.line < (chunk.localStart + chunk.pos.len)));
         if (idx < 0) {
-            throw new Error(`Chunk in server file not found for ${pos.source} line ${pos.line}`);
+            throw new Error(`${pos.source} line ${pos.line} not found on server`);
         }
         // serverSourceLog.debug(`(toRemoteLine) found CHUNK[${idx}]: starts in ${pos.source}.js at ${this.chunks[idx].localStart} and in remote at ${this.chunks[idx].pos.start} (+1)`);
 
