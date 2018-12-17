@@ -492,6 +492,11 @@
         "category": "DOCUMENTS"
       },
       {
+        "command": "extension.vscode-janus-debug.uploadExportXML",
+        "title": "Upload Script and Export XML",
+        "category": "DOCUMENTS"
+      },
+      {
         "command": "extension.vscode-janus-debug.wizardDownloadProject",
         "title": "Wizard: Download / Create Project",
         "category": "DOCUMENTS"

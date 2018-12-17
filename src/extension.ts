@@ -524,6 +524,11 @@ export function activate(context: vscode.ExtensionContext): void {
             await extensionCommands.exportXML(loginData);
         })
     );
+    context.subscriptions.push(
+        vscode.commands.registerCommand('extension.vscode-janus-debug.uploadExportXML', async (param) => {
+            await extensionCommands.uploadExportXML(loginData);
+        })
+    );
 
     // connect the sever console manually
     context.subscriptions.push(
