@@ -252,9 +252,9 @@ export async function getXMLExportClass(): Promise<string | undefined> {
 
 export async function createXMLExportFilter(className: string, names: string[]): Promise<nodeDoc.xmlExport | nodeDoc.xmlExport[] | undefined> {
     return new Promise<nodeDoc.xmlExport | nodeDoc.xmlExport[] | undefined>(async (resolve, reject) => {
-        const all = "All in seperate files";
-        const allInOne = "All in one file";
-        const fromJson = "Get names from JSON";
+        const all = "<All in seperate files>";
+        const allInOne = "<All in one file>";
+        const fromJson = "<Get names from JSON>";
         const items = [all, allInOne, fromJson].concat(names);
         const prefix = (className === "DlcFileType") ? "Title=" : "Name=";
 
