@@ -6,6 +6,7 @@
  */
 
 import * as nodeDoc from 'node-documents-scripting';
+import * as path from 'path';
 import * as vscode from 'vscode';
 import * as helpers from './helpers';
 import * as interactive from './interactive';
@@ -21,6 +22,27 @@ export async function showServerFile(loginData: nodeDoc.ConnectionInformation, p
         //
     }
     helpers.showWarning(loginData);
+}
+
+export async function uploadExportXML(loginData: nodeDoc.ConnectionInformation) {
+    if (!vscode.window.activeTextEditor) {
+        vscode.window.showErrorMessage('Upload and export XML failed: active script required');
+        return;
+    }
+    const uri = vscode.window.activeTextEditor.document.uri;
+    if (path.extname(uri.fsPath) !== ".js") {
+        vscode.window.showErrorMessage('Upload and export XML failed: active script must be javascript');
+        return;
+    }
+    const workspaceFolder = vscode.workspace.getWorkspaceFolder(uri);
+    if (!workspaceFolder) {
+        vscode.window.showErrorMessage('Upload and export XML failed: active script must be in workspace');
+        return;
+    }
+    const jsName = path.basename(uri.fsPath, ".js");
+    await serverCommands.uploadScript(loginData, uri.fsPath);
+    const xmlExport = new nodeDoc.xmlExport("PortalScript", "Name=" + `'${jsName}'`, jsName);
+    await serverCommands.exportXMLSeperateFiles(loginData, [xmlExport], workspaceFolder.uri.fsPath);
 }
 
 
