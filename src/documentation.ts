@@ -1,7 +1,7 @@
 import * as path from 'path';
 import * as vscode from 'vscode';
 // tslint:disable-next-line:no-var-requires
-const open = require('open');
+const open = require('opn');
 // tslint:disable-next-line:no-var-requires
 const fs = require('fs-extra');
 // tslint:disable-next-line:no-var-requires
@@ -83,7 +83,7 @@ export async function viewDocumentation() {
                     const namespaceNameHtml = namespaceName + '.html';
                     file = portalScriptDocs + '#' + namespaceNameHtml;
                 }
-    }
+            }
         }
 
         // no portal script member selected, open main documentation
@@ -92,7 +92,7 @@ export async function viewDocumentation() {
         }
 
         if (file) {
-            open(`file:///${file}`, browser);
+            open(`file:///${file}`, {app: browser});
         }
     }
 }
