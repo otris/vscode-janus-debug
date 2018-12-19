@@ -62,6 +62,7 @@ export class JanusDebugSession extends DebugSession {
     private displaySourceNoticeCount = 0;
     private terminateOnDisconnect = false;
     private breakOnAttach = false;
+    private workspace = "";
 
 
     public constructor() {
@@ -440,6 +441,12 @@ export class JanusDebugSession extends DebugSession {
         this.config = 'attach';
         this.terminateOnDisconnect = args.terminateOnDisconnect;
         this.breakOnAttach = args.breakOnAttach;
+        this.workspace = args.workspace;
+
+        // log.debug(`break on attach: ${args.workspaceId}`);
+        log.debug(`my workspace: ${this.workspace}`);
+
+        // await this.ipcClient.connect(args.workspaceId);
         await this.ipcClient.connect();
 
         let uris: string[] | undefined;

@@ -221,6 +221,11 @@ class JanusDebugConfigurationProvider implements vscode.DebugConfigurationProvid
             }
         }
 
+        // config.workspaceId = 12345;
+        if (vscode.workspace.workspaceFolders) {
+            config.workspace = vscode.workspace.workspaceFolders[0].uri.fsPath;
+        }
+
         return config;
     }
 

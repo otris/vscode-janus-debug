@@ -19,6 +19,8 @@ export interface CommonArguments {
 export interface AttachRequestArguments extends DebugProtocol.AttachRequestArguments, CommonArguments {
     terminateOnDisconnect: boolean;
     breakOnAttach: boolean;
+    // workspaceId: number;
+    workspace: string;
 }
 
 /**
