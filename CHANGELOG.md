@@ -2,6 +2,10 @@
 
 You'll find a complete list of changes at our project site on [GitHub](https://github.com/otris/vscode-janus-debug).
 
+### 1.0.33 (2018-12-17)
+
+- Support for XML-Export [see Wiki](https://github.com/otris/vscode-janus-debug/wiki/XML-Export)
+
 ### 1.0.26 (2018-11-19)
 
 - Add options to terminate scripts ([see Wiki](https://github.com/otris/vscode-janus-debug/wiki/Terminating-scripts))
