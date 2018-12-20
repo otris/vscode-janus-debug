@@ -341,9 +341,10 @@ export class VariablesMap {
             return;
         }
         const variableName = variablesContainer.variableName;
-        log.debug("addObjectMembers " + variableName);
+        log.debug(`addObjectMembers ${variableName} parent ${variablesContainer.parentId}`);
         const variableValue = await this.evaluateObject(context, variableName);
         if (!(variableValue instanceof Date)) {
+            // log.debug(`variable value ${JSON.stringify(variableValue)}`);
             // Create a new variable for each property on this object and chain them together with the reference property
             for (const key in variableValue) {
                 if (variableValue.hasOwnProperty(key)) {
