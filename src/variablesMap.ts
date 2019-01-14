@@ -133,7 +133,7 @@ export class VariablesMap {
                 variablesReference: 0
             };
 
-            if (variableValue.hasOwnProperty('___jsrdbg_function_desc___')) {
+            if (variableValue && variableValue.hasOwnProperty('___jsrdbg_function_desc___')) {
                 // function
 
                 result.presentationHint = { kind: 'method' };
@@ -150,7 +150,7 @@ export class VariablesMap {
                 return result;
             }
 
-            if (variableValue.hasOwnProperty('length')) {
+            if (variableValue && variableValue.hasOwnProperty('length')) {
                 // Array
 
                 result.presentationHint = { kind: 'data' };
@@ -245,16 +245,18 @@ export class VariablesMap {
         // Arrays are returned as objects because the debugger represents the array elements as object properties.
         // The debugger also adds a length-property which represents the amount of elements inside the array.
         let index = 0;
-        for (const key in variableValue) {
-            if (variableValue.hasOwnProperty(key)) {
-                const _variableName = (key === 'length') ? 'length' : index.toString();
-                const _evaluateName = (key === 'length') ? `${evaluateName}.length` : `${evaluateName}[${index.toString()}]`;
+        if (variableValue) {
+            for (const key in variableValue) {
+                if (variableValue.hasOwnProperty(key)) {
+                    const _variableName = (key === 'length') ? 'length' : index.toString();
+                    const _evaluateName = (key === 'length') ? `${evaluateName}.length` : `${evaluateName}[${index.toString()}]`;
 
-                variablesContainer.variables.push(
-                    await this._createVariable(_variableName, variableValue[key], contextId, context, frameId, _evaluateName)
-                );
+                    variablesContainer.variables.push(
+                        await this._createVariable(_variableName, variableValue[key], contextId, context, frameId, _evaluateName)
+                    );
 
-                index++;
+                    index++;
+                }
             }
         }
 
@@ -300,6 +302,13 @@ export class VariablesMap {
                             getHitIds: (typeof ${variableName}.getHitIds === "function") ? ${variableName}.getHitIds() : null,
                             size: ${variableName}.size()
                         });
+                    } else if (${variableName} instanceof Document) {
+                        return JSON.stringify({
+                            fullname: ${variableName}.fullname,
+                            comment: ${variableName}.comment,
+                            encrypted: ${variableName}.encrypted,
+                            id: ${variableName}.id
+                        });
                     }
                 }
             }
@@ -343,7 +352,7 @@ export class VariablesMap {
         const variableName = variablesContainer.variableName;
         log.debug(`addObjectMembers ${variableName} parent ${variablesContainer.parentId}`);
         const variableValue = await this.evaluateObject(context, variableName);
-        if (!(variableValue instanceof Date)) {
+        if (variableValue  && !(variableValue instanceof Date)) {
             // log.debug(`variable value ${JSON.stringify(variableValue)}`);
             // Create a new variable for each property on this object and chain them together with the reference property
             for (const key in variableValue) {
@@ -375,7 +384,7 @@ export class VariablesMap {
         // todo: if evaluate must be called here, it must be simpler, because
         // this will be executed in every step when object variables in frame
         // variableValue = await this.evaluateObject(context, variableName);
-        if (variableValue.hasOwnProperty('___jsrdbg_function_desc___')) {
+        if (variableValue && variableValue.hasOwnProperty('___jsrdbg_function_desc___')) {
             // functions will be recognized as objects because of the way the debugger evaluate functions
             // actually this case was handled earlier, so probably this is never executed
             let functionParams = variableValue.___jsrdbg_function_desc___.parameterNames;
