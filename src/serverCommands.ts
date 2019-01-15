@@ -660,6 +660,20 @@ export async function exportXMLSeperateFiles(loginData: nodeDoc.ConnectionInform
 }
 
 
+/**
+ * Download script names
+ */
+export function maintananceOperation(loginData: nodeDoc.ConnectionInformation, param: string): Promise<string> {
+    return new Promise<string>((resolve, reject) => {
+        nodeDoc.serverSession(loginData, [param], nodeDoc.doMaintenance).then((returnValue) => {
+            resolve(returnValue[0]);
+        }).catch((reason) => {
+            vscode.window.showErrorMessage('maintenance operation failed: ' + reason);
+        });
+    });
+}
+
+
 
 /**
  * Download script names

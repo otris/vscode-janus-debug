@@ -535,6 +535,13 @@ export function activate(context: vscode.ExtensionContext): void {
         })
     );
 
+    // Perform Maintenance Operation
+    context.subscriptions.push(
+        vscode.commands.registerCommand('extension.vscode-janus-debug.maintenanceOperation', async (param) => {
+            await extensionCommands.maintenanceOperation(loginData);
+        })
+    );
+
     // connect the sever console manually
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.vscode-janus.debug.connectServerConsole', (param) => {

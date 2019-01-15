@@ -84,3 +84,13 @@ export async function exportXML(loginData: nodeDoc.ConnectionInformation) {
         vscode.window.showErrorMessage(err);
     }
 }
+
+
+
+export async function maintenanceOperation(loginData: nodeDoc.ConnectionInformation) {
+    const operation = await interactive.maintenanceOperation();
+    if (operation) {
+        const result = await serverCommands.maintananceOperation(loginData, operation);
+        await interactive.showMaintenanceResult(result);
+    }
+}

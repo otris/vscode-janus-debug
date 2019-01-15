@@ -500,6 +500,11 @@
         "command": "extension.vscode-janus-debug.wizardDownloadProject",
         "title": "Wizard: Download / Create Project",
         "category": "DOCUMENTS"
+      },
+      {
+        "command": "extension.vscode-janus-debug.maintenanceOperation",
+        "title": "Perform Maintenance Operation ...",
+        "category": "DOCUMENTS"
       }
     ],
     "keybindings": [

@@ -315,3 +315,14 @@ export async function createXMLExportFilter(className: string, names: string[]):
         return resolve(undefined);
     });
 }
+
+
+export async function maintenanceOperation(): Promise<string | undefined> {
+    const operation = await vscode.window.showInputBox();
+    return Promise.resolve(operation);
+}
+
+export async function showMaintenanceResult(returnValue: string): Promise<string | undefined> {
+    const operation = await vscode.window.showInformationMessage(returnValue, {modal: true});
+    return Promise.resolve(operation);
+}
