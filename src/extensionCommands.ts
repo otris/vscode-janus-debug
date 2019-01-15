@@ -89,8 +89,9 @@ export async function exportXML(loginData: nodeDoc.ConnectionInformation) {
 
 export async function maintenanceOperation(loginData: nodeDoc.ConnectionInformation) {
     const operation = await interactive.maintenanceOperation();
-    if (operation) {
-        const result = await serverCommands.maintananceOperation(loginData, operation);
-        await interactive.showMaintenanceResult(result);
+    if (!operation) {
+        return;
     }
+    const result = await serverCommands.maintananceOperation(loginData, operation);
+    await interactive.showMaintenanceResult(result);
 }
