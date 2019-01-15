@@ -164,10 +164,20 @@ export class VariablesMap {
                 const elem: string[] = [];
                 for (const prop in variableValue) {
                     if (variableValue.hasOwnProperty(prop) && prop !== 'length') {
-                        elem.push(`${variableValue[prop].toString()}`);
+                        if (variableValue[prop] === null) {
+                            elem.push(`null`);
+                        } else if (variableValue[prop] === '___jsrdbg_undefined___') {
+                                elem.push(`undefined`);
+                        } else {
+                            elem.push(`${variableValue[prop].toString()}`);
+                        }
                     }
                 }
-                result.value = `length: ${variableValue.length} [${elem.reduce((a, b) => a + ', ' + b)}]`;
+                if (elem.length > 0) {
+                    result.value = `length: ${variableValue.length} [${elem.reduce((a, b) => a + ', ' + b)}]`;
+                } else {
+                    result.value = `length: ${variableValue.length} []`;
+                }
                 return result;
             }
         }
