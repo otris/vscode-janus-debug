@@ -468,8 +468,12 @@ export class ServerSource {
             };
         }
 
-        // todo: localCodeStart = chunk.originalPos.start => use chunk.originalPos.start
-        const localCodeStart = chunk.pos.start + ((!firstChunk || this.hiddenStatement) ? 1 : 0);
+        const localCodeStart = chunk.originalStart;
+        // todo remove
+        const localCodeStart2 = chunk.pos.start + ((!firstChunk || this.hiddenStatement) ? 1 : 0);
+        if (localCodeStart !== localCodeStart2) {
+            serverSourceLog.error("localCodeStart !== localCodeStart2");
+        }
 
         // the offset of the line inside the chunk
         const chunkOffset = line - localCodeStart;
@@ -501,8 +505,12 @@ export class ServerSource {
         // the chunk offset in the local file
         const localChunkOffset = pos.line - chunk.localStart;
 
-        // todo: localCodeStart = chunk.originalPos.start => use chunk.originalPos.start
-        const chunkCodeStart = chunk.pos.start + ((!firstChunk || this.hiddenStatement) ? 1 : 0);
+        const chunkCodeStart = chunk.originalStart;
+        // todo remove
+        const chunkCodeStart2 = chunk.pos.start + ((!firstChunk || this.hiddenStatement) ? 1 : 0);
+        if (chunkCodeStart !== chunkCodeStart2) {
+            serverSourceLog.error("chunkCodeStart !== chunkCodeStart2");
+        }
 
         const lineNo = chunkCodeStart + localChunkOffset;
         // serverSourceLog.debug(`(toRemoteLine) chunk offset in local file ${localChunkOffset} => REMOTE offset ${lineNo}`);
