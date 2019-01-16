@@ -528,7 +528,7 @@
     "menus": {
       "explorer/context": [
         {
-          "command": "extension.vscode-janus-debug.uploadScript",
+          "command": "extension.vscode-janus-debug.uploadRunScript",
           "when": "resourceLangId == javascript",
           "group": "DOCUMENTS@1"
         },
@@ -573,11 +573,6 @@
           "command": "extension.vscode-janus-debug.uploadScript",
           "when": "resourceLangId == javascript",
           "group": "DOCUMENTS@1"
-        },
-        {
-          "command": "extension.vscode-janus-debug.runScript",
-          "when": "resourceLangId == javascript",
-          "group": "DOCUMENTS@2"
         },
         {
           "command": "extension.vscode-janus-debug.uploadRunScript",
