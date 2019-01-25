@@ -234,7 +234,51 @@
               }
             }
           }
-        }
+        },
+        "configurationSnippets": [
+          {
+            "label": "JANUS Debugger: Launch",
+            "description": "Default configuration to connect with a JANUS server",
+            "body": {
+              "name": "Launch Script on Server",
+              "request": "launch",
+              "type": "janus",
+              "script": "",
+              "username": "",
+              "password": "${command:extension.vscode-janus-debug.askForPassword}",
+              "principal": "",
+              "host": "localhost",
+              "applicationPort": 11000,
+              "debuggerPort": 8089,
+              "currentConfiguration": true,
+              "stopOnEntry": true,
+              "log": {
+                "fileName": "${workspaceRoot}/vscode-janus-debug-launch.log",
+                "logLevel": {
+                  "default": "Debug"
+                }
+              },
+              "timeout": 6000
+            }
+          },
+          {
+            "label": "JANUS Debugger: Attach",
+            "description": "Default configuration to attach to a JANUS server",
+            "body": {
+              "name": "Attach to Server",
+              "request": "attach",
+              "type": "janus",
+              "host": "localhost",
+              "debuggerPort": 8089,
+              "log": {
+                "fileName": "${workspaceRoot}/vscode-janus-debug-attach.log",
+                "logLevel": {
+                  "default": "Debug"
+                }
+              }
+            }
+          }
+        ]
       }
     ],
     "configuration": {
