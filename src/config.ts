@@ -58,7 +58,7 @@ const initialConfigurations = [
         password: commandAskForPassword,
         principal: '',
         host: 'localhost',
-        applicationPort: 10000,
+        applicationPort: 11000,
         debuggerPort: 8089,
         currentConfiguration: true,
         stopOnEntry: true,
