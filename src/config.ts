@@ -19,7 +19,8 @@ export interface CommonArguments {
 export interface AttachRequestArguments extends DebugProtocol.AttachRequestArguments, CommonArguments {
     terminateOnDisconnect: boolean;
     breakOnAttach: boolean;
-    // workspaceId: number;
+    /** Required for IPC communication. */
+    processId: number;
     workspace: string;
 }
 
@@ -44,6 +45,10 @@ export interface LaunchRequestArguments extends DebugProtocol.LaunchRequestArgum
 
     /** Whether the remote server is a DOCUMENTS server. */
     portal?: boolean;
+
+    /** Required for IPC communication. */
+    processId: number;
+    workspace: string;
 }
 
 export const commandAskForPassword = '${command:extension.vscode-janus-debug.askForPassword}';

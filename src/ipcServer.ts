@@ -1,6 +1,5 @@
 import * as fs from 'fs';
 import ipc = require('node-ipc');
-import { Logger } from 'node-file-log';
 import { window, workspace } from 'vscode';
 
 // We use a UNIX Domain or Windows socket, respectively, for having a
@@ -11,11 +10,11 @@ import { window, workspace } from 'vscode';
 // API that would otherwise be  unavailable to us in the debug adapter.
 
 ipc.config.appspace = 'vscode-janus-debug.';
-ipc.config.id = 'sock';
+ipc.config.id = 'sock' + process.pid.toString();
 ipc.config.retry = 1500;
 ipc.config.silent = true;
 
-const log = Logger.create('VSCodeExtensionIPC');
+// const log = Logger.create('VSCodeExtensionIPC');
 
 /**
  * Acts as the server in our communication.
@@ -26,7 +25,7 @@ const log = Logger.create('VSCodeExtensionIPC');
 export class VSCodeExtensionIPC {
 
     public constructor() {
-        log.info('constructor');
+        console.log(`ipc server id: ${ipc.config.id}`);
 
         ipc.serve(this.serverCallback);
         ipc.server.start();
@@ -36,12 +35,12 @@ export class VSCodeExtensionIPC {
     }
 
     public dispose(): void {
-        ipc.disconnect('sock');
+        ipc.disconnect('sock' + process.pid.toString());
     }
 
     private removeStaleSocket() {
-        log.info('removeStaleSocket');
-        ipc.disconnect('sock');
+        console.log('removeStaleSocket');
+        ipc.disconnect('sock' + process.pid.toString());
         const staleSocket = `${ipc.config.socketRoot}${ipc.config.appspace}${ipc.config.id}`;
         if (fs.existsSync(staleSocket)) {
             try {
@@ -56,7 +55,8 @@ export class VSCodeExtensionIPC {
 
         // This is the "API" that we expose via this IPC mechanism
         ipc.server.on('showContextQuickPick', async (contextList: string[], socket) => {
-            log.info('showContextQuickPick');
+            console.log('showContextQuickPick');
+
 
             // check for scripts with same name
             // const multiNames = contextList.filter((value, index, self) => (self.indexOf(value) !== index));
@@ -68,19 +68,16 @@ export class VSCodeExtensionIPC {
         });
 
         ipc.server.on('findURIsInWorkspace', async (ignored: any, socket) => {
-            log.info('findURIsInWorkspace');
+            console.log('findURIsInWorkspace');
 
             const uris = await workspace.findFiles('**/*.js', '**/node_modules/**');
-            // todo use uri.fsPath
-            const uriPaths = uris.map(uri => uri.path);
-            if (uriPaths) {
-                log.debug(`first uri path ${uriPaths[0]}`);
-            }
-            ipc.server.emit(socket, 'janusDebugUrisFound', uriPaths);
+            const uriPaths = uris.map(uri => uri.fsPath);
+
+            ipc.server.emit(socket, 'urisFound', uriPaths);
         });
 
         ipc.server.on('displaySourceNotice', async (message: any, socket) => {
-            // log.info('displaySourceNotice');
+            // console.log('displaySourceNotice');
             await window.showInformationMessage(message);
         });
     }

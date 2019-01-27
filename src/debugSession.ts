@@ -62,7 +62,6 @@ export class JanusDebugSession extends DebugSession {
     private displaySourceNoticeCount = 0;
     private terminateOnDisconnect = false;
     private breakOnAttach = false;
-    private workspace = "";
 
 
     public constructor() {
@@ -159,7 +158,9 @@ export class JanusDebugSession extends DebugSession {
         this.frameMap = new FrameMap();
         this.variablesMap = new VariablesMap();
         this.config = 'launch';
-        await this.ipcClient.connect();
+
+        log.debug(`my workspace: ${args.workspace}`);
+        await this.ipcClient.connect(args.processId);
 
         const sdsPort: number = args.applicationPort || 10000;
         const debuggerPort = args.debuggerPort || 8089;
@@ -441,13 +442,9 @@ export class JanusDebugSession extends DebugSession {
         this.config = 'attach';
         this.terminateOnDisconnect = args.terminateOnDisconnect;
         this.breakOnAttach = args.breakOnAttach;
-        this.workspace = args.workspace;
 
-        // log.debug(`break on attach: ${args.workspaceId}`);
-        log.debug(`my workspace: ${this.workspace}`);
-
-        // await this.ipcClient.connect(args.workspaceId);
-        await this.ipcClient.connect();
+        log.debug(`my workspace: ${args.workspace}`);
+        await this.ipcClient.connect(args.processId);
 
         let uris: string[] | undefined;
         try {

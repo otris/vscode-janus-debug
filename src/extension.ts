@@ -35,19 +35,19 @@ let autoConnectServerConsole: boolean;
 
 
 
-function getLogConfiguration(): LogConfiguration | undefined {
-    const workspaceRoot = vscode.workspace.rootPath;
-    const config = vscode.workspace.getConfiguration('vscode-janus-debug');
-    const log: any = config.get("log");
-    if (log && log.fileName && workspaceRoot) {
-        return {
-            fileName: log.fileName.replace(/[$]{workspaceRoot}/, workspaceRoot),
-            logLevel: {
-                "default": log.logLevel ? log.logLevel : "Debug"
-            }
-        };
-    }
-}
+// function getLogConfiguration(): LogConfiguration | undefined {
+//     const workspaceRoot = vscode.workspace.rootPath;
+//     const config = vscode.workspace.getConfiguration('vscode-janus-debug');
+//     const log: any = config.get("log");
+//     if (log && log.fileName && workspaceRoot) {
+//         return {
+//             fileName: log.fileName.replace(/[$]{workspaceRoot}/, workspaceRoot),
+//             logLevel: {
+//                 "default": log.logLevel ? log.logLevel : "Debug"
+//             }
+//         };
+//     }
+// }
 
 /**
  * Reads and returns the launch.json file's configurations.
@@ -221,7 +221,7 @@ class JanusDebugConfigurationProvider implements vscode.DebugConfigurationProvid
             }
         }
 
-        // config.workspaceId = 12345;
+        config.processId = process.pid;
         if (vscode.workspace.workspaceFolders) {
             config.workspace = vscode.workspace.workspaceFolders[0].uri.fsPath;
         }
@@ -248,10 +248,10 @@ export function activate(context: vscode.ExtensionContext): void {
     }
 
     // set up file logging
-    const extensionLoggerConf = getLogConfiguration();
-    if (extensionLoggerConf) {
-        Logger.config = extensionLoggerConf;
-    }
+    // const extensionLoggerConf = getLogConfiguration();
+    // if (extensionLoggerConf) {
+    //     Logger.config = extensionLoggerConf;
+    // }
 
     // Get login data
     const loginData: nodeDoc.ConnectionInformation = new nodeDoc.ConnectionInformation();
