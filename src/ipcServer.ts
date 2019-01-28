@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import ipc = require('node-ipc');
+import * as path from 'path';
 import { window, workspace } from 'vscode';
 
 // We use a UNIX Domain or Windows socket, respectively, for having a
@@ -72,7 +73,28 @@ export class VSCodeExtensionIPC {
             console.log('findURIsInWorkspace');
 
             const uris = await workspace.findFiles('**/*.js', '**/node_modules/**');
-            const uriPaths = uris.map(uri => uri.fsPath);
+
+            // if multiple scripts with same name, user has to select
+            const uriPaths: string[] = [];
+            const uriNames: string[] = [];
+            // tslint:disable-next-line:prefer-for-of
+            for (let i = 0; i < uris.length; i++) {
+                const currentPath = uris[i].fsPath;
+                const currentName = path.basename(currentPath);
+                const prevIndex = uriNames.indexOf(currentName);
+                if (prevIndex >= 0) {
+                    const prevPath = uriPaths[prevIndex];
+                    const message = `Multiple scripts with name '${currentName}', please select one`;
+                    const selected = await window.showQuickPick([prevPath, currentPath], {ignoreFocusOut: true, placeHolder: message});
+                    if (selected) {
+                        uriPaths[prevIndex] = selected;
+                    }
+                    // uriNames[prevIndex] already set
+                } else {
+                    uriPaths.push(currentPath);
+                    uriNames.push(currentName);
+                }
+            }
 
             ipc.server.emit(socket, 'urisFound', uriPaths);
         });

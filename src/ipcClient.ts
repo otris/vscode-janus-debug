@@ -50,12 +50,11 @@ export class DebugAdapterIPC {
     }
 
     public async showContextQuickPick(contextList: string[]): Promise<string> {
-        // (2 * 60 * 1000) -> 2 min
         return this.ipcRequest<string>('showContextQuickPick', 'contextChosen', this.contextChosenDefault, (2 * 60 * 1000), contextList);
     }
 
     public async findURIsInWorkspace(): Promise<string[]> {
-        return this.ipcRequest<string[]>('findURIsInWorkspace', 'urisFound', this.urisFoundDefault, 6000);
+        return this.ipcRequest<string[]>('findURIsInWorkspace', 'urisFound', this.urisFoundDefault, (5 * 60 * 1000));
     }
 
     public async displaySourceNotice(message: string): Promise<void> {
