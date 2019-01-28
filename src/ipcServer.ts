@@ -7,14 +7,16 @@ import { window, workspace } from 'vscode';
 // Socket file path is usually /tmp/vscode-janus-debug.sock or so on Linux or
 // macOS. This communication channel is outside of VS Code's debug protocol and
 // allows us to show input boxes or use other parts of the VS Code extension
-// API that would otherwise be  unavailable to us in the debug adapter.
+// API that would otherwise be unavailable to us in the debug adapter.
+
+// We use the process id in the socket id, to handle multiple opened windows
+// in VS Code.
 
 ipc.config.appspace = 'vscode-janus-debug.';
 ipc.config.id = 'sock' + process.pid.toString();
 ipc.config.retry = 1500;
 ipc.config.silent = true;
 
-// const log = Logger.create('VSCodeExtensionIPC');
 
 /**
  * Acts as the server in our communication.
@@ -56,7 +58,6 @@ export class VSCodeExtensionIPC {
         // This is the "API" that we expose via this IPC mechanism
         ipc.server.on('showContextQuickPick', async (contextList: string[], socket) => {
             console.log('showContextQuickPick');
-
 
             // check for scripts with same name
             // const multiNames = contextList.filter((value, index, self) => (self.indexOf(value) !== index));

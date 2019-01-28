@@ -19,25 +19,30 @@ export class DebugAdapterIPC {
     private serverSock: string = 'sock';
 
     public async connect(processId: number) {
-
-        // TODO: return new Promise<void>((resolve)...
         this.serverSock = 'sock' + processId.toString();
-        log.debug(`connect to ${this.serverSock}`);
-        ipc.connectTo(this.serverSock, () => {
+        log.debug(`connect to VS Code extension (${this.serverSock})`);
+        const connWithTimeout = timeout({
+            promise: new Promise<void>((resolve) => {
+                ipc.connectTo(this.serverSock, () => {
 
-            ipc.of[this.serverSock].on('connect', () => {
-                log.debug(`connected to VS Code extension`);
-                // TODO: resolve();
-            });
+                    ipc.of[this.serverSock].on('connect', () => {
+                        log.debug(`connected to VS Code extension`);
+                        resolve();
+                    });
 
-            ipc.of[this.serverSock].on('disconnect', () => {
-                log.debug(`disconnected from VS Code extension`);
-            });
+                    ipc.of[this.serverSock].on('disconnect', () => {
+                        log.debug(`disconnected from VS Code extension`);
+                    });
 
-            ipc.of[this.serverSock].on('contextChosen', this.contextChosenDefaultHandler);
-            ipc.of[this.serverSock].on('urisFound', this.urisFoundDefaultHandler);
-            ipc.of[this.serverSock].on('displaySourceNotice', this.displaySourceNoticeDefaultHandler);
+                    ipc.of[this.serverSock].on('contextChosen', this.contextChosenDefault);
+                    ipc.of[this.serverSock].on('urisFound', this.urisFoundDefault);
+                    ipc.of[this.serverSock].on('displaySourceNotice', this.displaySourceNoticeDefault);
+                });
+            }),
+            time: 6000,
+            error: new Error('Request timed out')
         });
+        await connWithTimeout;
     }
 
     public async disconnect(): Promise<void> {
@@ -45,67 +50,58 @@ export class DebugAdapterIPC {
     }
 
     public async showContextQuickPick(contextList: string[]): Promise<string> {
-        // log.debug('showContextQuickPick');
-
-        let tmpHandler;
-        ipc.of[this.serverSock].off('contextChosen', this.contextChosenDefaultHandler);
-        const waitForResponse = timeout({
-            promise: new Promise<string>(resolve => {
-                ipc.of[this.serverSock].on('contextChosen',  tmpHandler = (contextLabel: string) => {
-                    resolve(contextLabel);
-                });
-            }),
-            time: (2 * 60 * 1000), // 2 min
-            error: new Error('Request timed out'),
-        });
-        ipc.of[this.serverSock].emit('showContextQuickPick', contextList);
-        let result: string;
-        try {
-            result = await waitForResponse;
-        } finally {
-            ipc.of[this.serverSock].off('contextChosen', tmpHandler);
-            ipc.of[this.serverSock].on('contextChosen', this.contextChosenDefaultHandler);
-        }
-        return result;
+        // (2 * 60 * 1000) -> 2 min
+        return this.ipcRequest<string>('showContextQuickPick', 'contextChosen', this.contextChosenDefault, (2 * 60 * 1000), contextList);
     }
 
     public async findURIsInWorkspace(): Promise<string[]> {
-        // log.debug('findURIsInWorkspace');
-
-        let tmpHandler;
-        ipc.of[this.serverSock].off('urisFound', this.urisFoundDefaultHandler);
-        const waitForResponse = timeout({
-            promise: new Promise<string[]>(resolve => {
-                ipc.of[this.serverSock].on('urisFound', tmpHandler = (uris: string[]) => {
-                    resolve(uris);
-                });
-            }),
-            time: 6000,
-            error: new Error('Request timed out'),
-        });
-        ipc.of[this.serverSock].emit('findURIsInWorkspace', '');
-        let result: string[];
-        try {
-            result = await waitForResponse;
-        } finally {
-            ipc.of[this.serverSock].off('urisFound', tmpHandler);
-            ipc.of[this.serverSock].on('urisFound', this.urisFoundDefaultHandler);
-        }
-        return result;
+        return this.ipcRequest<string[]>('findURIsInWorkspace', 'urisFound', this.urisFoundDefault, 6000);
     }
 
     public async displaySourceNotice(message: string): Promise<void> {
         // log.debug('displaySourceNotice');
+
+        // simply call emit without using ipcRequest function, because
+        // we do not have to wait for an answer
         ipc.of[this.serverSock].emit('displaySourceNotice', message);
     }
 
-    private contextChosenDefaultHandler(data: any) {
-        // log.warn(`got 'contextChosen' message from VS Code extension but we haven't asked!`);
+    private async ipcRequest<T>(requestEvent: string, responseEvent: string, responseDefault: (data: any) => void, requestTimeout: number, requestParameter?: string[]): Promise<T> {
+        log.debug(requestEvent);
+
+        // replace default response handler temporarily
+        let tmpHandler;
+        ipc.of[this.serverSock].off(responseEvent, responseDefault);
+        const reqWithTimeout = timeout({
+            promise: new Promise<T>(resolve => {
+                ipc.of[this.serverSock].on(responseEvent, tmpHandler = (result: T) => {
+                    resolve(result);
+                });
+            }),
+            time: requestTimeout,
+            error: new Error('Request timed out')
+        });
+
+        // call the request and finally reset default response handler
+        let returnValue: T;
+        ipc.of[this.serverSock].emit(requestEvent, requestParameter);
+        try {
+            returnValue = await reqWithTimeout;
+        } finally {
+            ipc.of[this.serverSock].off(responseEvent, tmpHandler);
+            ipc.of[this.serverSock].on(responseEvent, responseDefault);
+        }
+
+        return returnValue;
     }
-    private urisFoundDefaultHandler(data: any) {
+
+    private contextChosenDefault(data: any) {
+        log.warn(`got 'contextChosen' message from VS Code extension but we haven't asked!`);
+    }
+    private urisFoundDefault(data: any) {
         log.warn(`got 'urisFound' message from VS Code extension but we haven't asked!`);
     }
-    private displaySourceNoticeDefaultHandler(data: any) {
-        // log.warn(`got 'displaySourceNotice' message from VS Code extension but we haven't asked!`);
+    private displaySourceNoticeDefault(data: any) {
+        log.warn(`got 'displaySourceNotice' message from VS Code extension but we haven't asked!`);
     }
 }

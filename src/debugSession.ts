@@ -160,7 +160,6 @@ export class JanusDebugSession extends DebugSession {
         this.config = 'launch';
 
         log.debug(`my workspace: ${args.workspace}`);
-        await this.ipcClient.connect(args.processId);
 
         const sdsPort: number = args.applicationPort || 10000;
         const debuggerPort = args.debuggerPort || 8089;
@@ -195,11 +194,16 @@ export class JanusDebugSession extends DebugSession {
 
         let uris: string[] | undefined;
         try {
+            await this.ipcClient.connect(args.processId);
             uris = await this.ipcClient.findURIsInWorkspace();
             // log.debug(`found ${JSON.stringify(uris)} URIs in workspace`);
             this.sourceMap.setLocalUrls(uris);
         } catch (e) {
-            log.error(`error ${e}`);
+            log.error(`launchRequest failed: ${e}`);
+            response.success = false;
+            response.message = `Launch failed: ${e}`;
+            this.sendResponse(response);
+            return;
         }
 
         const connectDebugger = async () => {
@@ -444,15 +448,19 @@ export class JanusDebugSession extends DebugSession {
         this.breakOnAttach = args.breakOnAttach;
 
         log.debug(`my workspace: ${args.workspace}`);
-        await this.ipcClient.connect(args.processId);
 
         let uris: string[] | undefined;
         try {
+            await this.ipcClient.connect(args.processId);
             uris = await this.ipcClient.findURIsInWorkspace();
             // log.debug(`found ${JSON.stringify(uris)} URIs in workspace`);
             this.sourceMap.setLocalUrls(uris);
         } catch (e) {
-            log.error(`error ${e}`);
+            log.error(`attachRequest failed: ${e}`);
+            response.success = false;
+            response.message = `Attach failed: ${e}`;
+            this.sendResponse(response);
+            return;
         }
 
         const port: number = args.debuggerPort || 8089;
