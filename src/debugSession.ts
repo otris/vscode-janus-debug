@@ -180,17 +180,6 @@ export class JanusDebugSession extends DebugSession {
         }
 
         const source = new LocalSource(args.script);
-        let scriptSource: string;
-        try {
-            scriptSource = source.loadFromDisk();
-        } catch (err) {
-            log.error(`launchRequest failed: loading source from script failed: ${err}`);
-            response.success = false;
-            response.message = `Could not load source from '${source.path}': ${toUserMessage(err)}`;
-            this.sendResponse(response);
-            return;
-        }
-
 
         let uris: string[] | undefined;
         try {
@@ -350,6 +339,17 @@ export class JanusDebugSession extends DebugSession {
             const sdsSocket = connect(sdsPort, host);
             const sdsConnection = new SDSConnection(sdsSocket);
             sdsConnection.timeout = args.timeout || 6000;
+
+            let scriptSource: string;
+            try {
+                scriptSource = source.loadFromDisk();
+            } catch (err) {
+                log.error(`launchRequest failed: loading source from script failed: ${err}`);
+                response.success = false;
+                response.message = `Could not load source from '${source.path}': ${toUserMessage(err)}`;
+                this.sendResponse(response);
+                return;
+            }
 
             sdsSocket.on('connect', () => {
                 log.info(`connected to ${host}:${sdsPort}`);
