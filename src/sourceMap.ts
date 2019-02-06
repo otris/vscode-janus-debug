@@ -324,6 +324,7 @@ export class ServerSource {
 
     public static fromSources(contextName: string, sourceLines: string[], hiddenStatement = false, localSource?: LocalSource) {
         const chunks: Chunk[] = [];
+        const staticScripts: string[] = [];
         const pattern = /^\/\/#\s([0-9]+)\s([\w\_\-\.#]+);?$/;
         let current: Chunk | undefined;
 
@@ -364,6 +365,9 @@ export class ServerSource {
 
                 const offset = Number(match[1]);
                 const name = match[2];
+                if (staticScripts.indexOf(name) < 0) {
+                    staticScripts.push(name);
+                }
 
                 // the start of the source in the local file
                 // lines start at 1
@@ -413,6 +417,7 @@ export class ServerSource {
 
         const s = new ServerSource();
         s._chunks = chunks;
+        s._staticScripts = staticScripts,
         s._sourceLines = sourceLines;
         s._hiddenStatement = hiddenStatement;
         s._name = contextName;
@@ -423,6 +428,7 @@ export class ServerSource {
     private _sourceLines: string[] = [];
     private _hiddenStatement: boolean = false;
     private _name: string = "";
+    private _staticScripts: string[] = [];
 
     get chunks() {
         return this._chunks;
@@ -439,6 +445,9 @@ export class ServerSource {
     }
     get name() {
         return this._name;
+    }
+    get staticScripts() {
+        return this._staticScripts;
     }
 
 
