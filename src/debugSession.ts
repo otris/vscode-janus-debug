@@ -290,18 +290,6 @@ export class JanusDebugSession extends DebugSession {
                     return;
                 }
 
-                // the script is paused, so we must notify VS Code to get the
-                // debugging information in the UI
-                if (this.sourceMap.serverSource.hiddenStatement) {
-                    // execute single step, when the server source contains the internal "debugger;" statement,
-                    // the response handler of the next request sends the stopped event to VS Code
-                    log.debug(`'debugger;' statement -> sending 'next' to remote`);
-                    await connection.sendRequest(new Command('next', this.attachedContextId));
-                } else {
-                    log.info("no 'debugger;' statement");
-                    this.reportStopped('pause', this.attachedContextId);
-                }
-
                 this.sendEvent(new InitializedEvent());
                 this.debugConsole(`Connected to remote debugger on ${host}:${debuggerPort}`);
                 this.sendResponse(response);
@@ -561,7 +549,8 @@ export class JanusDebugSession extends DebugSession {
                         // if the script is paused, we must notify VS Code to get the
                         // debugging information in the UI
                         if (targetContext.isStopped()) {
-                            this.reportStopped('pause', targetContext.id);
+                            // todo: move this reportStopped to configurationDoneRequest
+                            // this.reportStopped('pause', targetContext.id);
                         } else if (this.breakOnAttach && this.connection) {
                             // Due to a problem in VS Code, the user cannot use the pause button
                             // before the stoppedEvent was sent to VS Code.
@@ -773,14 +762,26 @@ export class JanusDebugSession extends DebugSession {
             throw new Error('No connection');
         }
 
-        // We only consider the attached context.
+        // we only consider the attached contxt for now
+        if (this.attachedContextId) {
+
+            if (this.sourceMap.serverSource.hiddenStatement) {
+                // if the server source contains the internal "debugger;" statement, execute single step,
+                // stopped event will be sent after script has been stopped
+                log.debug(`'debugger;' statement -> sending 'next' to remote`);
+                await this.connection.sendRequest(new Command('next', this.attachedContextId));
+            } else {
+                log.info("no 'debugger;' statement -> check attached context");
+                if (this.connection.coordinator.getContext(this.attachedContextId).isStopped()) {
+                    this.reportStopped('pause', this.attachedContextId);
+                }
+            }
+        } else {
+            log.info("no attached context");
+        }
 
         this.connection.on('newContext', (contextId: number, contextName: string, stopped: boolean) => {
             log.info(`new context on target: ${contextId}, context name: "${contextName}", stopped: ${stopped}`);
-            // we only consider the attached contxt
-            // if (stopped) {
-            //     this.reportStopped('pause', contextId);
-            // }
         });
 
         this.sendResponse(response);
