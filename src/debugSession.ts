@@ -661,8 +661,7 @@ export class JanusDebugSession extends DebugSession {
 
         let remoteSourceUrl = "";
         if (this.attachedContextId !== undefined) {
-            remoteSourceUrl = await this.connection.coordinator.getContext(this.attachedContextId)
-                .name;
+            remoteSourceUrl = await this.connection.coordinator.getContext(this.attachedContextId).name;
         } else {
             const localUrl: string = args.source.path;
             remoteSourceUrl = this.sourceMap.getRemoteUrl(localUrl);
@@ -715,7 +714,7 @@ export class JanusDebugSession extends DebugSession {
 
         Promise.all(actualBreakpoints).then((res: Breakpoint[]) => {
             const breakpoints: DebugProtocol.Breakpoint[] = res.map(actualBreakpoint => {
-                const localPos = this.sourceMap.toLocalPosition(actualBreakpoint.line);
+                const localPos = this.sourceMap.toLocalPosition(actualBreakpoint.line, remoteSourceUrl);
                 const localSource = this.sourceMap.getSource(localPos.source);
                 return {
                     id: actualBreakpoint.bid,
@@ -1081,10 +1080,15 @@ export class JanusDebugSession extends DebugSession {
 
                 try {
                     let localPos;
-                    // log.debug(`context '${context.name}' frame: url '${frame.sourceUrl}' line ${frame.sourceLine}`);
+                    log.debug(`context '${context.name}' frame: url '${frame.sourceUrl}' line ${frame.sourceLine}`);
 
 
                     // 'required' scripts
+                    // get all source codes from server here
+                    // it's useful to know them in setBreakpointsRequest
+                    // const urls = await this.connection.sendRequest(new Command('get_all_source_urls'), async (res: Response) => res.content.urls);
+                    // log.debug(`all urls ${JSON.stringify(urls)}`);
+
                     if (frame.sourceUrl !== context.name) {
                         if (!this.sourceMap.getDynamicServerSource(frame.sourceUrl)) {
                             const dynamicSource = await this.connection.sendRequest(Command.getSource(frame.sourceUrl, this.attachedContextId), async (res: Response) => res.content.source);
@@ -1092,12 +1096,10 @@ export class JanusDebugSession extends DebugSession {
                             const serverSource = ServerSource.fromSources(frame.sourceUrl, dynamicSource);
                             this.sourceMap.addDynamicScript(frame.sourceUrl, serverSource);
                         }
-                        localPos = this.sourceMap.toLocalPosition(frame.sourceLine, frame.sourceUrl);
-                        log.info(`dynamic script: line ${localPos.line} in file '${localPos.source}'`);
-                    } else {
-                        localPos = this.sourceMap.toLocalPosition(frame.sourceLine);
-                        log.info(`static script: line ${localPos.line} in file '${localPos.source}'`);
                     }
+
+                    localPos = this.sourceMap.toLocalPosition(frame.sourceLine, frame.sourceUrl);
+                    log.info(`position: line ${localPos.line} in file '${localPos.source}'`);
 
 
                     const localSource = this.sourceMap.getSource(localPos.source);
