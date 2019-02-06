@@ -144,8 +144,15 @@ export class SourceMap {
     }
 
     public toLocalPosition(line: number, url?: string): { source: string, line: number } {
-        const dynamicSource = url ? this.getDynamicServerSource(url) : undefined;
-        const serverSource = dynamicSource ? dynamicSource : this._serverSource;
+        let serverSource;
+        if (url && url !== this.serverSource.name) {
+            sourceMapLog.info(`dynamic script`);
+            serverSource = this.getDynamicServerSource(url);
+        }
+        if (!serverSource) {
+            sourceMapLog.info(`main static script`);
+            serverSource = this._serverSource;
+        }
 
         const localPos = serverSource.toLocalPosition(line);
 
