@@ -246,6 +246,9 @@ export class SourceMap {
 
     public setLocalUrls(localPaths: string[]): void {
         localPaths.forEach(path => {
+            if (!path) {
+                return;
+            }
             const localSource = new LocalSource(path);
             this.addMapping(localSource, localSource.aliasNames[0]);
         });
