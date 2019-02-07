@@ -5,6 +5,12 @@ import * as vscode from 'vscode';
 import { DebugProtocol } from 'vscode-debugprotocol';
 import { getVersion } from './version';
 
+
+export interface LocalSources {
+    include: string;
+    exclude: string;
+}
+
 export interface CommonArguments {
     /** The debugger port to attach to. */
     debuggerPort: number;
@@ -14,14 +20,15 @@ export interface CommonArguments {
     log: LogConfiguration;
     /** Time in ms until we give up trying to connect. */
     timeout: number;
+    localSources: LocalSources;
+    /** Required for IPC communication. */
+    processId: number;
+    workspace: string;
 }
 
 export interface AttachRequestArguments extends DebugProtocol.AttachRequestArguments, CommonArguments {
     terminateOnDisconnect: boolean;
     breakOnAttach: boolean;
-    /** Required for IPC communication. */
-    processId: number;
-    workspace: string;
 }
 
 /**
@@ -45,10 +52,6 @@ export interface LaunchRequestArguments extends DebugProtocol.LaunchRequestArgum
 
     /** Whether the remote server is a DOCUMENTS server. */
     portal?: boolean;
-
-    /** Required for IPC communication. */
-    processId: number;
-    workspace: string;
 }
 
 export const commandAskForPassword = '${command:extension.vscode-janus-debug.askForPassword}';
@@ -73,7 +76,11 @@ const initialConfigurations = [
                 default: 'Debug',
             },
         },
-        timeout: 6000
+        timeout: 6000,
+        localSources: {
+            include: '**/*.js',
+            exclude: '**/node_modules/**'
+        }
     },
     {
         name: 'Attach to Server',
@@ -87,7 +94,11 @@ const initialConfigurations = [
                 default: 'Debug',
             },
         },
-        timeout: 6000
+        timeout: 6000,
+        localSources: {
+            include: '**/*.js',
+            exclude: '**/node_modules/**'
+        }
     },
 ];
 

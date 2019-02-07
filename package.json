@@ -115,6 +115,22 @@
                 "description": "Time in ms until we give up trying to connect or waiting for an answer.",
                 "default": 6000
               },
+              "localSources": {
+                "type": "object",
+                "description": "The local files",
+                "properties": {
+                  "include": {
+                    "type": "string",
+                    "description": "Global pattern, like '**/*.js'",
+                    "default": "**/*.js"
+                  },
+                  "exclude": {
+                    "type": "string",
+                    "description": "Global pattern, like '**/node_modules/**'",
+                    "default": "**/node_modules/**"
+                  }
+                }
+              },
               "stopOnEntry": {
                 "type": "boolean",
                 "description": "Automatically pause script after launch.",
@@ -182,6 +198,22 @@
                 "type": "number",
                 "description": "Time in ms until we give up trying to connect or waiting for an answer.",
                 "default": 6000
+              },
+              "localSources": {
+                "type": "object",
+                "description": "The local files",
+                "properties": {
+                  "include": {
+                    "type": "string",
+                    "description": "Global pattern, like '**/*.js'",
+                    "default": "**/*.js"
+                  },
+                  "exclude": {
+                    "type": "string",
+                    "description": "Global pattern, like '**/node_modules/**'",
+                    "default": "**/node_modules/**"
+                  }
+                }
               },
               "terminateOnDisconnect": {
                 "type": "boolean",
