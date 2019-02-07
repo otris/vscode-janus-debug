@@ -53,8 +53,8 @@ export class DebugAdapterIPC {
         return this.ipcRequest<string>('showContextQuickPick', 'contextChosen', this.contextChosenDefault, (2 * 60 * 1000), contextList);
     }
 
-    public async findURIsInWorkspace(): Promise<string[]> {
-        return this.ipcRequest<string[]>('findURIsInWorkspace', 'urisFound', this.urisFoundDefault, (5 * 60 * 1000));
+    public async findURIsInWorkspace(include?: string, exclude?: string): Promise<string[]> {
+        return this.ipcRequest<string[]>('findURIsInWorkspace', 'urisFound', this.urisFoundDefault, (5 * 60 * 1000), {include, exclude});
     }
 
     public async displaySourceNotice(message: string): Promise<void> {
@@ -65,7 +65,7 @@ export class DebugAdapterIPC {
         ipc.of[this.serverSock].emit('displaySourceNotice', message);
     }
 
-    private async ipcRequest<T>(requestEvent: string, responseEvent: string, responseDefault: (data: any) => void, requestTimeout: number, requestParameter?: string[]): Promise<T> {
+    private async ipcRequest<T>(requestEvent: string, responseEvent: string, responseDefault: (data: any) => void, requestTimeout: number, requestParameter?: any): Promise<T> {
         log.debug(requestEvent);
 
         // replace default response handler temporarily

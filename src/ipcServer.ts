@@ -69,31 +69,51 @@ export class VSCodeExtensionIPC {
             ipc.server.emit(socket, 'contextChosen', picked);
         });
 
-        ipc.server.on('findURIsInWorkspace', async (ignored: any, socket) => {
+        ipc.server.on('findURIsInWorkspace', async (globPaterns: {include?: string, exclude?: string}, socket) => {
             console.log('findURIsInWorkspace');
 
-            const uris = await workspace.findFiles('**/*.js', '**/node_modules/**');
+            const include = globPaterns.include ? globPaterns.include : '**/*.js';
+            const exclude = globPaterns.exclude ? globPaterns.exclude : '**/node_modules/**';
+            const uris = await workspace.findFiles(include, exclude);
 
             // if multiple scripts with same name, user has to select
             const uriPaths: string[] = [];
             const uriNames: string[] = [];
+            const ignored: string[] = [];
+            let ignoreDuplicates = false;
             // tslint:disable-next-line:prefer-for-of
             for (let i = 0; i < uris.length; i++) {
                 const currentPath = uris[i].fsPath;
                 const currentName = path.basename(currentPath);
-                const prevIndex = uriNames.indexOf(currentName);
-                if (prevIndex >= 0) {
-                    const prevPath = uriPaths[prevIndex];
-                    const message = `Multiple scripts with name '${currentName}', please select one`;
-                    const selected = await window.showQuickPick([prevPath, currentPath], {ignoreFocusOut: true, placeHolder: message});
-                    if (selected) {
-                        uriPaths[prevIndex] = selected;
+                const duplIndex = uriNames.indexOf(currentName);
+                if (currentName === "script1.js") {
+                    const breakpoint = 1;
+                }
+                if (duplIndex >= 0) {
+                    // duplicate script found
+                    let selected: string | undefined = "";
+                    if (!ignoreDuplicates) {
+                        const message = `Multiple scripts with name '${currentName}', please select one`;
+                        const ingoreMsg = "Ignore duplicate scripts";
+                        const prevPath = uriPaths[duplIndex];
+                        selected = await window.showQuickPick([prevPath, currentPath, ingoreMsg], {ignoreFocusOut: true, placeHolder: message});
+                        if (selected === ingoreMsg || selected === undefined) {
+                            ignoreDuplicates = true;
+                            selected = "";
+                        }
+                    } else {
+                        ignored.push(currentName);
                     }
+                    uriPaths[duplIndex] = selected;
                     // uriNames[prevIndex] already set
                 } else {
                     uriPaths.push(currentPath);
                     uriNames.push(currentName);
                 }
+            }
+
+            if (ignored.length > 0) {
+                window.showInformationMessage(`The following scripts will be ignored and cannot be debugged\n ${JSON.stringify(ignored)}`);
             }
 
             ipc.server.emit(socket, 'urisFound', uriPaths);

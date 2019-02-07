@@ -168,6 +168,8 @@ export class JanusDebugSession extends DebugSession {
         const principal: string = args.principal || '';
         const password = args.password.length > 0 ? crypt_md5(args.password, 'o3') : '';
         const stopOnEntry = args.stopOnEntry;
+        const include = args.localSources ? args.localSources.include : undefined;
+        const exclude = args.localSources ? args.localSources.exclude : undefined;
 
         let scriptIdentifier: string | undefined;
 
@@ -184,7 +186,7 @@ export class JanusDebugSession extends DebugSession {
         let uris: string[] | undefined;
         try {
             await this.ipcClient.connect(args.processId);
-            uris = await this.ipcClient.findURIsInWorkspace();
+            uris = await this.ipcClient.findURIsInWorkspace(include, exclude);
             // log.debug(`found ${JSON.stringify(uris)} URIs in workspace`);
             this.sourceMap.setLocalUrls(uris);
         } catch (e) {
@@ -435,12 +437,15 @@ export class JanusDebugSession extends DebugSession {
         this.terminateOnDisconnect = args.terminateOnDisconnect;
         this.breakOnAttach = args.breakOnAttach;
 
+        const include = args.localSources ? args.localSources.include : undefined;
+        const exclude = args.localSources ? args.localSources.exclude : undefined;
+
         log.debug(`my workspace: ${args.workspace}`);
 
         let uris: string[] | undefined;
         try {
             await this.ipcClient.connect(args.processId);
-            uris = await this.ipcClient.findURIsInWorkspace();
+            uris = await this.ipcClient.findURIsInWorkspace(include, exclude);
             // log.debug(`found ${JSON.stringify(uris)} URIs in workspace`);
             this.sourceMap.setLocalUrls(uris);
         } catch (e) {
