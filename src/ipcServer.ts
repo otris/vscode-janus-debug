@@ -106,7 +106,10 @@ export class VSCodeExtensionIPC {
                             ignoreDuplicates = true;
                             selected = "";
                         }
-                    } else {
+                    }
+
+                    // check again! ignoreDuplicates could have been changed
+                    if (ignoreDuplicates) {
                         ignored.push(currentName);
                     }
                     uriPaths[duplIndex] = selected;
