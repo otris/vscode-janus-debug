@@ -69,6 +69,14 @@ export class VSCodeExtensionIPC {
             ipc.server.emit(socket, 'contextChosen', picked);
         });
 
+        /**
+         * The callback returns an array containing all files in workspace that match
+         * the include and exclude pattern.
+         * Additional the function checks the array for scripts with same basename, because
+         * on server the scriptnames are unique. If there are duplicate scriptnames in
+         * workspace, the user can choose the correct script, or they can choose to
+         * simply ignore all scripts with  names.
+         */
         ipc.server.on('findURIsInWorkspace', async (globPaterns: {include?: string, exclude?: string}, socket) => {
             console.log('findURIsInWorkspace');
 
@@ -86,15 +94,12 @@ export class VSCodeExtensionIPC {
                 const currentPath = uris[i].fsPath;
                 const currentName = path.basename(currentPath);
                 const duplIndex = uriNames.indexOf(currentName);
-                if (currentName === "script1.js") {
-                    const breakpoint = 1;
-                }
                 if (duplIndex >= 0) {
                     // duplicate script found
                     let selected: string | undefined = "";
                     if (!ignoreDuplicates) {
                         const message = `Multiple scripts with name '${currentName}', please select one`;
-                        const ingoreMsg = "Ignore duplicate scripts";
+                        const ingoreMsg = "Ignore all scripts with same name";
                         const prevPath = uriPaths[duplIndex];
                         selected = await window.showQuickPick([prevPath, currentPath, ingoreMsg], {ignoreFocusOut: true, placeHolder: message});
                         if (selected === ingoreMsg || selected === undefined) {
