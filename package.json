@@ -2,7 +2,7 @@
   "name": "vscode-janus-debug",
   "displayName": "JavaScript Remote Debugger for JANUS Apps",
   "description": "Debug your JANUS-based applications in Visual Studio Code",
-  "version": "1.0.35",
+  "version": "1.0.36",
   "publisher": "otris-software",
   "author": {
     "name": "otris software",
@@ -121,12 +121,12 @@
                 "properties": {
                   "include": {
                     "type": "string",
-                    "description": "Global pattern, like '**/*.js'",
+                    "description": "Global pattern, like '**/*.{js,ts}' see https://code.visualstudio.com/api/references/vscode-api#GlobPattern",
                     "default": "**/*.js"
                   },
                   "exclude": {
                     "type": "string",
-                    "description": "Global pattern, like '**/node_modules/**'",
+                    "description": "Global pattern, like '**/{node_modules,anyFolder}/**' see https://code.visualstudio.com/api/references/vscode-api#GlobPattern",
                     "default": "**/node_modules/**"
                   }
                 }
@@ -205,12 +205,12 @@
                 "properties": {
                   "include": {
                     "type": "string",
-                    "description": "Global pattern, like '**/*.js'",
+                    "description": "Global pattern, like '**/*.{js,ts}' see https://code.visualstudio.com/api/references/vscode-api#GlobPattern",
                     "default": "**/*.js"
                   },
                   "exclude": {
                     "type": "string",
-                    "description": "Global pattern, like '**/node_modules/**'",
+                    "description": "Global pattern, like '**/{node_modules,anyFolder}/**' see https://code.visualstudio.com/api/references/vscode-api#GlobPattern",
                     "default": "**/node_modules/**"
                   }
                 }

@@ -2,6 +2,10 @@
 
 You'll find a complete list of changes at our project site on [GitHub](https://github.com/otris/vscode-janus-debug).
 
+### 1.0.36 (2019-0108)
+
+- Mangage files with same name in debugger. This files must be considered, because on server scriptnames are unique.
+
 ### 1.0.33 (2018-12-17)
 
 - Support for XML-Export [see Wiki](https://github.com/otris/vscode-janus-debug/wiki/XML-Export)
