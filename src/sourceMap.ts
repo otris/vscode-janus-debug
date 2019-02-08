@@ -246,6 +246,9 @@ export class SourceMap {
 
     public setLocalUrls(localPaths: string[]): void {
         localPaths.forEach(path => {
+            // if path is an empty string, there are scripts with same name
+            // TODO: instead of a string array, an array of {name, path}
+            // should be used where name must always be set
             if (!path) {
                 return;
             }
