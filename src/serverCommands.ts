@@ -427,7 +427,7 @@ export async function downloadAllCommon(loginData: nodeDoc.ConnectionInformation
                 // the script is encrypted on server
                 const encryptedScripts = inputScripts.length - outputScripts.length;
                 if (1 <= encryptedScripts) {
-                    vscode.window.showWarningMessage(`couldn't download ${encryptedScripts} scripts (scripts probalby encrypted)`);
+                    vscode.window.showWarningMessage(`couldn't download ${encryptedScripts} scripts (scripts probably encrypted)`);
                 }
 
                 resolve(numSavedScripts);
