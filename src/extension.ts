@@ -1,5 +1,4 @@
 import * as nodeDoc from 'node-documents-scripting';
-import { LogConfiguration, Logger } from 'node-file-log';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import { provideInitialConfigurations } from './config';
@@ -14,7 +13,6 @@ import * as login from './login';
 import * as serverCommands from './serverCommands';
 import { ServerConsole } from './serverConsole';
 import { getExactVersion } from './serverVersion';
-import * as transpile from './transpile';
 import stripJsonComments = require('strip-json-comments');
 import * as version from './version';
 import * as wizard from './wizard';
@@ -307,19 +305,19 @@ export function activate(context: vscode.ExtensionContext): void {
         })
     );
 
-    // generatePortalScript
-    context.subscriptions.push(
-        vscode.commands.registerCommand('extension.vscode-janus-debug.generatePortalScript', async (param) => {
+    // // generatePortalScript
+    // context.subscriptions.push(
+    //     vscode.commands.registerCommand('extension.vscode-janus-debug.generatePortalScript', async (param) => {
 
-            const pc = helpers.getPathContext(param, true);
-            try {
-                await transpile.generatePortalScript((pc ? pc.fsPath : undefined));
-            } catch (err) {
-                //
-            }
-            helpers.showWarning(loginData);
-        })
-    );
+    //         const pc = helpers.getPathContext(param, true);
+    //         try {
+    //             await transpile.generatePortalScript((pc ? pc.fsPath : undefined));
+    //         } catch (err) {
+    //             //
+    //         }
+    //         helpers.showWarning(loginData);
+    //     })
+    // );
 
     // Upload all
     context.subscriptions.push(
