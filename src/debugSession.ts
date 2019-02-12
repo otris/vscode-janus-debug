@@ -1075,7 +1075,7 @@ export class JanusDebugSession extends DebugSession {
                 }
 
                 // this default result is actually not used
-                let result: DebugProtocol.StackFrame = {
+                const result: DebugProtocol.StackFrame = {
                     column: 0,
                     id: frame.frameId,
                     name: '',
@@ -1124,18 +1124,14 @@ export class JanusDebugSession extends DebugSession {
                     };
                 } catch (e) {
                     const contextFile = this.sourceMap.getSource(context.name);
-                    result = {
-                        column: 0,
-                        id: frame.frameId,
-                        name: `${context.name}.js`,
-                        // if source is undefined, line must be 0
-                        line: contextFile ? 1 : 0,
-                        source: contextFile ? {
-                            presentationHint: 'deemphasize',
-                            sourceReference: 0,
-                            path: contextFile.path
-                        } : undefined
-                    };
+                    // if contextFile is undefined, line must be 0
+                    result.line =  contextFile ? 1 : 0;
+                    result.name = `${context.name}.js`;
+                    result.source =  contextFile ? {
+                        presentationHint: 'deemphasize',
+                        sourceReference: 0,
+                        path: contextFile.path
+                    } : undefined;
 
                     log.error(`no local position for '${context.name}': ${e}`);
                     if (this.displaySourceNoticeCount < 1) {
