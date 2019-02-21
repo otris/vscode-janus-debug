@@ -1120,17 +1120,17 @@ export class JanusDebugSession extends DebugSession {
                     result.source = {
                         presentationHint: 'emphasize',
                         path: localSource.path,
-                        sourceReference: localSource.sourceReference,
+                        sourceReference: localSource.sourceReference
                     };
                 } catch (e) {
                     const contextFile = this.sourceMap.getSource(context.name);
                     // if contextFile is undefined, line must be 0
                     result.line =  contextFile ? 1 : 0;
-                    result.name = `${context.name}.js`;
+                    result.name = `not available`;
                     result.source =  contextFile ? {
-                        presentationHint: 'deemphasize',
-                        sourceReference: 0,
-                        path: contextFile.path
+                        presentationHint: 'normal',
+                        path: contextFile.path,
+                        sourceReference: contextFile.sourceReference
                     } : undefined;
 
                     log.error(`no local position for '${context.name}': ${e}`);
