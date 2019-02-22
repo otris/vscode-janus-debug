@@ -2,7 +2,11 @@
 
 You'll find a complete list of changes at our project site on [GitHub](https://github.com/otris/vscode-janus-debug).
 
-### 1.0.36 (2019-0108)
+### 1.0.37 (2019-02-22)
+
+- Fix missing arrow in debugger, if local source not available.
+
+### 1.0.36 (2019-01-08)
 
 - Mangage files with same name in debugger. This files must be considered, because on server scriptnames are unique.
 
