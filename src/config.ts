@@ -3,13 +3,10 @@ import { LogConfiguration } from 'node-file-log';
 import { isAbsolute, join } from 'path';
 import * as vscode from 'vscode';
 import { DebugProtocol } from 'vscode-debugprotocol';
+import { LocalSourcesPattern } from './localSource';
 import { getVersion } from './version';
 
 
-export interface LocalSources {
-    include: string;
-    exclude: string;
-}
 
 export interface CommonArguments {
     /** The debugger port to attach to. */
@@ -20,7 +17,7 @@ export interface CommonArguments {
     log: LogConfiguration;
     /** Time in ms until we give up trying to connect. */
     timeout: number;
-    localSources: LocalSources;
+    localSources: LocalSourcesPattern;
     /** Required for IPC communication. */
     processId: number;
     workspace: string;

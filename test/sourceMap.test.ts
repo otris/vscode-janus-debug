@@ -1,7 +1,8 @@
 import * as assert from 'assert';
 import * as os from 'os';
 import * as path from 'path';
-import { LocalSource, ServerSource, SourceMap } from '../src/sourceMap';
+import { LocalSource } from '../src/localSource';
+import { ServerSource, SourceMap } from '../src/sourceMap';
 // tslint:disable-next-line:no-var-requires
 const fs = require('fs-extra');
 
@@ -298,7 +299,7 @@ suite('source map tests', () => {
 
             test("remote line to local position", () => {
                 sourceMap.serverSource = ServerSource.fromSources('test1', sourceLines, true);
-                sourceMap.setLocalUrls(paths);
+                sourceMap.setLocalUrlsSimple(paths);
                 // line 1 cannot be mapped, because the remote file in server file is the debugger-statement
                 // this statement does not exist in local file, because it was only internally added
                 // so: we can never be "on the same line" in this case
@@ -380,7 +381,7 @@ suite('source map tests', () => {
 
         test("remote line to local position", () => {
             sourceMap.serverSource = ServerSource.fromSources('main', sourceLines);
-            sourceMap.setLocalUrls(paths);
+            sourceMap.setLocalUrlsSimple(paths);
             // we cannot map the first line, because it's a comment-line and this
             // line does not exist in local source
             // assert.deepEqual(sourceMap.toLocalPosition(1), { source: 'lib1', line: 1 });
@@ -456,7 +457,7 @@ suite('source map tests', () => {
         test("remote line to local position", () => {
             // debug-statement added
             sourceMap.serverSource = ServerSource.fromSources('main', sourceLines2, true);
-            sourceMap.setLocalUrls(paths);
+            sourceMap.setLocalUrlsSimple(paths);
             // first line cannot be mapped, see comments in other tests
             // assert.deepEqual(sourceMap.toLocalPosition(1), { source: 'lib1', line: 1 });
             assert.deepEqual(sourceMap.toLocalPosition(4), { source: 'lib1', line: 1 });
@@ -534,7 +535,7 @@ suite('source map tests', () => {
             // we can see in the server code, that the debugger added the "debugger;" statement here,
             // so we have to call fromSources with debugAdded = true
             sourceMap.serverSource = ServerSource.fromSources('main', sourceLines3, true);
-            sourceMap.setLocalUrls(paths);
+            sourceMap.setLocalUrlsSimple(paths);
         });
 
         teardown(() => {

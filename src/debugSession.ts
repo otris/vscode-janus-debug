@@ -11,8 +11,9 @@ import { DebugConnection } from './connection';
 import { Context, ContextId } from './context';
 import { FrameMap } from './frameMap';
 import { DebugAdapterIPC } from './ipcClient';
+import { LocalPaths, LocalSource } from './localSource';
 import { Breakpoint, Command, Response, StackFrame, Variable, variableValueToString } from './protocol';
-import { LocalSource, ServerSource, SourceMap } from './sourceMap';
+import { ServerSource, SourceMap } from './sourceMap';
 import { VariablesContainer, VariablesMap } from './variablesMap';
 
 const log = Logger.create('JanusDebugSession');
@@ -98,10 +99,10 @@ export class JanusDebugSession extends DebugSession {
             supportsGotoTargetsRequest: false,
             supportsHitConditionalBreakpoints: false,
             supportsRestartFrame: false,
-            supportsRunInTerminalRequest: false,
             supportsSetVariable: false,
             supportsStepBack: false,
             supportsStepInTargetsRequest: false,
+            supportsDelayedStackTraceLoading: false
         };
         response.body = body;
         this.sendResponse(response);
@@ -168,8 +169,6 @@ export class JanusDebugSession extends DebugSession {
         const principal: string = args.principal || '';
         const password = args.password.length > 0 ? crypt_md5(args.password, 'o3') : '';
         const stopOnEntry = args.stopOnEntry;
-        const include = args.localSources ? args.localSources.include : undefined;
-        const exclude = args.localSources ? args.localSources.exclude : undefined;
 
         let scriptIdentifier: string | undefined;
 
@@ -183,10 +182,10 @@ export class JanusDebugSession extends DebugSession {
 
         const source = new LocalSource(args.script);
 
-        let uris: string[] | undefined;
+        let uris: LocalPaths[] | undefined;
         try {
             await this.ipcClient.connect(args.processId);
-            uris = await this.ipcClient.findURIsInWorkspace(include, exclude);
+            uris = await this.ipcClient.findURIsInWorkspace(args.localSources);
             // log.debug(`found ${JSON.stringify(uris)} URIs in workspace`);
             this.sourceMap.setLocalUrls(uris);
         } catch (e) {
@@ -437,15 +436,12 @@ export class JanusDebugSession extends DebugSession {
         this.terminateOnDisconnect = args.terminateOnDisconnect;
         this.breakOnAttach = args.breakOnAttach;
 
-        const include = args.localSources ? args.localSources.include : undefined;
-        const exclude = args.localSources ? args.localSources.exclude : undefined;
-
         log.debug(`my workspace: ${args.workspace}`);
 
-        let uris: string[] | undefined;
+        let uris: LocalPaths[] | undefined;
         try {
             await this.ipcClient.connect(args.processId);
-            uris = await this.ipcClient.findURIsInWorkspace(include, exclude);
+            uris = await this.ipcClient.findURIsInWorkspace(args.localSources);
             // log.debug(`found ${JSON.stringify(uris)} URIs in workspace`);
             this.sourceMap.setLocalUrls(uris);
         } catch (e) {
@@ -772,10 +768,10 @@ export class JanusDebugSession extends DebugSession {
             if (this.sourceMap.serverSource.hiddenStatement) {
                 // if the server source contains the internal "debugger;" statement, execute single step,
                 // stopped event will be sent after script has been stopped
-                log.debug(`'debugger;' statement -> sending 'next' to remote`);
+                log.debug(`preceding 'debugger;' statement -> sending 'next' to remote`);
                 await this.connection.sendRequest(new Command('next', this.attachedContextId));
             } else {
-                log.info("no 'debugger;' statement -> check attached context");
+                log.info("no preceding 'debugger;' statement -> check if context is paused");
                 if (this.connection.coordinator.getContext(this.attachedContextId).isStopped()) {
                     this.reportStopped('pause', this.attachedContextId);
                 }
@@ -1035,6 +1031,9 @@ export class JanusDebugSession extends DebugSession {
     protected stackTraceRequest(response: DebugProtocol.StackTraceResponse, args: DebugProtocol.StackTraceArguments): void {
         log.info(`stackTraceRequest`);
 
+        // await new Promise(resolve => setTimeout(resolve, 3000));
+
+
         if (this.connection === undefined) {
             throw new Error('No connection');
         }
@@ -1074,7 +1073,6 @@ export class JanusDebugSession extends DebugSession {
                     throw new Error('No connection');
                 }
 
-                // this default result is actually not used
                 const result: DebugProtocol.StackFrame = {
                     column: 0,
                     id: frame.frameId,
@@ -1147,7 +1145,7 @@ export class JanusDebugSession extends DebugSession {
                 // return the created stackframes to vscode
                 response.body = {
                     stackFrames: result,
-                    totalFrames: trace.length,
+                    // totalFrames: trace.length,
                 };
                 // log.debug(`stackTraceRequest succeeded response.body: ${JSON.stringify(response.body)}`);
                 response.success = true;

@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import ipc = require('node-ipc');
 import * as path from 'path';
 import { window, workspace } from 'vscode';
+import { LocalPaths, LocalSourcesPattern } from './localSource';
 
 // We use a UNIX Domain or Windows socket, respectively, for having a
 // communication channel from the debug adapter process back to the extension.
@@ -63,7 +64,7 @@ export class VSCodeExtensionIPC {
             // check for scripts with same name
             // const multiNames = contextList.filter((value, index, self) => (self.indexOf(value) !== index));
 
-            const picked: string | undefined = await window.showQuickPick(contextList);
+            const picked: string | undefined = await window.showQuickPick(contextList, {ignoreFocusOut: true});
 
             // send answer in any case because server is waiting
             ipc.server.emit(socket, 'contextChosen', picked);
@@ -77,51 +78,62 @@ export class VSCodeExtensionIPC {
          * workspace, the user can choose the correct script, or they can choose to
          * simply ignore all scripts with  names.
          */
-        ipc.server.on('findURIsInWorkspace', async (globPaterns: {include?: string, exclude?: string}, socket) => {
+        ipc.server.on('findURIsInWorkspace', async (globPaterns: LocalSourcesPattern, socket) => {
             console.log('findURIsInWorkspace');
 
             const include = globPaterns.include ? globPaterns.include : '**/*.js';
             const exclude = globPaterns.exclude ? globPaterns.exclude : '**/node_modules/**';
             const uris = await workspace.findFiles(include, exclude);
 
-            // if multiple scripts with same name, user has to select
-            const uriPaths: string[] = [];
+            // if multiple scripts with same name, collect all paths
+            const uriPaths: LocalPaths[] = [];
             const uriNames: string[] = [];
-            const ignored: string[] = [];
+
             let ignoreDuplicates = false;
             // tslint:disable-next-line:prefer-for-of
             for (let i = 0; i < uris.length; i++) {
                 const currentPath = uris[i].fsPath;
                 const currentName = path.basename(currentPath);
-                const duplIndex = uriNames.indexOf(currentName);
-                if (duplIndex >= 0) {
+                const duplicate = uriPaths.find((fspaths) => {
+                    if (fspaths.name === currentName) {
+                        return true;
+                    }
+                    return false;
+                });
+                if (duplicate) {
                     // duplicate script found
                     let selected: string | undefined = "";
-                    if (!ignoreDuplicates) {
-                        const message = `Multiple scripts with name '${currentName}', please select one`;
-                        const ingoreMsg = "Ignore all scripts with same name";
-                        const prevPath = uriPaths[duplIndex];
-                        selected = await window.showQuickPick([prevPath, currentPath, ingoreMsg], {ignoreFocusOut: true, placeHolder: message});
-                        if (selected === ingoreMsg || selected === undefined) {
-                            ignoreDuplicates = true;
-                            selected = "";
+                    if (ignoreDuplicates) {
+                        if (duplicate.path) {
+                            duplicate.paths.push(duplicate.path);
+                            duplicate.path = undefined;
+                        }
+                        duplicate.paths.push(currentPath);
+                    } else {
+                        if (duplicate.path) {
+                            const msgSameName = `Multiple scripts with name '${currentName}', please select one`;
+                            const msgIgnoreSameNames = "Ignore all scripts with same name";
+                            selected = await window.showQuickPick([duplicate.path, currentPath, msgIgnoreSameNames], {ignoreFocusOut: true, placeHolder: msgSameName});
+                            if (selected === msgIgnoreSameNames || selected === undefined) {
+                                ignoreDuplicates = true;
+                                duplicate.paths.push(duplicate.path);
+                                duplicate.path = undefined;
+                                duplicate.paths.push(currentPath);
+                            } else if (selected === duplicate.path) {
+                                // duplicate.path = prevPath; // already set
+                                duplicate.paths.push(currentPath);
+                            } else if (selected === currentPath) {
+                                duplicate.path = currentPath;
+                                duplicate.paths.push(duplicate.path);
+                            }
+                        } else {
+                            duplicate.path = currentPath;
                         }
                     }
-
-                    // check again! ignoreDuplicates could have been changed
-                    if (ignoreDuplicates) {
-                        ignored.push(currentName);
-                    }
-                    uriPaths[duplIndex] = selected;
-                    // uriNames[prevIndex] already set
                 } else {
-                    uriPaths.push(currentPath);
+                    uriPaths.push({name: currentName, path: currentPath, paths: []});
                     uriNames.push(currentName);
                 }
-            }
-
-            if (ignored.length > 0) {
-                window.showInformationMessage(`The following scripts will be ignored and cannot be debugged\n ${JSON.stringify(ignored)}`);
             }
 
             ipc.server.emit(socket, 'urisFound', uriPaths);

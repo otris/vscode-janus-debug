@@ -2,8 +2,6 @@ import * as assert from 'assert';
 import { EventEmitter } from 'events';
 import { SocketLike } from 'node-sds';
 import { DebugClient } from 'vscode-debugadapter-testsupport';
-import * as debug from '../src/debugSession';
-import { LocalSource, SourceMap } from '../src/sourceMap';
 
 suite('debug Session', () => {
 

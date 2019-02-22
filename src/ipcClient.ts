@@ -1,6 +1,7 @@
 import ipc = require('node-ipc');
 import { Logger } from 'node-file-log';
 import { timeout } from 'promised-timeout';
+import { LocalPaths, LocalSourcesPattern } from './localSource';
 
 ipc.config.appspace = 'vscode-janus-debug.';
 ipc.config.id = 'debug_adapter';
@@ -50,11 +51,11 @@ export class DebugAdapterIPC {
     }
 
     public async showContextQuickPick(contextList: string[]): Promise<string> {
-        return this.ipcRequest<string>('showContextQuickPick', 'contextChosen', this.contextChosenDefault, (2 * 60 * 1000), contextList);
+        return await this.ipcRequest<string>('showContextQuickPick', 'contextChosen', this.contextChosenDefault, (2 * 60 * 1000), contextList);
     }
 
-    public async findURIsInWorkspace(include?: string, exclude?: string): Promise<string[]> {
-        return this.ipcRequest<string[]>('findURIsInWorkspace', 'urisFound', this.urisFoundDefault, (5 * 60 * 1000), {include, exclude});
+    public async findURIsInWorkspace(sourcePattern: LocalSourcesPattern): Promise<LocalPaths[]> {
+        return await this.ipcRequest<LocalPaths[]>('findURIsInWorkspace', 'urisFound', this.urisFoundDefault, (5 * 60 * 1000), sourcePattern);
     }
 
     public async displaySourceNotice(message: string): Promise<void> {

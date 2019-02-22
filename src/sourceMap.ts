@@ -1,8 +1,8 @@
 import * as assert from 'assert';
 import * as crypto from 'crypto';
-import * as fs from 'fs';
 import { Logger } from 'node-file-log';
-import { parse, ParsedPath, sep } from 'path';
+import { parse } from 'path';
+import { LocalPaths, LocalSource } from './localSource';
 
 // tslint:disable-next-line:no-var-requires
 const utf8 = require('utf8');
@@ -40,65 +40,6 @@ function randU32(): Promise<number> {
     });
 }
 
-/**
- * A local source file.
- *
- * Does not necessarily need to exist on disk.
- */
-export class LocalSource {
-    /** The name of this source. Usually a file name. */
-    public readonly name: string;
-    /** The local absolute path to this source. */
-    public readonly path: string;
-    /** An array of possible alias names. */
-    public aliasNames: string[];
-    /** An artificial key that iff > 0 is used by VS Code to retrieve the source through the SourceRequest. */
-    public sourceReference: number;
-
-    constructor(path: string) {
-        const parsedPath = parse(path);
-        this.path = path;
-        this.name = parsedPath.base;
-        this.aliasNames = [
-            parsedPath.name,
-            parsedPath.base
-        ];
-        this.sourceReference = 0;
-    }
-
-    public loadFromDisk(): string {
-        return fs.readFileSync(this.path, 'utf8');
-    }
-
-    public getSourceLine(lineNo: number): string {
-        const fileContents = this.loadFromDisk();
-        const lines = fileContents.split("\n");
-        const ret = lines[lineNo - 1];
-        if (ret === undefined) {
-            throw new Error(`Line ${lineNo} does not exist in ${this.name}`);
-        }
-        return ret.trim();
-    }
-
-    public leadingDebuggerStmts(): number {
-        let counter = 0;
-        const fileContents = this.loadFromDisk();
-        const lines = fileContents.split("\n");
-        // tslint:disable-next-line:prefer-for-of
-        for (let i = 0; i < lines.length; i++) {
-            if (lines[i].trim().startsWith("debugger;")) {
-                counter++;
-            } else {
-                break;
-            }
-        }
-        return counter;
-    }
-
-    public sourceName(): string {
-        return parse(this.path).name;
-    }
-}
 
 type JSContextName = string;
 type RemoteUrl = string;
@@ -244,14 +185,18 @@ export class SourceMap {
             this.map.findValueIf(value => value.sourceReference === sourceReference) : undefined;
     }
 
-    public setLocalUrls(localPaths: string[]): void {
-        localPaths.forEach(path => {
+    public setLocalUrls(localPaths: LocalPaths[]): void {
+        localPaths.forEach(pathsElem => {
+            if (!pathsElem.path) {
             // if path is an empty string, there are scripts with same name
-            // TODO: instead of a string array, an array of {name, path}
-            // should be used where name must always be set
-            if (!path) {
-                return;
+            return;
             }
+            const localSource = new LocalSource(pathsElem.path, pathsElem.paths);
+            this.addMapping(localSource, localSource.aliasNames[0]);
+        });
+    }
+    public setLocalUrlsSimple(localPaths: string[]): void {
+        localPaths.forEach(path => {
             const localSource = new LocalSource(path);
             this.addMapping(localSource, localSource.aliasNames[0]);
         });
@@ -293,8 +238,9 @@ class Chunk {
      */
     public originalStart: number;
 
-    constructor(public name: string, public pos: Pos, public localStart: number, public debugAdded: boolean) {
-        if (pos.start === 1) {
+    constructor(public name: string, public pos: Pos, public localStart: number, public debugAdded: boolean, firstChunk: boolean) {
+        serverSourceLog.error(`chunk.pos.start ${pos.start} | firstChunk ${pos.start === 1} | debugAdded ${debugAdded}`);
+        if (firstChunk) {
             // first chunk
             if (debugAdded) {
                 // first chunk and debugger-statement added
@@ -365,7 +311,7 @@ export class ServerSource {
                     // add first chunk, don't check length, add it anyway
                     // because toLocalPosition() is easier to handle then,
                     // because first chunk looks different (no "//#..." at start)
-                    chunks.push(new Chunk(contextName, new Pos(1, lineNo - 1), 1, hiddenStatement));
+                    chunks.push(new Chunk(contextName, new Pos(1, lineNo - 1), 1, hiddenStatement, true));
                     // serverSourceLog.debug(`(CHUNK[0]) name ${contextName} remote pos ${1} len ${sourceLines.length} local pos ${1}`);
                 }
 
@@ -398,7 +344,7 @@ export class ServerSource {
 
                 const remotePos = lineNo;
                 // pos.len must be set in next iteration
-                current = new Chunk(name, new Pos(remotePos, 0), localPos, hiddenStatement);
+                current = new Chunk(name, new Pos(remotePos, 0), localPos, hiddenStatement, false);
             }
         });
         if (current) {
@@ -413,7 +359,7 @@ export class ServerSource {
         // if no "//#..."-comments in source, add only one first chunk
         // this chunk looks different, because there's no "//#..."-line at start
         if (chunks.length === 0) {
-            chunks.push(new Chunk(contextName, new Pos(1, sourceLines.length), 1, hiddenStatement));
+            chunks.push(new Chunk(contextName, new Pos(1, sourceLines.length), 1, hiddenStatement, true));
             // serverSourceLog.debug(`(CHUNK[0]) name ${contextName} remote pos ${1} len ${sourceLines.length} local pos ${1}`);
         }
 
@@ -494,7 +440,7 @@ export class ServerSource {
         // todo remove
         const localCodeStart2 = chunk.pos.start + ((!firstChunk || this.hiddenStatement) ? 1 : 0);
         if (localCodeStart !== localCodeStart2) {
-            serverSourceLog.error("localCodeStart !== localCodeStart2");
+            serverSourceLog.error(`localCodeStart (${localCodeStart}) !== localCodeStart2 (${localCodeStart2})`);
         }
 
         // the offset of the line inside the chunk
