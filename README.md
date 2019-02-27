@@ -1,5 +1,10 @@
 # vscode-janus-debug
 
+**Project will be moved to [GitLab](https://gitlab.otris.de/tools/vscode-janus-debug) anytime soon**
+
+<br>
+<br>
+
 [![Build Status](https://travis-ci.org/otris/vscode-janus-debug.svg?branch=master)](https://travis-ci.org/otris/vscode-janus-debug)
 
 Visual Studio Code plugin for developing and debugging JavaScript on DOCUMENTS 5.0.

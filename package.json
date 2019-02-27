@@ -11,10 +11,10 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/otris/vscode-janus-debug"
+    "url": "https://gitlab.otris.de/tools/vscode-janus-debug"
   },
   "bugs": {
-    "url": "https://github.com/otris/vscode-janus-debug/issues"
+    "url": "https://gitlab.otris.de/tools/vscode-janus-debug/issues"
   },
   "engines": {
     "vscode": "^1.17.0"

@@ -1,6 +1,6 @@
 ## Changelog
 
-You'll find a complete list of changes at our project site on [GitHub](https://github.com/otris/vscode-janus-debug).
+You'll find a complete list of changes at our project site on [GitHub](https://gitlab.otris.de/tools/vscode-janus-debug).
 
 ### 1.0.37 (2019-02-22)
 
