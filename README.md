@@ -1,7 +1,9 @@
 # vscode-janus-debug
 
-**Project will be moved to [GitLab](https://gitlab.otris.de/tools/vscode-janus-debug) anytime soon**
+**The project was moved to [GitLab](https://gitlab.otris.de/tools/vscode-janus-debug). The project files will be removed in the near future.**
 
+<br>
+<br>
 <br>
 <br>
 
